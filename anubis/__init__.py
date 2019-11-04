@@ -1,12 +1,13 @@
-"Web app template based on Flask, CouchDB. With user account handling."
+"Submissions review handling system."
 
 import re
 
-__version__ = '1.0.0'
+__version__ = '0.1.0'
 
 class Constants:
-    VERSION    = __version__
-    SOURCE_URL = 'https://github.com/pekrau/webapp-flask-couchdb-template'
+    VERSION     = __version__
+    SOURCE_NAME = 'Anubis'
+    SOURCE_URL  = 'https://github.com/pekrau/Anubis'
 
     BOOTSTRAP_VERSION  = '4.3.1'
     JQUERY_VERSION     = '3.3.1'

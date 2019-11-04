@@ -1,0 +1,8 @@
+INFO       2019-11-04 21:59:22,217 Updated design document 'users'.
+INFO       2019-11-04 21:59:22,297 Updated design document 'logs'.
+DEBUG      2019-11-04 21:59:22,319 127.0.0.1 None GET / 200
+DEBUG      2019-11-04 21:59:42,848 127.0.0.1 None GET /about/software 200
+DEBUG      2019-11-04 22:00:33,969 127.0.0.1 None GET /about/software 200
+DEBUG      2019-11-04 22:00:34,021 127.0.0.1 None GET /static/logo32.png 200
+DEBUG      2019-11-04 22:01:34,798 127.0.0.1 None GET /about/software 200
+DEBUG      2019-11-04 22:01:34,844 127.0.0.1 None GET /static/logo32.png 200

@@ -4,7 +4,7 @@ import http.client
 
 import flask
 
-import webapp.user
+import anubis.user
 from .. import utils
 
 
@@ -12,15 +12,15 @@ blueprint = flask.Blueprint('api_user', __name__)
 
 @blueprint.route('/')
 def all():
-    users = [get_user_basic(u) for u in webapp.user.get_users(role=None)]
+    users = [get_user_basic(u) for u in anubis.user.get_users(role=None)]
     return utils.jsonify(utils.get_json(users=users), schema='/users')
 
 @blueprint.route('/<name:username>')
 def profile(username):
-    user = webapp.user.get_user(username=username)
+    user = anubis.user.get_user(username=username)
     if not user:
         flask.abort(http.client.NOT_FOUND)
-    if not webapp.user.is_admin_or_self(user):
+    if not anubis.user.is_admin_or_self(user):
         flask.abort(http.client.FORBIDDEN)
     user.pop('password', None)
     user.pop('apikey', None)
@@ -29,10 +29,10 @@ def profile(username):
 
 @blueprint.route('/<name:username>/logs')
 def logs(username):
-    user = webapp.user.get_user(username=username)
+    user = anubis.user.get_user(username=username)
     if not user:
         flask.abort(http.client.NOT_FOUND)
-    if not webapp.user.is_admin_or_self(user):
+    if not anubis.user.is_admin_or_self(user):
         flask.abort(http.client.FORBIDDEN)
     return utils.jsonify(
         utils.get_json(user=get_user_basic(user),

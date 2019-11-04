@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block head_title %}webapp{% endblock %}</title>
+    <title>{% block head_title %}{{ config['SITE_NAME'] }}{% endblock %}</title>
     <link rel="icon" href="{{ url_for('static', filename='logo32.png') }}">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" 
 	  integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
@@ -21,9 +21,9 @@
          style="background-color: #e8e8e8;">
       <a class="navbar-brand" href="{{ url_for('home') }}">
         <img src="{{ url_for('static', filename='logo32.png') }}"
-             width="32" height="32" title="webapp" alt="webapp"
-             class="d-inline-block align-top">
-        webapp</a>
+             width="32" height="32" class="d-inline-block align-top"
+	     title="{{ config['SITE_NAME'] }}" alt="{{ config['SITE_NAME'] }}">
+        {{ config['SITE_NAME'] }}</a>
       <button type="button" class="navbar-toggler navbar-toggler-right"
               data-toggle="collapse" data-target="#top_navbar"
               aria-controls="top_navbar" aria-expanded="false"
@@ -79,7 +79,7 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-md-9 offset-md-1">
-          <h2 class="mt-2 mb-3">{% block body_title %}webapp{% endblock %}</h2>
+          <h2 class="mt-2 mb-3">{% block body_title %}{{ config['SITE_NAME'] }}{% endblock %}</h2>
           {% for msg in get_flashed_messages(category_filter=['error']) %}
           <div class="alert alert-danger" role="alert">
             <strong>Error:</strong> {{ msg }}
@@ -124,7 +124,8 @@
       <hr>
       <div class="row">
         <div class="col-md-4 offset-md-8 text-right">
-          <a href="{{ constants.SOURCE_URL}}">Version {{ constants.VERSION}}</a>
+          <a href="{{ constants.SOURCE_URL }}">{{ constants.SOURCE_NAME }}</a>
+	  version {{ constants.VERSION }}
         </div>
       </div>
       {% endblock %} {# block footer #}
