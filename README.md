@@ -6,11 +6,14 @@ Submission review handling system.
 
 - User
   - Name, email, affiliation, gender, birth date, title.
-  - Plain user = applicant. Login required.
+  - Login required.
+  - Role admin
+  - Role user
+    - Capacity within a call: submitter or reviewer.
+  - Capacity: submitter
     - Anonymous or not vs reviewers.
-  - Reviewer.
+  - Capacity: reviewer
     - Anonymous or not vs other reviewers.
-  - Admin.
   
 - Call
   - = Call for submissions.
