@@ -6,3 +6,15 @@ DEBUG      2019-11-04 22:00:33,969 127.0.0.1 None GET /about/software 200
 DEBUG      2019-11-04 22:00:34,021 127.0.0.1 None GET /static/logo32.png 200
 DEBUG      2019-11-04 22:01:34,798 127.0.0.1 None GET /about/software 200
 DEBUG      2019-11-04 22:01:34,844 127.0.0.1 None GET /static/logo32.png 200
+DEBUG      2019-11-04 22:03:49,442 127.0.0.1 None GET / 200
+DEBUG      2019-11-04 22:03:49,473 127.0.0.1 None GET /static/jquery.localtime-0.9.1.min.js 200
+DEBUG      2019-11-04 22:03:49,541 127.0.0.1 None GET /static/logo32.png 200
+DEBUG      2019-11-04 22:03:51,695 127.0.0.1 None GET /user/login 200
+INFO       2019-11-04 22:03:53,515 logged in pekrau
+DEBUG      2019-11-04 22:03:53,515 127.0.0.1 None POST /user/login 302
+DEBUG      2019-11-04 22:03:53,523 127.0.0.1 pekrau GET / 200
+DEBUG      2019-11-04 22:03:58,265 127.0.0.1 pekrau GET /user/all 200
+DEBUG      2019-11-04 22:08:10,044 127.0.0.1 pekrau GET /user/profile/pekrau 200
+DEBUG      2019-11-04 22:22:03,559 127.0.0.1 pekrau GET /user/profile/pekrau 200
+DEBUG      2019-11-04 22:22:03,593 127.0.0.1 pekrau GET /static/feather-of-maat.png 200
+DEBUG      2019-11-04 22:22:03,678 127.0.0.1 pekrau GET /static/feather-of-maat.png 200

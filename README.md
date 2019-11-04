@@ -68,3 +68,5 @@ Bootstrap, jQuery, DataTables.
 - Apply Surveymonkey
 - OpenWater
 - AwardForce
+
+Feather of Ma'at icon made by [freepik from flaticon.com](https://www.flaticon.com/authors/freepik).
