@@ -57,6 +57,8 @@ def register():
             with UserSaver() as saver:
                 saver.set_username(flask.request.form.get('username'))
                 saver.set_email(flask.request.form.get('email'))
+                saver['givenname'] = flask.request.form.get('givenname')
+                saver['familyname'] = flask.request.form.get('familyname')
                 saver.set_role(constants.USER)
                 saver.set_password()
             user = saver.doc
@@ -173,9 +175,12 @@ def edit(username):
 
     elif utils.http_POST():
         with UserSaver(user) as saver:
-            email = flask.request.form.get('email')
-            if email != user['email']:
-                saver.set_email(enail)
+            if flask.g.is_admin:
+                email = flask.request.form.get('email')
+                if email != user['email']:
+                    saver.set_email(email)
+            saver['givenname'] = flask.request.form.get('givenname')
+            saver['familyname'] = flask.request.form.get('familyname')
             if is_admin_and_not_self(user):
                 saver.set_role(flask.request.form.get('role'))
             if flask.request.form.get('apikey'):

@@ -11,8 +11,17 @@
   <div class="form-group row">
     <label for="email" class="col-md-2 col-form-label text-right">Email</label>
     <div class="col-md-6">
+      {% if g.is_admin %}
       <input type="email" class="form-control"
              id="email" name="email" value="{{ user['email'] }}">
+      {% else %}
+      <input type="email" class="form-control"
+             aria-describedby="emailHelp"
+	     readonly placeholder="{{ user['email'] }}">
+      <small id="emailHelp" class="form-text text-muted">
+	Only the admin of the site may change the email address of a user.
+      </small>
+      {% endif %}
     </div>
   </div>
   {% if change_role %}
@@ -31,15 +40,43 @@
   </div>
   {% endif %}
   <div class="form-group row">
+    <label for="givenname" class="col-md-2 col-form-label text-right">
+      Given name</label>
+    <div class="col-md-6">
+      <input type="text" class="form-control" id="givenname" name="givenname"
+             aria-describedby="givennameHelp"
+	     value="{{ user.get('givenname') or '' }}">
+      <small id="givennameHelp" class="form-text text-muted">
+	The user's given name, including middle-name initials.
+      </small>
+    </div>
+  </div>
+  <div class="form-group row">
+    <label for="familyname" class="col-md-2 col-form-label text-right">
+      Family name</label>
+    <div class="col-md-6">
+      <input type="text" class="form-control" id="familyname" name="familyname"
+             aria-describedby="familynameHelp"
+	     value="{{ user.get('familyname') or '' }}">
+      <small id="familynameHelp" class="form-text text-muted">
+	The user's family name.
+      </small>
+    </div>
+  </div>
+  <div class="form-group row">
     <label for="apikey" class="col-md-2 text-right">API key</label>
     <div class="col-md-6">
       <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="true"
-               name="apikey" id="apikey">
+        <input class="form-check-input" type="checkbox"
+               name="apikey" id="apikey" value="true"
+	       aria-describedby="apikeyHelp">
         <label class="form-check-label" for="apikey">
           Generate a new API key.
         </label>
       </div>
+      <small id="apikeyHelp" class="form-text text-muted">
+	The previous API key will be invalidated.
+      </small>
     </div>
   </div>
   <div class="form-group row">

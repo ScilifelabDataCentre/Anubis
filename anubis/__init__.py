@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 class Constants:
     VERSION     = __version__
@@ -31,6 +31,10 @@ class Constants:
     ENABLED  = 'enabled'
     DISABLED = 'disabled'
     USER_STATUSES = [PENDING, ENABLED, DISABLED]
+
+    # User capacities (per call)
+    SUBMITTER = 'submitter'
+    REVIEWER  = 'reviewer'
 
     # Content types
     HTML_MIMETYPE = 'text/html'

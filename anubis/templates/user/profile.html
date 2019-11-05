@@ -21,6 +21,14 @@
     <td>{{ user['status'] }}</td>
   </tr>
   <tr>
+    <th class="text-right">Given name</th>
+    <td>{{ user.get('givenname') or '-' }}</td>
+  </tr>
+  <tr>
+    <th class="text-right">Family name</th>
+    <td>{{ user.get('familyname') or '-' }}</td>
+  </tr>
+  <tr>
     <th class="text-right">API key</th>
     <td>{{ user.get('apikey') or '-' }}</td>
   </tr>

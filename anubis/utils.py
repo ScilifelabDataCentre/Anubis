@@ -258,6 +258,12 @@ class BaseSaver:
         flask.g.db.put(self.doc)
         self.add_log()
 
+    def __getitem__(self, key):
+        return self.doc[key]
+
+    def __setitem__(self, key, value):
+        self.doc[key] = value
+
     def initialize(self):
         "Initialize the new document."
         pass
