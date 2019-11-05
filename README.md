@@ -8,11 +8,13 @@ Submission review handling system.
   - Name, email, affiliation, gender, birth date, title.
   - Login required.
   - Role admin
-  - Role user (submitter, reviewer)
-  - Default: Anonymous vs other users (except admin)
-  - Capacity "reviewer" for a specific call
-  - Reviewers known to each other within call: settable
-  - Users known to reviewers within call: settable
+  - Role user
+  - Users are anonymous vs other users by default (except admin)
+  - Capacity; role within a specific call
+    - "submitter" if has submitted within a specific call
+    - "reviewer" for a specific call; designated by admin
+  - Reviewers visible to each other within call: settable
+  - Users visible to reviewers within call: settable
   
 - Call
   - = Call for submissions.
