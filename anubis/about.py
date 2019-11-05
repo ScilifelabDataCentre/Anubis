@@ -34,6 +34,8 @@ def get_software():
         ('Bootstrap', constants.BOOTSTRAP_VERSION, 'https://getbootstrap.com/'),
         ('jQuery', constants.JQUERY_VERSION, 'https://jquery.com/'),
         ('DataTables', constants.DATATABLES_VERSION, 'https://datatables.net/'),
+        ("Feather of Ma'at icon", 'freepik',
+         'https://www.flaticon.com/authors/freepik'),
     ]
 
 @blueprint.route('/settings')
