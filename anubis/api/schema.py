@@ -2,6 +2,9 @@
 
 import flask
 
+from .. import constants
+
+
 _USERNAME = {'type': 'string', 'pattern': '^[a-zA-Z][a-zA-Z0-9_-]*$'}
 _URI      = {'type': 'string', 'format': 'uri'}
 _DATETIME = {'type': 'string', 'format': 'date-time'}

@@ -34,6 +34,12 @@
     <td>{{ user.get('affiliation') or '-' }}</td>
   </tr>
   {% endif %}
+  {% if config['USER_POSTAL_ADDRESS'] %}
+  <tr>
+    <th class="text-right">Postal address</th>
+    <td><pre>{{ user.get('postaladdress') or '-' }}</pre></td>
+  </tr>
+  {% endif %}
   <tr>
     <th class="text-right">API key</th>
     <td>{{ user.get('apikey') or '-' }}</td>

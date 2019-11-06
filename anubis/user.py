@@ -61,6 +61,8 @@ def register():
                 saver['familyname'] = flask.request.form.get('familyname') or None
                 if flask.current_app.config['USER_AFFILIATION']:
                     saver['affiliation'] = flask.request.form.get('affiliation') or None
+                if flask.current_app.config['USER_POSTAL_ADDRESS']:
+                    saver['postaladdress'] = flask.request.form.get('postaladdress') or None
                 saver.set_role(constants.USER)
                 saver.set_password()
             user = saver.doc
@@ -185,6 +187,8 @@ def edit(username):
             saver['familyname'] = flask.request.form.get('familyname') or None
             if flask.current_app.config['USER_AFFILIATION']:
                 saver['affiliation'] = flask.request.form.get('affiliation') or None
+            if flask.current_app.config['USER_POSTAL_ADDRESS']:
+                saver['postaladdress'] = flask.request.form.get('postaladdress') or None
             if is_admin_and_not_self(user):
                 saver.set_role(flask.request.form.get('role'))
             if flask.request.form.get('apikey'):

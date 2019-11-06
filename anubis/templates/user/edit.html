@@ -78,6 +78,21 @@
     </div>
   </div>
   {% endif %}
+  {% if config['USER_POSTAL_ADDRESS'] %}
+  <div class="form-group row">
+    <label for="postaladdress" class="col-md-2 col-form-label text-right">
+      Postal address</label>
+    <div class="col-md-6">
+      <textarea class="form-control" 
+                id="postaladdress" name="postaladdress"
+                aria-describedby="postaladdressHelp"
+                >{{ user.get('postaladdress') or '' }}</textarea>
+      <small id="postaladdressHelp" class="form-text text-muted">
+        Full postal address, including zip-code and country.
+      </small>
+    </div>
+  </div>
+  {% endif %}
   <div class="form-group row">
     <label for="apikey" class="col-md-2 text-right">API key</label>
     <div class="col-md-6">
