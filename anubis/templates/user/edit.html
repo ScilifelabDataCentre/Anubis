@@ -63,6 +63,23 @@
       </small>
     </div>
   </div>
+  {% if config['USER_GENDERS'] %}
+  <div class="form-group row">
+    <label for="gender" class="col-md-2 col-form-label text-right">
+      Gender</label>
+    <div class="col-md form-row">
+      {% for pos, gender in enumerate(config['USER_GENDERS']) %}
+      <div class="form-check form-check-inline pl-2">
+	<input class="form-check-input" type="radio"
+	       name="gender" id="gender{{ pos }}" value="{{ gender }}"
+	       {{ user.get('gender') == gender and 'checked' or '' }}>
+	<label class="form-check-label" for="gender{{ pos }}">
+	  {{ gender.capitalize() }}</label>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
   {% if config['USER_TITLE'] %}
   <div class="form-group row">
     <label for="title" class="col-md-2 col-form-label text-right">

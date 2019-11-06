@@ -59,6 +59,8 @@ def register():
                 saver.set_email(flask.request.form.get('email'))
                 saver['givenname'] = flask.request.form.get('givenname') or None
                 saver['familyname'] = flask.request.form.get('familyname') or None
+                if flask.current_app.config['USER_GENDERS']:
+                    saver.set_gender(flask.request.form.get('gender'))
                 if flask.current_app.config['USER_TITLE']:
                     saver['title'] = flask.request.form.get('title') or None
                 if flask.current_app.config['USER_AFFILIATION']:
@@ -187,6 +189,8 @@ def edit(username):
                     saver.set_email(email)
             saver['givenname'] = flask.request.form.get('givenname') or None
             saver['familyname'] = flask.request.form.get('familyname') or None
+            if flask.current_app.config['USER_GENDERS']:
+                saver.set_gender(flask.request.form.get('gender'))
             if flask.current_app.config['USER_TITLE']:
                 saver['title'] = flask.request.form.get('title') or None
             if flask.current_app.config['USER_AFFILIATION']:
@@ -332,6 +336,10 @@ class UserSaver(utils.BaseSaver):
         "Set a new API key."
         self.doc['apikey'] = utils.get_iuid()
 
+    def set_gender(self, gender):
+        if gender not in flask.current_app.config['USER_GENDERS']:
+            gender = None
+        self.doc['gender'] = gender
 
 # Utility functions
 

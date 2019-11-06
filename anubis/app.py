@@ -33,7 +33,8 @@ app.add_template_filter(utils.thousands)
 def setup_template_context():
     "Add useful stuff to the global context of Jinja2 templates."
     return dict(constants=constants,
-                csrf_token=utils.csrf_token)
+                csrf_token=utils.csrf_token,
+                enumerate=enumerate)
 
 @app.before_first_request
 def init_database():
