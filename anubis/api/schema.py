@@ -7,6 +7,7 @@ _URI      = {'type': 'string', 'format': 'uri'}
 _DATETIME = {'type': 'string', 'format': 'date-time'}
 
 ROOT = {
+    '$schema': constants.JSON_SCHEMA_URL,
     'type': 'object',
     'properties': {
         '$id': _URI,
@@ -19,6 +20,7 @@ ROOT = {
 }
 
 LOGS = {
+    '$schema': constants.JSON_SCHEMA_URL,
     'type': 'object',
     'properties': {
         '$id': _URI,
@@ -64,6 +66,7 @@ LOGS = {
 }
 
 ABOUT_SOFTWARE = {
+    '$schema': constants.JSON_SCHEMA_URL,
     'type': 'object',
     'properties': {
         '$id': _URI,
@@ -89,6 +92,7 @@ ABOUT_SOFTWARE = {
 }
 
 USER = {
+    '$schema': constants.JSON_SCHEMA_URL,
     'type': 'object',
     'properties': {
         '$id': _URI,
@@ -127,6 +131,7 @@ USER = {
 }
 
 USERS = {
+    '$schema': constants.JSON_SCHEMA_URL,
     'type': 'object',
     'properties': {
         '$id': _URI,

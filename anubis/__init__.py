@@ -40,6 +40,9 @@ class Constants:
     HTML_MIMETYPE = 'text/html'
     JSON_MIMETYPE = 'application/json'
 
+    # Misc
+    JSON_SCHEMA_URL = 'http://json-schema.org/draft-07/schema#'
+
     def __setattr__(self, key, value):
         raise ValueError('cannot set constant')
 
