@@ -116,6 +116,20 @@
     </div>
   </div>
   {% endif %}
+  {% if config['USER_PHONE'] %}
+  <div class="form-group row">
+    <label for="phone" class="col-md-2 col-form-label text-right">
+      Phone</label>
+    <div class="col-md-4">
+      <input type="tel" class="form-control" 
+             id="phone" name="phone"
+             aria-describedby="phoneHelp">
+      <small id="phoneHelp" class="form-text text-muted">
+	Phone number.
+      </small>
+    </div>
+  </div>
+  {% endif %}
   <div class="form-group row">
     <div class="col-md-3 offset-md-2">
       <button type="submit" class="btn btn-block btn-primary">Register</button>

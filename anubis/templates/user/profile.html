@@ -52,6 +52,12 @@
     <td><pre>{{ user.get('postaladdress') or '-' }}</pre></td>
   </tr>
   {% endif %}
+  {% if config['USER_PHONE'] %}
+  <tr>
+    <th class="text-right">Phone</th>
+    <td>{{ user.get('phone') or '-' }}</td>
+  </tr>
+  {% endif %}
   <tr>
     <th class="text-right">API key</th>
     <td>{{ user.get('apikey') or '-' }}</td>
