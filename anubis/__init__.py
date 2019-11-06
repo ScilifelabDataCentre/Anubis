@@ -18,8 +18,12 @@ class Constants:
     EMAIL_RX = re.compile(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
 
     # CouchDB document types
-    DOCTYPE_USER = 'user'
-    DOCTYPE_LOG  = 'log'
+    DOCTYPE_USER       = 'user'
+    DOCTYPE_CALL       = 'call'
+    DOCTYPE_SUBMISSION = 'submission'
+    DOCTYPE_EVALUATION = 'evaluation'
+    DOCTYPE_DECISION   = 'decision'
+    DOCTYPE_LOG        = 'log'
 
     # User roles
     ADMIN = 'admin'
