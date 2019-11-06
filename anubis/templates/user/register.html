@@ -58,6 +58,20 @@
       </small>
     </div>
   </div>
+  {% if config['USER_TITLE'] %}
+  <div class="form-group row">
+    <label for="title" class="col-md-2 col-form-label text-right">
+      Title</label>
+    <div class="col-md-6">
+      <input type="text" class="form-control" 
+             id="title" name="title"
+             aria-describedby="titleHelp">
+      <small id="titleHelp" class="form-text text-muted">
+	Educational status or occupational title.
+      </small>
+    </div>
+  </div>
+  {% endif %}
   {% if config['USER_AFFILIATION'] %}
   <div class="form-group row">
     <label for="affiliation" class="col-md-2 col-form-label text-right">

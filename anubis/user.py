@@ -59,6 +59,8 @@ def register():
                 saver.set_email(flask.request.form.get('email'))
                 saver['givenname'] = flask.request.form.get('givenname') or None
                 saver['familyname'] = flask.request.form.get('familyname') or None
+                if flask.current_app.config['USER_TITLE']:
+                    saver['title'] = flask.request.form.get('title') or None
                 if flask.current_app.config['USER_AFFILIATION']:
                     saver['affiliation'] = flask.request.form.get('affiliation') or None
                 if flask.current_app.config['USER_POSTAL_ADDRESS']:
@@ -185,6 +187,8 @@ def edit(username):
                     saver.set_email(email)
             saver['givenname'] = flask.request.form.get('givenname') or None
             saver['familyname'] = flask.request.form.get('familyname') or None
+            if flask.current_app.config['USER_TITLE']:
+                saver['title'] = flask.request.form.get('title') or None
             if flask.current_app.config['USER_AFFILIATION']:
                 saver['affiliation'] = flask.request.form.get('affiliation') or None
             if flask.current_app.config['USER_POSTAL_ADDRESS']:

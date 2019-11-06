@@ -34,8 +34,12 @@ DEFAULT_SETTINGS = dict(
     MAIL_USERNAME = None,
     MAIL_PASSWORD = None,
     MAIL_DEFAULT_SENDER = None,
+    USER_TITLE = True,
     USER_AFFILIATION = True,
     USER_POSTAL_ADDRESS = True,
+    USER_GENDERS = ['male', 'female', 'other'],
+    USER_PHONE = True,
+    USER_BIRTHDATE = True,
     USER_ENABLE_IMMEDIATELY = False,
     USER_ENABLE_EMAIL_WHITELIST = [], # List of regexp's
 )
