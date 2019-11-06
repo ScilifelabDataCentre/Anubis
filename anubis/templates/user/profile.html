@@ -34,6 +34,12 @@
     <td>{{ (user.get('gender') or '-').capitalize() }}</td>
   </tr>
   {% endif %}
+  {% if config['USER_BIRTHDATE'] %}
+  <tr>
+    <th class="text-right">Birth date</th>
+    <td>{{ user.get('birthdate') or '-' }}</td>
+  </tr>
+  {% endif %}
   {% if config['USER_TITLE'] %}
   <tr>
     <th class="text-right">Title</th>

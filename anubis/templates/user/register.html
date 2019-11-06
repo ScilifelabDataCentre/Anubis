@@ -74,6 +74,20 @@
     </div>
   </div>
   {% endif %}
+  {% if config['USER_BIRTHDATE'] %}
+  <div class="form-group row">
+    <label for="birthdate" class="col-md-2 col-form-label text-right">
+      Birth date</label>
+    <div class="col-md-4">
+      <input type="text" class="form-control" 
+             id="birthdate" name="birthdate"
+             aria-describedby="birthdateHelp">
+      <small id="birthdateHelp" class="form-text text-muted">
+	ISO format using only digits: YYYY-MM-DD
+      </small>
+    </div>
+  </div>
+  {% endif %}
   {% if config['USER_TITLE'] %}
   <div class="form-group row">
     <label for="title" class="col-md-2 col-form-label text-right">

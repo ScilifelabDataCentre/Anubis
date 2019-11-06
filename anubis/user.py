@@ -1,5 +1,6 @@
 "User profile and login/logout HTMl endpoints."
 
+import datetime
 import http.client
 import json
 import re
@@ -61,6 +62,8 @@ def register():
                 saver['familyname'] = flask.request.form.get('familyname') or None
                 if flask.current_app.config['USER_GENDERS']:
                     saver.set_gender(flask.request.form.get('gender'))
+                if flask.current_app.config['USER_BIRTHDATE']:
+                    saver.set_birthdate(flask.request.form.get('birthdate'))
                 if flask.current_app.config['USER_TITLE']:
                     saver['title'] = flask.request.form.get('title') or None
                 if flask.current_app.config['USER_AFFILIATION']:
@@ -193,6 +196,8 @@ def edit(username):
             saver['familyname'] = flask.request.form.get('familyname') or None
             if flask.current_app.config['USER_GENDERS']:
                 saver.set_gender(flask.request.form.get('gender'))
+            if flask.current_app.config['USER_BIRTHDATE']:
+                saver.set_birthdate(flask.request.form.get('birthdate'))
             if flask.current_app.config['USER_TITLE']:
                 saver['title'] = flask.request.form.get('title') or None
             if flask.current_app.config['USER_AFFILIATION']:
@@ -344,6 +349,15 @@ class UserSaver(utils.BaseSaver):
         if gender not in flask.current_app.config['USER_GENDERS']:
             gender = None
         self.doc['gender'] = gender
+
+    def set_birthdate(self, birthdate):
+        if birthdate:
+            try:
+                datetime.datetime.strptime(birthdate, "%Y-%m-%d")
+            except ValueError:
+                birthdate = None
+        self.doc['birthdate'] = birthdate
+
 
 # Utility functions
 
