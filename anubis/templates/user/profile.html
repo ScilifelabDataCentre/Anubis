@@ -28,6 +28,12 @@
     <th class="text-right">Family name</th>
     <td>{{ user.get('familyname') or '-' }}</td>
   </tr>
+  {% if config['USER_AFFILIATION'] %}
+  <tr>
+    <th class="text-right">Affiliation</th>
+    <td>{{ user.get('affiliation') or '-' }}</td>
+  </tr>
+  {% endif %}
   <tr>
     <th class="text-right">API key</th>
     <td>{{ user.get('apikey') or '-' }}</td>

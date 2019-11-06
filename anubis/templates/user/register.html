@@ -15,6 +15,7 @@
       <input type="text" class="form-control" id="username" name="username"
              aria-describedby="usernameHelp">
       <small id="usernameHelp" class="form-text text-muted">
+        <strong>Required!</strong>
         The identifier for the user account. It must start with a
 	letter and continue with letters, digits, underscore or dash
 	characters. It must be unique within the site. It cannot be
@@ -28,6 +29,7 @@
       <input type="text" class="form-control" id="email" name="email"
              aria-describedby="emailHelp">
       <small id="emailHelp" class="form-text text-muted">
+        <strong>Required!</strong>
 	A valid email address for the user. The password setting code
 	will be sent to this address. It must be unique within the
 	site.
@@ -56,6 +58,20 @@
       </small>
     </div>
   </div>
+  {% if config['USER_AFFILIATION'] %}
+  <div class="form-group row">
+    <label for="affiliation" class="col-md-2 col-form-label text-right">
+      Affiliation</label>
+    <div class="col-md-6">
+      <input type="text" class="form-control" 
+             id="affiliation" name="affiliation"
+             aria-describedby="affiliationHelp">
+      <small id="affiliationHelp" class="form-text text-muted">
+        Name of the university, company or organisation of the user.
+      </small>
+    </div>
+  </div>
+  {% endif %}
   <div class="form-group row">
     <div class="col-md-3 offset-md-2">
       <button type="submit" class="btn btn-block btn-primary">Register</button>

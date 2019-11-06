@@ -63,6 +63,21 @@
       </small>
     </div>
   </div>
+  {% if config['USER_AFFILIATION'] %}
+  <div class="form-group row">
+    <label for="affiliation" class="col-md-2 col-form-label text-right">
+      Affiliation</label>
+    <div class="col-md-6">
+      <input type="text" class="form-control" 
+             id="affiliation" name="affiliation"
+             aria-describedby="affiliationHelp"
+	     value="{{ user.get('affiliation') or '' }}">
+      <small id="affiliationHelp" class="form-text text-muted">
+        Name of the university, company or organisation of the user.
+      </small>
+    </div>
+  </div>
+  {% endif %}
   <div class="form-group row">
     <label for="apikey" class="col-md-2 text-right">API key</label>
     <div class="col-md-6">
