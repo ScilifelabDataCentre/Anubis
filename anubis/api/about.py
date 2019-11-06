@@ -15,4 +15,4 @@ def software():
     result = [{'name': s[0], 'version': s[1], 'href': s[2]}
               for s in anubis.about.get_software()]
     return utils.jsonify(utils.get_json(software=result),
-                         schema='/about/software')
+                         schema_url=utils.url_for('api_schema.about_software'))

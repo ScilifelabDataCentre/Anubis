@@ -98,6 +98,8 @@ USER = {
         'email': {'type': 'string', 'format': 'email'},
         'role': {'type': 'string', 'enum': ['admin', 'user']},
         'status': {'type': 'string', 'enum': ['pending', 'enabled', 'disabled']},
+        'givenname': {'type': ['string', 'null']},
+        'familyname': {'type': ['string', 'null']},
         'created': _DATETIME,
         'modified': _DATETIME,
         'logs': {
@@ -167,3 +169,7 @@ def about_software():
 @blueprint.route('/user')
 def user():
     return flask.jsonify(USER)
+
+@blueprint.route('/users')
+def users():
+    return flask.jsonify(USERS)

@@ -17,7 +17,10 @@ def root():
             'root': {'href': utils.url_for('api_schema.root')},
             'logs': {'href': utils.url_for('api_schema.logs')},
             'user': {'href': utils.url_for('api_schema.user')},
-            'about/software': {'href': utils.url_for('api_schema.about_software')}
+            'users': {'href': utils.url_for('api_schema.users')},
+            'about/software': {
+                'href': utils.url_for('api_schema.about_software')
+            }
         },
         'about': {
             'software': {'href': utils.url_for('api_about.software')}
@@ -33,4 +36,5 @@ def root():
         items['users'] = {
             'href': utils.url_for('api_user.all')
         }
-    return utils.jsonify(utils.get_json(**items), schema='/root')
+    return utils.jsonify(utils.get_json(**items),
+                         schema_url=utils.url_for('api_schema.root'))

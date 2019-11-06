@@ -206,13 +206,12 @@ def get_json(**data):
     result.update(data)
     return result
 
-def jsonify(result, schema=None):
+def jsonify(result, schema_url=None):
     """Return a Response object containing the JSON of 'result'.
-    Optionally add a header Link to the schema given by its URL path."""
+    Optionally add a header Link to the schema."""
     response = flask.jsonify(result)
-    if schema:
-        url = flask.current_app.config['SCHEMA_BASE_URL']
-        response.headers.add('Link', f"<{url}{schema}>", rel='schema')
+    if schema_url:
+        response.headers.add('Link', schema_url, rel='schema')
     return response
 
 def get_dbserver(app=None):

@@ -13,7 +13,8 @@ blueprint = flask.Blueprint('api_user', __name__)
 @blueprint.route('/')
 def all():
     users = [get_user_basic(u) for u in anubis.user.get_users(role=None)]
-    return utils.jsonify(utils.get_json(users=users), schema='/users')
+    return utils.jsonify(utils.get_json(users=users),
+                         schema_url=utils.url_for('api_schema.users'))
 
 @blueprint.route('/<name:username>')
 def profile(username):
@@ -25,7 +26,8 @@ def profile(username):
     user.pop('password', None)
     user.pop('apikey', None)
     user['logs'] = {'href': utils.url_for('.logs', username=user['username'])}
-    return utils.jsonify(utils.get_json(**user), schema='/user')
+    return utils.jsonify(utils.get_json(**user),
+                         schema_url=utils.url_for('api_schema.user'))
 
 @blueprint.route('/<name:username>/logs')
 def logs(username):
@@ -34,10 +36,9 @@ def logs(username):
         flask.abort(http.client.NOT_FOUND)
     if not anubis.user.is_admin_or_self(user):
         flask.abort(http.client.FORBIDDEN)
-    return utils.jsonify(
-        utils.get_json(user=get_user_basic(user),
-                       logs=utils.get_logs(user['_id'])),
-        schema='/logs')
+    return utils.jsonify(utils.get_json(user=get_user_basic(user),
+                                        logs=utils.get_logs(user['_id'])),
+                         schema_url=utils.url_for('api_schema.logs'))
 
 def get_user_basic(user):
     "Return the basic JSON data for a user."

@@ -34,9 +34,9 @@ DEFAULT_SETTINGS = dict(
     MAIL_USERNAME = None,
     MAIL_PASSWORD = None,
     MAIL_DEFAULT_SENDER = None,
+    USER_AFFILIATION = True,
     USER_ENABLE_IMMEDIATELY = False,
     USER_ENABLE_EMAIL_WHITELIST = [], # List of regexp's
-    SCHEMA_BASE_URL = 'http://127.0.0.1:5002/api/schema'
 )
 
 def init(app):
