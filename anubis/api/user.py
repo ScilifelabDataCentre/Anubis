@@ -12,13 +12,13 @@ blueprint = flask.Blueprint('api_user', __name__)
 
 @blueprint.route('/')
 def all():
-    users = [get_user_basic(u) for u in anubis.user.get_users(role=None)]
+    users = anubis.user.get_users(role=None, safe=True)
     return utils.jsonify(utils.get_json(users=users),
                          schema_url=utils.url_for('api_schema.users'))
 
 @blueprint.route('/<name:username>')
 def profile(username):
-    user = anubis.user.get_user(username=username)
+    user = anubis.user.get_user(username=username, safe=True)
     if not user:
         flask.abort(http.client.NOT_FOUND)
     if not anubis.user.is_admin_or_self(user):
@@ -36,11 +36,8 @@ def logs(username):
         flask.abort(http.client.NOT_FOUND)
     if not anubis.user.is_admin_or_self(user):
         flask.abort(http.client.FORBIDDEN)
-    return utils.jsonify(utils.get_json(user=get_user_basic(user),
+    data = {'username': user['username'],
+            'href': utils.url_for('.profile', username=user['username'])}
+    return utils.jsonify(utils.get_json(user=data,
                                         logs=utils.get_logs(user['_id'])),
                          schema_url=utils.url_for('api_schema.logs'))
-
-def get_user_basic(user):
-    "Return the basic JSON data for a user."
-    return {'username': user['username'],
-            'href': utils.url_for('.profile',username=user['username'])}

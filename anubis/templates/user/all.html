@@ -8,8 +8,16 @@
 <table id="users" class="table table-sm">
   <thead>
     <tr>
-      <th>User</th>
+      <th>Username</th>
       <th>Email</th>
+      <th>Given name</th>
+      <th>Family name</th>
+      {% if config['USER_GENDERS'] %}
+      <th>Gender</th>
+      {% endif %}
+      {% if config['USER_BIRTHDATE'] %}
+      <th>Birth date</th>
+      {% endif %}
       <th>Role</th>
       <th>Status</th>
       <th>Modified</th>
@@ -23,6 +31,14 @@
           {{ user['username'] }}</a>
       </td>
       <td>{{ user['email'] }}</td>
+      <td>{{ user['givenname'] }}</td>
+      <td>{{ user['familyname'] }}</td>
+      {% if config['USER_GENDERS'] %}
+      <td>{{ (user.get('gender') or '-').capitalize() }}</td>
+      {% endif %}
+      {% if config['USER_BIRTHDATE'] %}
+      <td>{{ user.get('birthdate') }}</td>
+      {% endif %}
       <td>{{ user['role'] }}</td>
       <td>
         {% if user['status'] == constants.PENDING %}
@@ -38,7 +54,7 @@
     {% endfor %}
   </tbody>
 </table>
-{% endblock %}
+{% endblock %} {# block main #}
 
 {% block meta %}
 <div class="py-1">

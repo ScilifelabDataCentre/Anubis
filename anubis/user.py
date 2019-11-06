@@ -361,28 +361,34 @@ class UserSaver(utils.BaseSaver):
 
 # Utility functions
 
-def get_user(username=None, email=None, apikey=None):
+def get_user(username=None, email=None, apikey=None, safe=False):
     """Return the user for the given username, email or apikey.
     Return None if no such user.
     """
+    user = None
     if username:
         rows = flask.g.db.view('users', 'username', 
                                key=username, include_docs=True)
         if len(rows) == 1:
-            return rows[0].doc
-    if email:
+            user = rows[0].doc
+    if user is None and email:
         rows = flask.g.db.view('users', 'email',
                                key=email, include_docs=True)
         if len(rows) == 1:
-            return rows[0].doc
-    if apikey:
+            user = rows[0].doc
+    if user is None and apikey:
         rows = flask.g.db.view('users', 'apikey', 
                                key=apikey, include_docs=True)
         if len(rows) == 1:
-            return rows[0].doc
-    return None
+            user = rows[0].doc
+    if user and safe:
+        user['iuid'] = user.pop('_id')
+        user.pop('_rev')
+        user.pop('password', None)
+        user.pop('apikey', None)
+    return user
 
-def get_users(role, status=None):
+def get_users(role, status=None, safe=False):
     "Get the users specified by role and optionally by status."
     assert role is None or role in constants.USER_ROLES
     assert status is None or status in constants.USER_STATUSES
@@ -394,6 +400,12 @@ def get_users(role, status=None):
                   flask.g.db.view('users', 'role', key=role, include_docs=True)]
     if status is not None:
         result = [d for d in result if d['status'] == status]
+    if safe:
+        for user in result:
+            user['iuid'] = user.pop('_id')
+            user.pop('_rev')
+            user.pop('password', None)
+            user.pop('apikey', None)
     return result
 
 def get_current_user():
