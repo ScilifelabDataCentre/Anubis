@@ -22,6 +22,7 @@ Submission review handling system.
 - Call
   - = Call for submissions.
   - Container of submissions.
+  - Unique prefix (identifier) letters, digits only (no dash or underscore)
   - With info, documents, instructions, etc, for the user (applicant).
   - Configurable fields to be filled in for a submission.
   - Status: Preparation, Published, Closed, Archived.
@@ -32,6 +33,7 @@ Submission review handling system.
 - Submission
   - = Application; the proposal to be reviewed.
   - Belongs to one and only one call.
+  - Identifier: {prefix}-001
   - Information fields; defined in the call.
   - Attached documents (project description, CV,...)
   - Made by user.

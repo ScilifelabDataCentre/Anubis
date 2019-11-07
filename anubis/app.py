@@ -6,6 +6,7 @@ import anubis.about
 import anubis.config
 import anubis.user
 import anubis.call
+import anubis.site
 
 import anubis.api.about
 import anubis.api.root
@@ -65,6 +66,7 @@ def home():
 app.register_blueprint(anubis.about.blueprint, url_prefix='/about')
 app.register_blueprint(anubis.user.blueprint, url_prefix='/user')
 app.register_blueprint(anubis.call.blueprint, url_prefix='/call')
+app.register_blueprint(anubis.site.blueprint, url_prefix='/site')
 
 app.register_blueprint(anubis.api.root.blueprint, url_prefix='/api')
 app.register_blueprint(anubis.api.about.blueprint, url_prefix='/api/about')

@@ -1,0 +1,12 @@
+{
+  "DEBUG": true,
+  "SECRET_KEY": "lewmkcjdfiwer7234978bh3",
+  "LOG_DEBUG": true,
+  "COUCHDB_USERNAME": "admin",
+  "COUCHDB_PASSWORD": "secret",
+  "SITE_STATIC_DIRPATH": "~/Anubis/site/static",
+  "HOST_LOGO": "Data_Centre_153x50.png",
+  "HOST_NAME": "SciLifeLab Data Centre",
+  "HOST_URL": "https://www.scilifelab.se/data/",
+  "MAIL_SERVER": "localhost"
+}

@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 
+{% block body_title %}
+{{ config['SITE_NAME'] }}
+<small class="ml-4 text-muted">Submission review handling system.</small>
+{% endblock %}
+
 {% block meta %}
 <div class="py-1">
   <div>
@@ -10,7 +15,4 @@
 {% endblock %} {# block meta #}
 
 {% block main %}
-<p>
-  Submission review handling system
-</p>
 {% endblock %} {# block main #}
