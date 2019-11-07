@@ -30,6 +30,7 @@ app.url_map.converters['iuid'] = utils.IuidConverter
 anubis.config.init(app)
 utils.mail.init_app(app)
 app.add_template_filter(utils.thousands)
+app.add_template_filter(utils.do_markdown, name='markdown')
 
 @app.context_processor
 def setup_template_context():
@@ -59,8 +60,17 @@ def home():
     "Home page. Redirect to API root if JSON is accepted."
     if utils.accept_json():
         return flask.redirect(flask.url_for('api_root'))
-    else:
-        return flask.render_template('home.html')
+    # Get the currently open calls.
+    result = list(flask.g.db.view('calls', 'closes', 
+                                  startkey=utils.normalized_local_now(),
+                                  endkey='ZZZZZZ'))
+    calls = [r.value + [r.key] for r in result]
+    result = list(flask.g.db.view('calls', 'open_ended', 
+                                  startkey=utils.normalized_local_now(),
+                                  endkey='ZZZZZZ'))
+    calls.extend([r.value + [None] for r in result])
+    print(calls)
+    return flask.render_template('home.html', calls=calls)
 
 # Set up the URL map.
 app.register_blueprint(anubis.user.blueprint, url_prefix='/user')

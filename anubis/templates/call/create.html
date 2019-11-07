@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{% block head_title %}Create a call{% endblock %}
 {% block body_title %}Create a call{% endblock %}
 
 {% block main %}
@@ -33,8 +34,8 @@
       </div>
       <small id="prefixHelp" class="form-text text-muted">
         <strong>Required!</strong>
-        Short prefix used to create submission identifiers. It cannot
-        be changed.
+        Short prefix serving as call identifier, and used as part of
+        submission identifiers. It cannot be changed.
         <br>
         The prefix must be at most {{ config['PREFIX_MAXLENGTH'] }}
         characters long and begin with a letter and continue with

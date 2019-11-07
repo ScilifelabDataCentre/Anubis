@@ -12,6 +12,7 @@ import couchdb2
 import flask
 import flask_mail
 import jinja2.utils
+import markdown
 import werkzeug.routing
 
 from . import constants
@@ -127,6 +128,23 @@ def get_time(offset=None):
     instant = instant.isoformat()
     return instant[:17] + "{:06.3f}".format(float(instant[17:])) + "Z"
 
+def normalized_local_now():
+    "Return the current local date and time in normalized form."
+    return datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+
+def normalize_datetime(dt=None):
+    "Normalize date and time to format 'YYYY-MM-DD HH:MM'."
+    if dt:
+        dt = dt.strip()
+    if dt:
+        try:
+            dt = datetime.datetime.strptime(dt, '%Y-%m-%d %H:%M')
+        except ValueError:
+            dt = datetime.datetime.strptime(dt, '%Y-%m-%d')
+        return dt.strftime('%Y-%m-%d %H:%M')
+    else:
+        return None
+
 def url_for(endpoint, **values):
     "Same as 'flask.url_for', but with '_external' set to True."
     return flask.url_for(endpoint, _external=True, **values)
@@ -187,6 +205,11 @@ def thousands(value):
         return '{:,}'.format(value)
     else:
         return value
+
+def do_markdown(value):
+    "Template filter: Use Markdown to process the value."
+    value = value or ''
+    return jinja2.utils.Markup(markdown.markdown(value, output_format='html5'))
 
 def accept_json():
     "Return True if the header Accept contains the JSON content type."
@@ -348,6 +371,13 @@ DESIGNS = {
     'logs': {
         'views': {
             'doc': {'map': "function (doc) {if (doc.doctype !== 'log') return; emit([doc.docid, doc.timestamp], null);}"}
+        }
+    },
+    'calls': {
+        'views': {
+            'prefix': {'map': "function (doc) {if (doc.doctype !== 'call') return; emit(doc.prefix, null);}"},
+            'closes': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.closes) return; emit(doc.closes, [doc.prefix, doc.title]);}"},
+            'open_ended': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.opens || doc.closes) return; emit(doc.opens, [doc.prefix, doc.title]);}"}
         }
     }
 }

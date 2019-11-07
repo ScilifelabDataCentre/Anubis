@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Call {{ call['prefix'] }}{% endblock %}
+
+{% block body_title %}
+Call {{ call['prefix'] }}: {{ call['title'] }}
+{% endblock %}
+
+{% block main %}
+<div class="card">
+  <div class="card-body">
+    {{ call.get('description') | markdown }}
+  </div>
+</div>
+<table class="table table-sm table-borderless">
+  <col style="width:20%">
+  <col style="width:80%">
+  <tr>
+    <th class="text-right">Opens</th>
+    <td>{{ call['opens'] or '-' }}</td>
+  </tr>
+  <tr>
+    <th class="text-right">Closes</th>
+    <td>{{ call['closes'] or '-' }}</td>
+  </tr>
+</table>
+{% endblock %} {# block main #}
+
+{% block actions %}
+<div class="mt-2">
+  <a href="{{ url_for('.edit', prefix=call['prefix']) }}"
+     role="button" class="btn btn-primary btn-block">Edit</a>
+</div>
+{% endblock %} {# block actions #}
+
+{% block info %}
+<div class="small">
+  <div class="mt-4">
+    Modified <span class="localtime">{{ call['modified'] }}</span>
+  </div>
+  <div class="mt-1">
+    <a href="{{ url_for('.logs', prefix=call['prefix']) }}">Logs</a>
+  </div>
+  <div class="mt-1">
+    Created <span class="localtime">{{ call['created'] }}</span>
+  </div>
+</div>
+{% endblock %} {# block info #}

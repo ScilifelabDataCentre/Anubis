@@ -41,6 +41,8 @@
               <a class="dropdown-item"
                  href="{{ url_for('call.create') }}">Create call</a>
               <a class="dropdown-item"
+                 href="{{ url_for('calls.all') }}">All calls</a>
+              <a class="dropdown-item"
                  href="{{ url_for('user.all') }}">All users</a>
               <a class="dropdown-item"
                  href="{{ url_for('about.settings') }}">Settings</a>
@@ -146,7 +148,7 @@
         </div>
         <div class="col-md-4 offset-md-4 text-right">
           <a href="{{ constants.SOURCE_URL }}">{{ constants.SOURCE_NAME }}</a>
-	  version {{ constants.VERSION }}
+	  {{ constants.VERSION }}
         </div>
       </div>
       {% endblock %} {# block footer #}

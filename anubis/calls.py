@@ -12,7 +12,9 @@ blueprint = flask.Blueprint('calls', __name__)
 @utils.admin_required
 def all():
     "All calls."
-    raise NotImplementedError
+    calls = [r.doc for r in 
+             flask.g.db.view('calls', 'prefix', include_docs=True)]
+    return flask.render_template('calls/all.html', calls=calls)
 
 @blueprint.route('/user')
 @blueprint.route('/user/<name:username>')

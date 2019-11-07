@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block head_title %}All calls{% endblock %}
+
+{% block body_title %}All calls{% endblock %}
+
+{% block main %}
+<table id="calls" class="table table-sm">
+  <col style="width:10%">
+  <col style="width:90%">
+  <thead>
+    <tr>
+      <th>Prefix</th>
+      <th>Title</th>
+      <th>Opens</th>
+      <th>Closes</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for call in calls %}
+    <tr>
+      <td>
+	<a href="{{ url_for('call.display', prefix=call['prefix']) }}">
+	  {{ call['prefix'] }}</a>
+      </td>
+      <td>{{ call['title'] }}</td>
+      <td class="text-nowrap pl-2">{{ call['opens'] or '-' }}</td>
+      <td class="text-nowrap pl-2">{{ call['closes'] or '-' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %} {# block main #}
+
+{% block javascript %}
+<script>
+  $(function() {
+    $("#calls").DataTable( {
+      "pagingType": "full_numbers",
+      "pageLength": 25
+    });
+  });
+</script>
+{% endblock %}

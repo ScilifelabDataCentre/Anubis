@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Edit call {{ call['prefix'] }}{% endblock %}
+
+{% block body_title %}Edit call {{ call['prefix'] }}{% endblock %}
+
+{% block main %}
+<form action="{{ url_for('.edit', prefix=call['prefix']) }}"
+      method="POST">
+  {{ csrf_token() }}
+  <div class="form-group row">
+    <label for="title" class="col-md-2 col-form-label text-right">
+      Title</label>
+    <div class="col-md">
+      <input type="text" id="title" name="title"
+             class="form-control"
+             aria-describedby="titleHelp"
+	     value="{{ call['title'] }}">
+      <small id="titleHelp" class="form-text text-muted">
+        <strong>Required!</strong>
+        Brief descriptive title for the call.
+      </small>
+    </div>
+  </div>
+  <div class="form-group row">
+    <label for="description" class="col-md-2 col-form-label text-right">
+      Description</label>
+    <div class="col-md">
+      <textarea id="description" name="description"
+		class="form-control" rows="10"
+		aria-describedby="descriptionHelp"
+		>{{ call['description'] or '' }}</textarea>
+      <small id="descriptionHelp" class="form-text text-muted">
+	Description of the call. Markdown allowed.
+      </small>
+    </div>
+  </div>
+  <div class="form-group row">
+    <label for="opened" class="col-md-2 col-form-label text-right">
+      Opens</label>
+    <div class="col-md">
+      <div class="row">
+	<div class="col-md-3">
+	  <input type="text" name="opens" id="opens"
+		 class="form-control"
+		 aria-describedby="opensHelp"
+		 value="{{ call['opens'] or '' }}">
+	</div>
+      </div>
+      <small id="opensHelp" class="form-text text-muted">
+	The date (ISO format YYY-MM-DD, all digits) and time (HH:MM,
+	24 hour, system local time) when the call opens for
+	submissions.
+	<br>
+	The system automatically displays the open calls on the home
+	page.
+      </small>
+    </div>
+  </div>
+  <div class="form-group row">
+    <label for="opened" class="col-md-2 col-form-label text-right">
+      Closes</label>
+    <div class="col-md">
+      <div class="row">
+	<div class="col-md-3">
+	  <input type="text" name="closes" id="closes"
+		 class="form-control"
+		 aria-describedby="closesHelp"
+		 value="{{ call['closes'] or '' }}">
+	</div>
+      </div>
+      <small id="closestimeHelp" class="form-text text-muted">
+	The date (ISO format YYY-MM-DD, all digits) and time (HH:MM,
+	24 hour, system local time) when the call closes for
+	submissions.
+	<br>
+	<strong>NOTE:</strong> If the call should close at midnight
+	e.g. 2019-01-10, then one must specify <strong>2019-01-11
+	00:00</strong>, that is, at 0:00 in the morning the following day.
+	<br>
+	The system automatically disallows creating submissions for
+	closed calls.
+      </small>
+    </div>
+  </div>
+  <div class="form-group row">
+    <div class="col-md-3 offset-md-2">
+      <button type="submit" class="btn btn-block btn-primary">Save</button>
+    </div>
+  </div>
+</form>
+{% endblock %} {# block main #}
+
+{% block actions %}
+<div class="mt-2">
+  <form action="{{ url_for('.display', prefix=call['prefix']) }}"
+	method="GET">
+    <button type="submit" class="btn btn-block btn-dark">Cancel</button>
+  </form>
+</div>
+{% endblock %}
