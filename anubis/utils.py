@@ -44,13 +44,15 @@ def get_logger():
 
 def log_access(response):
     "Record access in the log."
+    if not flask.current_app.config['LOG_ACCESS']:
+        return response
     if flask.g.current_user:
         username = flask.g.current_user['username']
     else:
         username = None
-    get_logger().debug(f"{flask.request.remote_addr} {username}"
-                       f" {flask.request.method} {flask.request.path}"
-                       f" {response.status_code}")
+    get_logger().info(f"{flask.request.remote_addr} {username}"
+                      f" {flask.request.method} {flask.request.path}"
+                      f" {response.status_code}")
     return response
 
 # Global instance of mail interface.

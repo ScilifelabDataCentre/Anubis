@@ -6,12 +6,16 @@ import anubis.about
 import anubis.config
 import anubis.user
 import anubis.call
+import anubis.calls
+import anubis.submission
+import anubis.submissions
 import anubis.site
 
 import anubis.api.about
 import anubis.api.root
 import anubis.api.schema
 import anubis.api.user
+
 from anubis import constants
 from anubis import utils
 
@@ -22,13 +26,9 @@ app = flask.Flask(__name__)
 app.url_map.converters['name'] = utils.NameConverter
 app.url_map.converters['iuid'] = utils.IuidConverter
 
-# Get the configuration.
+# Get the configuration and initialize.
 anubis.config.init(app)
-
-# Init the mail handler.
 utils.mail.init_app(app)
-
-# Add template filters.
 app.add_template_filter(utils.thousands)
 
 @app.context_processor
@@ -63,9 +63,12 @@ def home():
         return flask.render_template('home.html')
 
 # Set up the URL map.
-app.register_blueprint(anubis.about.blueprint, url_prefix='/about')
 app.register_blueprint(anubis.user.blueprint, url_prefix='/user')
 app.register_blueprint(anubis.call.blueprint, url_prefix='/call')
+app.register_blueprint(anubis.calls.blueprint, url_prefix='/calls')
+app.register_blueprint(anubis.submission.blueprint, url_prefix='/submission')
+app.register_blueprint(anubis.submissions.blueprint, url_prefix='/submissions')
+app.register_blueprint(anubis.about.blueprint, url_prefix='/about')
 app.register_blueprint(anubis.site.blueprint, url_prefix='/site')
 
 app.register_blueprint(anubis.api.root.blueprint, url_prefix='/api')
