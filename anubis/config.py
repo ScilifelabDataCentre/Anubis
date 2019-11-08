@@ -31,7 +31,6 @@ DEFAULT_SETTINGS = dict(
     COUCHDB_DBNAME = 'anubis',
     JSON_AS_ASCII = False,
     JSON_SORT_KEYS = False,
-    PREFIX_MAXLENGTH = 8,
     MIN_PASSWORD_LENGTH = 6,
     PERMANENT_SESSION_LIFETIME = 7 * 24 * 60 * 60, # seconds; 1 week
     MAIL_SERVER = 'localhost',
@@ -40,6 +39,9 @@ DEFAULT_SETTINGS = dict(
     MAIL_USERNAME = None,
     MAIL_PASSWORD = None,
     MAIL_DEFAULT_SENDER = None,
+    CALL_IDENTIFIER_MAXLENGTH = 8,
+    CALL_REMAINING_DANGER = 1.0,
+    CALL_REMAINING_WARNING = 7.0,
     USER_TITLE = True,
     USER_AFFILIATION = True,
     USER_POSTAL_ADDRESS = True,
@@ -48,6 +50,7 @@ DEFAULT_SETTINGS = dict(
     USER_BIRTHDATE = True,
     USER_ENABLE_IMMEDIATELY = False,
     USER_ENABLE_EMAIL_WHITELIST = [], # List of regexp's
+    MARKDOWN_URL = 'https://daringfireball.net/projects/markdown/syntax',
 )
 
 def init(app):

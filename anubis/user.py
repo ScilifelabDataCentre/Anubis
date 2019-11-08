@@ -152,7 +152,7 @@ def password():
             do_login(username, password)
         return flask.redirect(flask.url_for('home'))
 
-@blueprint.route('/profile/<name:username>')
+@blueprint.route('/profile/<id:username>')
 @utils.login_required
 def profile(username):
     "Display the profile of the given user."
@@ -168,7 +168,7 @@ def profile(username):
                                  enable_disable=is_admin_and_not_self(user),
                                  deletable=is_empty(user))
 
-@blueprint.route('/profile/<name:username>/edit',
+@blueprint.route('/profile/<id:username>/edit',
                  methods=['GET', 'POST', 'DELETE'])
 @utils.login_required
 def edit(username):
@@ -225,7 +225,7 @@ def edit(username):
         else:
             return flask.redirect(flask.url_for('home'))
 
-@blueprint.route('/profile/<name:username>/logs')
+@blueprint.route('/profile/<id:username>/logs')
 @utils.login_required
 def logs(username):
     "Display the log records of the given user."
@@ -250,7 +250,7 @@ def all():
     users = get_users(role=None)
     return flask.render_template('user/all.html', users=users)
 
-@blueprint.route('/enable/<name:username>', methods=['POST'])
+@blueprint.route('/enable/<id:username>', methods=['POST'])
 @utils.admin_required
 def enable(username):
     "Enable the given user account."
@@ -265,7 +265,7 @@ def enable(username):
     utils.get_logger().info(f"enabled user {username}")
     return flask.redirect(flask.url_for('.profile', username=username))
 
-@blueprint.route('/disable/<name:username>', methods=['POST'])
+@blueprint.route('/disable/<id:username>', methods=['POST'])
 @utils.admin_required
 def disable(username):
     "Disable the given user account."
@@ -301,8 +301,8 @@ class UserSaver(utils.BaseSaver):
     def set_username(self, username):
         if 'username' in self.doc:
             raise ValueError('username cannot be changed')
-        if not constants.NAME_RX.match(username):
-            raise ValueError('invalid username; must be a name')
+        if not constants.ID_RX.match(username):
+            raise ValueError('invalid username; must be an identifier')
         if get_user(username=username):
             raise ValueError('username already in use')
         self.doc['username'] = username

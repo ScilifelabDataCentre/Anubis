@@ -23,7 +23,7 @@ from anubis import utils
 app = flask.Flask(__name__)
 
 # Add URL map converters.
-app.url_map.converters['name'] = utils.NameConverter
+app.url_map.converters['id']   = utils.IdConverter
 app.url_map.converters['iuid'] = utils.IuidConverter
 
 # Get the configuration and initialize.
@@ -63,13 +63,18 @@ def home():
     # Get the currently open calls.
     result = list(flask.g.db.view('calls', 'closes', 
                                   startkey=utils.normalized_local_now(),
-                                  endkey='ZZZZZZ'))
-    calls = [r.value + [r.key] for r in result]
+                                  endkey='ZZZZZZ',
+                                  include_docs=True))
+    calls = [r.doc for r in result]
     result = list(flask.g.db.view('calls', 'open_ended', 
-                                  startkey=utils.normalized_local_now(),
-                                  endkey='ZZZZZZ'))
-    calls.extend([r.value + [None] for r in result])
-    print(calls)
+                                  startkey='',
+                                  endkey=utils.normalized_local_now(),
+                                  include_docs=True))
+    calls.extend([r.doc for r in result])
+    for call in calls:
+        if call['closes']:
+            call['remaining'] = utils.days_remaining(call['closes'])
+    # The calls are already properly sorted in the list.
     return flask.render_template('home.html', calls=calls)
 
 # Set up the URL map.

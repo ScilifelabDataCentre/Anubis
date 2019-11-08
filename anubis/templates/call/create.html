@@ -8,26 +8,28 @@
       method="POST">
   {{ csrf_token() }}
   <div class="form-group row">
-    <label for="title" class="col-md-2 col-form-label text-right">
+    <label for="title" 
+	   class="col-md-2 col-form-label text-right font-weight-bold">
       Title</label>
     <div class="col-md">
       <input type="text" id="title" name="title"
              class="form-control"
              aria-describedby="titleHelp">
-      <small  class="form-text text-muted">
+      <small id="titleHelp" class="form-text text-muted">
         <strong>Required!</strong>
         Brief descriptive title for the call.
       </small>
     </div>
   </div>
   <div class="form-group row">
-    <label for="prefix" class="col-md-2 col-form-label text-right">
+    <label for="prefix" 
+	   class="col-md-2 col-form-label text-right font-weight-bold">
       Prefix</label>
     <div class="col-md">
       <div class="row">
         <div class="col-md-4">
           <input type="text" id="prefix" name="prefix"
-                 maxlength="{{ config['PREFIX_MAXLENGTH'] }}"
+                 maxlength="{{ config['CALL_PREFIX_MAXLENGTH'] }}"
                  class="form-control"
                  aria-describedby="prefixHelp">
         </div>
@@ -37,7 +39,7 @@
         Short prefix serving as call identifier, and used as part of
         submission identifiers. It cannot be changed.
         <br>
-        The prefix must be at most {{ config['PREFIX_MAXLENGTH'] }}
+        The prefix must be at most {{ config['CALL_PREFIX_MAXLENGTH'] }}
         characters long and begin with a letter and continue with
         letters or digits. No other characters are allowed. All
         letters will be changed to upper case.

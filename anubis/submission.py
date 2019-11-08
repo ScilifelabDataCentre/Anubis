@@ -8,7 +8,7 @@ from . import utils
 
 blueprint = flask.Blueprint('submission', __name__)
 
-@blueprint.route('/<name:submid>')
+@blueprint.route('/<submid>')
 @utils.login_required
 def display():
     "Display a submission."

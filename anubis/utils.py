@@ -82,12 +82,12 @@ def admin_required(f):
     return wrap
 
 
-class NameConverter(werkzeug.routing.BaseConverter):
-    "URL route converter for a name."
+class IdConverter(werkzeug.routing.BaseConverter):
+    "URL route converter for an identifier."
     def to_python(self, value):
-        if not constants.NAME_RX.match(value):
+        if not constants.ID_RX.match(value):
             raise werkzeug.routing.ValidationError
-        return value.lower()    # Case-insensitive
+        return value
 
 class IuidConverter(werkzeug.routing.BaseConverter):
     "URL route converter for a IUID."
@@ -138,12 +138,22 @@ def normalize_datetime(dt=None):
         dt = dt.strip()
     if dt:
         try:
+            dt = ' '.join(dt.split())
             dt = datetime.datetime.strptime(dt, '%Y-%m-%d %H:%M')
         except ValueError:
-            dt = datetime.datetime.strptime(dt, '%Y-%m-%d')
+            try:
+                dt = datetime.datetime.strptime(dt, '%Y-%m-%d')
+            except ValueError:
+                raise ValueError('invalid date or datetime')
         return dt.strftime('%Y-%m-%d %H:%M')
     else:
         return None
+
+def days_remaining(dt):
+    "Return the number of days remaining for the given local datetime string."
+    dt = datetime.datetime.strptime(dt, '%Y-%m-%d %H:%M')
+    remaining = dt - datetime.datetime.now()
+    return remaining.total_seconds() / (24* 3600.0)
 
 def url_for(endpoint, **values):
     "Same as 'flask.url_for', but with '_external' set to True."
@@ -375,9 +385,9 @@ DESIGNS = {
     },
     'calls': {
         'views': {
-            'prefix': {'map': "function (doc) {if (doc.doctype !== 'call') return; emit(doc.prefix, null);}"},
-            'closes': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.closes) return; emit(doc.closes, [doc.prefix, doc.title]);}"},
-            'open_ended': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.opens || doc.closes) return; emit(doc.opens, [doc.prefix, doc.title]);}"}
+            'identifier': {'map': "function (doc) {if (doc.doctype !== 'call') return; emit(doc.identifier, null);}"},
+            'closes': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.closes) return; emit(doc.closes, null);}"},
+            'open_ended': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.opens || doc.closes) return; emit(doc.opens, null);}"}
         }
     }
 }

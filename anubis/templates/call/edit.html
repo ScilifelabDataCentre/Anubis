@@ -1,15 +1,16 @@
 {% extends 'base.html' %}
 
-{% block head_title %}Edit call {{ call['prefix'] }}{% endblock %}
+{% block head_title %}Edit call {{ call['identifier'] }}{% endblock %}
 
-{% block body_title %}Edit call {{ call['prefix'] }}{% endblock %}
+{% block body_title %}Edit call {{ call['identifier'] }}{% endblock %}
 
 {% block main %}
-<form action="{{ url_for('.edit', prefix=call['prefix']) }}"
+<form action="{{ url_for('.edit', cid=call['identifier']) }}"
       method="POST">
   {{ csrf_token() }}
   <div class="form-group row">
-    <label for="title" class="col-md-2 col-form-label text-right">
+    <label for="title"
+	   class="col-md-2 col-form-label text-right font-weight-bold">
       Title</label>
     <div class="col-md">
       <input type="text" id="title" name="title"
@@ -23,7 +24,8 @@
     </div>
   </div>
   <div class="form-group row">
-    <label for="description" class="col-md-2 col-form-label text-right">
+    <label for="description" 
+	   class="col-md-2 col-form-label text-right font-weight-bold">
       Description</label>
     <div class="col-md">
       <textarea id="description" name="description"
@@ -31,12 +33,14 @@
 		aria-describedby="descriptionHelp"
 		>{{ call['description'] or '' }}</textarea>
       <small id="descriptionHelp" class="form-text text-muted">
-	Description of the call. Markdown allowed.
+	Description of the call. Formatted using
+	<a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
       </small>
     </div>
   </div>
   <div class="form-group row">
-    <label for="opened" class="col-md-2 col-form-label text-right">
+    <label for="opens"
+	   class="col-md-2 col-form-label text-right font-weight-bold">
       Opens</label>
     <div class="col-md">
       <div class="row">
@@ -52,13 +56,13 @@
 	24 hour, system local time) when the call opens for
 	submissions.
 	<br>
-	The system automatically displays the open calls on the home
-	page.
+	The system automatically displays open calls on the home page.
       </small>
     </div>
   </div>
   <div class="form-group row">
-    <label for="opened" class="col-md-2 col-form-label text-right">
+    <label for="closes"
+	   class="col-md-2 col-form-label text-right font-weight-bold">
       Closes</label>
     <div class="col-md">
       <div class="row">
@@ -69,7 +73,7 @@
 		 value="{{ call['closes'] or '' }}">
 	</div>
       </div>
-      <small id="closestimeHelp" class="form-text text-muted">
+      <small id="closesHelp" class="form-text text-muted">
 	The date (ISO format YYY-MM-DD, all digits) and time (HH:MM,
 	24 hour, system local time) when the call closes for
 	submissions.
@@ -93,7 +97,7 @@
 
 {% block actions %}
 <div class="mt-2">
-  <form action="{{ url_for('.display', prefix=call['prefix']) }}"
+  <form action="{{ url_for('.display', cid=call['identifier']) }}"
 	method="GET">
     <button type="submit" class="btn btn-block btn-dark">Cancel</button>
   </form>

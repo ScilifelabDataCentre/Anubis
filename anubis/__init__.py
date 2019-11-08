@@ -13,10 +13,9 @@ class Constants:
     JQUERY_VERSION     = '3.3.1'
     DATATABLES_VERSION = '1.10.18'
 
-    NAME_RX   = re.compile(r'^[a-z][a-z0-9_-]*$', re.I)
-    PREFIX_RX = re.compile(r'^[A-Z][A-Z0-9]*$')
-    IUID_RX   = re.compile(r'^[a-f0-9]{32,32}$', re.I)
-    EMAIL_RX  = re.compile(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
+    ID_RX    = re.compile(r'^[a-z][a-z0-9]*$', re.I)
+    IUID_RX  = re.compile(r'^[a-f0-9]{32,32}$', re.I)
+    EMAIL_RX = re.compile(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
 
     # CouchDB document types
     DOCTYPE_USER       = 'user'

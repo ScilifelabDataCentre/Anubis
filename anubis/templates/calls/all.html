@@ -10,7 +10,7 @@
   <col style="width:90%">
   <thead>
     <tr>
-      <th>Prefix</th>
+      <th>Identifier</th>
       <th>Title</th>
       <th>Opens</th>
       <th>Closes</th>
@@ -20,8 +20,8 @@
     {% for call in calls %}
     <tr>
       <td>
-	<a href="{{ url_for('call.display', prefix=call['prefix']) }}">
-	  {{ call['prefix'] }}</a>
+	<a href="{{ url_for('call.display', cid=call['identifier']) }}">
+	  {{ call['identifier'] }}</a>
       </td>
       <td>{{ call['title'] }}</td>
       <td class="text-nowrap pl-2">{{ call['opens'] or '-' }}</td>

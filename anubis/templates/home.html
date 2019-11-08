@@ -2,7 +2,7 @@
 
 {% block body_title %}
 {{ config['SITE_NAME'] }}
-<small class="ml-4 text-muted">Submission review handling system.</small>
+<small class="ml-4 text-muted">Submission review handling system</small>
 {% endblock %}
 
 {% block meta %}
@@ -15,4 +15,33 @@
 {% endblock %} {# block meta #}
 
 {% block main %}
+<table class="table mt-4 table-borderless">
+  <thead>
+    <th></th>
+    <th>Call for submissions</th>
+    <th colspan="2">Closes</th>
+    <th></th>
+  </thead>
+  <tbody>
+    {% for call in calls %}
+    <tr>
+      <td>{{ call['identifier'] }}</td>
+      <td><h4>{{ call['title'] }}</h4></td>
+      {% if call['closes'] %}
+      <td class="text-nowrap">{{ call['closes'] }}</td>
+      <td>{% include 'call/closes_badge.html' %}</td>
+      {% else %}
+      <td>Open-ended</td>
+      <td></td>
+      {% endif %}
+      <td>
+	<a href="{{ url_for('call.display', cid=call['identifier']) }}"
+	   class="btn btn-primary btn-sm" role="button" aria-pressed="true">
+	  More infomation
+	</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 {% endblock %} {# block main #}

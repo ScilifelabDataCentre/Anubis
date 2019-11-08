@@ -13,11 +13,11 @@ blueprint = flask.Blueprint('calls', __name__)
 def all():
     "All calls."
     calls = [r.doc for r in 
-             flask.g.db.view('calls', 'prefix', include_docs=True)]
+             flask.g.db.view('calls', 'identifier', include_docs=True)]
     return flask.render_template('calls/all.html', calls=calls)
 
 @blueprint.route('/user')
-@blueprint.route('/user/<name:username>')
+@blueprint.route('/user/<id:username>')
 @utils.login_required
 def user(username=''):
     "Calls in which the user is involved (submitter or reviewer)."
