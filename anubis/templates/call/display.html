@@ -8,16 +8,7 @@
 {% endblock %}
 
 {% block main %}
-<div class="card mb-3">
-  <div class="card-body">
-    {{ call.get('description') | markdown }}
-  </div>
-</div>
 
-<div class="row">
-  <div class="col-md-2 font-weight-bold text-right">Identifier</div>
-  <div class="col-md">{{ call['identifier'] }}</div>
-</div>
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Opens</div>
   <div class="col-md">
@@ -39,23 +30,39 @@
     {% endif %}
   </div>
 </div>
+<div class="row my-3">
+  <div class="col-md-2 font-weight-bold text-right">Description</div>
+  {{ call.get('description') | markdown }}
+</div>
 
 <div class="row">
-  <div class="col-md-2 font-weight-bold text-right">Fields</div>
+  <div class="col-md-2 font-weight-bold text-right">Required input</div>
   <div class="col-md">
     {% for field in call['fields'] %}
     <div class="card mt-2">
       <div class="card-body">
 	<div class="row">
 	  <div class="col-md-2 font-weight-bold">{{ field['identifier'] }}</div>
-	  <div class="col-md-4">{{ field['title'] or '-' }}</div>
-	  <div class="col-md-2"></div>
+	  <div class="col-md">{{ field['title'] or '-' }}</div>
+	  {% if g.is_admin %}
 	  <div class="col-md-2">
-	    Edit
+	    <button type="button" class="btn btn-block btn-sm btn-primary"
+		    data-toggle="modal"
+		    data-target="#{{ field['identifier'] }}Modal">
+	      Edit
+	    </button>
 	  </div>
 	  <div class="col-md-2">
-	    Delete
+	    <form action="{{ url_for('.edit_field', cid=call['identifier'], fid=field['identifier']) }}"
+		  method="POST">
+	      {{ csrf_token() }}
+	      <input type="hidden" name="_http_method" value="DELETE">
+	      <button type="submit" class="btn btn-block btn-sm btn-danger"
+		      onclick="return confirm('Really delete the field?')">
+		Delete</button>
+	    </form>
 	  </div>
+	  {% endif %} {# if g.is_admin #}
 	</div>
       </div>
     </div>
@@ -69,7 +76,7 @@
 	</button>
       </div>
     </div>
-    {% endif %} {# if is_admin #}
+    {% endif %} {# if g.is_admin #}
   </div>
 </div>
 

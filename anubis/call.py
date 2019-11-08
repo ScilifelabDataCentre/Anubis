@@ -75,7 +75,7 @@ def add_field(cid):
 
 @blueprint.route('/<id:cid>/field/<id:fid>', methods=['POST', 'DELETE'])
 @utils.admin_required
-def edit_field(cid):
+def edit_field(cid, fid):
     call = get_call(cid)
     if not call:
         utils.flash_error('no such call')
@@ -154,6 +154,14 @@ class CallSaver(utils.BaseSaver):
         else:
             raise ValueError('invalid field type')
         self.doc['fields'].append(field)
+
+    def delete_field(self, fid):
+        for pos, field in enumerate(self.doc['fields']):
+            if field['identifier'] == fid:
+                self.doc['fields'].pop(pos)
+                break
+        else:
+            raise ValueError('no such field')
 
 
 def get_call(cid):
