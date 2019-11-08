@@ -2,6 +2,8 @@
 
 import flask
 
+import anubis.call
+
 from . import constants
 from . import utils
 
@@ -14,6 +16,7 @@ def all():
     "All calls."
     calls = [r.doc for r in 
              flask.g.db.view('calls', 'identifier', include_docs=True)]
+    anubis.call.update_calls(calls)
     return flask.render_template('calls/all.html', calls=calls)
 
 @blueprint.route('/user')

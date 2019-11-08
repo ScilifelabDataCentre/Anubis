@@ -8,8 +8,8 @@ from . import utils
 
 blueprint = flask.Blueprint('submission', __name__)
 
-@blueprint.route('/<submid>')
+@blueprint.route('/<sid>')
 @utils.login_required
-def display():
+def display(sid):
     "Display a submission."
     raise NotImplementedError

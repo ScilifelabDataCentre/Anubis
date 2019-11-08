@@ -35,8 +35,6 @@ def display(cid):
     if not call:
         utils.flash_error('no such call')
         return flask.redirect(flask.url_for('home'))
-    if call['closes']:
-        call['remaining'] = utils.days_remaining(call['closes'])
     return flask.render_template('call/display.html', call=call)
 
 @blueprint.route('/<id:cid>/edit', methods=['GET', 'POST'])
@@ -144,6 +142,7 @@ class CallSaver(utils.BaseSaver):
         field = {'type': form.get('type'),
                  'identifier': form.get('identifier'),
                  'title': form.get('title') or None,
+                 'description': form.get('description') or None,
                  'required': bool(form.get('required'))
                  }
         if not (field['identifier'] and
@@ -170,6 +169,25 @@ def get_call(cid):
                                              key=cid,
                                              include_docs=True)]
     if len(result) == 1:
-        return result[0]
+        call = result[0]
+        update_calls([call])
+        return call
     else:
         return None
+
+def update_calls(calls):
+    "Update dynamic properties of calls: remaining, is_open."
+    for call in calls:
+        if call['closes']:
+            call['remaining'] = utils.days_remaining(call['closes'])
+        else:
+            call['remaining'] = None
+        now = utils.normalized_local_now()
+        if call['opens'] and call['opens'] <= now:
+            if call['closes']:
+                call['is_open'] = now <= call['closes']
+            else:
+                call['is_open'] = True # Open-ended.
+        else:
+            call['is_open'] = False # Not opened.
+            

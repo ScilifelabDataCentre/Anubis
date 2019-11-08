@@ -42,8 +42,13 @@
     <div class="card mt-2">
       <div class="card-body">
 	<div class="row">
+	  {% if g.is_admin %}
 	  <div class="col-md-2 font-weight-bold">{{ field['identifier'] }}</div>
-	  <div class="col-md">{{ field['title'] or '-' }}</div>
+	  {% endif %} {# if g.is_admin #}
+	  <div class="col-md-2">
+	    {{ field['title'] or field['identifier'] }}
+	  </div>
+	  <div class="col-md">{{ field['description'] or '-' }}</div>
 	  {% if g.is_admin %}
 	  <div class="col-md-2">
 	    <button type="button" class="btn btn-block btn-sm btn-primary"
@@ -71,7 +76,7 @@
     <div class="card mt-2">
       <div class="card-body">
 	<button type="button" class="btn btn-primary"
-		data-toggle="modal" data-target="#textModal">
+		data-toggle="modal" data-target="#_textModal">
 	  Add text field
 	</button>
       </div>
@@ -81,15 +86,15 @@
 </div>
 
 {% if g.is_admin %}
-<div class="modal fade" id="textModal" tabindex="-1" 
-     role="dialog" aria-labelledby="textModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+<div class="modal fade" id="_textModal" tabindex="-1" 
+     role="dialog" aria-labelledby="_textModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <form action="{{ url_for('.add_field', cid=call['identifier']) }}"
 	    method="POST">
 	{{ csrf_token() }}
       <div class="modal-header">
-        <h5 class="modal-title" id="textModalLabel">Add text field</h5>
+        <h5 class="modal-title" id="_textModalLabel">Add text field</h5>
         <button type="button" class="close"
 		data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
@@ -122,6 +127,18 @@
 	      </small>
 	    </div>
 	  </div>
+	  <div class="form-group row">
+	    <label for="description" class="col-md-2 col-form-label text-right">
+	      Description</label>
+	    <div class="col-md">
+	      <textarea id="description" name="description"
+			class="form-control"
+			aria-describedby="descriptionHelp"></textarea>
+	      <small id="descriptionHelp" class="form-text text-muted">
+		Short description of the information to be entered in the field.
+	      </small>
+	    </div>
+	  </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary"
@@ -142,6 +159,12 @@
      role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
 {% endif %} {# if g.is_admin #}
+{% if call['is_open'] %}
+<div class="mt-2">
+  <a href="{{ url_for('.submission', cid=call['identifier']) }}"
+     role="button" class="btn btn-primary btn-block">Create submission</a>
+</div>
+{% endif %}
 {% endblock %} {# block actions #}
 
 {% block info %}

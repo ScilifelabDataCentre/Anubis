@@ -24,18 +24,17 @@ app = flask.Flask(__name__)
 
 # Add URL map converters.
 app.url_map.converters['id']   = utils.IdConverter
-app.url_map.converters['iuid'] = utils.IuidConverter
 
 # Get the configuration and initialize.
 anubis.config.init(app)
 utils.mail.init_app(app)
-app.add_template_filter(utils.thousands)
 app.add_template_filter(utils.do_markdown, name='markdown')
 
 @app.context_processor
 def setup_template_context():
     "Add useful stuff to the global context of Jinja2 templates."
     return dict(constants=constants,
+                utils=utils,
                 csrf_token=utils.csrf_token,
                 enumerate=enumerate)
 
@@ -71,9 +70,7 @@ def home():
                                   endkey=utils.normalized_local_now(),
                                   include_docs=True))
     calls.extend([r.doc for r in result])
-    for call in calls:
-        if call['closes']:
-            call['remaining'] = utils.days_remaining(call['closes'])
+    anubis.call.update_calls(calls)
     # The calls are already properly sorted in the list.
     return flask.render_template('home.html', calls=calls)
 

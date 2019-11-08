@@ -4,7 +4,7 @@
 
 {% block body_title %}All calls{% endblock %}
 
-{% block main %}
+{% block supermain %}
 <table id="calls" class="table table-sm">
   <col style="width:10%">
   <col style="width:90%">
@@ -14,6 +14,7 @@
       <th>Title</th>
       <th>Opens</th>
       <th>Closes</th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
@@ -26,11 +27,14 @@
       <td>{{ call['title'] }}</td>
       <td class="text-nowrap pl-2">{{ call['opens'] or '-' }}</td>
       <td class="text-nowrap pl-2">{{ call['closes'] or '-' }}</td>
+      <td>
+	{% include 'call/closes_badge.html' %}
+      </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
-{% endblock %} {# block main #}
+{% endblock %} {# block supermain #}
 
 {% block javascript %}
 <script>

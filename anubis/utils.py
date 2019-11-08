@@ -89,13 +89,6 @@ class IdConverter(werkzeug.routing.BaseConverter):
             raise werkzeug.routing.ValidationError
         return value
 
-class IuidConverter(werkzeug.routing.BaseConverter):
-    "URL route converter for a IUID."
-    def to_python(self, value):
-        if not constants.IUID_RX.match(value):
-            raise werkzeug.routing.ValidationError
-        return value.lower()    # Case-insensitive
-
 class Timer:
     "CPU timer."
     def __init__(self):
@@ -117,6 +110,10 @@ def to_bool(s):
     if not s: return False
     s = s.lower()
     return s in ('true', 't', 'yes', 'y')
+
+def is_none(value):
+    "Is the value None? For use in templates."
+    return value is None
 
 def get_time(offset=None):
     """Current date and time (UTC) in ISO format, with millisecond precision.
@@ -208,13 +205,6 @@ def flash_error(msg):
 def flash_message(msg):
     "Flash information message."
     flask.flash(str(msg), 'message')
-
-def thousands(value):
-    "Template filter: Output integer with thousands delimiters."
-    if isinstance(value, int):
-        return '{:,}'.format(value)
-    else:
-        return value
 
 def do_markdown(value):
     "Template filter: Use Markdown to process the value."
