@@ -128,7 +128,7 @@ class CallSaver(utils.BaseSaver):
             raise ValueError('identifier must be provided')
         if len(identifier) > flask.current_app.config['CALL_IDENTIFIER_MAXLENGTH']:
             raise ValueError('too long identifier')
-        if not constants.IDENTIFIER_RX.match(identifier):
+        if not constants.ID_RX.match(identifier):
             raise ValueError('invalid identifier')
         if get_call(identifier):
             raise ValueError('identifier is already in use')

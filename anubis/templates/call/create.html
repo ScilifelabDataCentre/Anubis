@@ -22,27 +22,25 @@
     </div>
   </div>
   <div class="form-group row">
-    <label for="prefix" 
+    <label for="identifier" 
 	   class="col-md-2 col-form-label text-right font-weight-bold">
-      Prefix</label>
+      Identifier</label>
     <div class="col-md">
       <div class="row">
         <div class="col-md-4">
-          <input type="text" id="prefix" name="prefix"
-                 maxlength="{{ config['CALL_PREFIX_MAXLENGTH'] }}"
+          <input type="text" id="identifier" name="identifier"
+                 maxlength="{{ config['CALL_IDENTIFIER_MAXLENGTH'] }}"
                  class="form-control"
-                 aria-describedby="prefixHelp">
+                 aria-describedby="identifierHelp">
         </div>
       </div>
-      <small id="prefixHelp" class="form-text text-muted">
+      <small id="identifierHelp" class="form-text text-muted">
         <strong>Required!</strong>
-        Short prefix serving as call identifier, and used as part of
-        submission identifiers. It cannot be changed.
+        Call identifier, which cannot be changed.
         <br>
-        The prefix must be at most {{ config['CALL_PREFIX_MAXLENGTH'] }}
+        The identifier must be at most {{ config['CALL_IDENTIFIER_MAXLENGTH'] }}
         characters long and begin with a letter and continue with
-        letters or digits. No other characters are allowed. All
-        letters will be changed to upper case.
+        letters or digits. No other characters are allowed.
       </small>
     </div>
   </div>

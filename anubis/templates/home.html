@@ -14,34 +14,36 @@
 </div>
 {% endblock %} {# block meta #}
 
-{% block main %}
-<table class="table mt-4 table-borderless">
-  <thead>
-    <th></th>
-    <th>Call for submissions</th>
-    <th colspan="2">Closes</th>
-    <th></th>
-  </thead>
-  <tbody>
-    {% for call in calls %}
-    <tr>
-      <td>{{ call['identifier'] }}</td>
-      <td><h4>{{ call['title'] }}</h4></td>
-      {% if call['closes'] %}
-      <td class="text-nowrap">{{ call['closes'] }}</td>
-      <td>{% include 'call/closes_badge.html' %}</td>
-      {% else %}
-      <td>Open-ended</td>
-      <td></td>
-      {% endif %}
-      <td>
+{% block supermain %}
+{% for call in calls %}
+<div class="card border-dark mt-3">
+  <div class="card-header">
+    <h5>{{ call['title'] }}
+      <small class="text-muted ml-3">Call for submissions</small>
+    </h5>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-3">
+	{% if call['closes'] %}
+	Closes {{ call['closes'] }}
+	{% else %}
+	Open-ended
+	{% endif %}
+      </div>
+      <div class="col-md-3">
+	{% if call['closes'] %}
+	{% include 'call/closes_badge.html' %}
+	{% endif %}
+      </div>
+      <div class="col-md-3 offset-md-3">
 	<a href="{{ url_for('call.display', cid=call['identifier']) }}"
 	   class="btn btn-primary btn-sm" role="button" aria-pressed="true">
 	  More infomation
 	</a>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% endblock %} {# block main #}
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endblock %} {# block supermain #}
