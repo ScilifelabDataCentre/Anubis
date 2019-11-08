@@ -134,7 +134,7 @@ def submission(cid):
         return flask.redirect(flask.url_for('home'))
 
     update_calls([call])
-    if not call['current']['is_open']:
+    if not call['tmp']['is_open']:
         utils.flash_error(f"Call {call['title']} is not open.")
 
     if utils.http_POST():
@@ -228,46 +228,46 @@ def is_deletable(call):
 def update_calls(calls):
     "Update current properties of calls: is_open, display data."
     for call in calls:
-        call['current'] = {}
+        call['tmp'] = {}
         now = utils.normalized_local_now()
         if call['opens']:
             if call['opens'] > now:
-                call['current']['is_open'] = False
-                call['current']['text'] = 'Not yet open.'
-                call['current']['color'] = 'secondary'
+                call['tmp']['is_open'] = False
+                call['tmp']['text'] = 'Not yet open.'
+                call['tmp']['color'] = 'secondary'
             elif call['closes']:
                 remaining = utils.days_remaining(call['closes'])
                 if remaining > 7.0:
-                    call['current']['is_open'] = True
-                    call['current']['text'] = f"{remaining:.0f} days remaining."
-                    call['current']['color'] = 'success'
+                    call['tmp']['is_open'] = True
+                    call['tmp']['text'] = f"{remaining:.0f} days remaining."
+                    call['tmp']['color'] = 'success'
                 elif remaining > 2.0:
-                    call['current']['is_open'] = True
-                    call['current']['text'] = f"{remaining:.0f} days remaining."
-                    call['current']['color'] = 'info'
+                    call['tmp']['is_open'] = True
+                    call['tmp']['text'] = f"{remaining:.0f} days remaining."
+                    call['tmp']['color'] = 'info'
                 elif remaining >= 1.0:
-                    call['current']['is_open'] = True
-                    call['current']['text'] = "Less than two days remaining."
-                    call['current']['color'] = 'warning'
+                    call['tmp']['is_open'] = True
+                    call['tmp']['text'] = "Less than two days remaining."
+                    call['tmp']['color'] = 'warning'
                 elif remaining >= 0.0:
-                    call['current']['is_open'] = True
-                    call['current']['text'] = "Less than one day remaining."
-                    call['current']['color'] = 'warning'
+                    call['tmp']['is_open'] = True
+                    call['tmp']['text'] = "Less than one day remaining."
+                    call['tmp']['color'] = 'warning'
                 else:
-                    call['current']['is_open'] = False
-                    call['current']['text'] = 'Closed.'
-                    call['current']['color'] = 'danger'
+                    call['tmp']['is_open'] = False
+                    call['tmp']['text'] = 'Closed.'
+                    call['tmp']['color'] = 'danger'
             else:
-                call['current']['is_open'] = True
-                call['current']['text'] = 'Open with no closing date.'
-                call['current']['color'] = 'success'
+                call['tmp']['is_open'] = True
+                call['tmp']['text'] = 'Open with no closing date.'
+                call['tmp']['color'] = 'success'
         else:
             if call['closes']:
-                call['current']['is_open'] = False
-                call['current']['text'] = 'No open date set.'
-                call['current']['color'] = 'secondary'
+                call['tmp']['is_open'] = False
+                call['tmp']['text'] = 'No open date set.'
+                call['tmp']['color'] = 'secondary'
             else:
-                call['current']['is_open'] = False
-                call['current']['text'] = 'No open or close dates set.'
-                call['current']['color'] = 'secondary'
+                call['tmp']['is_open'] = False
+                call['tmp']['text'] = 'No open or close dates set.'
+                call['tmp']['color'] = 'secondary'
             

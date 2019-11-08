@@ -270,6 +270,7 @@ class BaseSaver:
     def __exit__(self, etyp, einst, etb):
         if etyp is not None: return False
         self.finalize()
+        self.doc.pop('tmp', None)
         self.doc['doctype'] = self.DOCTYPE
         self.doc['modified'] = get_time()
         flask.g.db.put(self.doc)
