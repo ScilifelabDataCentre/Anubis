@@ -22,9 +22,6 @@ from anubis import utils
 
 app = flask.Flask(__name__)
 
-# Add URL map converters.
-app.url_map.converters['id']   = utils.IdConverter
-
 # Get the configuration and initialize.
 anubis.config.init(app)
 utils.mail.init_app(app)

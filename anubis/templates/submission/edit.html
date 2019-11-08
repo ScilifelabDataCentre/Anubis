@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block head_title %}
+Edit submission {{ submission['identifier'] }}
+{% endblock %}
+
+{% block body_title %}
+Edit submission {{ submission['identifier'] }}
+{% endblock %}
+
+{% block main %}
+<form action="{{ url_for('.edit', cid=submission['identifier']) }}"
+      method="POST">
+  {{ csrf_token() }}
+  <div class="form-group row">
+    <label for="title"
+	   class="col-md-2 col-form-label text-right font-weight-bold">
+      Title</label>
+    <div class="col-md">
+      <input type="text" id="title" name="title"
+             class="form-control"
+             aria-describedby="titleHelp"
+	     value="{{ submission.get('title') or '' }}">
+      <small id="titleHelp" class="form-text text-muted">
+        Brief descriptive title for the submission.
+      </small>
+    </div>
+  </div>
+  <div class="form-group row">
+    <div class="col-md-3 offset-md-2">
+      <button type="submit" class="btn btn-block btn-primary">Save</button>
+    </div>
+  </div>
+</form>
+{% endblock %} {# block main #}
+
+{% block actions %}
+<div class="mt-2">
+  <form action="{{ url_for('.display', sid=submission['identifier']) }}"
+	method="GET">
+    <button type="submit" class="btn btn-block btn-dark">Cancel</button>
+  </form>
+</div>
+{% endblock %}

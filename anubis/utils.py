@@ -82,13 +82,6 @@ def admin_required(f):
     return wrap
 
 
-class IdConverter(werkzeug.routing.BaseConverter):
-    "URL route converter for an identifier."
-    def to_python(self, value):
-        if not constants.ID_RX.match(value):
-            raise werkzeug.routing.ValidationError
-        return value
-
 class Timer:
     "CPU timer."
     def __init__(self):
@@ -344,7 +337,7 @@ class BaseSaver:
             entry['user_agent'] = None
         flask.g.db.put(entry)
 
-def get_logs(docid):
+def get_logs(docid, cleanup=True):
     """Return the list of log entries for the given document identifier,
     sorted by reverse timestamp.
     """
@@ -353,11 +346,20 @@ def get_logs(docid):
                                              endkey=[docid],
                                              descending=True,
                                              include_docs=True)]
-    # Remove irrelevant entries.
-    for log in result:
-        for key in ['_id', '_rev', 'doctype', 'docid']:
-            log.pop(key)
+    # Remove irrelevant entries, if requested.
+    if cleanup:
+        for log in result:
+            for key in ['_id', '_rev', 'doctype', 'docid']:
+                log.pop(key)
     return result
+
+def delete(doc):
+    "Delete the given document and all its log entries."
+    logs = get_logs(doc['_id'], cleanup=False)
+    if logs:
+        flask.g.db.purge(logs)
+    flask.g.db.purge([doc])
+
 
 DESIGNS = {
     'users': {
@@ -379,7 +381,14 @@ DESIGNS = {
             'closes': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.closes || !doc.opens) return; emit(doc.closes, null);}"},
             'open_ended': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.opens || doc.closes) return; emit(doc.opens, null);}"}
         }
-    }
+    },
+    'submissions': {
+        'views': {
+            'identifier': {'map': "function (doc) {if (doc.doctype !== 'submission') return; emit(doc.identifier, null);}"},
+            'call': {'reduce': '_count',
+                     'map': "function (doc) {if (doc.doctype !== 'submission') return; emit(doc.call, null);}"},
+        }
+    },
 }
 
 def update_designs():

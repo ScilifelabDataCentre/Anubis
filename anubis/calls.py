@@ -20,7 +20,7 @@ def all():
     return flask.render_template('calls/all.html', calls=calls)
 
 @blueprint.route('/user')
-@blueprint.route('/user/<id:username>')
+@blueprint.route('/user/<username>')
 @utils.login_required
 def user(username=''):
     "Calls in which the user is involved (submitter or reviewer)."

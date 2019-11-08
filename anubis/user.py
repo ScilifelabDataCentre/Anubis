@@ -152,7 +152,7 @@ def password():
             do_login(username, password)
         return flask.redirect(flask.url_for('home'))
 
-@blueprint.route('/profile/<id:username>')
+@blueprint.route('/profile/<username>')
 @utils.login_required
 def profile(username):
     "Display the profile of the given user."
@@ -168,7 +168,7 @@ def profile(username):
                                  enable_disable=is_admin_and_not_self(user),
                                  deletable=is_empty(user))
 
-@blueprint.route('/profile/<id:username>/edit',
+@blueprint.route('/profile/<username>/edit',
                  methods=['GET', 'POST', 'DELETE'])
 @utils.login_required
 def edit(username):
@@ -225,7 +225,7 @@ def edit(username):
         else:
             return flask.redirect(flask.url_for('home'))
 
-@blueprint.route('/profile/<id:username>/logs')
+@blueprint.route('/profile/<username>/logs')
 @utils.login_required
 def logs(username):
     "Display the log records of the given user."
@@ -250,7 +250,7 @@ def all():
     users = get_users(role=None)
     return flask.render_template('user/all.html', users=users)
 
-@blueprint.route('/enable/<id:username>', methods=['POST'])
+@blueprint.route('/enable/<username>', methods=['POST'])
 @utils.admin_required
 def enable(username):
     "Enable the given user account."
@@ -265,7 +265,7 @@ def enable(username):
     utils.get_logger().info(f"enabled user {username}")
     return flask.redirect(flask.url_for('.profile', username=username))
 
-@blueprint.route('/disable/<id:username>', methods=['POST'])
+@blueprint.route('/disable/<username>', methods=['POST'])
 @utils.admin_required
 def disable(username):
     "Disable the given user account."

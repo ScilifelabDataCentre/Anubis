@@ -10,12 +10,13 @@ from . import utils
 
 blueprint = flask.Blueprint('call', __name__)
 
-@blueprint.route('/create', methods=['GET', 'POST'])
+@blueprint.route('/', methods=['GET', 'POST'])
 @utils.admin_required
 def create():
     "Create a new call."
     if utils.http_GET():
         return flask.render_template('call/create.html')
+
     elif utils.http_POST():
         try:
             with CallSaver() as saver:
@@ -29,23 +30,28 @@ def create():
 
 @blueprint.route('/<cid>')
 def display(cid):
-    "Display a call."
-    print(cid)
+    "Display the call."
     call = get_call(cid)
     if not call:
         utils.flash_error('no such call')
         return flask.redirect(flask.url_for('home'))
-    return flask.render_template('call/display.html', call=call)
+    return flask.render_template('call/display.html',
+                                 call=call,
+                                 is_deletable=is_deletable(call),
+                                 submissions_count=get_submissions_count(call))
 
-@blueprint.route('/<id:cid>/edit', methods=['GET', 'POST'])
+@blueprint.route('/<cid>/edit', methods=['GET', 'POST', 'DELETE'])
+@utils.admin_required
 def edit(cid):
-    "Edit a call."
+    "Edit the call, or delete it."
     call = get_call(cid)
     if not call:
         utils.flash_error('no such call')
         return flask.redirect(flask.url_for('home'))
+
     if utils.http_GET():
         return flask.render_template('call/edit.html', call=call)
+
     elif utils.http_POST():
         try:
             with CallSaver(call) as saver:
@@ -59,53 +65,84 @@ def edit(cid):
             utils.flash_error(str(error))
         return flask.redirect(flask.url_for('.display', cid=call['identifier']))
 
-@blueprint.route('/<id:cid>/field', methods=['POST'])
+    elif utils.http_DELETE():
+        if not is_deletable(call):
+            utils.flash_error('call cannot be deleted')
+            return flask.redirect(
+                flask.url_for('.display', cid=call['identifier']))
+        utils.delete(call)
+        utils.flash_message(f"deleted call {call['title']}")
+        return flask.redirect(flask.url_for('calls.all'))
+
+
+@blueprint.route('/<cid>/field', methods=['POST'])
 @utils.admin_required
 def add_field(cid):
+    "Add an input field to the call."
     call = get_call(cid)
     if not call:
         utils.flash_error('no such call')
         return flask.redirect(flask.url_for('home'))
+
     if utils.http_POST():
         with CallSaver(call) as saver:
             saver.add_field(form=flask.request.form)
         return flask.redirect(flask.url_for('.display', cid=call['identifier']))
 
-@blueprint.route('/<id:cid>/field/<id:fid>', methods=['POST', 'DELETE'])
+@blueprint.route('/<cid>/field/<fid>', methods=['POST', 'DELETE'])
 @utils.admin_required
 def edit_field(cid, fid):
+    "Edit the input field of the call."
     call = get_call(cid)
     if not call:
         utils.flash_error('no such call')
         return flask.redirect(flask.url_for('home'))
+
     if utils.http_POST():
         with CallSaver(call) as saver:
             saver.edit_field(fid, form=flask.request.form)
         return flask.redirect(flask.url_for('.display', cid=call['identifier']))
+
     elif utils.http_DELETE():
         with CallSaver(call) as saver:
             saver.delete_field(fid)
         return flask.redirect(flask.url_for('.display', cid=call['identifier']))
 
-@blueprint.route('/<id:cid>/logs')
+@blueprint.route('/<cid>/logs')
 @utils.admin_required
 def logs(cid):
-    "Display the log records of the given user."
+    "Display the log records of the call."
     call = get_call(cid)
     if call is None:
         utils.flash_error('no such call')
         return flask.redirect(flask.url_for('home'))
+
     return flask.render_template(
         'logs.html',
-        title=f"Call {call['cid']}",
+        title=f"Call {call['identifier']}",
         cancel_url=flask.url_for('.display', cid=call['identifier']),
         logs=utils.get_logs(call['_id']))
 
-@blueprint.route('/<id:cid>/submission', methods=['GET', 'POST'])
+@blueprint.route('/<cid>/submission', methods=['POST'])
 @utils.login_required
 def submission(cid):
-    "Create a new submission in the given call."
-    raise NotImplementedError
+    "Create a new submission within the call."
+    import anubis.submission 
+    call = get_call(cid)
+    if call is None:
+        utils.flash_error('no such call')
+        return flask.redirect(flask.url_for('home'))
+
+    update_calls([call])
+    if not call['current']['is_open']:
+        utils.flash_error(f"Call {call['title']} is not open.")
+
+    if utils.http_POST():
+        with anubis.submission.SubmissionSaver() as saver:
+            saver.set_call(call)
+        doc = saver
+        return flask.redirect(
+            flask.url_for('submission.display', sid=doc['identifier']))
 
 
 class CallSaver(utils.BaseSaver):
@@ -145,7 +182,7 @@ class CallSaver(utils.BaseSaver):
                  'description': form.get('description') or None,
                  'required': bool(form.get('required'))
                  }
-        if not (field['identifier'] and
+        if not (field['identifier'] and 
                 constants.ID_RX.match(field['identifier'])):
             raise ValueError('invalid identifier')
         if field['type'] == 'text':
@@ -174,6 +211,19 @@ def get_call(cid):
         return call
     else:
         return None
+
+def get_submissions_count(call):
+    "Return the number of submissions in the call."
+    result = flask.g.db.view('submissions', 'call',
+                             key=call['identifier'],
+                             reduce=True)
+    return result[0].value
+
+def is_deletable(call):
+    "Is the given call deletable?"
+    if get_submissions_count(call) != 0: return False
+    # XXX
+    return flask.g.is_admin and True
 
 def update_calls(calls):
     "Update current properties of calls: is_open, display data."
@@ -209,15 +259,15 @@ def update_calls(calls):
                     call['current']['color'] = 'danger'
             else:
                 call['current']['is_open'] = True
-                call['current']['text'] = 'Open, no closing date.'
+                call['current']['text'] = 'Open with no closing date.'
                 call['current']['color'] = 'success'
         else:
             if call['closes']:
                 call['current']['is_open'] = False
-                call['current']['text'] = 'No opens date set.'
+                call['current']['text'] = 'No open date set.'
                 call['current']['color'] = 'secondary'
             else:
                 call['current']['is_open'] = False
-                call['current']['text'] = 'No dates set.'
+                call['current']['text'] = 'No open or close dates set.'
                 call['current']['color'] = 'secondary'
             

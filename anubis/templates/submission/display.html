@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block head_title %}{{ submission['identifier'] }}{% endblock %}
+
+{% block body_title %}Submission {{ submission['identifier'] }}{% endblock %}
+
+{% block main %}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Call</div>
+  <div class="col-md">
+    <a href="{{ url_for('call.display', cid=call['identifier']) }}">
+      {{ call['title'] }}</div>
+</div>
+{% endblock %} {# block main #}
+
+{% block info %}
+<div class="small">
+  <div class="mt-4">
+    Modified <span class="localtime">{{ submission['modified'] }}</span>
+  </div>
+  <div class="mt-1">
+    <a href="{{ url_for('.logs', sid=submission['identifier']) }}">Logs</a>
+  </div>
+  <div class="mt-1">
+    Created <span class="localtime">{{ submission['created'] }}</span>
+  </div>
+</div>
+{% endblock %} {# block info #}

@@ -16,7 +16,7 @@ def all():
     return utils.jsonify(utils.get_json(users=users),
                          schema_url=utils.url_for('api_schema.users'))
 
-@blueprint.route('/<id:username>')
+@blueprint.route('/<username>')
 def profile(username):
     user = anubis.user.get_user(username=username, safe=True)
     if not user:
@@ -29,7 +29,7 @@ def profile(username):
     return utils.jsonify(utils.get_json(**user),
                          schema_url=utils.url_for('api_schema.user'))
 
-@blueprint.route('/<id:username>/logs')
+@blueprint.route('/<username>/logs')
 def logs(username):
     user = anubis.user.get_user(username=username)
     if not user:

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block head_title %}Call {{ call['identifier'] }}{% endblock %}
+{% block head_title %}{{ call['identifier'] }}{% endblock %}
 
 {% block body_title %}
 {{ call['title'] }}
@@ -8,7 +8,6 @@
 {% endblock %}
 
 {% block main %}
-
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Opens</div>
   <div class="col-md">
@@ -26,6 +25,18 @@
     <span class="badge badge-{{ call['current']['color'] }}">
       {{ call['current']['text'] }}
     </span>
+  </div>
+</div>
+{# XXX check access #}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Identifier</div>
+  <div class="col-md">{{ call['identifier'] }}</div>
+</div>
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Submissions</div>
+  <div class="col-md">
+    <a href="{{ url_for('submissions.call', cid=call['identifier']) }}">
+      <span class="badge badge-primary">{{ submissions_count }}</span></a>
   </div>
 </div>
 <div class="row my-3">
@@ -151,18 +162,34 @@
 {% endblock %} {# block main #}
 
 {% block actions %}
+{% if call['current']['is_open'] %}
+<div class="mt-2">
+  <form action="{{ url_for('.submission', cid=call['identifier']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <button type="submit" class="btn btn-block btn-primary">
+      Create submission</button>
+  </form>
+</div>
+{% endif %}
 {% if g.is_admin %}
 <div class="mt-2">
   <a href="{{ url_for('.edit', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
-{% endif %} {# if g.is_admin #}
-{% if call['current']['is_open'] %}
+{% if is_deletable %}
 <div class="mt-2">
-  <a href="{{ url_for('.submission', cid=call['identifier']) }}"
-     role="button" class="btn btn-primary btn-block">Create submission</a>
+  <form action="{{ url_for('.edit', cid=call['identifier']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <input type="hidden" name="_http_method" value="DELETE">
+    <button type="submit" class="btn btn-block btn-sm btn-danger"
+	    onclick="return confirm('Really delete the call?')">
+      Delete</button>
+  </form>
 </div>
-{% endif %}
+{% endif %} {# if is_deletable #}
+{% endif %} {# if g.is_admin #}
 {% endblock %} {# block actions #}
 
 {% block info %}

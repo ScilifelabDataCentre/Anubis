@@ -91,7 +91,7 @@
           {% endfor %}
           {% for msg in get_flashed_messages(category_filter=['message']) %}
           <div class="alert alert-warning" role="alert">
-            {{ msg }}
+            <strong>Message:</strong>{{ msg }}
           </div>
           {% endfor %}
         </div>
