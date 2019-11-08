@@ -22,12 +22,10 @@
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
   <div class="col-md">
-    {% if call['closes'] %}
-    <span class="mr-4">{{ call['closes'] }}</span>
-    {% include 'call/closes_badge.html' %}
-    {% else %}
-    Open-ended
-    {% endif %}
+    <span class="mr-4">{{ call['closes'] or '-' }}</span>
+    <span class="badge badge-{{ call['current']['color'] }}">
+      {{ call['current']['text'] }}
+    </span>
   </div>
 </div>
 <div class="row my-3">
@@ -159,7 +157,7 @@
      role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
 {% endif %} {# if g.is_admin #}
-{% if call['is_open'] %}
+{% if call['current']['is_open'] %}
 <div class="mt-2">
   <a href="{{ url_for('.submission', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Create submission</a>

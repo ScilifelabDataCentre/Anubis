@@ -28,7 +28,9 @@
       <td class="text-nowrap pl-2">{{ call['opens'] or '-' }}</td>
       <td class="text-nowrap pl-2">{{ call['closes'] or '-' }}</td>
       <td>
-	{% include 'call/closes_badge.html' %}
+	<span class="badge badge-{{ call['current']['color'] }}">
+	  {{ call['current']['text'] }}
+	</span>
       </td>
     </tr>
     {% endfor %}

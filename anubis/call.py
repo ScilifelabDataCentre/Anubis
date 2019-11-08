@@ -176,18 +176,48 @@ def get_call(cid):
         return None
 
 def update_calls(calls):
-    "Update dynamic properties of calls: remaining, is_open."
+    "Update current properties of calls: is_open, display data."
     for call in calls:
-        if call['closes']:
-            call['remaining'] = utils.days_remaining(call['closes'])
-        else:
-            call['remaining'] = None
+        call['current'] = {}
         now = utils.normalized_local_now()
-        if call['opens'] and call['opens'] <= now:
-            if call['closes']:
-                call['is_open'] = now <= call['closes']
+        if call['opens']:
+            if call['opens'] > now:
+                call['current']['is_open'] = False
+                call['current']['text'] = 'Not yet open.'
+                call['current']['color'] = 'secondary'
+            elif call['closes']:
+                remaining = utils.days_remaining(call['closes'])
+                if remaining > 7.0:
+                    call['current']['is_open'] = True
+                    call['current']['text'] = f"{remaining:.0f} days remaining."
+                    call['current']['color'] = 'success'
+                elif remaining > 2.0:
+                    call['current']['is_open'] = True
+                    call['current']['text'] = f"{remaining:.0f} days remaining."
+                    call['current']['color'] = 'info'
+                elif remaining >= 1.0:
+                    call['current']['is_open'] = True
+                    call['current']['text'] = "Less than two days remaining."
+                    call['current']['color'] = 'warning'
+                elif remaining >= 0.0:
+                    call['current']['is_open'] = True
+                    call['current']['text'] = "Less than one day remaining."
+                    call['current']['color'] = 'warning'
+                else:
+                    call['current']['is_open'] = False
+                    call['current']['text'] = 'Closed.'
+                    call['current']['color'] = 'danger'
             else:
-                call['is_open'] = True # Open-ended.
+                call['current']['is_open'] = True
+                call['current']['text'] = 'Open, no closing date.'
+                call['current']['color'] = 'success'
         else:
-            call['is_open'] = False # Not opened.
+            if call['closes']:
+                call['current']['is_open'] = False
+                call['current']['text'] = 'No opens date set.'
+                call['current']['color'] = 'secondary'
+            else:
+                call['current']['is_open'] = False
+                call['current']['text'] = 'No dates set.'
+                call['current']['color'] = 'secondary'
             

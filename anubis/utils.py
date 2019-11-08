@@ -376,7 +376,7 @@ DESIGNS = {
     'calls': {
         'views': {
             'identifier': {'map': "function (doc) {if (doc.doctype !== 'call') return; emit(doc.identifier, null);}"},
-            'closes': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.closes) return; emit(doc.closes, null);}"},
+            'closes': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.closes || !doc.opens) return; emit(doc.closes, null);}"},
             'open_ended': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.opens || doc.closes) return; emit(doc.opens, null);}"}
         }
     }
