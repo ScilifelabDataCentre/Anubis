@@ -55,14 +55,14 @@
 	  <div class="col-md-2 font-weight-bold">{{ field['identifier'] }}</div>
 	  {% endif %} {# if g.is_admin #}
 	  <div class="col-md-2">
-	    {{ field['title'] or field['identifier'] }}
+	    {{ field['title'] or field['identifier'].replace('_', ' ').capitalize() }}
 	  </div>
 	  <div class="col-md">{{ field['description'] or '-' }}</div>
 	  {% if is_editable %}
 	  <div class="col-md-2">
 	    <button type="button" class="btn btn-block btn-sm btn-primary"
 		    data-toggle="modal"
-		    data-target="#{{ field['identifier'] }}Modal">
+		    data-target="#{{ field['identifier'] }}-Modal">
 	      Edit
 	    </button>
 	  </div>
@@ -72,7 +72,7 @@
 	      {{ csrf_token() }}
 	      <input type="hidden" name="_http_method" value="DELETE">
 	      <button type="submit" class="btn btn-block btn-sm btn-danger"
-		      onclick="return confirm('Really delete the field?')">
+		      onclick="return confirm('Really delete field {{ field['identifier'] }}?')">
 		Delete</button>
 	    </form>
 	  </div>
@@ -158,6 +158,85 @@
     </div>
   </div>
 </div>
+
+{% for field in call['fields'] %}
+{% if field['type'] == 'text' %}
+<div class="modal fade" id="{{ field['identifier'] }}-Modal" tabindex="-1" 
+     role="dialog" aria-labelledby="{{ field['identifier'] }}-ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <form action="{{ url_for('.edit_field', cid=call['identifier'], fid=field['identifier']) }}"
+	    method="POST">
+	{{ csrf_token() }}
+      <div class="modal-header">
+        <h5 class="modal-title" id="{{ field['identifier'] }}-ModalLabel">
+	  Edit text field</h5>
+        <button type="button" class="close"
+		data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+	  <input type="hidden" name="type" value="text">
+	  <div class="form-group row">
+	    <label for="{{ field['identifier'] }}-identifier" class="col-md-2 col-form-label text-right">
+	      Identifier</label>
+	    <div class="col-md">
+	      <input type="text" id="{{ field['identifier'] }}-identifier"
+		     class="form-control" readonly
+		     aria-describedby="{{ field['identifier'] }}-identifierHelp"
+		     value="{{ field['identifier'] }}">
+	      <small id="{{ field['identifier'] }}-identifierHelp"
+		     class="form-text text-muted">
+		<strong>Required!</strong>
+		Identifier for the field. It cannot be changed.
+	      </small>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="{{ field['identifier'] }}-title" 
+		   class="col-md-2 col-form-label text-right">
+	      Title</label>
+	    <div class="col-md">
+	      <input type="text" id="{{ field['identifier'] }}-title"
+		     name="title"
+		     class="form-control"
+		     aria-describedby="{{ field['identifier'] }}-titleHelp"
+		     value="{{ field.get('title') or '' }}">
+	      <small id="{{ field['identifier'] }}-titleHelp"
+		     class="form-text text-muted">
+		Descriptive title; the identifier will be used if not set.
+	      </small>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="{{ field['identifier'] }}-description" 
+		   class="col-md-2 col-form-label text-right">
+	      Description</label>
+	    <div class="col-md">
+	      <textarea id="{{ field['identifier'] }}-description"
+			name="description"
+			class="form-control"
+			aria-describedby="{{ field['identifier'] }}-descriptionHelp">{{ field.get('description') or '' }}</textarea>
+	      <small id="{{ field['identifier'] }}-descriptionHelp" 
+		     class="form-text text-muted">
+		Short description of the information to be entered in the field.
+	      </small>
+	    </div>
+	  </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary"
+		data-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %} {# if field['type'] == 'text' #}
+{% endfor %} {# for field in call['fields'] #}
+
 {% endif %} {# if is_editable #}
 {% endblock %} {# block main #}
 

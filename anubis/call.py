@@ -103,8 +103,11 @@ def edit_field(cid, fid):
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_POST():
-        with CallSaver(call) as saver:
-            saver.edit_field(fid, form=flask.request.form)
+        try:
+            with CallSaver(call) as saver:
+                saver.edit_field(fid, form=flask.request.form)
+        except (KeyError, ValueError) as error:
+            utils.flash_error(str(error))
         return flask.redirect(flask.url_for('.display', cid=call['identifier']))
 
     elif utils.http_DELETE():
@@ -217,6 +220,16 @@ class CallSaver(utils.BaseSaver):
         else:
             raise ValueError('invalid field type')
         self.doc['fields'].append(field)
+
+    def edit_field(self, fid, form=dict()):
+        for field in self.doc['fields']:
+            if field['identifier'] == fid: break
+        else:
+            raise KeyError('no such field')
+        field['title'] = form.get('title') or None
+        field['description'] = form.get('description') or None
+        field['required'] = bool(form.get('required'))
+        # XXX according to field type...
 
     def delete_field(self, fid):
         for pos, field in enumerate(self.doc['fields']):
