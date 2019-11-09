@@ -36,7 +36,7 @@
   <div class="col-md-2 font-weight-bold text-right">Submissions</div>
   <div class="col-md">
     <a href="{{ url_for('submissions.call', cid=call['identifier']) }}">
-      <span class="badge badge-primary">{{ submissions_count }}</span></a>
+      <span class="badge badge-primary">{{ call['tmp']['submissions_count'] }}</span></a>
   </div>
 </div>
 <div class="row my-3">
@@ -55,33 +55,41 @@
 	  <div class="col-md-2 font-weight-bold">{{ field['identifier'] }}</div>
 	  {% endif %} {# if g.is_admin #}
 	  <div class="col-md-2">
-	    {{ field['title'] or field['identifier'].replace('_', ' ').capitalize() }}
+	    {{ field['title'] }}
 	  </div>
-	  <div class="col-md">{{ field['description'] or '-' }}</div>
-	  {% if is_editable %}
+	  <div class="col-md">
+	    {% if field.get('required') %}
+	    <strong>Required!</strong>
+	    <br>
+	    {% endif %}
+	    {{ field.get('description') | markdown }}
+	  </div>
+	  {% if call['tmp']['is_editable'] %}
 	  <div class="col-md-2">
-	    <button type="button" class="btn btn-block btn-sm btn-primary"
-		    data-toggle="modal"
-		    data-target="#{{ field['identifier'] }}-Modal">
-	      Edit
-	    </button>
+	    <div>
+	      <button type="button" class="btn btn-block btn-sm btn-primary"
+		      data-toggle="modal"
+		      data-target="#{{ field['identifier'] }}-Modal">
+		Edit
+	      </button>
+	    </div>
+	    <div class="mt-2">
+	      <form action="{{ url_for('.edit_field', cid=call['identifier'], fid=field['identifier']) }}"
+		    method="POST">
+		{{ csrf_token() }}
+		<input type="hidden" name="_http_method" value="DELETE">
+		<button type="submit" class="btn btn-block btn-sm btn-danger"
+			onclick="return confirm('Really delete field {{ field['identifier'] }}?')">
+		  Delete</button>
+	      </form>
+	    </div>
 	  </div>
-	  <div class="col-md-2">
-	    <form action="{{ url_for('.edit_field', cid=call['identifier'], fid=field['identifier']) }}"
-		  method="POST">
-	      {{ csrf_token() }}
-	      <input type="hidden" name="_http_method" value="DELETE">
-	      <button type="submit" class="btn btn-block btn-sm btn-danger"
-		      onclick="return confirm('Really delete field {{ field['identifier'] }}?')">
-		Delete</button>
-	    </form>
-	  </div>
-	  {% endif %} {# if is_editable #}
+	  {% endif %} {# if call['tmp']['is_editable'] #}
 	</div>
       </div>
     </div>
     {% endfor %}
-    {% if is_editable %}
+    {% if call['tmp']['is_editable'] %}
     <div class="card mt-2">
       <div class="card-body">
 	<button type="button" class="btn btn-primary"
@@ -90,11 +98,11 @@
 	</button>
       </div>
     </div>
-    {% endif %} {# if is_editable #}
+    {% endif %} {# if call['tmp']['is_editable'] #}
   </div>
 </div>
 
-{% if is_editable %}
+{% if call['tmp']['is_editable'] %}
 <div class="modal fade" id="_textModal" tabindex="-1" 
      role="dialog" aria-labelledby="_textModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
@@ -120,6 +128,7 @@
 		     aria-describedby="identifierHelp">
 	      <small id="identifierHelp" class="form-text text-muted">
 		<strong>Required!</strong>
+		<br>
 		Identifier for the field. It cannot be changed.
 	      </small>
 	    </div>
@@ -137,6 +146,24 @@
 	    </div>
 	  </div>
 	  <div class="form-group row">
+	    <label for="required" class="col-md-2 col-form-label text-right">
+	      Required</label>
+	    <div class="col-md">
+	      <div class="form-check">
+		<input type="checkbox" id="required" name="required"
+		       class="form-check-input"
+		       aria-describedby="requiredHelp"
+		       value="true">
+		<label class="form-check-label" for="required">
+		  Yes
+		</label>
+	      </div>
+	      <small id="requiredHelp" class="form-text text-muted">
+		Is a field value required for a valid submission?
+	      </small>
+	    </div>
+	  </div>
+	  <div class="form-group row">
 	    <label for="description" class="col-md-2 col-form-label text-right">
 	      Description</label>
 	    <div class="col-md">
@@ -145,6 +172,9 @@
 			aria-describedby="descriptionHelp"></textarea>
 	      <small id="descriptionHelp" class="form-text text-muted">
 		Short description of the information to be entered in the field.
+		<br>
+		Formatted using 
+		<a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
 	      </small>
 	    </div>
 	  </div>
@@ -160,7 +190,6 @@
 </div>
 
 {% for field in call['fields'] %}
-{% if field['type'] == 'text' %}
 <div class="modal fade" id="{{ field['identifier'] }}-Modal" tabindex="-1" 
      role="dialog" aria-labelledby="{{ field['identifier'] }}-ModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
@@ -170,7 +199,7 @@
 	{{ csrf_token() }}
       <div class="modal-header">
         <h5 class="modal-title" id="{{ field['identifier'] }}-ModalLabel">
-	  Edit text field</h5>
+	  Edit {{ field['type'] }} field</h5>
         <button type="button" class="close"
 		data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
@@ -189,6 +218,7 @@
 	      <small id="{{ field['identifier'] }}-identifierHelp"
 		     class="form-text text-muted">
 		<strong>Required!</strong>
+		<br>
 		Identifier for the field. It cannot be changed.
 	      </small>
 	    </div>
@@ -210,6 +240,28 @@
 	    </div>
 	  </div>
 	  <div class="form-group row">
+	    <label for="{{ field['identifier'] }}-required"
+		   class="col-md-2 col-form-label text-right">
+	      Required</label>
+	    <div class="col-md">
+	      <div class="form-check">
+		<input type="checkbox" id="{{ field['identifier'] }}-required"
+		       name="required"
+		       class="form-check-input"
+		       value="true"
+		       {{ field.get('required') and 'checked' or '' }}>
+		<label class="form-check-label"
+		       for="{{ field['identifier'] }}-required">
+		  Yes
+		</label>
+	      </div>
+	      <small id="{{ field['identifier'] }}-requiredHelp"
+		     class="form-text text-muted">
+		Is a field value required for a valid submission?
+	      </small>
+	    </div>
+	  </div>
+	  <div class="form-group row">
 	    <label for="{{ field['identifier'] }}-description" 
 		   class="col-md-2 col-form-label text-right">
 	      Description</label>
@@ -221,6 +273,9 @@
 	      <small id="{{ field['identifier'] }}-descriptionHelp" 
 		     class="form-text text-muted">
 		Short description of the information to be entered in the field.
+		<br>
+		Formatted using 
+		<a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
 	      </small>
 	    </div>
 	  </div>
@@ -234,10 +289,9 @@
     </div>
   </div>
 </div>
-{% endif %} {# if field['type'] == 'text' #}
 {% endfor %} {# for field in call['fields'] #}
 
-{% endif %} {# if is_editable #}
+{% endif %} {# if call['tmp']['is_editable'] #}
 {% endblock %} {# block main #}
 
 {% block actions %}
@@ -251,7 +305,7 @@
   </form>
 </div>
 {% endif %}
-{% if is_editable %}
+{% if call['tmp']['is_editable'] %}
 <div class="mt-2">
   <a href="{{ url_for('.edit', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
@@ -266,7 +320,7 @@
       Delete</button>
   </form>
 </div>
-{% endif %} {# if is_editable #}
+{% endif %} {# if call['tmp']['is_editable'] #}
 {% if g.is_admin %}
 <div class="mt-2">
   <a href="{{ url_for('.clone', cid=call['identifier']) }}"

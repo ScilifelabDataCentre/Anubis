@@ -35,9 +35,7 @@ def display(cid):
     if not call:
         utils.flash_error('no such call')
         return flask.redirect(flask.url_for('home'))
-    return flask.render_template('call/display.html',
-                                 call=call,
-                                 is_editable=is_editable(call))
+    return flask.render_template('call/display.html', call=call)
 
 @blueprint.route('/<cid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.admin_required
@@ -206,15 +204,17 @@ class CallSaver(utils.BaseSaver):
         self.doc['title'] = title
 
     def add_field(self, form=dict()):
+        id = form.get('identifier')
+        if not (id and constants.ID_RX.match(id)):
+            raise ValueError('invalid identifier')
+        title = form.get('title') or id.replace('_', ' ')
+        title = ' '.join([w.capitalize() for w in title.split()])
         field = {'type': form.get('type'),
-                 'identifier': form.get('identifier'),
-                 'title': form.get('title') or None,
+                 'identifier': id,
+                 'title': title,
                  'description': form.get('description') or None,
                  'required': bool(form.get('required'))
                  }
-        if not (field['identifier'] and 
-                constants.ID_RX.match(field['identifier'])):
-            raise ValueError('invalid identifier')
         if field['type'] == 'text':
             pass
         else:
@@ -226,7 +226,9 @@ class CallSaver(utils.BaseSaver):
             if field['identifier'] == fid: break
         else:
             raise KeyError('no such field')
-        field['title'] = form.get('title') or None
+        title = form.get('title') or fid.replace('_', ' ')
+        title = ' '.join([w.capitalize() for w in title.split()])
+        field['title'] = title
         field['description'] = form.get('description') or None
         field['required'] = bool(form.get('required'))
         # XXX according to field type...
@@ -246,80 +248,84 @@ def get_call(cid):
                                              key=cid,
                                              include_docs=True)]
     if len(result) == 1:
-        call = result[0]
-        set_call_tmp(call)
-        return call
+        return add_call_tmp(result[0])
     else:
         return None
 
-def is_editable(call):
-    "Is the given call editable? Check open/closed and privileges."
-    if call['tmp']['submissions_count'] != 0: return False
-    if flask.g.is_admin: return True
-    if call['tmp']['is_open']: return False
-    if call['tmp']['is_closed']: return False
-    return False
-
-def set_call_tmp(call):
-    """Set the 'tmp' property of the call. This is computed data that
-    will not be stored with the document: is_open, is_closed, 
-    display data, submissions count.
+def add_call_tmp(call):
+    """Set the 'tmp' property of the call.
+    This is computed data that will not be stored with the document.
+    Depends on login, privileges, etc.
     """
-    call['tmp'] = {}
+    call['tmp'] = tmp = {}
+    # Submissions count
     result = list(flask.g.db.view('submissions', 'call',
                                   key=call['identifier'],
                                   reduce=True))
     if result:
-        call['tmp']['submissions_count'] = result[0].value
+        tmp['submissions_count'] = result[0].value
     else:
-        call['tmp']['submissions_count'] = 0
+        tmp['submissions_count'] = 0
+    # Open/closed status
     now = utils.normalized_local_now()
     if call['opens']:
         if call['opens'] > now:
-            call['tmp']['is_open'] = False
-            call['tmp']['is_closed'] = False
-            call['tmp']['text'] = 'Not yet open.'
-            call['tmp']['color'] = 'secondary'
+            tmp['is_open'] = False
+            tmp['is_closed'] = False
+            tmp['text'] = 'Not yet open.'
+            tmp['color'] = 'secondary'
         elif call['closes']:
             remaining = utils.days_remaining(call['closes'])
             if remaining > 7.0:
-                call['tmp']['is_open'] = True
-                call['tmp']['is_closed'] = False
-                call['tmp']['text'] = f"{remaining:.0f} days remaining."
-                call['tmp']['color'] = 'success'
+                tmp['is_open'] = True
+                tmp['is_closed'] = False
+                tmp['text'] = f"{remaining:.0f} days remaining."
+                tmp['color'] = 'success'
             elif remaining > 2.0:
-                call['tmp']['is_open'] = True
-                call['tmp']['is_closed'] = False
-                call['tmp']['text'] = f"{remaining:.0f} days remaining."
-                call['tmp']['color'] = 'info'
+                tmp['is_open'] = True
+                tmp['is_closed'] = False
+                tmp['text'] = f"{remaining:.0f} days remaining."
+                tmp['color'] = 'info'
             elif remaining >= 1.0:
-                call['tmp']['is_open'] = True
-                call['tmp']['is_closed'] = False
-                call['tmp']['text'] = "Less than two days remaining."
-                call['tmp']['color'] = 'warning'
+                tmp['is_open'] = True
+                tmp['is_closed'] = False
+                tmp['text'] = "Less than two days remaining."
+                tmp['color'] = 'warning'
             elif remaining >= 0.0:
-                call['tmp']['is_open'] = True
-                call['tmp']['is_closed'] = False
-                call['tmp']['text'] = "Less than one day remaining."
-                call['tmp']['color'] = 'danger'
+                tmp['is_open'] = True
+                tmp['is_closed'] = False
+                tmp['text'] = "Less than one day remaining."
+                tmp['color'] = 'danger'
             else:
-                call['tmp']['is_open'] = False
-                call['tmp']['is_closed'] = True
-                call['tmp']['text'] = 'Closed.'
-                call['tmp']['color'] = 'dark'
+                tmp['is_open'] = False
+                tmp['is_closed'] = True
+                tmp['text'] = 'Closed.'
+                tmp['color'] = 'dark'
         else:
-            call['tmp']['is_open'] = True
-            call['tmp']['is_closed'] = False
-            call['tmp']['text'] = 'Open with no closing date.'
-            call['tmp']['color'] = 'success'
+            tmp['is_open'] = True
+            tmp['is_closed'] = False
+            tmp['text'] = 'Open with no closing date.'
+            tmp['color'] = 'success'
     else:
         if call['closes']:
-            call['tmp']['is_open'] = False
-            call['tmp']['is_closed'] = False
-            call['tmp']['text'] = 'No open date set.'
-            call['tmp']['color'] = 'secondary'
+            tmp['is_open'] = False
+            tmp['is_closed'] = False
+            tmp['text'] = 'No open date set.'
+            tmp['color'] = 'secondary'
         else:
-            call['tmp']['is_open'] = False
-            call['tmp']['is_closed'] = False
-            call['tmp']['text'] = 'No open or close dates set.'
-            call['tmp']['color'] = 'secondary'
+            tmp['is_open'] = False
+            tmp['is_closed'] = False
+            tmp['text'] = 'No open or close dates set.'
+            tmp['color'] = 'secondary'
+    # Is editable? Check open/closed and privileges.
+    # XXX allow admin anything during development
+    tmp['is_editable'] = flask.g.is_admin
+    # if tmp['submissions_count'] != 0:
+    #     tmp['is_editable'] = False
+    # elif tmp['is_open']:
+    #     tmp['is_editable'] = False
+    # elif tmp['is_closed']:
+    #     tmp['is_editable'] = False
+    # else:
+    #     tmp['is_editable'] = flask.g.is_admin
+    return call

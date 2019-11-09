@@ -32,16 +32,27 @@
       </button>
       <div class="collapse navbar-collapse" id="top_navbar">
         <ul class="navbar-nav mr-auto">
+          <li class="nav-item dropdown">
+            <a href="#" id="navbarCalls" class="nav-link dropdown-toggle pr-4"
+               role="button" data-toggle="dropdown"
+               aria-haspopup="true" aria-expanded="false">Calls</a>
+            <div class="dropdown-menu" aria-labelledby="navbarCalls">
+              <a class="dropdown-item"
+                 href="{{ url_for('calls.closed') }}">Closed calls</a>
+              {% if g.is_admin %}
+              <a class="dropdown-item"
+                 href="{{ url_for('calls.all') }}">All calls</a>
+              <a class="dropdown-item"
+                 href="{{ url_for('call.create') }}">Create call</a>
+              {% endif %} {# if g.is_admin #}
+            </div>
+          </li>
           {% if g.is_admin %}
           <li class="nav-item dropdown">
             <a href="#" id="navbarAdmin" class="nav-link dropdown-toggle pr-4"
                role="button" data-toggle="dropdown"
                aria-haspopup="true" aria-expanded="false">Admin</a>
             <div class="dropdown-menu" aria-labelledby="navbarAdmin">
-              <a class="dropdown-item"
-                 href="{{ url_for('call.create') }}">Create call</a>
-              <a class="dropdown-item"
-                 href="{{ url_for('calls.all') }}">All calls</a>
               <a class="dropdown-item"
                  href="{{ url_for('user.all') }}">All users</a>
               <a class="dropdown-item"
@@ -91,7 +102,7 @@
           {% endfor %}
           {% for msg in get_flashed_messages(category_filter=['message']) %}
           <div class="alert alert-warning" role="alert">
-            <strong>Message:</strong>{{ msg }}
+            <strong>Message:</strong> {{ msg }}
           </div>
           {% endfor %}
         </div>

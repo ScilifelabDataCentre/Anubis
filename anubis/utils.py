@@ -270,9 +270,10 @@ class BaseSaver:
     def __exit__(self, etyp, einst, etb):
         if etyp is not None: return False
         self.finalize()
-        self.doc.pop('tmp', None)
         self.doc['doctype'] = self.DOCTYPE
         self.doc['modified'] = get_time()
+        self.original.pop('tmp', None)
+        self.doc.pop('tmp', None)
         flask.g.db.put(self.doc)
         self.add_log()
 
@@ -388,6 +389,7 @@ DESIGNS = {
             'identifier': {'map': "function (doc) {if (doc.doctype !== 'submission') return; emit(doc.identifier, null);}"},
             'call': {'reduce': '_count',
                      'map': "function (doc) {if (doc.doctype !== 'submission') return; emit(doc.call, null);}"},
+            'user': {'map': "function (doc) {if (doc.doctype !== 'submission') return; emit(doc.user, null);}"},
         }
     },
 }

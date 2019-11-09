@@ -9,23 +9,57 @@ Edit submission {{ submission['identifier'] }}
 {% endblock %}
 
 {% block main %}
-<form action="{{ url_for('.edit', cid=submission['identifier']) }}"
+<form action="{{ url_for('.edit', sid=submission['identifier']) }}"
+      enctype="multipart/form-data"
       method="POST">
   {{ csrf_token() }}
   <div class="form-group row">
-    <label for="title"
+    <label for="_title"
 	   class="col-md-2 col-form-label text-right font-weight-bold">
       Title</label>
     <div class="col-md">
-      <input type="text" id="title" name="title"
+      <input type="text" id="_title" name="_title"
              class="form-control"
-             aria-describedby="titleHelp"
+             aria-describedby="_titleHelp"
 	     value="{{ submission.get('title') or '' }}">
-      <small id="titleHelp" class="form-text text-muted">
+      <small id="_titleHelp" class="form-text text-muted">
         Brief descriptive title for the submission.
       </small>
     </div>
   </div>
+  {% for field in submission['fields'] %}
+  <div class="form-group row">
+    <label for="{{ field['identifier'] }}"
+	   class="col-md-2 col-form-label text-right font-weight-bold">
+      {{ field['title'] }}
+    </label>
+    <div class="col-md">
+      {% if field['type'] == 'text' %}
+      <textarea id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
+		class="form-control"
+		aria-describedby="{{ field['identifier'] }}Help"
+		>{{ field['value'] or '' }}</textarea>
+      {% elif field['type'] == 'line' %}
+      <input type="text"
+	     id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
+	     class="form-control"
+	     aria-describedby="_titleHelp"
+	     value="{{ submission.get('title') or '' }}">
+      {% elif field['type'] == 'file' %}
+      {% endif %}
+      <small id="{{ field['identifier'] }}Help" class="form-text text-muted">
+	{% if field.get('required') %}
+	<strong>Required!</strong>
+	<br>
+	{% endif %}
+	{{ field.get('description') | markdown }}
+	{% if field['type'] == 'text' %}
+	Formatted using <a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
+	{% endif %}
+      </small>
+    </div>
+  </div>
+  {% endfor %} {# for field in submission['fields'] #}
   <div class="form-group row">
     <div class="col-md-3 offset-md-2">
       <button type="submit" class="btn btn-block btn-primary">Save</button>

@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
-{% block head_title %}All calls{% endblock %}
+{% block head_title %}Closed calls{% endblock %}
 
-{% block body_title %}All calls{% endblock %}
+{% block body_title %}Closed calls{% endblock %}
 
 {% block supermain %}
 <table id="calls" class="table table-sm">
@@ -12,8 +12,9 @@
       <th>Title</th>
       <th>Opens</th>
       <th>Closes</th>
+      {% if g.is_admin %}
       <th class="text-break">Submissions</th>
-      <th></th>
+      {% endif %}
     </tr>
   </thead>
   <tbody>
@@ -27,17 +28,14 @@
       <td>{{ call['title'] }}</td>
       <td class="text-nowrap pl-2">{{ call['opens'] or '-' }}</td>
       <td class="text-nowrap pl-2">{{ call['closes'] or '-' }}</td>
+      {% if g.is_admin %}
       <td>
 	<a href="{{ url_for('submissions.call', cid=call['identifier']) }}">
 	  <span class="badge badge-primary">
 	    {{ call['tmp']['submissions_count'] }}</span>
 	</a>
       </td>
-      <td>
-	<span class="badge badge-{{ call['tmp']['color'] }}">
-	  {{ call['tmp']['text'] }}
-	</span>
-      </td>
+      {% endif %}
     </tr>
     {% endfor %}
   </tbody>

@@ -2,16 +2,57 @@
 
 {% block head_title %}{{ submission['identifier'] }}{% endblock %}
 
-{% block body_title %}Submission {{ submission['identifier'] }}{% endblock %}
+{% block body_title %}
+{{ submission['identifier'] }}
+{% if submission.get('title') %}
+<small>{{ submission.get('title') }}</small>
+{% endif %}
+{% endblock %}
 
 {% block main %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
   <div class="col-md">
-    <a href="{{ url_for('call.display', cid=call['identifier']) }}">
-      {{ call['title'] }}</div>
+    <a href="{{ url_for('call.display', cid=submission['tmp']['call']['identifier']) }}">
+      {{ submission['tmp']['call']['title'] }}</a>
+  </div>
 </div>
+
+{% for field in submission['fields'] %}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">
+    {{ field['title'] }}
+  </div>
+  <div class="col-md">
+    {% if field['type'] == 'text' %}
+    {{ field.get('value') | markdown }}
+    {% elif field['type'] == 'line' %}
+    {% elif field['type'] == 'file' %}
+    {% endif %}
+  </div>
+</div>
+
+{% endfor %} {# for field in submission['fields'] #}
 {% endblock %} {# block main #}
+
+{% block actions %}
+{% if submission['tmp']['is_editable'] %}
+<div class="mt-2">
+  <a href="{{ url_for('.edit', sid=submission['identifier']) }}"
+     role="button" class="btn btn-primary btn-block">Edit</a>
+</div>
+<div class="mt-2">
+  <form action="{{ url_for('.edit', sid=submission['identifier']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <input type="hidden" name="_http_method" value="DELETE">
+    <button type="submit" class="btn btn-block btn-danger"
+	    onclick="return confirm('Really delete the submission?')">
+      Delete</button>
+  </form>
+</div>
+{% endif %} {# if submission['tmp']['is_editable'] #}
+{% endblock %} {# block actions #}
 
 {% block info %}
 <div class="small">
