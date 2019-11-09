@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '0.2.6'
+__version__ = '0.2.7'
 
 class Constants:
     VERSION     = __version__
@@ -13,7 +13,7 @@ class Constants:
     JQUERY_VERSION     = '3.3.1'
     DATATABLES_VERSION = '1.10.18'
 
-    ID_RX    = re.compile(r'^[a-z][a-z0-9]*$', re.I)
+    ID_RX    = re.compile(r'^[a-z][a-z0-9_]*$', re.I)
     IUID_RX  = re.compile(r'^[a-f0-9]{32,32}$', re.I)
     EMAIL_RX = re.compile(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
 

@@ -27,7 +27,7 @@
     </span>
   </div>
 </div>
-{# XXX check access #}
+{# XXX check privileges #}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Identifier</div>
   <div class="col-md">{{ call['identifier'] }}</div>
@@ -45,7 +45,7 @@
 </div>
 
 <div class="row">
-  <div class="col-md-2 font-weight-bold text-right">Required input</div>
+  <div class="col-md-2 font-weight-bold text-right">Inputs</div>
   <div class="col-md">
     {% for field in call['fields'] %}
     <div class="card mt-2">
@@ -58,7 +58,7 @@
 	    {{ field['title'] or field['identifier'] }}
 	  </div>
 	  <div class="col-md">{{ field['description'] or '-' }}</div>
-	  {% if g.is_admin %}
+	  {% if is_editable %}
 	  <div class="col-md-2">
 	    <button type="button" class="btn btn-block btn-sm btn-primary"
 		    data-toggle="modal"
@@ -76,12 +76,12 @@
 		Delete</button>
 	    </form>
 	  </div>
-	  {% endif %} {# if g.is_admin #}
+	  {% endif %} {# if is_editable #}
 	</div>
       </div>
     </div>
     {% endfor %}
-    {% if g.is_admin %}
+    {% if is_editable %}
     <div class="card mt-2">
       <div class="card-body">
 	<button type="button" class="btn btn-primary"
@@ -90,11 +90,11 @@
 	</button>
       </div>
     </div>
-    {% endif %} {# if g.is_admin #}
+    {% endif %} {# if is_editable #}
   </div>
 </div>
 
-{% if g.is_admin %}
+{% if is_editable %}
 <div class="modal fade" id="_textModal" tabindex="-1" 
      role="dialog" aria-labelledby="_textModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
@@ -158,7 +158,7 @@
     </div>
   </div>
 </div>
-{% endif %} {# if g.is_admin #}
+{% endif %} {# if is_editable #}
 {% endblock %} {# block main #}
 
 {% block actions %}
@@ -172,23 +172,27 @@
   </form>
 </div>
 {% endif %}
-{% if g.is_admin %}
+{% if is_editable %}
 <div class="mt-2">
   <a href="{{ url_for('.edit', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
-{% if is_deletable %}
 <div class="mt-2">
   <form action="{{ url_for('.edit', cid=call['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
     <input type="hidden" name="_http_method" value="DELETE">
-    <button type="submit" class="btn btn-block btn-sm btn-danger"
+    <button type="submit" class="btn btn-block btn-danger"
 	    onclick="return confirm('Really delete the call?')">
       Delete</button>
   </form>
 </div>
-{% endif %} {# if is_deletable #}
+{% endif %} {# if is_editable #}
+{% if g.is_admin %}
+<div class="mt-2">
+  <a href="{{ url_for('.clone', cid=call['identifier']) }}"
+     role="button" class="btn btn-info btn-block">Clone</a>
+</div>
 {% endif %} {# if g.is_admin #}
 {% endblock %} {# block actions #}
 

@@ -1,6 +1,6 @@
 "Call for submissions."
 
-import datetime
+import copy
 
 import flask
 
@@ -13,7 +13,7 @@ blueprint = flask.Blueprint('call', __name__)
 @blueprint.route('/', methods=['GET', 'POST'])
 @utils.admin_required
 def create():
-    "Create a new call."
+    "Create a new call from scratch."
     if utils.http_GET():
         return flask.render_template('call/create.html')
 
@@ -37,8 +37,7 @@ def display(cid):
         return flask.redirect(flask.url_for('home'))
     return flask.render_template('call/display.html',
                                  call=call,
-                                 is_deletable=is_deletable(call),
-                                 submissions_count=get_submissions_count(call))
+                                 is_editable=is_editable(call))
 
 @blueprint.route('/<cid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.admin_required
@@ -66,7 +65,7 @@ def edit(cid):
         return flask.redirect(flask.url_for('.display', cid=call['identifier']))
 
     elif utils.http_DELETE():
-        if not is_deletable(call):
+        if not is_editable(call):
             utils.flash_error('call cannot be deleted')
             return flask.redirect(
                 flask.url_for('.display', cid=call['identifier']))
@@ -85,8 +84,13 @@ def add_field(cid):
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_POST():
-        with CallSaver(call) as saver:
-            saver.add_field(form=flask.request.form)
+        try:
+            with CallSaver(call) as saver:
+                saver.add_field(form=flask.request.form)
+        except ValueError as error:
+            utils.flash_error(str(error))
+            return flask.redirect(
+                flask.url_for('.add_field', cid=call['identifier']))
         return flask.redirect(flask.url_for('.display', cid=call['identifier']))
 
 @blueprint.route('/<cid>/field/<fid>', methods=['POST', 'DELETE'])
@@ -107,6 +111,30 @@ def edit_field(cid, fid):
         with CallSaver(call) as saver:
             saver.delete_field(fid)
         return flask.redirect(flask.url_for('.display', cid=call['identifier']))
+
+@blueprint.route('/<cid>/clone', methods=['GET', 'POST'])
+@utils.admin_required
+def clone(cid):
+    "Clone the call."
+    call = get_call(cid)
+    if not call:
+        utils.flash_error('no such call')
+        return flask.redirect(flask.url_for('home'))
+
+    if utils.http_GET():
+        return flask.render_template('call/clone.html', call=call)
+
+    elif utils.http_POST():
+        try:
+            with CallSaver() as saver:
+                saver.set_identifier(flask.request.form.get('identifier'))
+                saver.set_title(flask.request.form.get('title'))
+                saver.doc['fields'] = copy.deepcopy(call['fields'])
+            new = saver.doc
+        except ValueError as error:
+            utils.flash_error(str(error))
+            return flask.redirect(flask.url_for('.clone', cid=cid))
+        return flask.redirect(flask.url_for('.edit', cid=new['identifier']))
 
 @blueprint.route('/<cid>/logs')
 @utils.admin_required
@@ -211,18 +239,13 @@ def get_call(cid):
     else:
         return None
 
-def get_submissions_count(call):
-    "Return the number of submissions in the call."
-    result = flask.g.db.view('submissions', 'call',
-                             key=call['identifier'],
-                             reduce=True)
-    return result[0].value
-
-def is_deletable(call):
-    "Is the given call deletable?"
-    if get_submissions_count(call) != 0: return False
-    # XXX
-    return flask.g.is_admin and True
+def is_editable(call):
+    "Is the given call editable? Check open/closed and privileges."
+    if call['tmp']['submissions_count'] != 0: return False
+    if flask.g.is_admin: return True
+    if call['tmp']['is_open']: return False
+    if call['tmp']['is_closed']: return False
+    return False
 
 def set_call_tmp(call):
     """Set the 'tmp' property of the call. This is computed data that
