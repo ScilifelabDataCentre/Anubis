@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block main %}
-<div class="row">
+<div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
   <div class="col-md">
     <a href="{{ url_for('call.display', cid=submission['tmp']['call']['identifier']) }}">
@@ -18,21 +18,25 @@
   </div>
 </div>
 
-{% for field in submission['fields'] %}
-<div class="row">
+{% for field in submission['tmp']['call']['fields'] %}
+<div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">
     {{ field['title'] }}
+    {% if submission.errors.get(field['identifier']) %}
+    <br>
+    <span class="text-danger">{{ submission.errors[field['identifier']] }}</span>
+    {% endif %}
   </div>
-  <div class="col-md">
+  <div class="col-md text-break">
     {% if field['type'] == 'text' %}
-    {{ field.get('value') | markdown }}
+    {{ submission['values'].get(field['identifier']) | markdown }}
     {% elif field['type'] == 'line' %}
     {% elif field['type'] == 'file' %}
     {% endif %}
   </div>
 </div>
 
-{% endfor %} {# for field in submission['fields'] #}
+{% endfor %} {# for field in submission['tmp']['call']['fields'] #}
 {% endblock %} {# block main #}
 
 {% block actions %}

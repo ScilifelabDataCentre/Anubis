@@ -27,7 +27,7 @@ Edit submission {{ submission['identifier'] }}
       </small>
     </div>
   </div>
-  {% for field in submission['fields'] %}
+  {% for field in submission['tmp']['call']['fields'] %}
   <div class="form-group row">
     <label for="{{ field['identifier'] }}"
 	   class="col-md-2 col-form-label text-right font-weight-bold">
@@ -36,12 +36,12 @@ Edit submission {{ submission['identifier'] }}
     <div class="col-md">
       {% if field['type'] == 'text' %}
       <textarea id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
-		class="form-control"
+		class="form-control" rows="6"
 		{% if field.get('maxlength') %}
 		maxlength="{{ field['maxlength'] }}"
 		{% endif %}
 		aria-describedby="{{ field['identifier'] }}Help"
-		>{{ field['value'] or '' }}</textarea>
+		>{{ submission['values'][field['identifier']] or '' }}</textarea>
       {% elif field['type'] == 'line' %}
       <input type="text"
 	     id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
@@ -71,7 +71,7 @@ Edit submission {{ submission['identifier'] }}
       </small>
     </div>
   </div>
-  {% endfor %} {# for field in submission['fields'] #}
+  {% endfor %} {# for field in submission['tmp']['call']['fields'] #}
   <div class="form-group row">
     <div class="col-md-3 offset-md-2">
       <button type="submit" class="btn btn-block btn-primary">Save</button>

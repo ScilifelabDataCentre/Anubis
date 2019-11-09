@@ -1,7 +1,5 @@
 "Submissions."
 
-import copy
-
 import flask
 
 import anubis.call
@@ -50,12 +48,8 @@ def edit(sid):
                 flask.url_for('.display', sid=submission['identifier']))
         with SubmissionSaver(submission) as saver:
             saver['title'] = flask.request.form.get('_title') or None
-            for field in submission['fields']:
+            for field in submission['tmp']['call']['fields']:
                 saver.set_field_value(field, form=flask.request.form)
-        for field in submission['fields']:
-            if field.get('error'):
-                utils.flash_error('some error in input fields...')
-                break
         return flask.redirect(
             flask.url_for('.display', sid=submission['identifier']))
 
@@ -92,6 +86,8 @@ class SubmissionSaver(utils.BaseSaver):
     def initialize(self):
         "Set the owner of the submission."
         self.doc['user'] = flask.g.current_user['username']
+        self.doc['values'] = {}
+        self.doc['errors'] = {}
 
     def set_call(self, call):
         "Set the call for the submission; must be called first."
@@ -106,16 +102,17 @@ class SubmissionSaver(utils.BaseSaver):
         with anubis.call.CallSaver(call):
             call['counter'] = counter
         self.doc['identifier'] = f"{call['identifier']}:{counter:03d}"
-        self.doc['fields'] = copy.deepcopy(call['fields'])
+        self.doc['values'] = dict([(f['identifier'], None) 
+                                   for f in call['fields']])
 
     def set_field_value(self, field, form=dict()):
         "Set the value according to field type."
-        field['error'] = None
-        value = form.get(field['identifier'])
-        if field['required'] and not value:
-            field['error'] = 'missing value'
+        id = field['identifier']
+        self.doc['values'][id] = form.get(id)
+        if field['required'] and not self.doc['values'][id]:
+            self.doc['errors'][id] = 'missing value'
         else:
-            field['value'] = value
+            self.doc['errors'].pop(id, None)
 
 def get_submission(sid):
     "Return the submission with the given identifier."
