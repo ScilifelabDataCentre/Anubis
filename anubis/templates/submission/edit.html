@@ -48,14 +48,20 @@ Edit submission {{ submission['identifier'] }}
       {% elif field['type'] == 'file' %}
       {% endif %}
       <small id="{{ field['identifier'] }}Help" class="form-text text-muted">
-	{% if field.get('required') %}
-	<strong>Required!</strong>
-	<br>
-	{% endif %}
-	{{ field.get('description') | markdown }}
-	{% if field['type'] == 'text' %}
-	Formatted using <a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
-	{% endif %}
+	<div class="row">
+	  <div class="col-md">
+	    {% if field.get('required') %}
+	    <strong>Required!</strong>
+	    <br>
+	    {% endif %}
+	    {{ field.get('description') | markdown }}
+	  </div>
+	  {% if field['type'] == 'text' %}
+	  <div class="col-md-3">
+	    Formatted using <a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
+	  </div>
+	  {% endif %}
+	</div>
       </small>
     </div>
   </div>

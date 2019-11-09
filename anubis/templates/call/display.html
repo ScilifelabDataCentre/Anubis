@@ -171,10 +171,16 @@
 			class="form-control"
 			aria-describedby="descriptionHelp"></textarea>
 	      <small id="descriptionHelp" class="form-text text-muted">
-		Short description of the information to be entered in the field.
-		<br>
-		Formatted using 
-		<a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
+		<div class="row">
+		  <div class="col-md">
+		    Short description of the information to be entered
+		    in the field.
+		  </div>
+		  <div class="col-md-4">
+		    Formatted using 
+		    <a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
+		  </div>
+		</div>
 	      </small>
 	    </div>
 	  </div>
@@ -272,10 +278,16 @@
 			aria-describedby="{{ field['identifier'] }}-descriptionHelp">{{ field.get('description') or '' }}</textarea>
 	      <small id="{{ field['identifier'] }}-descriptionHelp" 
 		     class="form-text text-muted">
-		Short description of the information to be entered in the field.
-		<br>
-		Formatted using 
-		<a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
+		<div class="row">
+		  <div class="col-md">
+		    Short description of the information to be entered
+		    in the field.
+		  </div>
+		  <div class="col-md-4">
+		    Formatted using 
+		    <a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
+		  </div>
+		</div>
 	      </small>
 	    </div>
 	  </div>

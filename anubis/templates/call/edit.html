@@ -33,8 +33,14 @@
 		aria-describedby="descriptionHelp"
 		>{{ call['description'] or '' }}</textarea>
       <small id="descriptionHelp" class="form-text text-muted">
-	Description of the call. Formatted using
-	<a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
+	<div class="row">
+	  <div class="col-md">
+	    Description of the call.
+	  </div>
+	  <div class="col-md-3">
+	    Formatted using <a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
+	  </div>
+	</div>
       </small>
     </div>
   </div>
