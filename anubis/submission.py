@@ -127,13 +127,16 @@ def get_submission(sid):
     else:
         return None
 
-def add_submission_tmp(submission):
+def add_submission_tmp(submission, call=None):
     """Set the 'tmp' property of the submission.
     This is computed data that will not be stored with the document.
     Depends on login, privileges, etc.
     """
     submission['tmp'] = tmp = {}
-    tmp['call'] = anubis.call.get_call(submission['call'])
+    if call is None:
+        tmp['call'] = anubis.call.get_call(submission['call'])
+    else:
+        tmp['call'] = call
     if flask.g.is_admin:
         tmp['is_readable'] = True
         tmp['is_editable'] = True

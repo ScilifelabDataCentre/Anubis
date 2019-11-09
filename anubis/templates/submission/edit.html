@@ -37,6 +37,9 @@ Edit submission {{ submission['identifier'] }}
       {% if field['type'] == 'text' %}
       <textarea id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
 		class="form-control"
+		{% if field.get('maxlength') %}
+		maxlength="{{ field['maxlength'] }}"
+		{% endif %}
 		aria-describedby="{{ field['identifier'] }}Help"
 		>{{ field['value'] or '' }}</textarea>
       {% elif field['type'] == 'line' %}
@@ -52,8 +55,11 @@ Edit submission {{ submission['identifier'] }}
 	  <div class="col-md">
 	    {% if field.get('required') %}
 	    <strong>Required!</strong>
-	    <br>
 	    {% endif %}
+	    {% if field.get('maxlength') %}
+	    Maximum {{ field['maxlength'] }} characters.
+	    {% endif %}
+	    <br>
 	    {{ field.get('description') | markdown }}
 	  </div>
 	  {% if field['type'] == 'text' %}

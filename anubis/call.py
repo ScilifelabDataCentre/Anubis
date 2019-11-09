@@ -216,7 +216,12 @@ class CallSaver(utils.BaseSaver):
                  'required': bool(form.get('required'))
                  }
         if field['type'] == 'text':
-            pass
+            try:
+                maxlength = int(form.get('maxlength'))
+                if maxlength <= 0: raise ValueERror
+            except (TypeError, ValueError):
+                maxlength = None
+            field['maxlength'] = maxlength
         else:
             raise ValueError('invalid field type')
         self.doc['fields'].append(field)
@@ -226,12 +231,22 @@ class CallSaver(utils.BaseSaver):
             if field['identifier'] == fid: break
         else:
             raise KeyError('no such field')
-        title = form.get('title') or fid.replace('_', ' ')
-        title = ' '.join([w.capitalize() for w in title.split()])
+        title = form.get('title')
+        if not title:
+            title = ' '.join([w.capitalize() 
+                              for w in fid.replace('_', ' ').split()])
         field['title'] = title
         field['description'] = form.get('description') or None
         field['required'] = bool(form.get('required'))
-        # XXX according to field type...
+        if field['type'] == 'text':
+            try:
+                maxlength = int(form.get('maxlength'))
+                if maxlength <= 0: raise ValueERror
+            except (TypeError, ValueError):
+                maxlength = None
+            field['maxlength'] = maxlength
+        else:
+            raise ValueError('invalid field type')
 
     def delete_field(self, fid):
         for pos, field in enumerate(self.doc['fields']):

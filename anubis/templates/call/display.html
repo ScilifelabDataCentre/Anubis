@@ -60,8 +60,11 @@
 	  <div class="col-md">
 	    {% if field.get('required') %}
 	    <strong>Required!</strong>
-	    <br>
 	    {% endif %}
+	    {% if field.get('maxlength') %}
+	    Maximum {{ field['maxlength'] }} characters.
+	    {% endif %}
+	    <br>
 	    {{ field.get('description') | markdown }}
 	  </div>
 	  {% if call['tmp']['is_editable'] %}
@@ -110,14 +113,14 @@
       <form action="{{ url_for('.add_field', cid=call['identifier']) }}"
 	    method="POST">
 	{{ csrf_token() }}
-      <div class="modal-header">
-        <h5 class="modal-title" id="_textModalLabel">Add text field</h5>
-        <button type="button" class="close"
-		data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
+	<div class="modal-header">
+          <h5 class="modal-title" id="_textModalLabel">Add text field</h5>
+          <button type="button" class="close"
+		  data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+	</div>
+	<div class="modal-body">
 	  <input type="hidden" name="type" value="text">
 	  <div class="form-group row">
 	    <label for="identifier" class="col-md-2 col-form-label text-right">
@@ -154,9 +157,7 @@
 		       class="form-check-input"
 		       aria-describedby="requiredHelp"
 		       value="true">
-		<label class="form-check-label" for="required">
-		  Yes
-		</label>
+		<label class="form-check-label" for="required">Yes</label>
 	      </div>
 	      <small id="requiredHelp" class="form-text text-muted">
 		Is a field value required for a valid submission?
@@ -184,12 +185,24 @@
 	      </small>
 	    </div>
 	  </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary"
-		data-dismiss="modal">Cancel</button>
-        <button type="submit" class="btn btn-primary">Save</button>
-      </div>
+	  <div class="form-group row">
+	    <label for="maxlength" class="col-md-2 col-form-label text-right">
+	      Maxlength</label>
+	    <div class="col-md">
+	      <input type="text" id="maxlength" name="maxlength"
+		     class="form-control"
+		     aria-describedby="maxlengthHelp">
+	      <small id="maxlengthHelp" class="form-text text-muted">
+		Max number of characters.
+	      </small>
+	    </div>
+	  </div>
+	</div>
+	<div class="modal-footer">
+          <button type="button" class="btn btn-secondary"
+		  data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+	</div>
       </form>
     </div>
   </div>
@@ -197,24 +210,26 @@
 
 {% for field in call['fields'] %}
 <div class="modal fade" id="{{ field['identifier'] }}-Modal" tabindex="-1" 
-     role="dialog" aria-labelledby="{{ field['identifier'] }}-ModalLabel" aria-hidden="true">
+     role="dialog" aria-labelledby="{{ field['identifier'] }}-ModalLabel"
+     aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <form action="{{ url_for('.edit_field', cid=call['identifier'], fid=field['identifier']) }}"
 	    method="POST">
 	{{ csrf_token() }}
-      <div class="modal-header">
-        <h5 class="modal-title" id="{{ field['identifier'] }}-ModalLabel">
-	  Edit {{ field['type'] }} field</h5>
-        <button type="button" class="close"
-		data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
+	<div class="modal-header">
+          <h5 class="modal-title" id="{{ field['identifier'] }}-ModalLabel">
+	    Edit {{ field['type'] }} field</h5>
+          <button type="button" class="close"
+		  data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+	</div>
+	<div class="modal-body">
 	  <input type="hidden" name="type" value="text">
 	  <div class="form-group row">
-	    <label for="{{ field['identifier'] }}-identifier" class="col-md-2 col-form-label text-right">
+	    <label for="{{ field['identifier'] }}-identifier" 
+		   class="col-md-2 col-form-label text-right">
 	      Identifier</label>
 	    <div class="col-md">
 	      <input type="text" id="{{ field['identifier'] }}-identifier"
@@ -258,8 +273,7 @@
 		       {{ field.get('required') and 'checked' or '' }}>
 		<label class="form-check-label"
 		       for="{{ field['identifier'] }}-required">
-		  Yes
-		</label>
+		  Yes</label>
 	      </div>
 	      <small id="{{ field['identifier'] }}-requiredHelp"
 		     class="form-text text-muted">
@@ -291,12 +305,30 @@
 	      </small>
 	    </div>
 	  </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary"
-		data-dismiss="modal">Cancel</button>
-        <button type="submit" class="btn btn-primary">Save</button>
-      </div>
+	  {% if field['type'] in ('text', 'line') %}
+	  <div class="form-group row">
+	    <label for="{{ field['identifier'] }}-maxlength" 
+		   class="col-md-2 col-form-label text-right">
+	      Maxlength</label>
+	    <div class="col-md">
+	      <input type="text" id="{{ field['identifier'] }}-maxlength"
+		     name="maxlength"
+		     class="form-control"
+		     aria-describedby="{{ field['identifier'] }}-maxlengthHelp"
+		     value="{{ field.get('maxlength') or '' }}">
+	      <small id="{{ field['identifier'] }}-maxlengthHelp"
+		     class="form-text text-muted">
+		Max number of characters.
+	      </small>
+	    </div>
+	  </div>
+	  {% endif %}
+	</div>
+	<div class="modal-footer">
+          <button type="button" class="btn btn-secondary"
+		  data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+	</div>
       </form>
     </div>
   </div>

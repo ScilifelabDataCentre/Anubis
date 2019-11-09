@@ -3,6 +3,7 @@
 import flask
 
 import anubis.call
+import anubis.submission
 
 from . import constants
 from . import utils
@@ -19,15 +20,15 @@ def call(cid):
         utils.flash_error('no such call')
         return flask.redirect(flask.url_for('home'))
 
-    # XXX check access
-    submissions = get_submissions(call)
+    submissions = [s for s in get_submissions(call) if s['tmp']['is_readable']]
     return flask.render_template('submissions/call.html', 
                                  call=call,
                                  submissions=submissions)
 
 def get_submissions(call):
     "Get all submissions for the call."
-    return [r.doc for r in flask.g.db.view('submissions', 'call',
-                                           key=call['identifier'],
-                                           reduce=False,
-                                           include_docs=True)]
+    return [anubis.submission.add_submission_tmp(r.doc, call=call)
+            for r in flask.g.db.view('submissions', 'call',
+                                     key=call['identifier'],
+                                     reduce=False,
+                                     include_docs=True)]

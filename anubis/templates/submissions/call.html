@@ -14,6 +14,8 @@ All submissions in call {{ call['identifier'] }}
     <tr>
       <th>Identifier</th>
       <th>Title</th>
+      {# XXX Check privilege #}
+      <th>Submitter</th>
     </tr>
   </thead>
   <tbody>
@@ -24,6 +26,11 @@ All submissions in call {{ call['identifier'] }}
 	  {{ submission['identifier'] }}</a>
       </td>
       <td>{{ submission.get('title') or '-' }}</td>
+      {# XXX Check privilege #}
+      <td>
+	<a href="{{ url_for('user.profile', username=submission['user']) }}">
+	  {{ submission['user'] }}</a>
+      </td>
     </tr>
     {% endfor %}
   </tbody>
