@@ -170,7 +170,7 @@ def submission(cid):
             saver.set_call(call)
         doc = saver
         return flask.redirect(
-            flask.url_for('submission.display', sid=doc['identifier']))
+            flask.url_for('submission.edit', sid=doc['identifier']))
 
 
 class CallSaver(utils.BaseSaver):
