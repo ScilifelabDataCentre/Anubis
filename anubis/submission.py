@@ -138,9 +138,9 @@ def add_submission_tmp(submission, call=None):
         tmp['is_readable'] = True
         tmp['is_editable'] = True
     elif flask.g.current_user:
-        if flask.c.current_user['username'] == submission['user']:
+        if flask.g.current_user['username'] == submission['user']:
             tmp['is_readable'] = True
-            tmp['is_editable'] = tmp['call']['is_open']
+            tmp['is_editable'] = tmp['call']['tmp']['is_open']
         else:
             # XXX Check reviewers privileges within call
             tmp['is_readable'] = True

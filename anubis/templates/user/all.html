@@ -4,11 +4,12 @@
 
 {% block body_title %}All users{% endblock %}
 
-{% block main %}
+{% block supermain %}
 <table id="users" class="table table-sm">
   <thead>
     <tr>
       <th>Username</th>
+      <th>Submissions</th>
       <th>Email</th>
       <th>Given name</th>
       <th>Family name</th>
@@ -29,6 +30,11 @@
       <td>
         <a href="{{ url_for('.profile', username=user['username']) }}">
           {{ user['username'] }}</a>
+      </td>
+      <td>
+	<a href="{{ url_for('submissions.user', username=user['username']) }}">
+	  <span class="badge badge-primary">{{ user['submissions_count'] }}</span>
+	</a>
       </td>
       <td>{{ user['email'] }}</td>
       <td>{{ user['givenname'] }}</td>
@@ -54,7 +60,7 @@
     {% endfor %}
   </tbody>
 </table>
-{% endblock %} {# block main #}
+{% endblock %} {# block supermain #}
 
 {% block meta %}
 <div class="py-1">

@@ -9,6 +9,14 @@
   <col style="width:20%">
   <col style="width:80%">
   <tr>
+    <th class="text-right">Submissions</th>
+    <td>
+      <a href="{{ url_for('submissions.user', username=user['username']) }}">
+	<span class="badge badge-primary">{{ user['submissions_count'] }}</span>
+      </a>
+    </td>
+  </tr>
+  <tr>
     <th class="text-right">Email</th>
     <td>{{ user['email'] }}</td>
   </tr>
@@ -120,12 +128,12 @@
 </div>
 {% endif %} {# if g.current_user... #}
 {% if deletable %}
-<div class="mt-2">
+<div class="mt-4">
   <form action="{{ url_for('.profile', username=user['username']) }}"
 	method="POST">
     {{ csrf_token() }}
     <input type="hidden" name="_http_method" value="DELETE">
-    <button type="submit" class="btn btn-danger btn-block"
+    <button type="submit" class="btn btn-danger btn-sm btn-block"
 	    data-toggle="tooltip" data-placement="left"
 	    title="Delete the user account."
             onclick="return confirm('Really delete? Cannot be undone.')">

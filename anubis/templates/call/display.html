@@ -354,16 +354,6 @@
   <a href="{{ url_for('.edit', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
-<div class="mt-2">
-  <form action="{{ url_for('.edit', cid=call['identifier']) }}"
-	method="POST">
-    {{ csrf_token() }}
-    <input type="hidden" name="_http_method" value="DELETE">
-    <button type="submit" class="btn btn-block btn-danger"
-	    onclick="return confirm('Really delete the call?')">
-      Delete</button>
-  </form>
-</div>
 {% endif %} {# if call['tmp']['is_editable'] #}
 {% if g.is_admin %}
 <div class="mt-2">
@@ -371,6 +361,18 @@
      role="button" class="btn btn-info btn-block">Clone</a>
 </div>
 {% endif %} {# if g.is_admin #}
+{% if call['tmp']['is_editable'] %}
+<div class="mt-4">
+  <form action="{{ url_for('.edit', cid=call['identifier']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <input type="hidden" name="_http_method" value="DELETE">
+    <button type="submit" class="btn btn-block btn-sm btn-danger"
+	    onclick="return confirm('Really delete the call?')">
+      Delete</button>
+  </form>
+</div>
+{% endif %} {# if call['tmp']['is_editable'] #}
 {% endblock %} {# block actions #}
 
 {% block info %}

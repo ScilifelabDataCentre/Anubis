@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Submissions for user {{ user['username'] }}{% endblock %}
+
+{% block body_title %}Submissions for user {{ user['username'] }}{% endblock %}
+
+{% block main %}
+<table id="submissions" class="table">
+  <thead>
+    <tr>
+      <th>Identifier</th>
+      <th>Title</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for submission in submissions %}
+    <tr>
+      <td>
+	<a href="{{ url_for('submission.display', sid=submission['identifier']) }}">
+	  {{ submission['identifier'] }}</a>
+      </td>
+      <td>{{ submission.get('title') or '-' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %} {# block main #}
+
+{% block javascript %}
+<script>
+  $(function() {
+    $("#submissions").DataTable( {
+      "pagingType": "full_numbers",
+      "pageLength": 25
+    });
+  });
+</script>
+{% endblock %}

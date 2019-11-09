@@ -389,7 +389,8 @@ DESIGNS = {
             'identifier': {'map': "function (doc) {if (doc.doctype !== 'submission') return; emit(doc.identifier, null);}"},
             'call': {'reduce': '_count',
                      'map': "function (doc) {if (doc.doctype !== 'submission') return; emit(doc.call, null);}"},
-            'user': {'map': "function (doc) {if (doc.doctype !== 'submission') return; emit(doc.user, null);}"},
+            'user': {'reduce': '_count',
+                     'map': "function (doc) {if (doc.doctype !== 'submission') return; emit(doc.user, null);}"},
         }
     },
 }

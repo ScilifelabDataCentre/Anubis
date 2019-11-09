@@ -11,6 +11,7 @@ import werkzeug.security
 
 from . import constants
 from . import utils
+from .submissions import get_user_submissions_count
 
 
 blueprint = flask.Blueprint('user', __name__)
@@ -163,10 +164,11 @@ def profile(username):
     if not is_admin_or_self(user):
         utils.flash_error('access not allowed')
         return flask.redirect(flask.url_for('home'))
+    user['submissions_count'] = get_user_submissions_count(user['username'])
     return flask.render_template('user/profile.html',
                                  user=user,
                                  enable_disable=is_admin_and_not_self(user),
-                                 deletable=is_empty(user))
+                                 deletable=is_deletable(user))
 
 @blueprint.route('/profile/<username>/edit',
                  methods=['GET', 'POST', 'DELETE'])
@@ -214,8 +216,8 @@ def edit(username):
             flask.url_for('.profile', username=user['username']))
 
     elif utils.http_DELETE():
-        if not is_empty(user):
-            utils.flash_error('cannot delete non-empty user account')
+        if not is_deletable(user):
+            utils.flash_error('cannot delete the user account; admin or not empty')
             return flask.redirect(flask.url_for('.profile', username=username))
         flask.g.db.delete(user)
         utils.flash_message(f"Deleted user {username}.")
@@ -248,6 +250,8 @@ def logs(username):
 def all():
     "Display list of all users."
     users = get_users(role=None)
+    for user in users:
+        user['submissions_count'] = get_user_submissions_count(user['username'])
     return flask.render_template('user/all.html', users=users)
 
 @blueprint.route('/enable/<username>', methods=['POST'])
@@ -444,10 +448,12 @@ def send_password_code(user, action):
     message.body = f"To set your password, go to {url}"
     utils.mail.send(message)
 
-def is_empty(user):
-    "Is the given user account empty? No data associated with it."
-    # XXX Needs implementation.
-    return False
+def is_deletable(user):
+    """Can the the given user account be deleted? 
+    Only when no submissions and not admin.
+    """
+    if user['role'] == constants.ADMIN: return False
+    return not bool(get_user_submissions_count(user['username']))
 
 def is_admin_or_self(user):
     "Is the current user admin, or the same as the given user?"
