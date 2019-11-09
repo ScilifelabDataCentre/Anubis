@@ -133,7 +133,6 @@ def submission(cid):
         utils.flash_error('no such call')
         return flask.redirect(flask.url_for('home'))
 
-    update_calls([call])
     if not call['tmp']['is_open']:
         utils.flash_error(f"Call {call['title']} is not open.")
 
@@ -207,7 +206,7 @@ def get_call(cid):
                                              include_docs=True)]
     if len(result) == 1:
         call = result[0]
-        update_calls([call])
+        set_call_tmp(call)
         return call
     else:
         return None
@@ -225,49 +224,66 @@ def is_deletable(call):
     # XXX
     return flask.g.is_admin and True
 
-def update_calls(calls):
-    "Update current properties of calls: is_open, display data."
-    for call in calls:
-        call['tmp'] = {}
-        now = utils.normalized_local_now()
-        if call['opens']:
-            if call['opens'] > now:
-                call['tmp']['is_open'] = False
-                call['tmp']['text'] = 'Not yet open.'
-                call['tmp']['color'] = 'secondary'
-            elif call['closes']:
-                remaining = utils.days_remaining(call['closes'])
-                if remaining > 7.0:
-                    call['tmp']['is_open'] = True
-                    call['tmp']['text'] = f"{remaining:.0f} days remaining."
-                    call['tmp']['color'] = 'success'
-                elif remaining > 2.0:
-                    call['tmp']['is_open'] = True
-                    call['tmp']['text'] = f"{remaining:.0f} days remaining."
-                    call['tmp']['color'] = 'info'
-                elif remaining >= 1.0:
-                    call['tmp']['is_open'] = True
-                    call['tmp']['text'] = "Less than two days remaining."
-                    call['tmp']['color'] = 'warning'
-                elif remaining >= 0.0:
-                    call['tmp']['is_open'] = True
-                    call['tmp']['text'] = "Less than one day remaining."
-                    call['tmp']['color'] = 'warning'
-                else:
-                    call['tmp']['is_open'] = False
-                    call['tmp']['text'] = 'Closed.'
-                    call['tmp']['color'] = 'danger'
-            else:
+def set_call_tmp(call):
+    """Set the 'tmp' property of the call. This is computed data that
+    will not be stored with the document: is_open, is_closed, 
+    display data, submissions count.
+    """
+    call['tmp'] = {}
+    result = list(flask.g.db.view('submissions', 'call',
+                                  key=call['identifier'],
+                                  reduce=True))
+    if result:
+        call['tmp']['submissions_count'] = result[0].value
+    else:
+        call['tmp']['submissions_count'] = 0
+    now = utils.normalized_local_now()
+    if call['opens']:
+        if call['opens'] > now:
+            call['tmp']['is_open'] = False
+            call['tmp']['is_closed'] = False
+            call['tmp']['text'] = 'Not yet open.'
+            call['tmp']['color'] = 'secondary'
+        elif call['closes']:
+            remaining = utils.days_remaining(call['closes'])
+            if remaining > 7.0:
                 call['tmp']['is_open'] = True
-                call['tmp']['text'] = 'Open with no closing date.'
+                call['tmp']['is_closed'] = False
+                call['tmp']['text'] = f"{remaining:.0f} days remaining."
                 call['tmp']['color'] = 'success'
-        else:
-            if call['closes']:
-                call['tmp']['is_open'] = False
-                call['tmp']['text'] = 'No open date set.'
-                call['tmp']['color'] = 'secondary'
+            elif remaining > 2.0:
+                call['tmp']['is_open'] = True
+                call['tmp']['is_closed'] = False
+                call['tmp']['text'] = f"{remaining:.0f} days remaining."
+                call['tmp']['color'] = 'info'
+            elif remaining >= 1.0:
+                call['tmp']['is_open'] = True
+                call['tmp']['is_closed'] = False
+                call['tmp']['text'] = "Less than two days remaining."
+                call['tmp']['color'] = 'warning'
+            elif remaining >= 0.0:
+                call['tmp']['is_open'] = True
+                call['tmp']['is_closed'] = False
+                call['tmp']['text'] = "Less than one day remaining."
+                call['tmp']['color'] = 'danger'
             else:
                 call['tmp']['is_open'] = False
-                call['tmp']['text'] = 'No open or close dates set.'
-                call['tmp']['color'] = 'secondary'
-            
+                call['tmp']['is_closed'] = True
+                call['tmp']['text'] = 'Closed.'
+                call['tmp']['color'] = 'dark'
+        else:
+            call['tmp']['is_open'] = True
+            call['tmp']['is_closed'] = False
+            call['tmp']['text'] = 'Open with no closing date.'
+            call['tmp']['color'] = 'success'
+    else:
+        if call['closes']:
+            call['tmp']['is_open'] = False
+            call['tmp']['is_closed'] = False
+            call['tmp']['text'] = 'No open date set.'
+            call['tmp']['color'] = 'secondary'
+        else:
+            call['tmp']['is_open'] = False
+            call['tmp']['is_closed'] = False
+            call['tmp']['text'] = 'No open or close dates set.'
+            call['tmp']['color'] = 'secondary'

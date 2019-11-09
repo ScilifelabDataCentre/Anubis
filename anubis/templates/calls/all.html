@@ -8,10 +8,11 @@
 <table id="calls" class="table table-sm">
   <thead>
     <tr>
-      <th>Identifier</th>
+      <th class="text-break">Identifier</th>
       <th>Title</th>
       <th>Opens</th>
       <th>Closes</th>
+      <th class="text-break">Submissions</th>
       <th></th>
     </tr>
   </thead>
@@ -25,6 +26,12 @@
       <td>{{ call['title'] }}</td>
       <td class="text-nowrap pl-2">{{ call['opens'] or '-' }}</td>
       <td class="text-nowrap pl-2">{{ call['closes'] or '-' }}</td>
+      <td>
+	<a href="{{ url_for('submissions.call', cid=call['identifier']) }}">
+	  <span class="badge badge-primary">
+	    {{ call['tmp']['submissions_count'] }}</span>
+	</a>
+      </td>
       <td>
 	<span class="badge badge-{{ call['tmp']['color'] }}">
 	  {{ call['tmp']['text'] }}

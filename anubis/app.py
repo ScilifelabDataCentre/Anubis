@@ -56,20 +56,9 @@ def home():
     "Home page. Redirect to API root if JSON is accepted."
     if utils.accept_json():
         return flask.redirect(flask.url_for('api_root'))
-    # Get the currently open calls.
-    result = list(flask.g.db.view('calls', 'closes', 
-                                  startkey=utils.normalized_local_now(),
-                                  endkey='ZZZZZZ',
-                                  include_docs=True))
-    calls = [r.doc for r in result]
-    result = list(flask.g.db.view('calls', 'open_ended', 
-                                  startkey='',
-                                  endkey=utils.normalized_local_now(),
-                                  include_docs=True))
-    calls.extend([r.doc for r in result])
-    anubis.call.update_calls(calls)
-    # The calls are already properly sorted in the list.
-    return flask.render_template('home.html', calls=calls)
+    # The list is already properly sorted.
+    return flask.render_template('home.html', 
+                                 calls=anubis.calls.get_open_calls())
 
 # Set up the URL map.
 app.register_blueprint(anubis.user.blueprint, url_prefix='/user')
