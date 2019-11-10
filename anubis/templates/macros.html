@@ -9,27 +9,31 @@
 </a>
 {%- endmacro %}
 
-{% macro button_to_call(call, block=True) -%}
+{% macro button_to_call(call, block=True, full=False) -%}
 <a href="{{ url_for('call.display', cid=call['identifier']) }}"
-   title="{{ call.get('title') or call['identifier'] }}"
+   title="{{ call['title'] }}"
    role="button"
    class="btn btn-sm btn-outline-primary {{ block and 'btn-block' or '' }}">
+  {% if full %}
+  {{ call['identifier'] }}: {{ call['title'] }}
+  {% else %}
   {{ call['identifier'] }}
+  {% endif %}
 </a>
 {%- endmacro %}
 
-{% macro button_to_user(username, block=True) -%}
+{% macro button_to_user(username, block=True, label=False) -%}
 <a href="{{ url_for('user.profile', username=username) }}"
    role="button" 
    class="btn btn-sm btn-outline-primary {{ block and 'btn-block' or '' }}">
-  {{ username }}
+  {{ label and 'User' or '' }} {{ username }}
 </a>
 {%- endmacro %}
 
 {% macro submitted(submission) -%}
 {% if submission.get('submitted') %}
-<span class="localtime">{{submission['submitted'] }}</span>
+<span class="localtime">{{ submission['submitted'] }}</span>
 {% else %}
-<span class="badge badge-warning">Not yet submitted.</span>
+<span class="badge badge-warning">Not submitted.</span>
 {% endif %}
 {%- endmacro %}

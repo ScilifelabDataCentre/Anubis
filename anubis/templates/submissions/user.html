@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% import 'button.html' as button_macro %}
 
 {% block head_title %}
 All submissions from user {{ user['username'] }}
@@ -13,19 +12,19 @@ All submissions from user {{ user['username'] }}
 <table id="submissions" class="table">
   <thead>
     <tr>
-      <th>Call</th>
       <th>Identifier</th>
       <th>Title</th>
       <th>Submitted</th>
+      <th>Call</th>
     </tr>
   </thead>
   <tbody>
     {% for submission in submissions %}
     <tr>
-      <td>{{ button_macro.to_call(submission['tmp']['call']) }}</td>
-      <td>{{ button_macro.to_submission(submission) }}</td>
+      <td>{{ macros.button_to_submission(submission) }}</td>
       <td>{{ submission.get('title') or '-' }}</td>
       <td>{{ macros.submitted(submission) }}</td>
+      <td>{{ macros.button_to_call(submission['tmp']['call']) }}</td>
     </tr>
     {% endfor %}
   </tbody>
@@ -33,7 +32,7 @@ All submissions from user {{ user['username'] }}
 {% endblock %} {# block main #}
 
 {% block links %}
-{{ button_macro.to_user(user['username']) }}
+{{ macros.button_to_user(user['username'], label=True) }}
 {% endblock %}
 
 {% block javascript %}

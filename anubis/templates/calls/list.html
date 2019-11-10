@@ -20,11 +20,7 @@
   <tbody>
     {% for call in calls %}
     <tr>
-      <td>
-	<a href="{{ url_for('call.display', cid=call['identifier']) }}"
-	   role="button" class="btn btn-sm btn-outline-primary btn-block mr-2">
-	  {{ call['identifier'] }}</a>
-      </td>
+      <td>{{ macros.button_to_call(call) }}</td>
       {% if g.current_user %}
       <td>
 	<a href="{{ url_for('submissions.call', cid=call['identifier']) }}">

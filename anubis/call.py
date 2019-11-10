@@ -68,7 +68,7 @@ def edit(cid):
             return flask.redirect(
                 flask.url_for('.display', cid=call['identifier']))
         utils.delete(call)
-        utils.flash_message(f"deleted call {call['title']}")
+        utils.flash_message(f"deleted call {call['identifier']}:{call['title']}")
         return flask.redirect(flask.url_for('calls.all'))
 
 

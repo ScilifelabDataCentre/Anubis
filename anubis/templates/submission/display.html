@@ -13,8 +13,7 @@
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
   <div class="col-md">
-    <a href="{{ url_for('call.display', cid=submission['tmp']['call']['identifier']) }}">
-      {{ submission['tmp']['call']['title'] }}</a>
+    {{ macros.button_to_call(submission['tmp']['call'], block=False, full=True) }}
   </div>
 </div>
 <div class="row mb-2">
@@ -28,17 +27,7 @@
 </div>
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Submitted</div>
-  <div class="col-md">
-    {% if submission.get('submitted') %}
-    <span style="font-size: 120%">
-      <span class="badge badge-success localtime">{{ submission['submitted'] }}</span>
-    </span>
-    {% else %}
-    <span style="font-size: 120%">
-      <span class="badge badge-warning">Not yet submitted.</span>
-    </span>
-    {% endif %}
-  </div>
+  <div class="col-md">{{ macros.submitted(submission) }}</div>
 </div>
 
 {# XXX access? #}
@@ -55,7 +44,9 @@
     {{ field['title'] }}
     {% if submission.errors.get(field['identifier']) %}
     <br>
-    <span class="text-danger">{{ submission.errors[field['identifier']] }}</span>
+    <span class="text-danger">
+      {{ submission.errors[field['identifier']] }}
+    </span>
     {% endif %}
   </div>
   <div class="col-md text-break">
@@ -69,12 +60,6 @@
 
 {% endfor %} {# for field in submission['tmp']['call']['fields'] #}
 {% endblock %} {# block main #}
-
-{% block links %}
-<a href="{{ url_for('call.display', cid=submission['tmp']['call']['identifier']) }}"
-   role="button" class="btn btn-outline-primary btn-block">
-  Call {{ submission['tmp']['call']['identifier'] }}</a>
-{% endblock %}
 
 {% block actions %}
 {% if submission['tmp']['is_editable'] %}
