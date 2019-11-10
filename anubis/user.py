@@ -1,4 +1,4 @@
-"User profile and login/logout HTMl endpoints."
+"User display and login/logout HTMl endpoints."
 
 import datetime
 import http.client
@@ -92,7 +92,7 @@ def register():
             site = flask.current_app.config['SITE_NAME']
             message = flask_mail.Message(f"{site} user account pending",
                                          recipients=emails)
-            url = utils.url_for('.profile', username=user['username'])
+            url = utils.url_for('.display', username=user['username'])
             message.body = f"To enable the user account, go to {url}"
             utils.mail.send(message)
             utils.get_logger().info(f"pending user {user['username']}")
@@ -153,10 +153,10 @@ def password():
             do_login(username, password)
         return flask.redirect(flask.url_for('home'))
 
-@blueprint.route('/profile/<username>')
+@blueprint.route('/display/<username>')
 @utils.login_required
-def profile(username):
-    "Display the profile of the given user."
+def display(username):
+    "Display the given user."
     user = get_user(username=username)
     if user is None:
         utils.flash_error('no such user')
@@ -165,16 +165,16 @@ def profile(username):
         utils.flash_error('access not allowed')
         return flask.redirect(flask.url_for('home'))
     user['submissions_count'] = get_submissions_count(username=user['username'])
-    return flask.render_template('user/profile.html',
+    return flask.render_template('user/display.html',
                                  user=user,
                                  enable_disable=is_admin_and_not_self(user),
                                  deletable=is_deletable(user))
 
-@blueprint.route('/profile/<username>/edit',
+@blueprint.route('/display/<username>/edit',
                  methods=['GET', 'POST', 'DELETE'])
 @utils.login_required
 def edit(username):
-    "Edit the user profile. Or delete the user."
+    "Edit the user display. Or delete the user."
     user = get_user(username=username)
     if user is None:
         utils.flash_error('no such user')
@@ -213,12 +213,12 @@ def edit(username):
             if flask.request.form.get('apikey'):
                 saver.set_apikey()
         return flask.redirect(
-            flask.url_for('.profile', username=user['username']))
+            flask.url_for('.display', username=user['username']))
 
     elif utils.http_DELETE():
         if not is_deletable(user):
             utils.flash_error('cannot delete the user account; admin or not empty')
-            return flask.redirect(flask.url_for('.profile', username=username))
+            return flask.redirect(flask.url_for('.display', username=username))
         flask.g.db.delete(user)
         utils.flash_message(f"Deleted user {username}.")
         utils.get_logger().info(f"deleted user {username}")
@@ -227,7 +227,7 @@ def edit(username):
         else:
             return flask.redirect(flask.url_for('home'))
 
-@blueprint.route('/profile/<username>/logs')
+@blueprint.route('/display/<username>/logs')
 @utils.login_required
 def logs(username):
     "Display the log records of the given user."
@@ -241,7 +241,7 @@ def logs(username):
     return flask.render_template(
         'logs.html',
         title=f"User {user['username']}",
-        cancel_url=flask.url_for('.profile', username=user['username']),
+        cancel_url=flask.url_for('.display', username=user['username']),
         api_logs_url=flask.url_for('api_user.logs', username=user['username']),
         logs=utils.get_logs(user['_id']))
 
@@ -267,7 +267,7 @@ def enable(username):
         saver.set_password()
     send_password_code(user, 'enabled')
     utils.get_logger().info(f"enabled user {username}")
-    return flask.redirect(flask.url_for('.profile', username=username))
+    return flask.redirect(flask.url_for('.display', username=username))
 
 @blueprint.route('/disable/<username>', methods=['POST'])
 @utils.admin_required
@@ -280,7 +280,7 @@ def disable(username):
     with UserSaver(user) as saver:
         saver.set_status(constants.DISABLED)
     utils.get_logger().info(f"disabled user {username}")
-    return flask.redirect(flask.url_for('.profile', username=username))
+    return flask.redirect(flask.url_for('.display', username=username))
 
 
 class UserSaver(utils.BaseSaver):

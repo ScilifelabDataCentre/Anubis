@@ -29,7 +29,7 @@ def root():
     if flask.g.current_user:
         items['user'] = {
             'username': flask.g.current_user['username'],
-            'href': utils.url_for('api_user.profile',
+            'href': utils.url_for('api_user.display',
                                   username=flask.g.current_user['username'])
         }
     if flask.g.is_admin:

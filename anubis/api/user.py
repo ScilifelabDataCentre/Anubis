@@ -1,4 +1,4 @@
-"User profile API endpoints."
+"User display API endpoints."
 
 import http.client
 
@@ -17,7 +17,7 @@ def all():
                          schema_url=utils.url_for('api_schema.users'))
 
 @blueprint.route('/<username>')
-def profile(username):
+def display(username):
     user = anubis.user.get_user(username=username, safe=True)
     if not user:
         flask.abort(http.client.NOT_FOUND)
@@ -37,7 +37,7 @@ def logs(username):
     if not anubis.user.is_admin_or_self(user):
         flask.abort(http.client.FORBIDDEN)
     data = {'username': user['username'],
-            'href': utils.url_for('.profile', username=user['username'])}
+            'href': utils.url_for('.display', username=user['username'])}
     return utils.jsonify(utils.get_json(user=data,
                                         logs=utils.get_logs(user['_id'])),
                          schema_url=utils.url_for('api_schema.logs'))

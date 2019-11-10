@@ -23,7 +23,7 @@
 {%- endmacro %}
 
 {% macro button_to_user(username, block=True, label=False) -%}
-<a href="{{ url_for('user.profile', username=username) }}"
+<a href="{{ url_for('user.display', username=username) }}"
    role="button" 
    class="btn btn-sm btn-outline-primary {{ block and 'btn-block' or '' }}">
   {{ label and 'User' or '' }} {{ username }}
