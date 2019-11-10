@@ -29,8 +29,10 @@ DESIGNS = {
     'submissions': {
         'views': {
             'identifier': {'map': "function (doc) {if (doc.doctype !== 'submission') return; emit(doc.identifier, null);}"},
+            # NOTE: excludeds submissions not marked 'submitted'
             'call': {'reduce': '_count',
-                     'map': "function (doc) {if (doc.doctype !== 'submission') return; emit(doc.call, null);}"},
+                     'map': "function (doc) {if (doc.doctype !== 'submission' || !doc.submitted) return; emit(doc.call, null);}"},
+            # NOTE: includes submissions not marked 'submitted'
             'user': {'reduce': '_count',
                      'map': "function (doc) {if (doc.doctype !== 'submission') return; emit(doc.user, null);}"},
             'user_call': {'reduce': '_count',
