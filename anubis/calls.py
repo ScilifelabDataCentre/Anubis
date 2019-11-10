@@ -13,7 +13,10 @@ blueprint = flask.Blueprint('calls', __name__)
 @blueprint.route('')
 @utils.admin_required
 def all():
-    "All calls."
+    """All calls.
+    Includes calls that have not been opened,
+    and those with neither opens nor closes dates set.
+    """
     return flask.render_template('calls/all.html', calls=get_all_calls())
 
 @blueprint.route('/closed')
