@@ -10,11 +10,11 @@
     <tr>
       <th></th>
       <th>Title</th>
-      <th>Opens</th>
-      <th>Closes</th>
-      {% if g.is_admin %}
+      {% if g.current_user %}
       <th class="text-break">Submissions</th>
       {% endif %}
+      <th>Opens</th>
+      <th>Closes</th>
     </tr>
   </thead>
   <tbody>
@@ -26,9 +26,7 @@
 	  {{ call['identifier'] }}</a>
       </td>
       <td>{{ call['title'] }}</td>
-      <td class="text-nowrap pl-2">{{ call['opens'] or '-' }}</td>
-      <td class="text-nowrap pl-2">{{ call['closes'] or '-' }}</td>
-      {% if g.is_admin %}
+      {% if g.current_user %}
       <td>
 	<a href="{{ url_for('submissions.call', cid=call['identifier']) }}">
 	  <span class="badge badge-primary">
@@ -36,6 +34,8 @@
 	</a>
       </td>
       {% endif %}
+      <td class="text-nowrap pl-2">{{ call['opens'] or '-' }}</td>
+      <td class="text-nowrap pl-2">{{ call['closes'] or '-' }}</td>
     </tr>
     {% endfor %}
   </tbody>

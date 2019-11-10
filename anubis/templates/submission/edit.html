@@ -19,7 +19,7 @@ Edit submission {{ submission['identifier'] }}
       Title</label>
     <div class="col-md">
       <input type="text" id="_title" name="_title"
-             class="form-control"
+             class="form-control" autofocus
              aria-describedby="_titleHelp"
 	     value="{{ submission.get('title') or '' }}">
       <small id="_titleHelp" class="form-text text-muted">

@@ -7,6 +7,7 @@ import sys
 import flask
 
 import anubis.app
+import anubis.designs
 import anubis.user
 
 from anubis import constants
@@ -35,7 +36,7 @@ def execute(pargs):
         flask.current_app.config['DEBUG'] = True
         flask.current_app.config['LOGFORMAT'] = '%(levelname)-10s %(message)s'
     if pargs.update:
-        utils.update_designs()
+        designs.update()
     if pargs.create_admin:
         with anubis.user.UserSaver() as saver:
             saver.set_username(input('username > '))

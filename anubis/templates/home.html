@@ -26,18 +26,22 @@
   <div class="card-body">
     <div class="row">
       <div class="col-md-3">
-	Closes {{ call['closes'] or '-' }}
+	<a href="{{ url_for('call.display', cid=call['identifier']) }}"
+	   class="btn btn-primary btn-sm" role="button" aria-pressed="true">
+	  More infomation
+	</a>
+      </div>
+      <div class="col-md-3">
+	{% if call['closes'] %}
+	Closes {{ call['closes'] }}
+	{% else %}
+	Open-ended
+	{% endif %}
       </div>
       <div class="col-md-3">
 	<span class="badge badge-{{ call['tmp']['color'] }}">
 	  {{ call['tmp']['text'] }}
 	</span>
-      </div>
-      <div class="col-md-3 offset-md-3">
-	<a href="{{ url_for('call.display', cid=call['identifier']) }}"
-	   class="btn btn-primary btn-sm" role="button" aria-pressed="true">
-	  More infomation
-	</a>
       </div>
     </div>
   </div>

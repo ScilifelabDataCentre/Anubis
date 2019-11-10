@@ -272,15 +272,14 @@ def add_call_tmp(call):
     This is computed data that will not be stored with the document.
     Depends on login, privileges, etc.
     """
+    from anubis.submissions import get_submissions_count
     call['tmp'] = tmp = {}
     # Submissions count
-    result = list(flask.g.db.view('submissions', 'call',
-                                  key=call['identifier'],
-                                  reduce=True))
-    if result:
-        tmp['submissions_count'] = result[0].value
-    else:
-        tmp['submissions_count'] = 0
+    if flask.g.is_admin:
+        tmp['submissions_count'] = get_submissions_count(call=call)
+    elif flask.g.current_user:
+        tmp['submissions_count'] = get_submissions_count(
+            username=flask.g.current_user['username'], call=call)
     # Open/closed status
     now = utils.normalized_local_now()
     if call['opens']:

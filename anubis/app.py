@@ -4,6 +4,7 @@ import flask
 
 import anubis.about
 import anubis.config
+import anubis.designs
 import anubis.user
 import anubis.call
 import anubis.calls
@@ -38,7 +39,7 @@ def setup_template_context():
 @app.before_first_request
 def init_database():
     flask.g.db = utils.get_db()
-    utils.update_designs()
+    anubis.designs.update()
 
 @app.before_request
 def prepare():

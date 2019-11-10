@@ -15,16 +15,14 @@ blueprint = flask.Blueprint('submissions', __name__)
 @blueprint.route('/call/<cid>')
 @utils.login_required
 def call(cid):
-    "List submissions in a call according to user access privileges."
+    "List submissions in a call according to user access."
     call = anubis.call.get_call(cid)
     if not call:
         utils.flash_error('no such call')
         return flask.redirect(flask.url_for('home'))
-
-    submissions = [s for s in get_submissions(call) if s['tmp']['is_readable']]
     return flask.render_template('submissions/call.html', 
                                  call=call,
-                                 submissions=submissions)
+                                 submissions=get_submissions(call=call))
 
 @blueprint.route('/user/<username>')
 @utils.login_required
@@ -37,34 +35,76 @@ def user(username):
     if not anubis.user.is_admin_or_self(user):
         utils.flash_error("you may not view the user's submissions")
         return flask.redirect(flask.url_for('home'))
+    return flask.render_template(
+        'submissions/user.html', 
+        user=user,
+        submissions=get_submissions(username=user['username']))
 
-    submissions = [s for s in get_user_submissions(user['username'])
-                   if s['tmp']['is_readable']]
-    return flask.render_template('submissions/user.html', 
-                                 user=user,
-                                 submissions=submissions)
+@blueprint.route('/user/<username>/call/<cid>')
+@utils.login_required
+def user_call(username, cid):
+    "List submissions for a user in a call."
+    user = anubis.user.get_user(username=username)
+    if user is None:
+        utils.flash_error('no such user')
+        return flask.redirect(flask.url_for('home'))
+    if not anubis.user.is_admin_or_self(user):
+        utils.flash_error("you may not view the user's submissions")
+        return flask.redirect(flask.url_for('home'))
+    call = anubis.call.get_call(cid)
+    if not call:
+        utils.flash_error('no such call')
+        return flask.redirect(flask.url_for('home'))
+    return flask.render_template(
+        'submissions/user.html', 
+        user=user,
+        submissions=get_submissions(username=user['username'], call=call))
 
-def get_submissions(call):
-    "Get all submissions for the call."
-    return [anubis.submission.add_submission_tmp(r.doc, call=call)
-            for r in flask.g.db.view('submissions', 'call',
-                                     key=call['identifier'],
+def get_submissions(username=None, call=None):
+    """Get all submissions, specified by user and/or call.
+    Filter by user access.
+    """
+    if username:
+        if call:
+            result = flask.g.db.view('submissions', 'user_call',
+                                     key=[username, call['identifier']],
                                      reduce=False,
-                                     include_docs=True)]
-
-def get_user_submissions(username):
-    "Get all submissions from the user."
-    return [anubis.submission.add_submission_tmp(r.doc, call=call)
-            for r in flask.g.db.view('submissions', 'user',
+                                     include_docs=True)
+        else:
+            result = flask.g.db.view('submissions', 'user',
                                      key=username,
                                      reduce=False,
-                                     include_docs=True)]
+                                     include_docs=True)
+        submissions = [anubis.submission.add_submission_tmp(r.doc, call=call)
+                       for r in result]        
+    elif call:
+        submissions = [anubis.submission.add_submission_tmp(r.doc, call=call)
+                       for r in flask.g.db.view('submissions', 'call',
+                                                key=call['identifier'],
+                                                reduce=False,
+                                                include_docs=True)]
+    else:
+        raise ValueError('neither username nor call specified')
+    # XXX access has not been implemented yet; currently too permissive!
+    return [s for s in submissions if s['tmp']['is_readable']]
 
-def get_user_submissions_count(username):
-    "Get the number of submissions from the user."
-    result = list(flask.g.db.view('submissions', 'user',
-                                  key=username,
-                                  reduce=True))
+def get_submissions_count(username=None, call=None):
+    "Get the number of submissions, specified by user and/or call."
+    if username:
+        if call:
+            result = flask.g.db.view('submissions', 'user_call',
+                                     key=[username, call['identifier']],
+                                     reduce=True)
+        else:
+            result = flask.g.db.view('submissions', 'user',
+                                     key=username,
+                                     reduce=True)
+    elif call:
+        result = flask.g.db.view('submissions', 'call',
+                                 key=call['identifier'],
+                                 reduce=True)
+    else:
+        raise ValueError('neither username nor call specified')
     if result:
         return result[0].value
     else:

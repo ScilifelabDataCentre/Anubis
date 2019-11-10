@@ -10,9 +10,9 @@
     <tr>
       <th></th>
       <th>Title</th>
+      <th class="text-break">Submissions</th>
       <th>Opens</th>
       <th>Closes</th>
-      <th class="text-break">Submissions</th>
       <th></th>
     </tr>
   </thead>
@@ -25,14 +25,14 @@
 	  {{ call['identifier'] }}</a>
       </td>
       <td>{{ call['title'] }}</td>
-      <td class="text-nowrap pl-2">{{ call['opens'] or '-' }}</td>
-      <td class="text-nowrap pl-2">{{ call['closes'] or '-' }}</td>
       <td>
 	<a href="{{ url_for('submissions.call', cid=call['identifier']) }}">
 	  <span class="badge badge-primary">
 	    {{ call['tmp']['submissions_count'] }}</span>
 	</a>
       </td>
+      <td class="text-nowrap pl-2">{{ call['opens'] or '-' }}</td>
+      <td class="text-nowrap pl-2">{{ call['closes'] or '-' }}</td>
       <td>
 	<span class="badge badge-{{ call['tmp']['color'] }}">
 	  {{ call['tmp']['text'] }}

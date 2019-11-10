@@ -11,7 +11,7 @@ import werkzeug.security
 
 from . import constants
 from . import utils
-from .submissions import get_user_submissions_count
+from .submissions import get_submissions_count
 
 
 blueprint = flask.Blueprint('user', __name__)
@@ -164,7 +164,7 @@ def profile(username):
     if not is_admin_or_self(user):
         utils.flash_error('access not allowed')
         return flask.redirect(flask.url_for('home'))
-    user['submissions_count'] = get_user_submissions_count(user['username'])
+    user['submissions_count'] = get_submissions_count(username=user['username'])
     return flask.render_template('user/profile.html',
                                  user=user,
                                  enable_disable=is_admin_and_not_self(user),
@@ -251,7 +251,7 @@ def all():
     "Display list of all users."
     users = get_users(role=None)
     for user in users:
-        user['submissions_count'] = get_user_submissions_count(user['username'])
+        user['submissions_count'] = get_submissions_count(username=user['username'])
     return flask.render_template('user/all.html', users=users)
 
 @blueprint.route('/enable/<username>', methods=['POST'])
@@ -453,7 +453,7 @@ def is_deletable(user):
     Only when no submissions and not admin.
     """
     if user['role'] == constants.ADMIN: return False
-    return not bool(get_user_submissions_count(user['username']))
+    return not bool(get_submissions_count(username=user['username']))
 
 def is_admin_or_self(user):
     "Is the current user admin, or the same as the given user?"
