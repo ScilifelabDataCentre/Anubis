@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block head_title %}User {{ user['username'] }}{% endblock %}
+
+{% block body_title %}User {{ user['username'] }}{% endblock %}
+
+{% block main %}
+<table class="table table-sm table-borderless">
+  <col style="width:20%">
+  <col style="width:80%">
+  <tr>
+    <th class="text-right">Submissions</th>
+    <td>
+      <a href="{{ url_for('submissions.user', username=user['username']) }}">
+	<span class="badge badge-primary">{{ user['submissions_count'] }}</span>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <th class="text-right">Email</th>
+    <td>{{ user['email'] }}</td>
+  </tr>
+  <tr>
+    <th class="text-right">Role</th>
+    <td>{{ user['role'] }}</td>
+  </tr>
+  <tr>
+    <th class="text-right">Status</th>
+    <td>{{ user['status'] }}</td>
+  </tr>
+  <tr>
+    <th class="text-right">Given name</th>
+    <td>{{ user.get('givenname') or '-' }}</td>
+  </tr>
+  <tr>
+    <th class="text-right">Family name</th>
+    <td>{{ user.get('familyname') or '-' }}</td>
+  </tr>
+  {% if config['USER_GENDERS'] %}
+  <tr>
+    <th class="text-right">Gender</th>
+    <td>{{ (user.get('gender') or '-').capitalize() }}</td>
+  </tr>
+  {% endif %}
+  {% if config['USER_BIRTHDATE'] %}
+  <tr>
+    <th class="text-right">Birth date</th>
+    <td>{{ user.get('birthdate') or '-' }}</td>
+  </tr>
+  {% endif %}
+  {% if config['USER_TITLE'] %}
+  <tr>
+    <th class="text-right">Title</th>
+    <td>{{ user.get('title') or '-' }}</td>
+  </tr>
+  {% endif %}
+  {% if config['USER_AFFILIATION'] %}
+  <tr>
+    <th class="text-right">Affiliation</th>
+    <td>{{ user.get('affiliation') or '-' }}</td>
+  </tr>
+  {% endif %}
+  {% if config['USER_POSTAL_ADDRESS'] %}
+  <tr>
+    <th class="text-right">Postal address</th>
+    <td><pre>{{ user.get('postaladdress') or '-' }}</pre></td>
+  </tr>
+  {% endif %}
+  {% if config['USER_PHONE'] %}
+  <tr>
+    <th class="text-right">Phone</th>
+    <td>{{ user.get('phone') or '-' }}</td>
+  </tr>
+  {% endif %}
+  <tr>
+    <th class="text-right">API key</th>
+    <td>{{ user.get('apikey') or '-' }}</td>
+  </tr>
+</table>
+{% endblock %} {# block main #}
+
+{% block meta %}
+<div class="py-1">
+  <div>
+    <a href="{{ url_for('api_user.display', username=user['username']) }}"
+       class="badge badge-pill badge-dark">API</a>
+  </div>
+</div>
+{% endblock %} {# block meta #}
+
+{% block actions %}
+<div class="mt-2">
+  <a href="{{ url_for('.edit', username=user['username']) }}"
+     role="button" class="btn btn-primary btn-block">Edit</a>
+</div>
+<div class="mt-2">
+  <form action="{{ url_for('.reset') }}"
+        method="GET">
+    <input type="hidden" name="email" value="{{ user['email'] }}">
+    <button type="submit" class="btn btn-block btn-primary">
+      Reset password</button>
+  </form>
+</div>
+{% if enable_disable %}
+<div class="mt-2">
+  {% if user['status'] != constants.ENABLED %}
+  <form action="{{ url_for('.enable', username=user['username']) }}"
+        method="POST">
+    {{ csrf_token() }}
+    <button type="submit" class="btn btn-block btn-success">Enable</button>
+  </form>
+  {% elif user['status'] == constants.ENABLED %}
+  <form action="{{ url_for('.disable', username=user['username']) }}"
+        method="POST">
+    {{ csrf_token() }}
+    <button type="submit" class="btn btn-block btn-danger">Disable</button>
+  </form>
+  {% endif %}
+</div>
+{% endif %} {# if enable_disable #}
+{% if g.current_user['username'] == user['username'] %}
+<div class="mt-2">
+  <form action="{{ url_for('.logout') }}"
+	method="POST">
+    {{ csrf_token() }}
+    <button type="submit" class="btn btn-warning btn-block">Logout</button>
+  </form>
+</div>
+{% endif %} {# if g.current_user... #}
+{% if deletable %}
+<div class="mt-4">
+  <form action="{{ url_for('.display', username=user['username']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <input type="hidden" name="_http_method" value="DELETE">
+    <button type="submit" class="btn btn-danger btn-sm btn-block"
+	    data-toggle="tooltip" data-placement="left"
+	    title="Delete the user account."
+            onclick="return confirm('Really delete? Cannot be undone.')">
+      Delete</button>
+  </form>
+</div>
+{% endif %} {# if deletable #}
+{% endblock %} {# block actions #}
+
+{% block info %}
+<div class="small">
+  <div class="mt-4">
+    Modified <span class="localtime">{{ user['modified'] }}</span>
+  </div>
+  <div class="mt-1">
+    <a href="{{ url_for('.logs', username=user['username']) }}">Logs</a>
+  </div>
+  <div class="mt-1">
+    Created <span class="localtime">{{ user['created'] }}</span>
+  </div>
+</div>
+{% endblock %} {# block info #}
