@@ -277,8 +277,8 @@ def add_call_tmp(call):
     # Submissions count
     if flask.g.is_admin:
         tmp['submissions_count'] = get_submissions_count(call=call)
-    elif flask.g.current_user:
-        tmp['submissions_count'] = get_submissions_count(
+    if flask.g.current_user:
+        tmp['my_submissions_count'] = get_submissions_count(
             username=flask.g.current_user['username'], call=call)
     # Open/closed status
     now = utils.normalized_local_now()

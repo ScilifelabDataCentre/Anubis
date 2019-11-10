@@ -15,7 +15,7 @@ blueprint = flask.Blueprint('submissions', __name__)
 @blueprint.route('/call/<cid>')
 @utils.login_required
 def call(cid):
-    "List submissions in a call according to user access."
+    "List submissions in a call. XXX check user access!"
     call = anubis.call.get_call(cid)
     if not call:
         utils.flash_error('no such call')
@@ -27,7 +27,7 @@ def call(cid):
 @blueprint.route('/user/<username>')
 @utils.login_required
 def user(username):
-    "List submissions for a user."
+    "List all submissions for a user."
     user = anubis.user.get_user(username=username)
     if user is None:
         utils.flash_error('no such user')
@@ -43,7 +43,7 @@ def user(username):
 @blueprint.route('/user/<username>/call/<cid>')
 @utils.login_required
 def user_call(username, cid):
-    "List submissions for a user in a call."
+    "List all submissions for a user in a call."
     user = anubis.user.get_user(username=username)
     if user is None:
         utils.flash_error('no such user')

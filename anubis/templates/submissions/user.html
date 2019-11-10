@@ -1,30 +1,40 @@
 {% extends 'base.html' %}
+{% import 'button.html' as button_macro %}
 
-{% block head_title %}Submissions for user {{ user['username'] }}{% endblock %}
+{% block head_title %}
+All submissions from user {{ user['username'] }}
+{% endblock %}
 
-{% block body_title %}Submissions for user {{ user['username'] }}{% endblock %}
+{% block body_title %}
+All submissions from user {{ user['username'] }}
+{% endblock %}
 
 {% block main %}
 <table id="submissions" class="table">
   <thead>
     <tr>
+      <th>Call</th>
       <th>Identifier</th>
       <th>Title</th>
+      <th>Submitted</th>
     </tr>
   </thead>
   <tbody>
     {% for submission in submissions %}
     <tr>
-      <td>
-	<a href="{{ url_for('submission.display', sid=submission['identifier']) }}">
-	  {{ submission['identifier'] }}</a>
-      </td>
+      <td>{{ button_macro.to_call(submission['tmp']['call']) }}</td>
+      <td>{{ button_macro.to_submission(submission) }}</td>
       <td>{{ submission.get('title') or '-' }}</td>
+      <td>{{ macros.submitted(submission) }}</td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
 {% endblock %} {# block main #}
+
+{% block links %}
+{{ button_macro.to_user(user['username']) }}
+{% endblock %}
 
 {% block javascript %}
 <script>

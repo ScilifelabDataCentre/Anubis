@@ -1,12 +1,8 @@
 {% extends 'base.html' %}
 
-{% block head_title %}
-All submissions in call {{ call['identifier'] }}
-{% endblock %}
+{% block head_title %}Submissions in call {{ call['identifier'] }}{% endblock %}
 
-{% block body_title %}
-All submissions in call {{ call['identifier'] }}
-{% endblock %}
+{% block body_title %}Submissions in call {{ call['identifier'] }}{% endblock %}
 
 {% block main %}
 <table id="submissions" class="table">
@@ -14,23 +10,17 @@ All submissions in call {{ call['identifier'] }}
     <tr>
       <th>Identifier</th>
       <th>Title</th>
-      {# XXX Check privilege #}
+      {# XXX Check access to view user #}
       <th>Submitter</th>
     </tr>
   </thead>
   <tbody>
     {% for submission in submissions %}
     <tr>
-      <td>
-	<a href="{{ url_for('submission.display', sid=submission['identifier']) }}">
-	  {{ submission['identifier'] }}</a>
-      </td>
+      <td>{{ macros.button_to_submission(submission) }}</td>
       <td>{{ submission.get('title') or '-' }}</td>
-      {# XXX Check privilege #}
-      <td>
-	<a href="{{ url_for('user.profile', username=submission['user']) }}">
-	  {{ submission['user'] }}</a>
-      </td>
+      {# XXX Check access to view user #}
+      <td>{{ macros.button_to_user(submission['user']) }}</td>
     </tr>
     {% endfor %}
   </tbody>

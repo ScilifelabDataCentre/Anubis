@@ -45,8 +45,7 @@
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Submitter</div>
   <div class="col-md">
-    <a href="{{ url_for('user.profile', username=submission['user']) }}">
-      {{ submission['user'] }}</a>
+    {{ macros.button_to_user(submission['user'], False) }}
   </div>
 </div>
 
@@ -70,6 +69,12 @@
 
 {% endfor %} {# for field in submission['tmp']['call']['fields'] #}
 {% endblock %} {# block main #}
+
+{% block links %}
+<a href="{{ url_for('call.display', cid=submission['tmp']['call']['identifier']) }}"
+   role="button" class="btn btn-outline-primary btn-block">
+  Call {{ submission['tmp']['call']['identifier'] }}</a>
+{% endblock %}
 
 {% block actions %}
 {% if submission['tmp']['is_editable'] %}

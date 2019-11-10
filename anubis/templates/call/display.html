@@ -31,12 +31,22 @@
   <div class="col-md-2 font-weight-bold text-right">Identifier</div>
   <div class="col-md">{{ call['identifier'] }}</div>
 </div>
-{% if g.current_user %}
+{% if g.is_admin %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Submissions</div>
   <div class="col-md">
-    <a href="{{ url_for('submissions.user_call', username=g.current_user['username'], cid=call['identifier']) }}">
+    <a href="{{ url_for('submissions.call', cid=call['identifier']) }}">
       <span class="badge badge-primary">{{ call['tmp']['submissions_count'] }}
+    </span></a>
+  </div>
+</div>
+{% endif %} {# if g.is_admin #}
+{% if g.current_user %}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">My submissions</div>
+  <div class="col-md">
+    <a href="{{ url_for('submissions.user_call', username=g.current_user['username'], cid=call['identifier']) }}">
+      <span class="badge badge-primary">{{ call['tmp']['my_submissions_count'] }}
     </span></a>
   </div>
 </div>

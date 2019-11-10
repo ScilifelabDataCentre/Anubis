@@ -1,0 +1,35 @@
+{# Macros #}
+
+{% macro button_to_submission(submission, block=True) -%}
+<a href="{{ url_for('submission.display', sid=submission['identifier']) }}"
+   title="{{ submission.get('title') or submission['identifier'] }}"
+   role="button" 
+   class="btn btn-sm btn-outline-primary {{ block and 'btn-block' or '' }}">
+  {{ submission['identifier'] }}
+</a>
+{%- endmacro %}
+
+{% macro button_to_call(call, block=True) -%}
+<a href="{{ url_for('call.display', cid=call['identifier']) }}"
+   title="{{ call.get('title') or call['identifier'] }}"
+   role="button"
+   class="btn btn-sm btn-outline-primary {{ block and 'btn-block' or '' }}">
+  {{ call['identifier'] }}
+</a>
+{%- endmacro %}
+
+{% macro button_to_user(username, block=True) -%}
+<a href="{{ url_for('user.profile', username=username) }}"
+   role="button" 
+   class="btn btn-sm btn-outline-primary {{ block and 'btn-block' or '' }}">
+  {{ username }}
+</a>
+{%- endmacro %}
+
+{% macro submitted(submission) -%}
+{% if submission.get('submitted') %}
+<span class="localtime">{{submission['submitted'] }}</span>
+{% else %}
+<span class="badge badge-warning">Not yet submitted.</span>
+{% endif %}
+{%- endmacro %}
