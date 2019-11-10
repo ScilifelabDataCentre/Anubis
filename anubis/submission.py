@@ -46,10 +46,15 @@ def edit(sid):
             utils.flash_error('you are not allowed to edit the submission')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
-        with SubmissionSaver(submission) as saver:
-            saver['title'] = flask.request.form.get('_title') or None
-            for field in submission['tmp']['call']['fields']:
-                saver.set_field_value(field, form=flask.request.form)
+        try:
+            with SubmissionSaver(submission) as saver:
+                saver['title'] = flask.request.form.get('_title') or None
+                for field in submission['tmp']['call']['fields']:
+                    saver.set_field_value(field, form=flask.request.form)
+        except ValueError as error:
+            utils.flash_error(str(error))
+            return flask.redirect(
+                flask.url_for('.edit', sid=submission['identifier']))
         return flask.redirect(
             flask.url_for('.display', sid=submission['identifier']))
 
@@ -61,6 +66,42 @@ def edit(sid):
         utils.delete(submission)
         utils.flash_message(f"deleted submission {sid}")
         return flask.redirect(flask.url_for('home'))
+
+@blueprint.route('/<sid>/submit', methods=['POST'])
+@utils.login_required
+def submit(sid):
+    "Submit the submission."
+    submission = get_submission(sid)
+    if submission is None:
+        utils.flash_error('no such submission')
+        return flask.redirect(flask.url_for('home'))
+    if utils.http_POST():
+        if not submission['tmp']['is_editable']:
+            utils.flash_error('you are not allowed to edit the submission')
+        try:
+            with SubmissionSaver(submission) as saver:
+                saver.set_submitted()
+        except ValueError as error:
+            utils.flash_error(str(error))
+        return flask.redirect(flask.url_for('.display', sid=sid))
+
+@blueprint.route('/<sid>/unsubmit', methods=['POST'])
+@utils.login_required
+def unsubmit(sid):
+    "Unsubmit the submission."
+    submission = get_submission(sid)
+    if submission is None:
+        utils.flash_error('no such submission')
+        return flask.redirect(flask.url_for('home'))
+    if utils.http_POST():
+        if not submission['tmp']['is_editable']:
+            utils.flash_error('you are not allowed to edit the submission')
+        try:
+            with SubmissionSaver(submission) as saver:
+                saver.set_unsubmitted()
+        except ValueError as error:
+            utils.flash_error(str(error))
+        return flask.redirect(flask.url_for('.display', sid=sid))
 
 @blueprint.route('/<sid>/logs')
 @utils.login_required
@@ -113,6 +154,17 @@ class SubmissionSaver(utils.BaseSaver):
             self.doc['errors'][id] = 'missing value'
         else:
             self.doc['errors'].pop(id, None)
+
+    def set_submitted(self):
+        if not self.doc['tmp']['call']['is_open']:
+            raise ValueError('the call for the submission is not open')
+        self.doc['submitted'] = utils.get_time()
+
+    def set_unsubmitted(self):
+        if not self.doc['tmp']['call']['is_open']:
+            raise ValueError('the call for the submission is not open')
+        self.doc.pop('submitted', None)
+
 
 def get_submission(sid):
     "Return the submission with the given identifier."
