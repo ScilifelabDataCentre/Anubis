@@ -17,8 +17,31 @@
       {{ submission['tmp']['call']['title'] }}</a>
   </div>
 </div>
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Closes</div>
+  <div class="col-md">
+    <span class="mr-4">{{ submission['tmp']['call']['closes'] or '-' }}</span>
+    <span class="badge badge-{{ submission['tmp']['call']['tmp']['color'] }}">
+      {{ submission['tmp']['call']['tmp']['text'] }}
+    </span>
+  </div>
+</div>
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Submitted</div>
+  <div class="col-md">
+    {% if submission.get('submitted') %}
+    <span style="font-size: 120%">
+      <span class="badge badge-success localtime">{{ submission['submitted'] }}</span>
+    </span>
+    {% else %}
+    <span style="font-size: 120%">
+      <span class="badge badge-warning">Not yet submitted.</span>
+    </span>
+    {% endif %}
+  </div>
+</div>
 
-{# XXX privilege? #}
+{# XXX access? #}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Submitter</div>
   <div class="col-md">
@@ -49,6 +72,27 @@
 {% endblock %} {# block main #}
 
 {% block actions %}
+{% if submission['tmp']['is_editable'] %}
+{% if submission.get('submitted') %}
+<div class="mt-2">
+  <form action="{{ url_for('.unsubmit', sid=submission['identifier']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <button type="submit" class="btn btn-block btn-warning">
+      Unsubmit</button>
+  </form>
+</div>
+{% else %}
+<div class="mt-2">
+  <form action="{{ url_for('.submit', sid=submission['identifier']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <button type="submit" class="btn btn-block btn-success">
+      Submit</button>
+  </form>
+</div>
+{% endif %} {# if submission.get('submitted') #}
+{% endif %} {# if submission['tmp']['is_editable'] #}
 {% if submission['tmp']['is_editable'] %}
 <div class="mt-2">
   <a href="{{ url_for('.edit', sid=submission['identifier']) }}"

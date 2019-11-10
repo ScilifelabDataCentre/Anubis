@@ -156,12 +156,12 @@ class SubmissionSaver(utils.BaseSaver):
             self.doc['errors'].pop(id, None)
 
     def set_submitted(self):
-        if not self.doc['tmp']['call']['is_open']:
+        if not self.doc['tmp']['call']['tmp']['is_open']:
             raise ValueError('the call for the submission is not open')
         self.doc['submitted'] = utils.get_time()
 
     def set_unsubmitted(self):
-        if not self.doc['tmp']['call']['is_open']:
+        if not self.doc['tmp']['call']['tmp']['is_open']:
             raise ValueError('the call for the submission is not open')
         self.doc.pop('submitted', None)
 

@@ -44,10 +44,13 @@
                aria-haspopup="true" aria-expanded="false">Calls</a>
             <div class="dropdown-menu" aria-labelledby="navbarCalls">
               <a class="dropdown-item"
+                 href="{{ url_for('calls.open') }}">Open calls</a>
+              <a class="dropdown-item"
                  href="{{ url_for('calls.closed') }}">Closed calls</a>
               {% if g.is_admin %}
               <a class="dropdown-item"
                  href="{{ url_for('calls.all') }}">All calls</a>
+	      <div class="dropdown-divider"></div>
               <a class="dropdown-item"
                  href="{{ url_for('call.create') }}">Create call</a>
               {% endif %} {# if g.is_admin #}
