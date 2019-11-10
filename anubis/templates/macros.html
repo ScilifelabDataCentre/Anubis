@@ -37,3 +37,9 @@
 <span class="badge badge-warning">Not submitted.</span>
 {% endif %}
 {%- endmacro %}
+
+{% macro badge_call_closes(call) -%}
+<span class="badge badge-{{ call['tmp']['color'] }}">
+  {{ call['tmp']['text'] }}
+</span>
+{%- endmacro %}

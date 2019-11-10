@@ -22,9 +22,7 @@
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
   <div class="col-md">
     <span class="mr-4">{{ call['closes'] or '-' }}</span>
-    <span class="badge badge-{{ call['tmp']['color'] }}">
-      {{ call['tmp']['text'] }}
-    </span>
+    {{ macros.badge_call_closes(call) }}
   </div>
 </div>
 <div class="row">
@@ -107,10 +105,12 @@
     {% if call['tmp']['is_editable'] %}
     <div class="card mt-2">
       <div class="card-body">
-	<button type="button" class="btn btn-primary"
-		data-toggle="modal" data-target="#_textModal">
-	  Add text field
+	{% for field_type in constants.INPUT_FIELD_TYPES %}
+	<button type="button" class="btn btn-primary mr-3"
+		data-toggle="modal" data-target="#_{{ field_type }}Modal">
+	  Add {{ field_type }} field
 	</button>
+	{% endfor %} {# for field_type in constants.INPUT_FIELD_TYPES #}
       </div>
     </div>
     {% endif %} {# if call['tmp']['is_editable'] #}
@@ -118,22 +118,27 @@
 </div>
 
 {% if call['tmp']['is_editable'] %}
-<div class="modal fade" id="_textModal" tabindex="-1" 
-     role="dialog" aria-labelledby="_textModalLabel" aria-hidden="true">
+
+{% for field_type in constants.INPUT_FIELD_TYPES %}
+{# Modals to add inputs field. #}
+<div class="modal fade" id="_{{ field_type }}Modal" tabindex="-1"
+     role="dialog" aria-labelledby="_{{ field_type }}ModalLabel"
+     aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <form action="{{ url_for('.add_field', cid=call['identifier']) }}"
 	    method="POST">
 	{{ csrf_token() }}
+	<input type="hidden" name="type" value="{{ field_type }}">
 	<div class="modal-header">
-          <h5 class="modal-title" id="_textModalLabel">Add text field</h5>
+          <h5 class="modal-title" 
+	      id="_{{ field_type }}ModalLabel">Add {{ field_type }} field</h5>
           <button type="button" class="close"
 		  data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
 	</div>
 	<div class="modal-body">
-	  <input type="hidden" name="type" value="text">
 	  <div class="form-group row">
 	    <label for="identifier" class="col-md-2 col-form-label text-right">
 	      Identifier</label>
@@ -197,6 +202,7 @@
 	      </small>
 	    </div>
 	  </div>
+	  {% if field_type in (constants.TEXT, constants.LINE) %}
 	  <div class="form-group row">
 	    <label for="maxlength" class="col-md-2 col-form-label text-right">
 	      Maxlength</label>
@@ -208,7 +214,8 @@
 		Max number of characters.
 	      </small>
 	    </div>
-	  </div>
+	  </div>	
+	  {% endif %} {# if field_type in (constants.TEXT, constants.LINE) #}
 	</div>
 	<div class="modal-footer">
           <button type="button" class="btn btn-secondary"
@@ -219,6 +226,7 @@
     </div>
   </div>
 </div>
+{% endfor %} {# for field_type in constants.INPUT_FIELD_TYPES #}
 
 {% for field in call['fields'] %}
 <div class="modal fade" id="{{ field['identifier'] }}-Modal" tabindex="-1" 
@@ -301,7 +309,8 @@
 	      <textarea id="{{ field['identifier'] }}-description"
 			name="description"
 			class="form-control"
-			aria-describedby="{{ field['identifier'] }}-descriptionHelp">{{ field.get('description') or '' }}</textarea>
+			aria-describedby="{{ field['identifier'] }}-descriptionHelp"
+		>{{ field.get('description') or '' }}</textarea>
 	      <small id="{{ field['identifier'] }}-descriptionHelp" 
 		     class="form-text text-muted">
 		<div class="row">

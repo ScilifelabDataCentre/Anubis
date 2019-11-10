@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '0.2.16'
+__version__ = '0.2.18'
 
 class Constants:
     VERSION     = __version__
@@ -39,6 +39,12 @@ class Constants:
     # User capacities (per call)
     SUBMITTER = 'submitter'
     REVIEWER  = 'reviewer'
+
+    # Input field types
+    TEXT = 'text'
+    LINE = 'line'
+    FILE = 'file'
+    INPUT_FIELD_TYPES = (TEXT, LINE, FILE)
 
     # Content types
     HTML_MIMETYPE = 'text/html'

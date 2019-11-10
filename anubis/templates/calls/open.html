@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
-{% block head_title %}{{ title }}{% endblock %}
+{% block head_title %}Open calls{% endblock %}
 
-{% block body_title %}{{ title }}{% endblock %}
+{% block body_title %}Open calls{% endblock %}
 
 {% block supermain %}
 <table id="calls" class="table table-sm">
@@ -13,8 +13,7 @@
       <th class="text-break">Submissions</th>
       {% endif %}
       <th>Title</th>
-      <th>Opens</th>
-      <th>Closes</th>
+      <th colspan="2">Closes</th>
     </tr>
   </thead>
   <tbody>
@@ -30,8 +29,8 @@
       </td>
       {% endif %}
       <td>{{ call['title'] }}</td>
-      <td class="text-nowrap pl-2">{{ call['opens'] or '-' }}</td>
-      <td class="text-nowrap pl-2">{{ call['closes'] or '-' }}</td>
+      <td class="text-nowrap pl-2">{{ call['closes'] or 'No closes date.' }}</td>
+      <td>{{ macros.badge_call_closes(call) }}</td>
     </tr>
     {% endfor %}
   </tbody>

@@ -14,23 +14,17 @@ blueprint = flask.Blueprint('calls', __name__)
 @utils.admin_required
 def all():
     "All calls."
-    return flask.render_template('calls/list.html',
-                                 title='All calls',
-                                 calls=get_all_calls())
+    return flask.render_template('calls/all.html', calls=get_all_calls())
 
 @blueprint.route('/closed')
 def closed():
     "Closed calls."
-    return flask.render_template('calls/list.html',
-                                 title='Closed calls',
-                                 calls=get_closed_calls())
+    return flask.render_template('calls/closed.html', calls=get_closed_calls())
 
 @blueprint.route('/open')
 def open():
     "Open calls."
-    return flask.render_template('calls/list.html',
-                                 title='Open calls',
-                                 calls=get_open_calls())
+    return flask.render_template('calls/open.html', calls=get_open_calls())
 
 @blueprint.route('/user')
 @blueprint.route('/user/<username>')

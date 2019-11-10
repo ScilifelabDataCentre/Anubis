@@ -19,7 +19,7 @@
 {% for call in calls %}
 <div class="card border-dark mt-3">
   <div class="card-header">
-    <h5>{{ call['title'] }}
+    <h5>{{ call['identifier'] }}: {{ call['title'] }}
       <small class="text-muted ml-3">Call for submissions</small>
     </h5>
   </div>
@@ -39,9 +39,7 @@
 	{% endif %}
       </div>
       <div class="col-md-3">
-	<span class="badge badge-{{ call['tmp']['color'] }}">
-	  {{ call['tmp']['text'] }}
-	</span>
+	{{ macros.badge_call_closes(call) }}
       </div>
     </div>
   </div>

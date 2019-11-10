@@ -34,7 +34,7 @@ Edit submission {{ submission['identifier'] }}
       {{ field['title'] }}
     </label>
     <div class="col-md">
-      {% if field['type'] == 'text' %}
+      {% if field['type'] == constants.TEXT %}
       <textarea id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
 		class="form-control" rows="6"
 		{% if field.get('maxlength') %}
@@ -42,13 +42,21 @@ Edit submission {{ submission['identifier'] }}
 		{% endif %}
 		aria-describedby="{{ field['identifier'] }}Help"
 		>{{ submission['values'][field['identifier']] or '' }}</textarea>
-      {% elif field['type'] == 'line' %}
+      {% elif field['type'] == constants.LINE %}
       <input type="text"
 	     id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
 	     class="form-control"
-	     aria-describedby="_titleHelp"
-	     value="{{ submission.get('title') or '' }}">
-      {% elif field['type'] == 'file' %}
+	     {% if field.get('maxlength') %}
+	     maxlength="{{ field['maxlength'] }}"
+	     {% endif %}
+	     aria-describedby="{{ field['identifier'] }}Help"
+	     value="{{ submission['values'][field['identifier']] or '' }}">
+      {% elif field['type'] == constants.FILE %}
+      <input type="file"
+	     id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
+	     class="form-control"
+	     aria-describedby="{{ field['identifier'] }}Help"
+	     value="{{ submission['values'][field['identifier']] or '' }}">
       {% endif %}
       <small id="{{ field['identifier'] }}Help" class="form-text text-muted">
 	<div class="row">
@@ -59,10 +67,9 @@ Edit submission {{ submission['identifier'] }}
 	    {% if field.get('maxlength') %}
 	    Maximum {{ field['maxlength'] }} characters.
 	    {% endif %}
-	    <br>
 	    {{ field.get('description') | markdown }}
 	  </div>
-	  {% if field['type'] == 'text' %}
+	  {% if field['type'] == constants.TEXT %}
 	  <div class="col-md-3">
 	    Formatted using <a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
 	  </div>

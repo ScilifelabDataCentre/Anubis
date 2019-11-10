@@ -206,24 +206,25 @@ class CallSaver(utils.BaseSaver):
     def add_field(self, form=dict()):
         id = form.get('identifier')
         if not (id and constants.ID_RX.match(id)):
-            raise ValueError('invalid identifier')
+            raise ValueError('invalid field identifier')
+        type = form.get('type')
+        if type not in constants.INPUT_FIELD_TYPES:
+            raise ValueError('invalid field type')
         title = form.get('title') or id.replace('_', ' ')
         title = ' '.join([w.capitalize() for w in title.split()])
-        field = {'type': form.get('type'),
+        field = {'type': type,
                  'identifier': id,
                  'title': title,
                  'description': form.get('description') or None,
                  'required': bool(form.get('required'))
                  }
-        if field['type'] == 'text':
+        if type in (constants.TEXT, constants.LINE):
             try:
                 maxlength = int(form.get('maxlength'))
                 if maxlength <= 0: raise ValueERror
             except (TypeError, ValueError):
                 maxlength = None
             field['maxlength'] = maxlength
-        else:
-            raise ValueError('invalid field type')
         self.doc['fields'].append(field)
 
     def edit_field(self, fid, form=dict()):

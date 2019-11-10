@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Closed calls{% endblock %}
+
+{% block body_title %}Closed calls{% endblock %}
+
+{% block supermain %}
+<table id="calls" class="table table-sm">
+  <thead>
+    <tr>
+      <th></th>
+      {% if g.current_user %}
+      <th class="text-break">Submissions</th>
+      {% endif %}
+      <th>Title</th>
+      <th>Closed</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for call in calls %}
+    <tr>
+      <td>{{ macros.button_to_call(call) }}</td>
+      {% if g.current_user %}
+      <td>
+	<a href="{{ url_for('submissions.call', cid=call['identifier']) }}">
+	  <span class="badge badge-primary">
+	    {{ call['tmp']['submissions_count'] }}</span>
+	</a>
+      </td>
+      {% endif %}
+      <td>{{ call['title'] }}</td>
+      <td class="text-nowrap pl-2">{{ call['closes'] or '-' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %} {# block supermain #}
+
+{% block javascript %}
+<script>
+  $(function() {
+    $("#calls").DataTable( {
+      "pagingType": "full_numbers",
+      "pageLength": 25
+    });
+  });
+</script>
+{% endblock %}

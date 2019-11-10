@@ -20,9 +20,7 @@
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
   <div class="col-md">
     <span class="mr-4">{{ submission['tmp']['call']['closes'] or '-' }}</span>
-    <span class="badge badge-{{ submission['tmp']['call']['tmp']['color'] }}">
-      {{ submission['tmp']['call']['tmp']['text'] }}
-    </span>
+    {{ macros.badge_call_closes(submission['tmp']['call']) }}
   </div>
 </div>
 <div class="row mb-2">
@@ -50,10 +48,12 @@
     {% endif %}
   </div>
   <div class="col-md text-break">
-    {% if field['type'] == 'text' %}
+    {% if field['type'] == constants.TEXT %}
     {{ submission['values'].get(field['identifier']) | markdown }}
-    {% elif field['type'] == 'line' %}
-    {% elif field['type'] == 'file' %}
+    {% elif field['type'] == constants.LINE %}
+    {{ submission['values'].get(field['identifier'])}}
+    {% elif field['type'] == constants.FILE %}
+    {{ submission['values'].get(field['identifier'])}}
     {% endif %}
   </div>
 </div>
