@@ -34,7 +34,7 @@ def display(cid):
     "Display the call."
     call = get_call(cid)
     if not call:
-        utils.flash_error('no such call')
+        utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
     return flask.render_template('call/display.html', call=call)
 
@@ -44,7 +44,7 @@ def add_document(cid):
     "Add a document (attachment file)."
     call = get_call(cid)
     if not call:
-        utils.flash_error('no such call')
+        utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_POST():
@@ -53,6 +53,8 @@ def add_document(cid):
             description = flask.request.form.get('document_description')
             with CallSaver(call) as saver:
                 saver.add_document(infile, description)
+        else:
+            utils.flash_error('No document selected.')
         return flask.redirect(flask.url_for('.display', cid=call['identifier']))
 
 @blueprint.route('/<cid>/document/<documentname>/delete', 
@@ -62,7 +64,7 @@ def delete_document(cid, documentname):
     "Delete the given document (attachment file)."
     call = get_call(cid)
     if not call:
-        utils.flash_error('no such call')
+        utils.flash_error('No such call.')
     if utils.http_DELETE():
         with CallSaver(call) as saver:
             saver.delete_document(documentname)
@@ -75,7 +77,7 @@ def document(cid, documentname):
     "Download the given document (attachment file)."
     call = get_call(cid)
     if not call:
-        utils.flash_error('no such call')
+        utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
     if not (flask.g.is_admin or call['tmp']['is_published']):
         utils.flash_error(f"Call {call['title']} has not been published.")
@@ -84,7 +86,7 @@ def document(cid, documentname):
     try:
         stub = call['_attachments'][documentname]
     except KeyError:
-        utils.flash_error('no such document in call')
+        utils.flash_error('No such document in call.')
         return flask.redirect(
             flask.url_for('.display', cid=call['identifier']))
     outfile = flask.g.db.get_attachment(call, documentname)
@@ -100,7 +102,7 @@ def edit(cid):
     "Edit the call, or delete it."
     call = get_call(cid)
     if not call:
-        utils.flash_error('no such call')
+        utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_GET():
@@ -125,9 +127,8 @@ def edit(cid):
             return flask.redirect(
                 flask.url_for('.display', cid=call['identifier']))
         utils.delete(call)
-        utils.flash_message(f"deleted call {call['identifier']}:{call['title']}")
+        utils.flash_message(f"Deleted call {call['identifier']}:{call['title']}.")
         return flask.redirect(flask.url_for('calls.all'))
-
 
 @blueprint.route('/<cid>/field', methods=['POST'])
 @utils.admin_required
@@ -135,7 +136,7 @@ def add_field(cid):
     "Add an input field to the call."
     call = get_call(cid)
     if not call:
-        utils.flash_error('no such call')
+        utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_POST():
@@ -151,10 +152,10 @@ def add_field(cid):
 @blueprint.route('/<cid>/field/<fid>', methods=['POST', 'DELETE'])
 @utils.admin_required
 def edit_field(cid, fid):
-    "Edit the input field of the call."
+    "Edit the input field of the call. Or delete it."
     call = get_call(cid)
     if not call:
-        utils.flash_error('no such call')
+        utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_POST():
@@ -170,13 +171,33 @@ def edit_field(cid, fid):
             saver.delete_field(fid)
         return flask.redirect(flask.url_for('.display', cid=call['identifier']))
 
+@blueprint.route('/<cid>/reviewers', methods=['GET', 'POST', 'DELETE'])
+@utils.admin_required
+def reviewers(cid):
+    "Edit the list of reviewers."
+    call = get_call(cid)
+    if not call:
+        utils.flash_error('No such call.')
+        return flask.redirect(flask.url_for('home'))
+
+    if utils.http_GET():
+        return flask.render_template('call/reviewers.html', call=call)
+
+    elif utils.http_POST():
+        return flask.redirect(
+            flask.url_for('.reviewers', cid=call['identifier']))
+
+    elif utils.http_DELETE():
+        return flask.redirect(
+            flask.url_for('.reviewers', cid=call['identifier']))
+
 @blueprint.route('/<cid>/clone', methods=['GET', 'POST'])
 @utils.admin_required
 def clone(cid):
     "Clone the call."
     call = get_call(cid)
     if not call:
-        utils.flash_error('no such call')
+        utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_GET():
@@ -188,7 +209,8 @@ def clone(cid):
                 saver.set_identifier(flask.request.form.get('identifier'))
                 saver.set_title(flask.request.form.get('title'))
                 saver.doc['fields'] = copy.deepcopy(call['fields'])
-                # Do not copy attachments.
+                # Do not copy documents.
+                # Do not copy reviewers or chairs.
             new = saver.doc
         except ValueError as error:
             utils.flash_error(str(error))
@@ -201,7 +223,7 @@ def logs(cid):
     "Display the log records of the call."
     call = get_call(cid)
     if call is None:
-        utils.flash_error('no such call')
+        utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
 
     return flask.render_template(
@@ -217,7 +239,7 @@ def submission(cid):
     import anubis.submission 
     call = get_call(cid)
     if call is None:
-        utils.flash_error('no such call')
+        utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
 
     if not call['tmp']['is_open']:
@@ -241,34 +263,36 @@ class CallSaver(AttachmentsSaver):
         self.doc['closes'] = None
         self.doc['fields'] = []
         self.doc['documents'] = []
+        self.doc['reviewers'] = []
+        self.doc['chairs'] = []
 
     def set_identifier(self, identifier):
         "Call identifier."
         if self.doc.get('identifier'):
-            raise ValueError('identifier has already been set')
+            raise ValueError('Identifier has already been set.')
         if not identifier:
-            raise ValueError('identifier must be provided')
+            raise ValueError('Identifier must be provided.')
         if len(identifier) > flask.current_app.config['CALL_IDENTIFIER_MAXLENGTH']:
-            raise ValueError('too long identifier')
+            raise ValueError('Too long identifier.')
         if not constants.ID_RX.match(identifier):
-            raise ValueError('invalid identifier')
+            raise ValueError('Invalid identifier.')
         if get_call(identifier):
-            raise ValueError('identifier is already in use')
+            raise ValueError('Identifier is already in use.')
         self.doc['identifier'] = identifier
 
     def set_title(self, title):
         "Call title: non-blank required."
         if not title:
-            raise ValueError('title must be provided')
+            raise ValueError('Title must be provided.')
         self.doc['title'] = title
 
     def add_field(self, form=dict()):
         id = form.get('identifier')
         if not (id and constants.ID_RX.match(id)):
-            raise ValueError('invalid field identifier')
+            raise ValueError('Invalid field identifier.')
         type = form.get('type')
         if type not in constants.INPUT_FIELD_TYPES:
-            raise ValueError('invalid field type')
+            raise ValueError('Invalid field type.')
         title = form.get('title') or id.replace('_', ' ')
         title = ' '.join([w.capitalize() for w in title.split()])
         field = {'type': type,
@@ -306,7 +330,7 @@ class CallSaver(AttachmentsSaver):
                 maxlength = None
             field['maxlength'] = maxlength
         else:
-            raise ValueError('invalid field type')
+            raise ValueError('Invalid field type.')
 
     def delete_field(self, fid):
         for pos, field in enumerate(self.doc['fields']):
@@ -314,7 +338,7 @@ class CallSaver(AttachmentsSaver):
                 self.doc['fields'].pop(pos)
                 break
         else:
-            raise ValueError('no such field')
+            raise ValueError('No such field.')
 
     def add_document(self, infile, description):
         "Add a document."

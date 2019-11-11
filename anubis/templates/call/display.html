@@ -464,6 +464,10 @@
 {% endif %} {# if call['tmp']['is_editable'] #}
 {% if g.is_admin %}
 <div class="mt-4">
+  <a href="{{ url_for('.reviewers', cid=call['identifier']) }}"
+     role="button" class="btn btn-info btn-block">Edit reviewers</a>
+</div>
+<div class="mt-4">
   <a href="{{ url_for('.clone', cid=call['identifier']) }}"
      role="button" class="btn btn-info btn-block">Clone</a>
 </div>

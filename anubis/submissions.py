@@ -18,7 +18,7 @@ def call(cid):
     "List submissions in a call. XXX check user access!"
     call = anubis.call.get_call(cid)
     if not call:
-        utils.flash_error('no such call')
+        utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
     return flask.render_template('submissions/call.html', 
                                  call=call,
@@ -30,10 +30,10 @@ def user(username):
     "List all submissions for a user."
     user = anubis.user.get_user(username=username)
     if user is None:
-        utils.flash_error('no such user')
+        utils.flash_error('No such user.')
         return flask.redirect(flask.url_for('home'))
     if not anubis.user.is_admin_or_self(user):
-        utils.flash_error("you may not view the user's submissions")
+        utils.flash_error("You may not view the user's submissions.")
         return flask.redirect(flask.url_for('home'))
     return flask.render_template(
         'submissions/user.html', 
@@ -46,14 +46,14 @@ def user_call(username, cid):
     "List all submissions for a user in a call."
     user = anubis.user.get_user(username=username)
     if user is None:
-        utils.flash_error('no such user')
+        utils.flash_error('No such user.')
         return flask.redirect(flask.url_for('home'))
     if not anubis.user.is_admin_or_self(user):
-        utils.flash_error("you may not view the user's submissions")
+        utils.flash_error("You may not view the user's submissions.")
         return flask.redirect(flask.url_for('home'))
     call = anubis.call.get_call(cid)
     if not call:
-        utils.flash_error('no such call')
+        utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
     return flask.render_template(
         'submissions/user.html', 

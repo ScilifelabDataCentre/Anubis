@@ -22,22 +22,22 @@ Submission review handling system.
 - Call
   - = Call for submissions.
   - Container of submissions.
-  - Unique prefix (identifier) letters, digits only (no dash or underscore)
+  - Unique prefix (identifier) letters, digits, underscore
   - With info, documents, instructions, etc, for the user (applicant).
   - Configurable fields to be filled in for a submission.
-  - Status: Preparation, Published, Closed, Archived.
   - Handled by admin.
   - Date opened
-  - Date closed (time? local)
+  - Date closed (time, local)
+  - Status determined by dates.
   
 - Submission
   - = Application; the proposal to be reviewed.
   - Belongs to one and only one call.
-  - Identifier: {prefix}-001
+  - Identifier: {prefix}:001
   - Information fields; defined in the call.
   - Attached documents (project description, CV,...)
   - Made by user.
-  - Status: Preparation, Submitted, Reviewing, Discarded, Decided.
+  - Submitted or not submitted
   - Consortium = group of user that may access a submission.
   - Reviewer relation
     - Interest
@@ -48,7 +48,6 @@ Submission review handling system.
 - Evaluation
   - A reviewer's comments and assessment of a submission.
   - Criteria = reviewer's assessment fields; defined in the call.
-  - Versions?
   - Owned by reviewer; settable privileges for other reviewers.
 
 - Decision

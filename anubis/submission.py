@@ -17,10 +17,10 @@ def display(sid):
     "Display the submission."
     submission = get_submission(sid)
     if submission is None:
-        utils.flash_error('no such submission')
+        utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
     if not submission['tmp']['is_readable']:
-        utils.flash_error('you are not allowed to read the submission')
+        utils.flash_error('You are not allowed to read the submission.')
         return flask.redirect(flask.url_for('home'))
     return flask.render_template('submission/display.html',
                                  submission=submission)
@@ -31,12 +31,12 @@ def edit(sid):
     "Edit the submission."
     submission = get_submission(sid)
     if submission is None:
-        utils.flash_error('no such submission')
+        utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_GET():
         if not submission['tmp']['is_editable']:
-            utils.flash_error('you are not allowed to edit the submission')
+            utils.flash_error('You are not allowed to edit the submission.')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
         return flask.render_template('submission/edit.html',
@@ -44,7 +44,7 @@ def edit(sid):
 
     elif utils.http_POST():
         if not submission['tmp']['is_editable']:
-            utils.flash_error('you are not allowed to edit the submission')
+            utils.flash_error('You are not allowed to edit the submission.')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
         try:
@@ -61,11 +61,11 @@ def edit(sid):
 
     elif utils.http_DELETE():
         if not submission['tmp']['is_editable']:
-            utils.flash_error('you are not allowed to delete the submission')
+            utils.flash_error('You are not allowed to delete the submission.')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
         utils.delete(submission)
-        utils.flash_message(f"deleted submission {sid}")
+        utils.flash_message(f"Deleted submission {sid}.")
         return flask.redirect(flask.url_for('home'))
 
 @blueprint.route('/<sid>/submit', methods=['POST'])
@@ -74,11 +74,11 @@ def submit(sid):
     "Submit the submission."
     submission = get_submission(sid)
     if submission is None:
-        utils.flash_error('no such submission')
+        utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
     if utils.http_POST():
         if not submission['tmp']['is_submittable']:
-            utils.flash_error('you cannot submit; edit not allowed, or call closed')
+            utils.flash_error('You cannot submit; edit not allowed, or call closed.')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
         try:
@@ -94,11 +94,11 @@ def unsubmit(sid):
     "Unsubmit the submission."
     submission = get_submission(sid)
     if submission is None:
-        utils.flash_error('no such submission')
+        utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
     if utils.http_POST():
         if not submission['tmp']['is_editable']:
-            utils.flash_error('you cannot unsubmit; edit not allowed, or call closed')
+            utils.flash_error('You cannot unsubmit; edit not allowed, or call closed.')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
         try:
@@ -114,10 +114,10 @@ def logs(sid):
     "Display the log records of the given submission."
     submission = get_submission(sid)
     if submission is None:
-        utils.flash_error('no such submission')
+        utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
     if not submission['tmp']['is_readable']:
-        utils.flash_error('you are not allowed to read the submission')
+        utils.flash_error('You are not allowed to read the submission.')
         return flask.redirect(flask.url_for('home'))
 
     return flask.render_template(
@@ -132,16 +132,16 @@ def document(sid, documentname):
     "Download the given submission document (attachment file)."
     submission = get_submission(sid)
     if submission is None:
-        utils.flash_error('no such submission')
+        utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
     if not submission['tmp']['is_readable']:
-        utils.flash_error('you are not allowed to read the submission')
+        utils.flash_error('You are not allowed to read the submission.')
         return flask.redirect(flask.url_for('home'))
 
     try:
         stub = submission['_attachments'][documentname]
     except KeyError:
-        utils.flash_error('no such document in submission')
+        utils.flash_error('No such document in submission.')
         return flask.redirect(
             flask.url_for('.display', sid=submission['identifier']))
     outfile = flask.g.db.get_attachment(submission, documentname)
