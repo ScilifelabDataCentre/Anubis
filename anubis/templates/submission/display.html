@@ -54,16 +54,16 @@
     {% elif field['type'] == constants.LINE %}
     {{ submission['values'].get(field['identifier']) }}
 
-    {% elif field['type'] == constants.FILE %}
-    {% set filename = submission['values'].get(field['identifier']) %}
-    {% if filename %}
-    {{ filename }}
-    {% if submission.get('_attachments', {}).get(filename) %}
-    ({{ submission['_attachments'][filename]['length'] }} bytes)
-    
-    <a href="{{ url_for('submission.file', sid=submission['identifier'], filename=filename) }}"
-       role="button" class="btn btn-secondary btn-sm">
-      Download</a>
+    {% elif field['type'] == constants.DOCUMENT %}
+    {% set documentname = submission['values'].get(field['identifier']) %}
+    {% if documentname %}
+    <span class="font-weight-bold">{{ documentname }}</span>
+    {% if submission.get('_attachments', {}).get(documentname) %}
+    <a href="{{ url_for('submission.document', sid=submission['identifier'], documentname=documentname) }}"
+       role="button" class="btn btn-secondary btn-sm ml-4">
+      Download 
+      ({{ submission['_attachments'][documentname]['length'] | thousands }} bytes)
+    </a>
     {% else %}
     (?)
     {% endif %}

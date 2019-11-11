@@ -26,6 +26,7 @@ app = flask.Flask(__name__)
 # Get the configuration and initialize.
 anubis.config.init(app)
 utils.mail.init_app(app)
+app.add_template_filter(utils.thousands)
 app.add_template_filter(utils.do_markdown, name='markdown')
 
 @app.context_processor

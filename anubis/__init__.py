@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '0.2.19'
+__version__ = '0.2.20'
 
 class Constants:
     VERSION     = __version__
@@ -43,8 +43,8 @@ class Constants:
     # Input field types
     TEXT = 'text'
     LINE = 'line'
-    FILE = 'file'
-    INPUT_FIELD_TYPES = (TEXT, LINE, FILE)
+    DOCUMENT = 'document'
+    INPUT_FIELD_TYPES = (TEXT, LINE, DOCUMENT)
 
     # Content types
     HTML_MIMETYPE = 'text/html'

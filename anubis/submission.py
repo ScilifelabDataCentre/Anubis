@@ -126,10 +126,10 @@ def logs(sid):
         cancel_url=flask.url_for('.display', sid=submission['identifier']),
         logs=utils.get_logs(submission['_id']))
 
-@blueprint.route('/<sid>/file/<filename>')
+@blueprint.route('/<sid>/document/<documentname>')
 @utils.login_required
-def file(sid, filename):
-    "Download the given submission attachment file."
+def document(sid, documentname):
+    "Download the given submission document (attachment file)."
     submission = get_submission(sid)
     if submission is None:
         utils.flash_error('no such submission')
@@ -137,18 +137,18 @@ def file(sid, filename):
     if not submission['tmp']['is_readable']:
         utils.flash_error('you are not allowed to read the submission')
         return flask.redirect(flask.url_for('home'))
+
     try:
-        stub = submission['_attachments'][filename]
+        stub = submission['_attachments'][documentname]
     except KeyError:
-        utils.flash_error('no such file in submission')
+        utils.flash_error('no such document in submission')
         return flask.redirect(
             flask.url_for('.display', sid=submission['identifier']))
-        
-    outfile = flask.g.db.get_attachment(submission, filename)
+    outfile = flask.g.db.get_attachment(submission, documentname)
     response = flask.make_response(outfile.read())
     response.headers.set('Content-Type', stub['content_type'])
     response.headers.set('Content-Disposition', 'attachment', 
-                         filename=filename)
+                         filename=documentname)
     return response
 
 
@@ -184,7 +184,7 @@ class SubmissionSaver(AttachmentsSaver):
         id = field['identifier']
         if field['type'] in (constants.TEXT, constants.LINE):
             self.doc['values'][id] = form.get(id)
-        elif field['type'] in constants.FILE:
+        elif field['type'] in constants.DOCUMENT:
             infile = flask.request.files.get(id)
             if infile:
                 if self.doc['values'].get(id) and \

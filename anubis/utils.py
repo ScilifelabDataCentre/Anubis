@@ -198,6 +198,13 @@ def flash_message(msg):
     "Flash information message."
     flask.flash(str(msg), 'message')
 
+def thousands(value):
+    "Template filter: Output integer with thousands delimiters."
+    if isinstance(value, int):
+        return '{:,}'.format(value)
+    else:
+        return value
+
 def do_markdown(value):
     "Template filter: Use Markdown to process the value."
     value = value or ''

@@ -6,7 +6,7 @@ import flask
 
 from . import constants
 from . import utils
-from .saver import BaseSaver
+from .saver import AttachmentsSaver
 
 
 blueprint = flask.Blueprint('call', __name__)
@@ -37,6 +37,62 @@ def display(cid):
         utils.flash_error('no such call')
         return flask.redirect(flask.url_for('home'))
     return flask.render_template('call/display.html', call=call)
+
+@blueprint.route('/<cid>/document', methods=['POST'])
+@utils.admin_required
+def add_document(cid):
+    "Add a document (attachment file)."
+    call = get_call(cid)
+    if not call:
+        utils.flash_error('no such call')
+        return flask.redirect(flask.url_for('home'))
+
+    if utils.http_POST():
+        infile = flask.request.files.get('document')
+        if infile:
+            description = flask.request.form.get('document_description')
+            with CallSaver(call) as saver:
+                saver.add_document(infile, description)
+        return flask.redirect(flask.url_for('.display', cid=call['identifier']))
+
+@blueprint.route('/<cid>/document/<documentname>/delete', 
+                 methods=['POST', 'DELETE'])
+@utils.admin_required
+def delete_document(cid, documentname):
+    "Delete the given document (attachment file)."
+    call = get_call(cid)
+    if not call:
+        utils.flash_error('no such call')
+    if utils.http_DELETE():
+        with CallSaver(call) as saver:
+            saver.delete_document(documentname)
+        return flask.redirect(
+            flask.url_for('.display', cid=call['identifier']))
+
+
+@blueprint.route('/<cid>/document/<documentname>')
+def document(cid, documentname):
+    "Download the given document (attachment file)."
+    call = get_call(cid)
+    if not call:
+        utils.flash_error('no such call')
+        return flask.redirect(flask.url_for('home'))
+    if not (flask.g.is_admin or call['tmp']['is_published']):
+        utils.flash_error(f"Call {call['title']} has not been published.")
+        return flask.redirect(flask.url_for('home'))
+
+    try:
+        stub = call['_attachments'][documentname]
+    except KeyError:
+        utils.flash_error('no such document in call')
+        return flask.redirect(
+            flask.url_for('.display', cid=call['identifier']))
+    outfile = flask.g.db.get_attachment(call, documentname)
+    response = flask.make_response(outfile.read())
+    response.headers.set('Content-Type', stub['content_type'])
+    response.headers.set('Content-Disposition', 'attachment', 
+                         filename=documentname)
+    return response
 
 @blueprint.route('/<cid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.admin_required
@@ -132,6 +188,7 @@ def clone(cid):
                 saver.set_identifier(flask.request.form.get('identifier'))
                 saver.set_title(flask.request.form.get('title'))
                 saver.doc['fields'] = copy.deepcopy(call['fields'])
+                # Do not copy attachments.
             new = saver.doc
         except ValueError as error:
             utils.flash_error(str(error))
@@ -174,7 +231,7 @@ def submission(cid):
             flask.url_for('submission.edit', sid=doc['identifier']))
 
 
-class CallSaver(BaseSaver):
+class CallSaver(AttachmentsSaver):
     "Call document saver context."
 
     DOCTYPE = constants.DOCTYPE_CALL
@@ -183,6 +240,7 @@ class CallSaver(BaseSaver):
         self.doc['opens'] = None
         self.doc['closes'] = None
         self.doc['fields'] = []
+        self.doc['documents'] = []
 
     def set_identifier(self, identifier):
         "Call identifier."
@@ -258,6 +316,27 @@ class CallSaver(BaseSaver):
         else:
             raise ValueError('no such field')
 
+    def add_document(self, infile, description):
+        "Add a document."
+        self.add_attachment(infile.filename,
+                            infile.read(),
+                            infile.mimetype)
+        for document in self.doc['documents']:
+            if document['name'] == infile.filename:
+                document['description'] = description
+                break
+        else:
+            self.doc['documents'].append({'name': infile.filename,
+                                          'description': description})
+
+    def delete_document(self, documentname):
+        "Add the named document."
+        for pos, document in enumerate(self.doc['documents']):
+            if document['name'] == documentname:
+                self.delete_attachment(documentname)
+                self.doc['documents'].pop(pos)
+                break
+
 
 def get_call(cid):
     "Return the call with the given identifier."
@@ -288,6 +367,7 @@ def add_call_tmp(call):
         if call['opens'] > now:
             tmp['is_open'] = False
             tmp['is_closed'] = False
+            tmp['is_published'] = False
             tmp['text'] = 'Not yet open.'
             tmp['color'] = 'secondary'
         elif call['closes']:
@@ -295,42 +375,50 @@ def add_call_tmp(call):
             if remaining > 7.0:
                 tmp['is_open'] = True
                 tmp['is_closed'] = False
+                tmp['is_published'] = True
                 tmp['text'] = f"{remaining:.0f} days remaining."
                 tmp['color'] = 'success'
             elif remaining > 2.0:
                 tmp['is_open'] = True
                 tmp['is_closed'] = False
+                tmp['is_published'] = True
                 tmp['text'] = f"{remaining:.0f} days remaining."
                 tmp['color'] = 'info'
             elif remaining >= 1.0:
                 tmp['is_open'] = True
                 tmp['is_closed'] = False
+                tmp['is_published'] = True
                 tmp['text'] = "Less than two days remaining."
                 tmp['color'] = 'warning'
             elif remaining >= 0.0:
                 tmp['is_open'] = True
                 tmp['is_closed'] = False
+                tmp['is_published'] = True
                 tmp['text'] = "Less than one day remaining."
                 tmp['color'] = 'danger'
             else:
                 tmp['is_open'] = False
                 tmp['is_closed'] = True
+                tmp['is_published'] = True
                 tmp['text'] = 'Closed.'
                 tmp['color'] = 'dark'
         else:
             tmp['is_open'] = True
             tmp['is_closed'] = False
+            tmp['is_published'] = True
             tmp['text'] = 'Open with no closing date.'
             tmp['color'] = 'success'
     else:
         if call['closes']:
             tmp['is_open'] = False
             tmp['is_closed'] = False
+            tmp['is_published'] = False
             tmp['text'] = 'No open date set.'
             tmp['color'] = 'secondary'
         else:
             tmp['is_open'] = False
             tmp['is_closed'] = False
+            tmp['is_published'] = False
             tmp['text'] = 'No open or close dates set.'
             tmp['color'] = 'secondary'
     # Is editable? Check open/closed and privileges.
