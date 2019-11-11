@@ -77,8 +77,8 @@ def submit(sid):
         utils.flash_error('no such submission')
         return flask.redirect(flask.url_for('home'))
     if utils.http_POST():
-        if not submission['tmp']['is_editable']:
-            utils.flash_error('you are not allowed to edit the submission')
+        if not submission['tmp']['is_submittable']:
+            utils.flash_error('you cannot submit; edit not allowed, or call closed')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
         try:
@@ -98,7 +98,7 @@ def unsubmit(sid):
         return flask.redirect(flask.url_for('home'))
     if utils.http_POST():
         if not submission['tmp']['is_editable']:
-            utils.flash_error('you are not allowed to edit the submission')
+            utils.flash_error('you cannot unsubmit; edit not allowed, or call closed')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
         try:
@@ -236,15 +236,19 @@ def add_submission_tmp(submission, call=None):
     if flask.g.is_admin:
         tmp['is_readable'] = True
         tmp['is_editable'] = True
+        tmp['is_submittable'] = True
     elif flask.g.current_user:
         if flask.g.current_user['username'] == submission['user']:
             tmp['is_readable'] = True
-            tmp['is_editable'] = tmp['call']['tmp']['is_open']
+            tmp['is_editable'] = True
+            tmp['is_submittable'] = tmp['call']['tmp']['is_open']
         else:
             # XXX Check reviewers privileges within call
             tmp['is_readable'] = True
             tmp['is_editable'] = False
+            tmp['is_submittable'] = False
     else:
         tmp['is_readable'] = False
         tmp['is_editable'] = False
+        tmp['is_submittable'] = False
     return submission

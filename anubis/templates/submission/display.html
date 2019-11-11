@@ -79,7 +79,7 @@
 
 {% block actions %}
 
-{% if submission['tmp']['is_editable'] %}
+{% if submission['tmp']['is_submittable'] %}
 {% if submission.get('submitted') %}
 <div class="mt-4">
   <form action="{{ url_for('.unsubmit', sid=submission['identifier']) }}"
@@ -99,7 +99,7 @@
   </form>
 </div>
 {% endif %} {# if submission.get('submitted') #}
-{% endif %} {# if submission['tmp']['is_editable'] #}
+{% endif %} {# if submission['tmp']['is_submittable'] #}
 
 {% if submission['tmp']['is_editable'] %}
 <div class="mt-4">
