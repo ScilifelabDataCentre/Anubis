@@ -6,6 +6,7 @@ import flask
 
 from . import constants
 from . import utils
+from .saver import BaseSaver
 
 
 blueprint = flask.Blueprint('call', __name__)
@@ -173,7 +174,7 @@ def submission(cid):
             flask.url_for('submission.edit', sid=doc['identifier']))
 
 
-class CallSaver(utils.BaseSaver):
+class CallSaver(BaseSaver):
     "Call document saver context."
 
     DOCTYPE = constants.DOCTYPE_CALL

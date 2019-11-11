@@ -11,6 +11,7 @@ import werkzeug.security
 
 from . import constants
 from . import utils
+from .saver import BaseSaver
 from .submissions import get_submissions_count
 
 
@@ -283,7 +284,7 @@ def disable(username):
     return flask.redirect(flask.url_for('.display', username=username))
 
 
-class UserSaver(utils.BaseSaver):
+class UserSaver(BaseSaver):
     "User document saver context."
 
     DOCTYPE = constants.DOCTYPE_USER

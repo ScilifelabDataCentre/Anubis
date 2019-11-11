@@ -52,11 +52,15 @@ Edit submission {{ submission['identifier'] }}
 	     aria-describedby="{{ field['identifier'] }}Help"
 	     value="{{ submission['values'][field['identifier']] or '' }}">
       {% elif field['type'] == constants.FILE %}
-      <input type="file"
-	     id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
-	     class="form-control"
-	     aria-describedby="{{ field['identifier'] }}Help"
-	     value="{{ submission['values'][field['identifier']] or '' }}">
+      <div class="custom-file">
+        <input type="file"
+	       id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
+	       class="custom-file-input"
+	       aria-describedby="{{ field['identifier'] }}Help">
+        <label class="custom-file-label" for="{{ field['identifier'] }}">
+          {{ submission['values'][field['identifier']] or 'Choose file' }}
+        </label>
+      </div>
       {% endif %}
       <small id="{{ field['identifier'] }}Help" class="form-text text-muted">
 	<div class="row">
@@ -95,3 +99,11 @@ Edit submission {{ submission['identifier'] }}
   </form>
 </div>
 {% endblock %}
+
+{% block javascript %}
+<script>
+$(".custom-file-input").on("change", function() {
+  var fileName = $(this).val().split("\\").pop();
+  $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+});
+</script>{% endblock %}

@@ -50,10 +50,26 @@
   <div class="col-md text-break">
     {% if field['type'] == constants.TEXT %}
     {{ submission['values'].get(field['identifier']) | markdown }}
+
     {% elif field['type'] == constants.LINE %}
-    {{ submission['values'].get(field['identifier'])}}
+    {{ submission['values'].get(field['identifier']) }}
+
     {% elif field['type'] == constants.FILE %}
-    {{ submission['values'].get(field['identifier'])}}
+    {% set filename = submission['values'].get(field['identifier']) %}
+    {% if filename %}
+    {{ filename }}
+    {% if submission.get('_attachments', {}).get(filename) %}
+    ({{ submission['_attachments'][filename]['length'] }} bytes)
+    
+    <a href="{{ url_for('submission.file', sid=submission['identifier'], filename=filename) }}"
+       role="button" class="btn btn-secondary btn-sm">
+      Download</a>
+    {% else %}
+    (?)
+    {% endif %}
+    {% else %}
+    -
+    {% endif %}
     {% endif %}
   </div>
 </div>
@@ -62,9 +78,10 @@
 {% endblock %} {# block main #}
 
 {% block actions %}
+
 {% if submission['tmp']['is_editable'] %}
 {% if submission.get('submitted') %}
-<div class="mt-2">
+<div class="mt-4">
   <form action="{{ url_for('.unsubmit', sid=submission['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
@@ -73,7 +90,7 @@
   </form>
 </div>
 {% else %}
-<div class="mt-2">
+<div class="mt-4">
   <form action="{{ url_for('.submit', sid=submission['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
@@ -83,8 +100,9 @@
 </div>
 {% endif %} {# if submission.get('submitted') #}
 {% endif %} {# if submission['tmp']['is_editable'] #}
+
 {% if submission['tmp']['is_editable'] %}
-<div class="mt-2">
+<div class="mt-4">
   <a href="{{ url_for('.edit', sid=submission['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
@@ -99,6 +117,7 @@
   </form>
 </div>
 {% endif %} {# if submission['tmp']['is_editable'] #}
+
 {% endblock %} {# block actions #}
 
 {% block info %}

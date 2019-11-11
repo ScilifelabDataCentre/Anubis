@@ -6,6 +6,7 @@ import anubis.call
 
 from . import constants
 from . import utils
+from .saver import AttachmentsSaver
 
 
 blueprint = flask.Blueprint('submission', __name__)
@@ -78,6 +79,8 @@ def submit(sid):
     if utils.http_POST():
         if not submission['tmp']['is_editable']:
             utils.flash_error('you are not allowed to edit the submission')
+            return flask.redirect(
+                flask.url_for('.display', sid=submission['identifier']))
         try:
             with SubmissionSaver(submission) as saver:
                 saver.set_submitted()
@@ -96,6 +99,8 @@ def unsubmit(sid):
     if utils.http_POST():
         if not submission['tmp']['is_editable']:
             utils.flash_error('you are not allowed to edit the submission')
+            return flask.redirect(
+                flask.url_for('.display', sid=submission['identifier']))
         try:
             with SubmissionSaver(submission) as saver:
                 saver.set_unsubmitted()
@@ -111,6 +116,9 @@ def logs(sid):
     if submission is None:
         utils.flash_error('no such submission')
         return flask.redirect(flask.url_for('home'))
+    if not submission['tmp']['is_readable']:
+        utils.flash_error('you are not allowed to read the submission')
+        return flask.redirect(flask.url_for('home'))
 
     return flask.render_template(
         'logs.html',
@@ -118,8 +126,33 @@ def logs(sid):
         cancel_url=flask.url_for('.display', sid=submission['identifier']),
         logs=utils.get_logs(submission['_id']))
 
+@blueprint.route('/<sid>/file/<filename>')
+@utils.login_required
+def file(sid, filename):
+    "Download the given submission attachment file."
+    submission = get_submission(sid)
+    if submission is None:
+        utils.flash_error('no such submission')
+        return flask.redirect(flask.url_for('home'))
+    if not submission['tmp']['is_readable']:
+        utils.flash_error('you are not allowed to read the submission')
+        return flask.redirect(flask.url_for('home'))
+    try:
+        stub = submission['_attachments'][filename]
+    except KeyError:
+        utils.flash_error('no such file in submission')
+        return flask.redirect(
+            flask.url_for('.display', sid=submission['identifier']))
+        
+    outfile = flask.g.db.get_attachment(submission, filename)
+    response = flask.make_response(outfile.read())
+    response.headers.set('Content-Type', stub['content_type'])
+    response.headers.set('Content-Disposition', 'attachment', 
+                         filename=filename)
+    return response
 
-class SubmissionSaver(utils.BaseSaver):
+
+class SubmissionSaver(AttachmentsSaver):
     "Submission document saver context."
 
     DOCTYPE = constants.DOCTYPE_SUBMISSION
@@ -149,7 +182,20 @@ class SubmissionSaver(utils.BaseSaver):
     def set_field_value(self, field, form=dict()):
         "Set the value according to field type."
         id = field['identifier']
-        self.doc['values'][id] = form.get(id)
+        if field['type'] in (constants.TEXT, constants.LINE):
+            self.doc['values'][id] = form.get(id)
+        elif field['type'] in constants.FILE:
+            infile = flask.request.files.get(id)
+            if infile:
+                if self.doc['values'].get(id) and \
+                   self.doc['values'][id] != infile.name:
+                    self.delete_attachment(self.doc['values'][id])
+                self.doc['values'][id] = infile.filename
+                self.add_attachment(infile.filename,
+                                    infile.read(),
+                                    infile.mimetype)
+        else:
+            raise ValueError(f"unknown field type {field['type']}")
         if field['required'] and not self.doc['values'][id]:
             self.doc['errors'][id] = 'missing value'
         else:
@@ -182,6 +228,7 @@ def add_submission_tmp(submission, call=None):
     Depends on login, privileges, etc.
     """
     submission['tmp'] = tmp = {}
+    # Get the call for the submission.
     if call is None:
         tmp['call'] = anubis.call.get_call(submission['call'])
     else:
