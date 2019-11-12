@@ -12,7 +12,6 @@ import werkzeug.security
 from . import constants
 from . import utils
 from .saver import BaseSaver
-from .submissions import get_submissions_count
 
 
 blueprint = flask.Blueprint('user', __name__)
@@ -158,6 +157,7 @@ def password():
 @utils.login_required
 def display(username):
     "Display the given user."
+    from .submissions import get_submissions_count
     user = get_user(username=username)
     if user is None:
         utils.flash_error('No such user.')
@@ -252,6 +252,7 @@ def logs(username):
 @utils.admin_required
 def all():
     "Display list of all users."
+    from .submissions import get_submissions_count
     users = get_users(role=None)
     for user in users:
         user['submissions_count'] = get_submissions_count(username=user['username'])
@@ -455,6 +456,7 @@ def is_deletable(user):
     """Can the the given user account be deleted? 
     Only when no submissions and not admin.
     """
+    from .submissions import get_submissions_count
     if user['role'] == constants.ADMIN: return False
     return not bool(get_submissions_count(username=user['username']))
 

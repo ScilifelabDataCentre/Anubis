@@ -471,15 +471,6 @@ def set_call_tmp(call):
             tmp.is_published = False
             tmp.text = 'No open or close dates set.'
             tmp.color = 'secondary'
-    # Is editable? Check open/closed and privileges.
-    # XXX allow admin anything during development
+    # XXX disallow even admin if open?
     tmp.is_editable = flask.g.is_admin
-    # if tmp.submissions_count != 0:
-    #     tmp.is_editable = False
-    # elif tmp.is_open:
-    #     tmp.is_editable = False
-    # elif tmp.is_closed:
-    #     tmp.is_editable = False
-    # else:
-    #     tmp.is_editable = flask.g.is_admin
     return call

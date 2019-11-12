@@ -3,14 +3,15 @@
 import flask
 
 import anubis.about
-import anubis.config
-import anubis.designs
-import anubis.user
 import anubis.call
 import anubis.calls
+import anubis.config
+import anubis.designs
+import anubis.evaluation
 import anubis.submission
 import anubis.submissions
 import anubis.site
+import anubis.user
 
 import anubis.api.about
 import anubis.api.root
@@ -24,6 +25,7 @@ from anubis import utils
 app = flask.Flask(__name__)
 
 # Get the configuration and initialize.
+app.url_map.converters['iuid'] = utils.IuidConverter
 anubis.config.init(app)
 utils.mail.init_app(app)
 app.add_template_filter(utils.thousands)

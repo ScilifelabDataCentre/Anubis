@@ -229,7 +229,10 @@ def set_submission_tmp(submission, call=None):
     This is computed data that will not be stored with the document.
     Depends on login, privileges, etc.
     """
-    submission['tmp'] = tmp = types.SimpleNamespace()
+    submission['tmp'] = tmp = types.SimpleNamespace(is_readable=False,
+                                                    is_editable=False,
+                                                    is_submittable=False,
+                                                    is_reviewer=False)
     # Get the call for the submission.
     if call is None:
         tmp.call = anubis.call.get_call(submission['call'])
@@ -244,13 +247,7 @@ def set_submission_tmp(submission, call=None):
             tmp.is_readable = True
             tmp.is_editable = True
             tmp.is_submittable = tmp.call['tmp'].is_open
-        else:
-            # XXX Check reviewers privileges within call
+        elif flask.g.current_user['username'] in tmp.call['reviewers']:
+            tmp.is_reviewer = True
             tmp.is_readable = True
-            tmp.is_editable = False
-            tmp.is_submittable = False
-    else:
-        tmp.is_readable = False
-        tmp.is_editable = False
-        tmp.is_submittable = False
     return submission

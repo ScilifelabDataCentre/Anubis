@@ -4,7 +4,6 @@ import datetime
 import functools
 import http.client
 import logging
-import time
 import uuid
 
 import couchdb2
@@ -81,17 +80,12 @@ def admin_required(f):
     return wrap
 
 
-class Timer:
-    "CPU timer."
-    def __init__(self):
-        self.start = time.process_time()
-    def __call__(self):
-        "Return CPU time (in seconds) since start of this timer."
-        return time.process_time() - self.start
-    @property
-    def milliseconds(self):
-        "Return CPU time (in milliseconds) since start of this timer."
-        return round(1000 * self())
+class IuidConverter(werkzeug.routing.BaseConverter):
+    "URL route converter for a IUID."
+    def to_python(self, value):
+        if not constants.IUID_RX.match(value):
+            raise werkzeug.routing.ValidationError
+        return value.lower()    # Case-insensitive
 
 def get_iuid():
     "Return a new IUID, which is a UUID4 pseudo-random string."
