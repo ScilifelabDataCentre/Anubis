@@ -165,6 +165,8 @@ def display(username):
     if not is_admin_or_self(user):
         utils.flash_error('Access not allowed.')
         return flask.redirect(flask.url_for('home'))
+    user['reviewer'] = [r.value for r in flask.g.db.view('calls', 'reviewer',
+                                                         key=user['username'])]
     user['submissions_count'] = get_submissions_count(username=user['username'])
     return flask.render_template('user/display.html',
                                  user=user,

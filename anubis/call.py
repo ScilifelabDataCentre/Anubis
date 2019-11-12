@@ -176,6 +176,7 @@ def edit_field(cid, fid):
 @utils.admin_required
 def reviewers(cid):
     "Edit the list of reviewers."
+    import anubis.user
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
@@ -185,10 +186,34 @@ def reviewers(cid):
         return flask.render_template('call/reviewers.html', call=call)
 
     elif utils.http_POST():
+        reviewer = flask.request.form.get('reviewer')
+        user = anubis.user.get_user(username=reviewer)
+        if user is None:
+            user = anubis.user.get_user(email=reviewer)
+        if user is None:
+            utils.flash_error('No such user.')
+            return flask.redirect(
+                flask.url_for('.reviewers', cid=call['identifier']))
+        if user['username'] not in call['reviewers']:
+            with CallSaver(call) as saver:
+                saver['reviewers'].append(user['username'])
+                if utils.to_bool(flask.request.form.get('chair')):
+                    saver['chairs'].append(user['username'])
         return flask.redirect(
             flask.url_for('.reviewers', cid=call['identifier']))
 
     elif utils.http_DELETE():
+        reviewer = flask.request.form.get('reviewer')
+        if reviewer:
+            with CallSaver(call) as saver:
+                try:
+                    saver['reviewers'].remove(reviewer)
+                except ValueError:
+                    pass
+                try:
+                    saver['chairs'].remove(reviewer)
+                except ValueError:
+                    pass
         return flask.redirect(
             flask.url_for('.reviewers', cid=call['identifier']))
 

@@ -40,6 +40,20 @@
     </span></a>
   </div>
 </div>
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Reviewers</div>
+  <div class="col-md">
+    {% for reviewer in sorted(call['reviewers']) %}
+    <span class="mr-3">
+      <a href="{{ url_for('user.display', username=reviewer) }}">
+        {{ reviewer }}</a>
+      {% if reviewer in call['chairs'] %}
+      (chair)
+      {% endif %}
+    </span>
+    {% endfor %}
+  </div>
+</div>
 {% endif %} {# if g.is_admin #}
 {% if g.current_user %}
 <div class="row">

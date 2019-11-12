@@ -35,7 +35,8 @@ def setup_template_context():
     return dict(constants=constants,
                 utils=utils,
                 csrf_token=utils.csrf_token,
-                enumerate=enumerate)
+                enumerate=enumerate,
+                sorted=sorted)
 
 @app.before_first_request
 def init_database():

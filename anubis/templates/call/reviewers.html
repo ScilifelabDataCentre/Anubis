@@ -14,7 +14,28 @@ Edit reviewers for call {{ call['identifier'] }}
 	 class="col-md-2 col-form-label text-right font-weight-bold">
     Reviewers</label>
   <div class="col-md">
-    List of reviewers.
+    <table class="table table-sm table-borderless">
+      {% for username in sorted(call['reviewers']) %}
+      <tr>
+        <td>
+          <a href="{{ url_for('user.display', username=username) }}">
+            {{ username }}</a>
+          {% if username in call['chairs'] %}
+          (chair)
+          {% endif %}
+        </td>
+        <td>
+          <form action="{{ url_for('.reviewers', cid=call['identifier']) }}"
+	        method="POST">
+	    {{ csrf_token() }}
+            <input type="hidden" name="_http_method" value="DELETE">
+            <input type="hidden" name="reviewer" value="{{ username }}">
+	    <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
   </div>
 </div>
 <div class="form-group row">
@@ -26,14 +47,20 @@ Edit reviewers for call {{ call['identifier'] }}
       <form action="{{ url_for('.reviewers', cid=call['identifier']) }}"
 	    method="POST">
 	{{ csrf_token() }}
-	<input type="text" id="add_reviewer" name="add_reviewer"
-               class="form-control"
-               aria-describedby="add_reviewerHelp">
-	Chair or not.
-	<small id="titleHelp" class="form-text text-muted">
-	  Add a reviewer, which must have an account. Username or
-	  email address.
-	</small>
+        <div class="form-group">
+	  <input type="text" id="reviewer" name="reviewer"
+                 class="form-control"
+                 aria-describedby="reviewerHelp">
+          <div class="form-check mt-2">
+            <input type="checkbox" id="chair" name="chair"
+                   class="form-check-input" value="true">
+            <label class="form-check-label" for="chair">Chair</label>
+          </div>
+	  <small id="reviewerHelp" class="form-text text-muted">
+	    Add a reviewer, which must have an account. Username or
+	    email address.
+	  </small>
+        </div>
 	<div class="form-group mt-3">
 	  <button type="submit" class="btn btn-primary">Save</button>
 	</div>
