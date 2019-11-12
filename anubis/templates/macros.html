@@ -1,35 +1,5 @@
 {# Macros #}
 
-{% macro button_to_submission(submission, block=True) -%}
-<a href="{{ url_for('submission.display', sid=submission['identifier']) }}"
-   title="{{ submission.get('title') or submission['identifier'] }}"
-   role="button" 
-   class="btn btn-sm btn-outline-primary {{ block and 'btn-block' or '' }}">
-  {{ submission['identifier'] }}
-</a>
-{%- endmacro %}
-
-{% macro button_to_call(call, block=True, full=False) -%}
-<a href="{{ url_for('call.display', cid=call['identifier']) }}"
-   title="{{ call['title'] }}"
-   role="button"
-   class="btn btn-sm btn-outline-primary {{ block and 'btn-block' or '' }}">
-  {% if full %}
-  {{ call['identifier'] }}: {{ call['title'] }}
-  {% else %}
-  {{ call['identifier'] }}
-  {% endif %}
-</a>
-{%- endmacro %}
-
-{% macro button_to_user(username, block=True, label=False) -%}
-<a href="{{ url_for('user.display', username=username) }}"
-   role="button" 
-   class="btn btn-sm btn-outline-primary {{ block and 'btn-block' or '' }}">
-  {{ label and 'User' or '' }} {{ username }}
-</a>
-{%- endmacro %}
-
 {% macro submitted(submission) -%}
 {% if submission.get('submitted') %}
 <span class="localtime">{{ submission['submitted'] }}</span>
@@ -38,6 +8,6 @@
 {% endif %}
 {%- endmacro %}
 
-{% macro badge_call_closes(call) -%}
+{% macro call_closes(call) -%}
 <span class="badge badge-{{ call['tmp'].color }}">{{ call['tmp'].text }}</span>
 {%- endmacro %}

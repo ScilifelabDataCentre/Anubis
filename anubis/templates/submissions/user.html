@@ -5,14 +5,16 @@ All submissions from user {{ user['username'] }}
 {% endblock %}
 
 {% block body_title %}
-All submissions from user {{ user['username'] }}
+All submissions from user
+<a href="{{ url_for('user.display', username=user['username']) }}">
+  {{ user['username'] }}</a>
 {% endblock %}
 
 {% block supermain %}
 <table id="submissions" class="table">
   <thead>
     <tr>
-      <th>Identifier</th>
+      <th>Submission</th>
       <th>Title</th>
       <th>Submitted</th>
       <th>Call</th>
@@ -22,20 +24,23 @@ All submissions from user {{ user['username'] }}
   <tbody>
     {% for submission in submissions %}
     <tr>
-      <td>{{ macros.button_to_submission(submission) }}</td>
+      <td>
+	<a href="{{ url_for('submission.display', sid=submission['identifier']) }}">
+	  {{ submission['identifier'] }}</a>
+      </td>
       <td>{{ submission.get('title') or '-' }}</td>
       <td>{{ macros.submitted(submission) }}</td>
-      <td>{{ macros.button_to_call(submission['tmp'].call) }}</td>
-      <td>{{ macros.badge_call_closes(submission['tmp'].call) }}</td>
+      <td>
+	<a href="{{ url_for('call.display', cid=submission['tmp'].call['identifier']) }}"
+	   title="{{ submission['tmp'].call['title'] }}">
+	  {{ submission['tmp'].call['identifier'] }}</a>
+      </td>
+      <td>{{ macros.call_closes(submission['tmp'].call) }}</td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
 {% endblock %} {# block supermain #}
-
-{% block links %}
-{{ macros.button_to_user(user['username'], label=True) }}
-{% endblock %}
 
 {% block javascript %}
 <script>

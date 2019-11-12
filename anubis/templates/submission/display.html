@@ -13,14 +13,17 @@
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
   <div class="col-md">
-    {{ macros.button_to_call(submission['tmp'].call, block=False, full=True) }}
+    <a href="{{ url_for('call.display', cid=submission['tmp'].call['identifier']) }}"
+       title="{{ submission['tmp'].call['title'] }}">
+      {{ submission['tmp'].call['identifier'] }}: 
+      {{ submission['tmp'].call['title'] }}</a>
   </div>
 </div>
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
   <div class="col-md">
     <span class="mr-4">{{ submission['tmp'].call['closes'] or '-' }}</span>
-    {{ macros.badge_call_closes(submission['tmp'].call) }}
+    {{ macros.call_closes(submission['tmp'].call) }}
   </div>
 </div>
 <div class="row mb-2">
@@ -32,7 +35,8 @@
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Submitter</div>
   <div class="col-md">
-    {{ macros.button_to_user(submission['user'], False) }}
+    <a href="{{ url_for('user.display', username=submission['user']) }}">
+      {{ submission['user'] }}</a>
   </div>
 </div>
 

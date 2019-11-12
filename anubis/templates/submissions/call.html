@@ -2,9 +2,13 @@
 
 {% block head_title %}Submissions in call {{ call['identifier'] }}{% endblock %}
 
-{% block body_title %}Submissions in call {{ call['identifier'] }}{% endblock %}
+{% block body_title %}
+Submissions in call
+<a href="{{ url_for('call.display', cid=call['identifier']) }}">
+  {{ call['identifier'] }}</a>
+{% endblock %}
 
-{% block main %}
+{% block supermain %}
 <p class="lead">
   <strong>NOTE</strong>: Includes only submissions marked by the user
   as 'submitted'.
@@ -13,7 +17,7 @@
 <table id="submissions" class="table">
   <thead>
     <tr>
-      <th>Identifier</th>
+      <th>Submission</th>
       <th>Title</th>
       {# XXX Check access to view user #}
       <th>Submitter</th>
@@ -22,15 +26,21 @@
   <tbody>
     {% for submission in submissions %}
     <tr>
-      <td>{{ macros.button_to_submission(submission) }}</td>
+      <td>
+	<a href="{{ url_for('submission.display', sid=submission['identifier']) }}">
+	  {{ submission['identifier'] }}</a>
+      </td>
       <td>{{ submission.get('title') or '-' }}</td>
       {# XXX Check access to view user #}
-      <td>{{ macros.button_to_user(submission['user']) }}</td>
+      <td>
+	<a href="{{ url_for('user.display', username=submission['user']) }}">
+	  {{ submission['user'] }}</a>
+      </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
-{% endblock %} {# block main #}
+{% endblock %} {# block supermain #}
 
 {% block javascript %}
 <script>

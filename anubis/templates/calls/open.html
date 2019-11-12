@@ -8,7 +8,7 @@
 <table id="calls" class="table table-sm">
   <thead>
     <tr>
-      <th></th>
+      <th>Call</th>
       {% if g.current_user %}
       <th class="text-break"
 	  title="Includes only submissions marked by the user as 'submitted'.">
@@ -21,7 +21,11 @@
   <tbody>
     {% for call in calls %}
     <tr>
-      <td>{{ macros.button_to_call(call) }}</td>
+      <td>
+	<a href="{{ url_for('call.display', cid=call['identifier']) }}"
+	   title="{{ call['title'] }}">
+	  {{ call['identifier'] }}</a>
+      </td>
       {% if g.current_user %}
       <td>
 	<a href="{{ url_for('submissions.call', cid=call['identifier']) }}">
@@ -32,7 +36,7 @@
       {% endif %}
       <td>{{ call['title'] }}</td>
       <td class="text-nowrap pl-2">{{ call['closes'] or 'No closes date.' }}</td>
-      <td>{{ macros.badge_call_closes(call) }}</td>
+      <td>{{ macros.call_closes(call) }}</td>
     </tr>
     {% endfor %}
   </tbody>

@@ -131,29 +131,32 @@ def edit(cid):
         utils.flash_message(f"Deleted call {call['identifier']}:{call['title']}.")
         return flask.redirect(flask.url_for('calls.all'))
 
-@blueprint.route('/<cid>/field', methods=['POST'])
+@blueprint.route('/<cid>/fields', methods=['GET', 'POST'])
 @utils.admin_required
-def add_field(cid):
-    "Add an input field to the call."
+def fields(cid):
+    "Display input fields for delete, and add field."
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
 
-    if utils.http_POST():
+    if utils.http_GET():
+        return flask.render_template('call/fields.html', call=call)
+
+    elif utils.http_POST():
         try:
             with CallSaver(call) as saver:
                 saver.add_field(form=flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
             return flask.redirect(
-                flask.url_for('.add_field', cid=call['identifier']))
-        return flask.redirect(flask.url_for('.display', cid=call['identifier']))
+                flask.url_for('.fields', cid=call['identifier']))
+        return flask.redirect(flask.url_for('.fields', cid=call['identifier']))
 
 @blueprint.route('/<cid>/field/<fid>', methods=['POST', 'DELETE'])
 @utils.admin_required
-def edit_field(cid, fid):
-    "Edit the input field of the call. Or delete it."
+def field(cid, fid):
+    "Edit or delete the input field."
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
@@ -165,12 +168,12 @@ def edit_field(cid, fid):
                 saver.edit_field(fid, form=flask.request.form)
         except (KeyError, ValueError) as error:
             utils.flash_error(str(error))
-        return flask.redirect(flask.url_for('.display', cid=call['identifier']))
+        return flask.redirect(flask.url_for('.fields', cid=call['identifier']))
 
     elif utils.http_DELETE():
         with CallSaver(call) as saver:
             saver.delete_field(fid)
-        return flask.redirect(flask.url_for('.display', cid=call['identifier']))
+        return flask.redirect(flask.url_for('.fields', cid=call['identifier']))
 
 @blueprint.route('/<cid>/reviewers', methods=['GET', 'POST', 'DELETE'])
 @utils.admin_required
