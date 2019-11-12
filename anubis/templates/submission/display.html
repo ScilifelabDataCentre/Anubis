@@ -13,14 +13,14 @@
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
   <div class="col-md">
-    {{ macros.button_to_call(submission['tmp']['call'], block=False, full=True) }}
+    {{ macros.button_to_call(submission['tmp'].call, block=False, full=True) }}
   </div>
 </div>
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
   <div class="col-md">
-    <span class="mr-4">{{ submission['tmp']['call']['closes'] or '-' }}</span>
-    {{ macros.badge_call_closes(submission['tmp']['call']) }}
+    <span class="mr-4">{{ submission['tmp'].call['closes'] or '-' }}</span>
+    {{ macros.badge_call_closes(submission['tmp'].call) }}
   </div>
 </div>
 <div class="row mb-2">
@@ -36,7 +36,7 @@
   </div>
 </div>
 
-{% for field in submission['tmp']['call']['fields'] %}
+{% for field in submission['tmp'].call['fields'] %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">
     {{ field['title'] }}
@@ -74,12 +74,12 @@
   </div>
 </div>
 
-{% endfor %} {# for field in submission['tmp']['call']['fields'] #}
+{% endfor %} {# for field in submission['tmp'].call['fields'] #}
 {% endblock %} {# block main #}
 
 {% block actions %}
 
-{% if submission['tmp']['is_submittable'] %}
+{% if submission['tmp'].is_submittable %}
 {% if submission.get('submitted') %}
 <div class="mt-4">
   <form action="{{ url_for('.unsubmit', sid=submission['identifier']) }}"
@@ -99,9 +99,9 @@
   </form>
 </div>
 {% endif %} {# if submission.get('submitted') #}
-{% endif %} {# if submission['tmp']['is_submittable'] #}
+{% endif %} {# if submission['tmp'].is_submittable #}
 
-{% if submission['tmp']['is_editable'] %}
+{% if submission['tmp'].is_editable %}
 <div class="mt-4">
   <a href="{{ url_for('.edit', sid=submission['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
@@ -116,20 +116,18 @@
       Delete</button>
   </form>
 </div>
-{% endif %} {# if submission['tmp']['is_editable'] #}
+{% endif %} {# if submission['tmp'].is_editable #}
 
 {% endblock %} {# block actions #}
 
 {% block info %}
 <div class="small">
-  <div class="mt-4">
-    Modified <span class="localtime">{{ submission['modified'] }}</span>
-  </div>
-  <div class="mt-1">
-    <a href="{{ url_for('.logs', sid=submission['identifier']) }}">Logs</a>
-  </div>
-  <div class="mt-1">
+  Modified <span class="localtime">{{ submission['modified'] }}</span>
+  <span class="ml-4">
     Created <span class="localtime">{{ submission['created'] }}</span>
-  </div>
+  </span>
+  <span class="ml-4">
+    <a href="{{ url_for('.logs', sid=submission['identifier']) }}">Logs</a>
+  </span>
 </div>
 {% endblock %} {# block info #}

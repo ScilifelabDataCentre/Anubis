@@ -36,7 +36,7 @@
   <div class="col-md-2 font-weight-bold text-right">Submissions</div>
   <div class="col-md">
     <a href="{{ url_for('submissions.call', cid=call['identifier']) }}">
-      <span class="badge badge-primary">{{ call['tmp']['submissions_count'] }}
+      <span class="badge badge-primary">{{ call['tmp'].submissions_count }}
     </span></a>
   </div>
 </div>
@@ -46,7 +46,7 @@
   <div class="col-md-2 font-weight-bold text-right">My submissions</div>
   <div class="col-md">
     <a href="{{ url_for('submissions.user_call', username=g.current_user['username'], cid=call['identifier']) }}">
-      <span class="badge badge-primary">{{ call['tmp']['my_submissions_count'] }}
+      <span class="badge badge-primary">{{ call['tmp'].my_submissions_count }}
     </span></a>
   </div>
 </div>
@@ -163,7 +163,7 @@
 	    <br>
 	    {{ field.get('description') | markdown }}
 	  </div>
-	  {% if call['tmp']['is_editable'] %}
+	  {% if call['tmp'].is_editable %}
 	  <div class="col-md-2">
 	    <div>
 	      <button type="button" class="btn btn-block btn-sm btn-primary"
@@ -183,12 +183,12 @@
 	      </form>
 	    </div>
 	  </div>
-	  {% endif %} {# if call['tmp']['is_editable'] #}
+	  {% endif %} {# if call['tmp'].is_editable #}
 	</div>
       </div>
     </div>
     {% endfor %}
-    {% if call['tmp']['is_editable'] %}
+    {% if call['tmp'].is_editable %}
     <div class="card mt-2">
       <div class="card-body">
 	{% for field_type in constants.INPUT_FIELD_TYPES %}
@@ -199,11 +199,11 @@
 	{% endfor %} {# for field_type in constants.INPUT_FIELD_TYPES #}
       </div>
     </div>
-    {% endif %} {# if call['tmp']['is_editable'] #}
+    {% endif %} {# if call['tmp'].is_editable #}
   </div>
 </div>
 
-{% if call['tmp']['is_editable'] %}
+{% if call['tmp'].is_editable %}
 
 {% for field_type in constants.INPUT_FIELD_TYPES %}
 {# Modals to add inputs field. #}
@@ -442,11 +442,11 @@
 </div>
 {% endfor %} {# for field in call['fields'] #}
 
-{% endif %} {# if call['tmp']['is_editable'] #}
+{% endif %} {# if call['tmp'].is_editable #}
 {% endblock %} {# block main #}
 
 {% block actions %}
-{% if call['tmp']['is_open'] %}
+{% if call['tmp'].is_open %}
 <div class="mt-4">
   <form action="{{ url_for('.submission', cid=call['identifier']) }}"
 	method="POST">
@@ -456,12 +456,12 @@
   </form>
 </div>
 {% endif %}
-{% if call['tmp']['is_editable'] %}
+{% if call['tmp'].is_editable %}
 <div class="mt-4">
   <a href="{{ url_for('.edit', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
-{% endif %} {# if call['tmp']['is_editable'] #}
+{% endif %} {# if call['tmp'].is_editable #}
 {% if g.is_admin %}
 <div class="mt-4">
   <a href="{{ url_for('.reviewers', cid=call['identifier']) }}"
@@ -472,7 +472,7 @@
      role="button" class="btn btn-info btn-block">Clone</a>
 </div>
 {% endif %} {# if g.is_admin #}
-{% if call['tmp']['is_editable'] %}
+{% if call['tmp'].is_editable %}
 <div class="mt-4">
   <form action="{{ url_for('.edit', cid=call['identifier']) }}"
 	method="POST">
@@ -483,21 +483,19 @@
       Delete</button>
   </form>
 </div>
-{% endif %} {# if call['tmp']['is_editable'] #}
+{% endif %} {# if call['tmp'].is_editable #}
 {% endblock %} {# block actions #}
 
 {% block info %}
 {% if g.is_admin %}
 <div class="small">
-  <div class="mt-4">
-    Modified <span class="localtime">{{ call['modified'] }}</span>
-  </div>
-  <div class="mt-1">
-    <a href="{{ url_for('.logs', cid=call['identifier']) }}">Logs</a>
-  </div>
-  <div class="mt-1">
+  Modified <span class="localtime">{{ call['modified'] }}</span>
+  <span class="ml-4">
     Created <span class="localtime">{{ call['created'] }}</span>
-  </div>
+  </span>
+  <span class="ml-4">
+    <a href="{{ url_for('.logs', cid=call['identifier']) }}">Logs</a>
+  </span>
 </div>
 {% endif %} {# if g.is_admin #}
 {% endblock %} {# block info #}

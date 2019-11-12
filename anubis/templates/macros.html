@@ -39,7 +39,5 @@
 {%- endmacro %}
 
 {% macro badge_call_closes(call) -%}
-<span class="badge badge-{{ call['tmp']['color'] }}">
-  {{ call['tmp']['text'] }}
-</span>
+<span class="badge badge-{{ call['tmp'].color }}">{{ call['tmp'].text }}</span>
 {%- endmacro %}

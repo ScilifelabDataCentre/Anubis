@@ -25,8 +25,8 @@ All submissions from user {{ user['username'] }}
       <td>{{ macros.button_to_submission(submission) }}</td>
       <td>{{ submission.get('title') or '-' }}</td>
       <td>{{ macros.submitted(submission) }}</td>
-      <td>{{ macros.button_to_call(submission['tmp']['call']) }}</td>
-      <td>{{ macros.badge_call_closes(submission['tmp']['call']) }}</td>
+      <td>{{ macros.button_to_call(submission['tmp'].call) }}</td>
+      <td>{{ macros.badge_call_closes(submission['tmp'].call) }}</td>
     </tr>
     {% endfor %}
   </tbody>

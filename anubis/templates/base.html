@@ -133,11 +133,11 @@
 
       {% block supermain %}
       <div class="row">
-        <div class="col-md-10">
+        <div class="col-md">
           {% block main %}
           {% endblock %}
         </div>
-        <div class="col-md-2">
+        <div class="col-md-2 d-print-none">
           <div>
             {% block links %}
             {% endblock %}
@@ -147,8 +147,6 @@
             {% endblock %}
           </div>
           <div>
-            {% block info %}
-            {% endblock %}
           </div>
         </div>
       </div>
@@ -157,7 +155,7 @@
       {% block footer %}
       <hr>
       <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-3">
           {% if config['HOST_URL'] %}
           <a href="{{ config['HOST_URL'] }}">
             {% if config['HOST_LOGO'] %}
@@ -176,7 +174,11 @@
           {% endif %}
           {% endif %}
         </div>
-        <div class="col-md-4 offset-md-4 text-right">
+        <div class="col-md-6">
+            {% block info %}
+            {% endblock %}
+        </div>
+        <div class="col-md-3 text-right">
           <a href="{{ constants.SOURCE_URL }}">
             <img src="{{ url_for('static', filename='feather-of-maat.png') }}"
 		 width="32" height="32">

@@ -1,6 +1,7 @@
 "Call for submissions."
 
 import copy
+import types
 
 import flask
 
@@ -79,7 +80,7 @@ def document(cid, documentname):
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
-    if not (flask.g.is_admin or call['tmp']['is_published']):
+    if not (flask.g.is_admin or call['tmp'].is_published):
         utils.flash_error(f"Call {call['title']} has not been published.")
         return flask.redirect(flask.url_for('home'))
 
@@ -242,7 +243,7 @@ def submission(cid):
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
 
-    if not call['tmp']['is_open']:
+    if not call['tmp'].is_open:
         utils.flash_error(f"Call {call['title']} is not open.")
 
     if utils.http_POST():
@@ -368,92 +369,92 @@ def get_call(cid):
                                              key=cid,
                                              include_docs=True)]
     if len(result) == 1:
-        return add_call_tmp(result[0])
+        return set_call_tmp(result[0])
     else:
         return None
 
-def add_call_tmp(call):
-    """Set the 'tmp' property of the call.
+def set_call_tmp(call):
+    """Set the 'tmp' item of the call.
     This is computed data that will not be stored with the document.
     Depends on login, privileges, etc.
     """
     from anubis.submissions import get_submissions_count
-    call['tmp'] = tmp = {}
+    call['tmp'] = tmp = types.SimpleNamespace()
     # Submissions count
     if flask.g.is_admin:
-        tmp['submissions_count'] = get_submissions_count(call=call)
+        tmp.submissions_count = get_submissions_count(call=call)
     if flask.g.current_user:
-        tmp['my_submissions_count'] = get_submissions_count(
+        tmp.my_submissions_count = get_submissions_count(
             username=flask.g.current_user['username'], call=call)
     # Open/closed status
     now = utils.normalized_local_now()
     if call['opens']:
         if call['opens'] > now:
-            tmp['is_open'] = False
-            tmp['is_closed'] = False
-            tmp['is_published'] = False
-            tmp['text'] = 'Not yet open.'
-            tmp['color'] = 'secondary'
+            tmp.is_open = False
+            tmp.is_closed = False
+            tmp.is_published = False
+            tmp.text = 'Not yet open.'
+            tmp.color = 'secondary'
         elif call['closes']:
             remaining = utils.days_remaining(call['closes'])
             if remaining > 7.0:
-                tmp['is_open'] = True
-                tmp['is_closed'] = False
-                tmp['is_published'] = True
-                tmp['text'] = f"{remaining:.0f} days remaining."
-                tmp['color'] = 'success'
+                tmp.is_open = True
+                tmp.is_closed = False
+                tmp.is_published = True
+                tmp.text = f"{remaining:.0f} days remaining."
+                tmp.color = 'success'
             elif remaining > 2.0:
-                tmp['is_open'] = True
-                tmp['is_closed'] = False
-                tmp['is_published'] = True
-                tmp['text'] = f"{remaining:.0f} days remaining."
-                tmp['color'] = 'info'
+                tmp.is_open = True
+                tmp.is_closed = False
+                tmp.is_published = True
+                tmp.text = f"{remaining:.0f} days remaining."
+                tmp.color = 'info'
             elif remaining >= 1.0:
-                tmp['is_open'] = True
-                tmp['is_closed'] = False
-                tmp['is_published'] = True
-                tmp['text'] = "Less than two days remaining."
-                tmp['color'] = 'warning'
+                tmp.is_open = True
+                tmp.is_closed = False
+                tmp.is_published = True
+                tmp.text = "Less than two days remaining."
+                tmp.color = 'warning'
             elif remaining >= 0.0:
-                tmp['is_open'] = True
-                tmp['is_closed'] = False
-                tmp['is_published'] = True
-                tmp['text'] = "Less than one day remaining."
-                tmp['color'] = 'danger'
+                tmp.is_open = True
+                tmp.is_closed = False
+                tmp.is_published = True
+                tmp.text = "Less than one day remaining."
+                tmp.color = 'danger'
             else:
-                tmp['is_open'] = False
-                tmp['is_closed'] = True
-                tmp['is_published'] = True
-                tmp['text'] = 'Closed.'
-                tmp['color'] = 'dark'
+                tmp.is_open = False
+                tmp.is_closed = True
+                tmp.is_published = True
+                tmp.text = 'Closed.'
+                tmp.color = 'dark'
         else:
-            tmp['is_open'] = True
-            tmp['is_closed'] = False
-            tmp['is_published'] = True
-            tmp['text'] = 'Open with no closing date.'
-            tmp['color'] = 'success'
+            tmp.is_open = True
+            tmp.is_closed = False
+            tmp.is_published = True
+            tmp.text = 'Open with no closing date.'
+            tmp.color = 'success'
     else:
         if call['closes']:
-            tmp['is_open'] = False
-            tmp['is_closed'] = False
-            tmp['is_published'] = False
-            tmp['text'] = 'No open date set.'
-            tmp['color'] = 'secondary'
+            tmp.is_open = False
+            tmp.is_closed = False
+            tmp.is_published = False
+            tmp.text = 'No open date set.'
+            tmp.color = 'secondary'
         else:
-            tmp['is_open'] = False
-            tmp['is_closed'] = False
-            tmp['is_published'] = False
-            tmp['text'] = 'No open or close dates set.'
-            tmp['color'] = 'secondary'
+            tmp.is_open = False
+            tmp.is_closed = False
+            tmp.is_published = False
+            tmp.text = 'No open or close dates set.'
+            tmp.color = 'secondary'
     # Is editable? Check open/closed and privileges.
     # XXX allow admin anything during development
-    tmp['is_editable'] = flask.g.is_admin
-    # if tmp['submissions_count'] != 0:
-    #     tmp['is_editable'] = False
-    # elif tmp['is_open']:
-    #     tmp['is_editable'] = False
-    # elif tmp['is_closed']:
-    #     tmp['is_editable'] = False
+    tmp.is_editable = flask.g.is_admin
+    # if tmp.submissions_count != 0:
+    #     tmp.is_editable = False
+    # elif tmp.is_open:
+    #     tmp.is_editable = False
+    # elif tmp.is_closed:
+    #     tmp.is_editable = False
     # else:
-    #     tmp['is_editable'] = flask.g.is_admin
+    #     tmp.is_editable = flask.g.is_admin
     return call

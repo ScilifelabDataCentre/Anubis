@@ -27,7 +27,7 @@ Edit submission {{ submission['identifier'] }}
       </small>
     </div>
   </div>
-  {% for field in submission['tmp']['call']['fields'] %}
+  {% for field in submission['tmp'].call['fields'] %}
   <div class="form-group row">
     <label for="{{ field['identifier'] }}"
 	   class="col-md-2 col-form-label text-right font-weight-bold">
@@ -82,7 +82,7 @@ Edit submission {{ submission['identifier'] }}
       </small>
     </div>
   </div>
-  {% endfor %} {# for field in submission['tmp']['call']['fields'] #}
+  {% endfor %} {# for field in submission['tmp'].call['fields'] #}
   <div class="form-group row">
     <div class="col-md-3 offset-md-2">
       <button type="submit" class="btn btn-block btn-primary">Save</button>

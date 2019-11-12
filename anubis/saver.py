@@ -1,4 +1,4 @@
-"Base document Saver class."
+"Base document saver context classes."
 
 import copy
 

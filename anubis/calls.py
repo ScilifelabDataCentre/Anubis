@@ -37,7 +37,7 @@ def user(username=''):
     raise NotImplementedError
 
 def get_all_calls():
-    calls = [anubis.call.add_call_tmp(r.doc) for r in 
+    calls = [anubis.call.set_call_tmp(r.doc) for r in 
              flask.g.db.view('calls', 'identifier', include_docs=True)]
     return calls
 
@@ -47,8 +47,8 @@ def get_closed_calls():
                              startkey='',
                              endkey=utils.normalized_local_now(),
                              include_docs=True)
-    calls = [anubis.call.add_call_tmp(r.doc) for r in result]
-    calls = [c for c in calls if c['tmp']['is_closed']]
+    calls = [anubis.call.set_call_tmp(r.doc) for r in result]
+    calls = [c for c in calls if c['tmp'].is_closed]
     return calls
 
 def get_open_calls():
@@ -57,10 +57,10 @@ def get_open_calls():
                              startkey=utils.normalized_local_now(),
                              endkey='ZZZZZZ',
                              include_docs=True)
-    calls = [anubis.call.add_call_tmp(r.doc) for r in result]
+    calls = [anubis.call.set_call_tmp(r.doc) for r in result]
     result = flask.g.db.view('calls', 'open_ended', 
                              startkey='',
                              endkey=utils.normalized_local_now(),
                              include_docs=True)
-    calls.extend([anubis.call.add_call_tmp(r.doc) for r in result])
+    calls.extend([anubis.call.set_call_tmp(r.doc) for r in result])
     return calls

@@ -145,14 +145,12 @@
 
 {% block info %}
 <div class="small">
-  <div class="mt-4">
-    Modified <span class="localtime">{{ user['modified'] }}</span>
-  </div>
-  <div class="mt-1">
-    <a href="{{ url_for('.logs', username=user['username']) }}">Logs</a>
-  </div>
-  <div class="mt-1">
+  Modified <span class="localtime">{{ user['modified'] }}</span>
+  <span class="ml-4">
     Created <span class="localtime">{{ user['created'] }}</span>
-  </div>
+  </span>
+  <span class="ml-4">
+    <a href="{{ url_for('.logs', username=user['identifier']) }}">Logs</a>
+  </span>
 </div>
 {% endblock %} {# block info #}

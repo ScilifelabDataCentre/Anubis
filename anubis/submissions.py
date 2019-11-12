@@ -75,10 +75,10 @@ def get_submissions(username=None, call=None):
                                      key=username,
                                      reduce=False,
                                      include_docs=True)
-        submissions = [anubis.submission.add_submission_tmp(r.doc, call=call)
+        submissions = [anubis.submission.set_submission_tmp(r.doc, call=call)
                        for r in result]        
     elif call:
-        submissions = [anubis.submission.add_submission_tmp(r.doc, call=call)
+        submissions = [anubis.submission.set_submission_tmp(r.doc, call=call)
                        for r in flask.g.db.view('submissions', 'call',
                                                 key=call['identifier'],
                                                 reduce=False,
@@ -86,7 +86,7 @@ def get_submissions(username=None, call=None):
     else:
         raise ValueError('neither username nor call specified')
     # XXX access has not been implemented yet; currently too permissive!
-    return [s for s in submissions if s['tmp']['is_readable']]
+    return [s for s in submissions if s['tmp'].is_readable]
 
 def get_submissions_count(username=None, call=None):
     "Get the number of submissions, specified by user and/or call."

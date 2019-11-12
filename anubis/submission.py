@@ -1,5 +1,7 @@
 "Submissions."
 
+import types
+
 import flask
 
 import anubis.call
@@ -19,7 +21,7 @@ def display(sid):
     if submission is None:
         utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
-    if not submission['tmp']['is_readable']:
+    if not submission['tmp'].is_readable:
         utils.flash_error('You are not allowed to read the submission.')
         return flask.redirect(flask.url_for('home'))
     return flask.render_template('submission/display.html',
@@ -35,7 +37,7 @@ def edit(sid):
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_GET():
-        if not submission['tmp']['is_editable']:
+        if not submission['tmp'].is_editable:
             utils.flash_error('You are not allowed to edit the submission.')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
@@ -43,14 +45,14 @@ def edit(sid):
                                      submission=submission)
 
     elif utils.http_POST():
-        if not submission['tmp']['is_editable']:
+        if not submission['tmp'].is_editable:
             utils.flash_error('You are not allowed to edit the submission.')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
         try:
             with SubmissionSaver(submission) as saver:
                 saver['title'] = flask.request.form.get('_title') or None
-                for field in submission['tmp']['call']['fields']:
+                for field in submission['tmp'].call['fields']:
                     saver.set_field_value(field, form=flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
@@ -60,7 +62,7 @@ def edit(sid):
             flask.url_for('.display', sid=submission['identifier']))
 
     elif utils.http_DELETE():
-        if not submission['tmp']['is_editable']:
+        if not submission['tmp'].is_editable:
             utils.flash_error('You are not allowed to delete the submission.')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
@@ -77,7 +79,7 @@ def submit(sid):
         utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
     if utils.http_POST():
-        if not submission['tmp']['is_submittable']:
+        if not submission['tmp'].is_submittable:
             utils.flash_error('You cannot submit; edit not allowed, or call closed.')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
@@ -97,7 +99,7 @@ def unsubmit(sid):
         utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
     if utils.http_POST():
-        if not submission['tmp']['is_editable']:
+        if not submission['tmp'].is_editable:
             utils.flash_error('You cannot unsubmit; edit not allowed, or call closed.')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
@@ -116,7 +118,7 @@ def logs(sid):
     if submission is None:
         utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
-    if not submission['tmp']['is_readable']:
+    if not submission['tmp'].is_readable:
         utils.flash_error('You are not allowed to read the submission.')
         return flask.redirect(flask.url_for('home'))
 
@@ -134,7 +136,7 @@ def document(sid, documentname):
     if submission is None:
         utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
-    if not submission['tmp']['is_readable']:
+    if not submission['tmp'].is_readable:
         utils.flash_error('You are not allowed to read the submission.')
         return flask.redirect(flask.url_for('home'))
 
@@ -202,12 +204,12 @@ class SubmissionSaver(AttachmentsSaver):
             self.doc['errors'].pop(id, None)
 
     def set_submitted(self):
-        if not self.doc['tmp']['call']['tmp']['is_open']:
+        if not self.doc['tmp'].call['tmp'].is_open:
             raise ValueError('the call for the submission is not open')
         self.doc['submitted'] = utils.get_time()
 
     def set_unsubmitted(self):
-        if not self.doc['tmp']['call']['tmp']['is_open']:
+        if not self.doc['tmp'].call['tmp'].is_open:
             raise ValueError('the call for the submission is not open')
         self.doc.pop('submitted', None)
 
@@ -218,37 +220,37 @@ def get_submission(sid):
                                              key=sid,
                                              include_docs=True)]
     if len(result) == 1:
-        return add_submission_tmp(result[0])
+        return set_submission_tmp(result[0])
     else:
         return None
 
-def add_submission_tmp(submission, call=None):
+def set_submission_tmp(submission, call=None):
     """Set the 'tmp' property of the submission.
     This is computed data that will not be stored with the document.
     Depends on login, privileges, etc.
     """
-    submission['tmp'] = tmp = {}
+    submission['tmp'] = tmp = types.SimpleNamespace()
     # Get the call for the submission.
     if call is None:
-        tmp['call'] = anubis.call.get_call(submission['call'])
+        tmp.call = anubis.call.get_call(submission['call'])
     else:
-        tmp['call'] = call
+        tmp.call = call
     if flask.g.is_admin:
-        tmp['is_readable'] = True
-        tmp['is_editable'] = True
-        tmp['is_submittable'] = True
+        tmp.is_readable = True
+        tmp.is_editable = True
+        tmp.is_submittable = True
     elif flask.g.current_user:
         if flask.g.current_user['username'] == submission['user']:
-            tmp['is_readable'] = True
-            tmp['is_editable'] = True
-            tmp['is_submittable'] = tmp['call']['tmp']['is_open']
+            tmp.is_readable = True
+            tmp.is_editable = True
+            tmp.is_submittable = tmp.call['tmp'].is_open
         else:
             # XXX Check reviewers privileges within call
-            tmp['is_readable'] = True
-            tmp['is_editable'] = False
-            tmp['is_submittable'] = False
+            tmp.is_readable = True
+            tmp.is_editable = False
+            tmp.is_submittable = False
     else:
-        tmp['is_readable'] = False
-        tmp['is_editable'] = False
-        tmp['is_submittable'] = False
+        tmp.is_readable = False
+        tmp.is_editable = False
+        tmp.is_submittable = False
     return submission
