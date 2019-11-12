@@ -1,0 +1,25 @@
+<div class="card mt-2">
+  <div class="card-body">
+    <div class="row">
+      {% if g.is_admin %}
+      <div class="col-md-2 font-weight-bold">{{ field['identifier'] }}</div>
+      {% endif %} {# if g.is_admin #}
+      <div class="col-md-2">
+	{{ field['title'] }}
+      </div>
+      <div class="col-md">
+	{% set br = False %}
+	{% if field.get('required') %}
+	<strong>Required!</strong>
+	{% set br = True %}
+	{% endif %}
+	{% if field.get('maxlength') %}
+	Maximum {{ field['maxlength'] }} characters.
+	{% set br = True %}
+	{% endif %}
+	{{ (br and '<br>' or '') | safe }}
+	{{ field.get('description') | markdown }}
+      </div>
+    </div>
+  </div>
+</div>

@@ -39,6 +39,40 @@ def display(cid):
         return flask.redirect(flask.url_for('home'))
     return flask.render_template('call/display.html', call=call)
 
+@blueprint.route('/<cid>/edit', methods=['GET', 'POST', 'DELETE'])
+@utils.admin_required
+def edit(cid):
+    "Edit the call, or delete it."
+    call = get_call(cid)
+    if not call:
+        utils.flash_error('No such call.')
+        return flask.redirect(flask.url_for('home'))
+
+    if utils.http_GET():
+        return flask.render_template('call/edit.html', call=call)
+
+    elif utils.http_POST():
+        try:
+            with CallSaver(call) as saver:
+                saver.set_title(flask.request.form.get('title'))
+                saver['description'] = flask.request.form.get('description')
+                saver['opens'] = utils.normalize_datetime(
+                    flask.request.form.get('opens'))
+                saver['closes'] = utils.normalize_datetime(
+                    flask.request.form.get('closes'))
+        except ValueError as error:
+            utils.flash_error(str(error))
+        return flask.redirect(flask.url_for('.display', cid=call['identifier']))
+
+    elif utils.http_DELETE():
+        if not is_editable(call):
+            utils.flash_error('call cannot be deleted')
+            return flask.redirect(
+                flask.url_for('.display', cid=call['identifier']))
+        utils.delete(call)
+        utils.flash_message(f"Deleted call {call['identifier']}:{call['title']}.")
+        return flask.redirect(flask.url_for('calls.all'))
+
 @blueprint.route('/<cid>/documents', methods=['GET', 'POST'])
 @utils.admin_required
 def documents(cid):
@@ -97,40 +131,6 @@ def document(cid, documentname):
         return flask.redirect(
             flask.url_for('.documents', cid=call['identifier']))
 
-@blueprint.route('/<cid>/edit', methods=['GET', 'POST', 'DELETE'])
-@utils.admin_required
-def edit(cid):
-    "Edit the call, or delete it."
-    call = get_call(cid)
-    if not call:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
-
-    if utils.http_GET():
-        return flask.render_template('call/edit.html', call=call)
-
-    elif utils.http_POST():
-        try:
-            with CallSaver(call) as saver:
-                saver.set_title(flask.request.form.get('title'))
-                saver['description'] = flask.request.form.get('description')
-                saver['opens'] = utils.normalize_datetime(
-                    flask.request.form.get('opens'))
-                saver['closes'] = utils.normalize_datetime(
-                    flask.request.form.get('closes'))
-        except ValueError as error:
-            utils.flash_error(str(error))
-        return flask.redirect(flask.url_for('.display', cid=call['identifier']))
-
-    elif utils.http_DELETE():
-        if not is_editable(call):
-            utils.flash_error('call cannot be deleted')
-            return flask.redirect(
-                flask.url_for('.display', cid=call['identifier']))
-        utils.delete(call)
-        utils.flash_message(f"Deleted call {call['identifier']}:{call['title']}.")
-        return flask.redirect(flask.url_for('calls.all'))
-
 @blueprint.route('/<cid>/fields', methods=['GET', 'POST'])
 @utils.admin_required
 def fields(cid):
@@ -149,8 +149,6 @@ def fields(cid):
                 saver.add_field(form=flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
-            return flask.redirect(
-                flask.url_for('.fields', cid=call['identifier']))
         return flask.redirect(flask.url_for('.fields', cid=call['identifier']))
 
 @blueprint.route('/<cid>/field/<fid>', methods=['POST', 'DELETE'])
@@ -171,8 +169,11 @@ def field(cid, fid):
         return flask.redirect(flask.url_for('.fields', cid=call['identifier']))
 
     elif utils.http_DELETE():
-        with CallSaver(call) as saver:
-            saver.delete_field(fid)
+        try:
+            with CallSaver(call) as saver:
+                saver.delete_field(fid)
+        except ValueError as error:
+            utils.flash_error(str(error))
         return flask.redirect(flask.url_for('.fields', cid=call['identifier']))
 
 @blueprint.route('/<cid>/reviewers', methods=['GET', 'POST', 'DELETE'])
@@ -219,6 +220,54 @@ def reviewers(cid):
                     pass
         return flask.redirect(
             flask.url_for('.reviewers', cid=call['identifier']))
+
+@blueprint.route('/<cid>/evaluation', methods=['GET', 'POST'])
+@utils.admin_required
+def evaluation(cid):
+    "Display evaluation fields for delete, and add field."
+    call = get_call(cid)
+    if not call:
+        utils.flash_error('No such call.')
+        return flask.redirect(flask.url_for('home'))
+
+    if utils.http_GET():
+        return flask.render_template('call/evaluation.html', call=call)
+
+    elif utils.http_POST():
+        try:
+            with CallSaver(call) as saver:
+                saver.add_evaluation_field(form=flask.request.form)
+        except ValueError as error:
+            utils.flash_error(str(error))
+        return flask.redirect(
+            flask.url_for('.evaluation', cid=call['identifier']))
+
+@blueprint.route('/<cid>/evaluation/<fid>', methods=['POST', 'DELETE'])
+@utils.admin_required
+def evaluation_field(cid, fid):
+    "Edit or delete the evaluation field."
+    call = get_call(cid)
+    if not call:
+        utils.flash_error('No such call.')
+        return flask.redirect(flask.url_for('home'))
+
+    if utils.http_POST():
+        try:
+            with CallSaver(call) as saver:
+                saver.edit_evaluation_field(fid, form=flask.request.form)
+        except ValueError as error:
+            utils.flash_error(str(error))
+        return flask.redirect(
+            flask.url_for('.evaluation', cid=call['identifier']))
+
+    elif utils.http_DELETE():
+        try:
+            with CallSaver(call) as saver:
+                saver.delete_evaluation_field(fid)
+        except ValueError as error:
+            utils.flash_error(str(error))
+        return flask.redirect(
+            flask.url_for('.evaluation', cid=call['identifier']))
 
 @blueprint.route('/<cid>/clone', methods=['GET', 'POST'])
 @utils.admin_required
@@ -292,6 +341,7 @@ class CallSaver(AttachmentsSaver):
         self.doc['closes'] = None
         self.doc['fields'] = []
         self.doc['documents'] = []
+        self.doc['evaluation'] = []
         self.doc['reviewers'] = []
         self.doc['chairs'] = []
 
@@ -343,7 +393,7 @@ class CallSaver(AttachmentsSaver):
         for field in self.doc['fields']:
             if field['identifier'] == fid: break
         else:
-            raise KeyError('no such field')
+            raise KeyError('No such field.')
         title = form.get('title')
         if not title:
             title = ' '.join([w.capitalize() 
@@ -365,6 +415,60 @@ class CallSaver(AttachmentsSaver):
         for pos, field in enumerate(self.doc['fields']):
             if field['identifier'] == fid:
                 self.doc['fields'].pop(pos)
+                break
+        else:
+            raise ValueError('No such field.')
+
+    def add_evaluation_field(self, form=dict()):
+        id = form.get('identifier')
+        if not (id and constants.ID_RX.match(id)):
+            raise ValueError('Invalid field identifier.')
+        type = form.get('type')
+        if type not in constants.INPUT_FIELD_TYPES:
+            raise ValueError('Invalid field type.')
+        title = form.get('title') or id.replace('_', ' ')
+        title = ' '.join([w.capitalize() for w in title.split()])
+        field = {'type': type,
+                 'identifier': id,
+                 'title': title,
+                 'description': form.get('description') or None,
+                 'required': bool(form.get('required'))
+                 }
+        if type in (constants.TEXT, constants.LINE):
+            try:
+                maxlength = int(form.get('maxlength'))
+                if maxlength <= 0: raise ValueERror
+            except (TypeError, ValueError):
+                maxlength = None
+            field['maxlength'] = maxlength
+        self.doc['evaluation'].append(field)
+
+    def edit_evaluation_field(self, fid, form=dict()):
+        for field in self.doc['evaluation']:
+            if field['identifier'] == fid: break
+        else:
+            raise KeyError('No such field.')
+        title = form.get('title')
+        if not title:
+            title = ' '.join([w.capitalize() 
+                              for w in fid.replace('_', ' ').split()])
+        field['title'] = title
+        field['description'] = form.get('description') or None
+        field['required'] = bool(form.get('required'))
+        if field['type'] == 'text':
+            try:
+                maxlength = int(form.get('maxlength'))
+                if maxlength <= 0: raise ValueERror
+            except (TypeError, ValueError):
+                maxlength = None
+            field['maxlength'] = maxlength
+        else:
+            raise ValueError('Invalid field type.')
+
+    def delete_evaluation_field(self, fid):
+        for pos, field in enumerate(self.doc['evaluation']):
+            if field['identifier'] == fid:
+                self.doc['evaluation'].pop(pos)
                 break
         else:
             raise ValueError('No such field.')

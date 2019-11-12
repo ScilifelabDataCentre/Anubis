@@ -102,31 +102,21 @@
   <div class="col-md-2 font-weight-bold text-right">Input fields</div>
   <div class="col-md">
     {% for field in call['fields'] %}
-    <div class="card mt-2">
-      <div class="card-body">
-	<div class="row">
-	  {% if g.is_admin %}
-	  <div class="col-md-2 font-weight-bold">{{ field['identifier'] }}</div>
-	  {% endif %} {# if g.is_admin #}
-	  <div class="col-md-2">
-	    {{ field['title'] }}
-	  </div>
-	  <div class="col-md">
-	    {% if field.get('required') %}
-	    <strong>Required!</strong>
-	    {% endif %}
-	    {% if field.get('maxlength') %}
-	    Maximum {{ field['maxlength'] }} characters.
-	    {% endif %}
-	    <br>
-	    {{ field.get('description') | markdown }}
-	  </div>
-	</div>
-      </div>
-    </div>
+    {% include 'call/display_field.html' %}
     {% endfor %} {# for field in call['fields'] #}
   </div>
 </div>
+
+{% if g.is_admin %}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Evaluation fields</div>
+  <div class="col-md">
+    {% for field in call['evaluation'] %}
+    {% include 'call/display_field.html' %}
+    {% endfor %} {# for field in call['evaluation'] #}
+  </div>
+</div>
+{% endif %} {# if g.is_admin #}
 
 {% endblock %} {# block main #}
 
@@ -153,6 +143,10 @@
 <div class="mt-2">
   <a href="{{ url_for('.fields', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit fields</a>
+</div>
+<div class="mt-2">
+  <a href="{{ url_for('.evaluation', cid=call['identifier']) }}"
+     role="button" class="btn btn-primary btn-block">Edit evaluation</a>
 </div>
 {% endif %} {# if call['tmp'].is_editable #}
 {% if g.is_admin %} {# Always editable for admin #}

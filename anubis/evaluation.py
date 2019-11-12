@@ -1,4 +1,4 @@
-"Evaluation of a submission."
+"Evaluation of a submission. Created from the outline in the call."
 
 import flask
 
@@ -13,7 +13,7 @@ blueprint = flask.Blueprint('evaluation', __name__)
 @utils.login_required
 def create(sid):
     """Create a new evaluation for the submission.
-    Redirect to existing is the user (reviewer) already has one.
+    Redirect to existing if the user (reviewer) already has one.
     """
     raise NotImplementedError
 
