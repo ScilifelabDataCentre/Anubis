@@ -10,7 +10,9 @@
     <tr>
       <th></th>
       {% if g.current_user %}
-      <th class="text-break">Submissions</th>
+      <th class="text-break"
+	  title="Includes only submissions marked by the user as 'submitted'.">
+	Submissions</th>
       {% endif %}
       <th>Title</th>
       <th>Closed</th>

@@ -82,27 +82,11 @@
     {% for document in call.get('documents', []) %}
     <div class="card mt-2">
       <div class="card-header">
-        <div class="row">
-          <div class="col-md">
-            <span class="font-weight-bold">{{ document['name'] }}</span>
-            <a href="{{ url_for('call.document', cid=call['identifier'], documentname=document['name']) }}"
-               role="button" class="btn btn-secondary btn-sm ml-4">
-              Download
-              ({{ call['_attachments'][document['name']]['length'] | thousands }} bytes)            </a>
-          </div>
-          {% if g.is_admin %}
-          <div class="col-md text-right">
-            <form action="{{ url_for('.delete_document', cid=call['identifier'], documentname=document['name']) }}"
-	          method="POST">
-	      {{ csrf_token() }}
-	      <input type="hidden" name="_http_method" value="DELETE">
-	      <button type="submit" class="btn btn-sm btn-danger"
-		      onclick="return confirm('Really delete the document {{ document['name'] }}?')">
-	        Delete</button>
-            </form>
-          </div>
-          {% endif %} {# if g.is_admin #}
-        </div>
+        <span class="font-weight-bold">{{ document['name'] }}</span>
+        <a href="{{ url_for('call.document', cid=call['identifier'], documentname=document['name']) }}"
+           role="button" class="btn btn-secondary btn-sm ml-4">
+          Download
+          ({{ call['_attachments'][document['name']]['length'] | thousands }} bytes)            </a>
       </div>
       {% if document.get('description') %}
       <div class="card-body">
@@ -111,46 +95,6 @@
       {% endif %}
     </div>
     {% endfor %} {# for document in call.get('documents', []) #}
-
-    {% if g.is_admin %}
-    <div class="card mt-2">
-      <div class="card-body">
-        <form action="{{ url_for('.add_document', cid=call['identifier']) }}"
-              enctype="multipart/form-data"
-	      method="POST">
-	  {{ csrf_token() }}
-	  <div class="form-group">
-            <div class="custom-file">
-              <input type="file" id="document" name="document"
-	             class="custom-file-input">
-              <label class="custom-file-label" for="document">
-                Choose document</label>
-            </div>
-          </div>
-	  <div class="form-group">
-	    <textarea id="document_description" name="document_description"
-		      class="form-control"
-		      aria-describedby="document_descriptionHelp"></textarea>
-	    <small id="document_descriptionHelp" class="form-text text-muted">
-	      <div class="row">
-		<div class="col-md">
-		  Short description of the document.
-		</div>
-		<div class="col-md-4 text-right">
-		  Formatted using 
-		  <a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
-		</div>
-	      </div>
-	    </small>
-          </div>
-	  <div class="form-group">
-	    <button type="submit" class="btn btn-btn-sm btn-primary mt-2">
-	      Add document</button>
-          </div>
-        </form>
-      </div>
-    </div>
-    {% endif %} {# if g.is_admin #}
   </div>
 </div>
 
@@ -475,13 +419,17 @@
   <a href="{{ url_for('.edit', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
-{% endif %} {# if call['tmp'].is_editable #}
-{% if g.is_admin %}
-<div class="mt-4">
-  <a href="{{ url_for('.reviewers', cid=call['identifier']) }}"
-     role="button" class="btn btn-info btn-block">Edit reviewers</a>
+<div class="mt-2">
+  <a href="{{ url_for('.add_document', cid=call['identifier']) }}"
+     role="button" class="btn btn-primary btn-block">Edit documents</a>
 </div>
-<div class="mt-4">
+{% endif %} {# if call['tmp'].is_editable #}
+{% if g.is_admin %} {# Always editable for admin #}
+<div class="mt-2">
+  <a href="{{ url_for('.reviewers', cid=call['identifier']) }}"
+     role="button" class="btn btn-primary btn-block">Edit reviewers</a>
+</div>
+<div class="mt-2">
   <a href="{{ url_for('.clone', cid=call['identifier']) }}"
      role="button" class="btn btn-info btn-block">Clone</a>
 </div>

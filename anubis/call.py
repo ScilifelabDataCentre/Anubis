@@ -39,7 +39,7 @@ def display(cid):
         return flask.redirect(flask.url_for('home'))
     return flask.render_template('call/display.html', call=call)
 
-@blueprint.route('/<cid>/document', methods=['POST'])
+@blueprint.route('/<cid>/documents', methods=['GET', 'POST'])
 @utils.admin_required
 def add_document(cid):
     "Add a document (attachment file)."
@@ -48,7 +48,10 @@ def add_document(cid):
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
 
-    if utils.http_POST():
+    if utils.http_GET():
+        return flask.render_template('call/documents.html', call=call)
+
+    elif utils.http_POST():
         infile = flask.request.files.get('document')
         if infile:
             description = flask.request.form.get('document_description')
@@ -58,7 +61,7 @@ def add_document(cid):
             utils.flash_error('No document selected.')
         return flask.redirect(flask.url_for('.display', cid=call['identifier']))
 
-@blueprint.route('/<cid>/document/<documentname>/delete', 
+@blueprint.route('/<cid>/documents/<documentname>/delete', 
                  methods=['POST', 'DELETE'])
 @utils.admin_required
 def delete_document(cid, documentname):
@@ -73,7 +76,7 @@ def delete_document(cid, documentname):
             flask.url_for('.display', cid=call['identifier']))
 
 
-@blueprint.route('/<cid>/document/<documentname>')
+@blueprint.route('/<cid>/documents/<documentname>')
 def document(cid, documentname):
     "Download the given document (attachment file)."
     call = get_call(cid)
