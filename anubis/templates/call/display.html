@@ -99,7 +99,7 @@
 </div>
 
 <div class="row">
-  <div class="col-md-2 font-weight-bold text-right">Inputs</div>
+  <div class="col-md-2 font-weight-bold text-right">Input fields</div>
   <div class="col-md">
     {% for field in call['fields'] %}
     <div class="card mt-2">
@@ -420,7 +420,7 @@
      role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
 <div class="mt-2">
-  <a href="{{ url_for('.add_document', cid=call['identifier']) }}"
+  <a href="{{ url_for('.documents', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit documents</a>
 </div>
 {% endif %} {# if call['tmp'].is_editable #}
@@ -461,11 +461,3 @@
 </div>
 {% endif %} {# if g.is_admin #}
 {% endblock %} {# block info #}
-
-{% block javascript %}
-<script>
-$(".custom-file-input").on("change", function() {
-  var fileName = $(this).val().split("\\").pop();
-  $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
-});
-</script>{% endblock %}

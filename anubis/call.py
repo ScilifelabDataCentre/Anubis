@@ -41,8 +41,8 @@ def display(cid):
 
 @blueprint.route('/<cid>/documents', methods=['GET', 'POST'])
 @utils.admin_required
-def add_document(cid):
-    "Add a document (attachment file)."
+def documents(cid):
+    "Display documents for delete, or add document (attachment file)."
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
@@ -61,44 +61,41 @@ def add_document(cid):
             utils.flash_error('No document selected.')
         return flask.redirect(flask.url_for('.display', cid=call['identifier']))
 
-@blueprint.route('/<cid>/documents/<documentname>/delete', 
-                 methods=['POST', 'DELETE'])
-@utils.admin_required
-def delete_document(cid, documentname):
-    "Delete the given document (attachment file)."
+@blueprint.route('/<cid>/documents/<documentname>',
+                 methods=['GET', 'POST', 'DELETE'])
+def document(cid, documentname):
+    "Download the given document (attachment file), or delete it."
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
-    if utils.http_DELETE():
+        return flask.redirect(flask.url_for('home'))
+
+    if utils.http_GET():
+        if not (flask.g.is_admin or call['tmp'].is_published):
+            utils.flash_error(f"Call {call['title']} has not been published.")
+            return flask.redirect(flask.url_for('home'))
+        try:
+            stub = call['_attachments'][documentname]
+        except KeyError:
+            utils.flash_error('No such document in call.')
+            return flask.redirect(
+                flask.url_for('.display', cid=call['identifier']))
+        outfile = flask.g.db.get_attachment(call, documentname)
+        response = flask.make_response(outfile.read())
+        response.headers.set('Content-Type', stub['content_type'])
+        response.headers.set('Content-Disposition', 'attachment', 
+                             filename=documentname)
+        return response
+
+    elif utils.http_DELETE():
+        if not flask.g.is_admin:
+            utils.flash_error('You may not delete a document in the call.')
+            return flask.redirect(
+                flask.url_for('.display', cid=call['identifier']))
         with CallSaver(call) as saver:
             saver.delete_document(documentname)
         return flask.redirect(
-            flask.url_for('.display', cid=call['identifier']))
-
-
-@blueprint.route('/<cid>/documents/<documentname>')
-def document(cid, documentname):
-    "Download the given document (attachment file)."
-    call = get_call(cid)
-    if not call:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
-    if not (flask.g.is_admin or call['tmp'].is_published):
-        utils.flash_error(f"Call {call['title']} has not been published.")
-        return flask.redirect(flask.url_for('home'))
-
-    try:
-        stub = call['_attachments'][documentname]
-    except KeyError:
-        utils.flash_error('No such document in call.')
-        return flask.redirect(
-            flask.url_for('.display', cid=call['identifier']))
-    outfile = flask.g.db.get_attachment(call, documentname)
-    response = flask.make_response(outfile.read())
-    response.headers.set('Content-Type', stub['content_type'])
-    response.headers.set('Content-Disposition', 'attachment', 
-                         filename=documentname)
-    return response
+            flask.url_for('.documents', cid=call['identifier']))
 
 @blueprint.route('/<cid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.admin_required

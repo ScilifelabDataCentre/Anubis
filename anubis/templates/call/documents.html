@@ -17,7 +17,7 @@
             ({{ call['_attachments'][document['name']]['length'] | thousands }} bytes)
           </div>
           <div class="col-md text-right">
-            <form action="{{ url_for('.delete_document', cid=call['identifier'], documentname=document['name']) }}"
+            <form action="{{ url_for('.document', cid=call['identifier'], documentname=document['name']) }}"
 	          method="POST">
 	      {{ csrf_token() }}
 	      <input type="hidden" name="_http_method" value="DELETE">
@@ -38,7 +38,7 @@
 
     <div class="card mt-2">
       <div class="card-body">
-        <form action="{{ url_for('.add_document', cid=call['identifier']) }}"
+        <form action="{{ url_for('.documents', cid=call['identifier']) }}"
               enctype="multipart/form-data"
 	      method="POST">
 	  {{ csrf_token() }}
@@ -85,3 +85,11 @@
   </form>
 </div>
 {% endblock %}
+
+{% block javascript %}
+<script>
+$(".custom-file-input").on("change", function() {
+  var fileName = $(this).val().split("\\").pop();
+  $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+});
+</script>{% endblock %}
