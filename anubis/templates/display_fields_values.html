@@ -18,7 +18,7 @@
     {% elif field['type'] == constants.LINE %}
     {{ values.get(field['identifier']) or '-' }}
 
-    {% elif field['type'] == constants.INTEGER %}
+    {% elif field['type'] in (constants.INTEGER, constants.SCORE) %}
     {{ values.get(field['identifier']) | integer_value }}
 
     {% elif field['type'] == constants.BOOLEAN %}

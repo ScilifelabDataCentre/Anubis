@@ -2,8 +2,7 @@
 
 {% for field in fields %}
 {% set value = values[field['identifier']] %}
-<fieldset class="form-group">
-<div class="row">
+<div class="form-group row">
   <label for="{{ field['identifier'] }}"
          class="col-md-2 col-form-label text-right font-weight-bold">
     {{ field['title'] }}
@@ -30,34 +29,34 @@
 	   value="{{ value or '' }}">
 
     {% elif field['type'] == constants.BOOLEAN %}
-    <div class="form-check form-check-inline">
+    <div class="custom-control custom-radio custom-control-inline">
       <input type="radio"
              id="{{ field['identifier'] }}_yes" name="{{ field['identifier'] }}"
-             class="form-check-input"
+             class="custom-control-input"
              {{ value == True and 'checked' }}
              value="true">
-      <label class="form-check-label" for="{{ field['identifier'] }}_yes">
+      <label class="custom-control-label" for="{{ field['identifier'] }}_yes">
         Yes</label>
     </div>
-    <div class="form-check form-check-inline">
+    <div class="custom-control custom-radio custom-control-inline">
       <input type="radio"
              id="{{ field['identifier'] }}_no" name="{{ field['identifier'] }}"
-             class="form-check-input" 
+             class="custom-control-input"
              {{ value == False and 'checked' }}
              value="false">
-      <label class="form-check-label" for="{{ field['identifier'] }}_no">
+      <label class="custom-control-label" for="{{ field['identifier'] }}_no">
         No</label>
     </div>
-    <div class="form-check form-check-inline">
+    <div class="custom-control custom-radio custom-control-inline ml-4">
       <input type="radio"
              id="{{ field['identifier'] }}_no" name="{{ field['identifier'] }}"
-             class="form-check-input" 
+             class="custom-control-input"
              {{ utils.is_none(value) and 'checked' }}
              value="">
-      <label class="form-check-label" for="{{ field['identifier'] }}_no">
+      <label class="custom-control-label" for="{{ field['identifier'] }}_no">
         N/A</label>
     </div>
-    {% elif field['type'] == constants.INTEGER %}
+    {% elif field['type'] in constants.INTEGER %}
     <input type="number" step="1"
            {% if field.get('minimum') %}
            min="{{ field['minimum'] }}"
@@ -67,9 +66,6 @@
            {% endif %}
 	   id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
 	   class="form-control"
-	   {% if field.get('maxlength') %}
-	   maxlength="{{ field['maxlength'] }}"
-	   {% endif %}
            {% if not utils.is_none(value) %}
 	   value="{{ value }}"
            {% endif %}
@@ -85,13 +81,65 @@
            {% endif %}
 	   id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
 	   class="form-control"
-	   {% if field.get('maxlength') %}
-	   maxlength="{{ field['maxlength'] }}"
-	   {% endif %}
            {% if not utils.is_none(value) %}
 	   value="{{ value }}"
            {% endif %}
 	   aria-describedby="{{ field['identifier'] }}Help">
+
+    {% elif field['type'] in constants.SCORE %}
+    {% if field.get('slider') %}
+    <div class="form-group row">
+      <div class="col-md-1 text-right">{{ field['minimum'] }}</div>
+      <div class="col-md">
+        <input type="range" step="1"
+               min="{{ field['minimum'] }}" max="{{ field['maximum'] }}"
+	       id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
+	       class="custom-range"
+               {% if not utils.is_none(value) %}
+	       value="{{ value }}"
+               {% endif %}
+	       aria-describedby="{{ field['identifier'] }}Help">
+      </div>
+      <div class="col-md-1">{{ field['maximum'] }}</div>
+      {% if not field.get('required') %}
+      <div class="col-md-1">
+        <div class="custom-control custom-radio custom-control-inline">
+          <input type="checkbox"
+                 id="{{ field['identifier'] }}_na"
+                 name="{{ field['identifier'] }}_na"
+                 class="custom-control-input"
+                 {{ utils.is_none(value) and 'checked' }}
+                 value="true">
+          <label class="custom-control-label" for="{{ field['identifier'] }}_na">
+            N/A</label>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% else %}
+    {% for pos in range(field['minimum'], field['maximum']+1) %}
+    <div class="custom-control custom-radio custom-control-inline">
+      <input type="radio"
+             id="{{ field['identifier'] }}_{{ pos }}" name="{{ field['identifier'] }}"
+             class="custom-control-input"
+             {{ value == pos and 'checked'  or ''}}
+             value="{{ pos }}">
+      <label class="custom-control-label" for="{{ field['identifier'] }}_{{ pos }}">
+        {{ pos }}</label>
+    </div>
+    {% endfor %}
+    {% if not field.get('required') %}
+    <div class="custom-control custom-radio custom-control-inline ml-4">
+      <input type="radio"
+             id="{{ field['identifier'] }}_na" name="{{ field['identifier'] }}"
+             class="custom-control-input"
+             {{ utils.is_none(value) and 'checked' or ''}}
+             value="true">
+      <label class="custom-control-label" for="{{ field['identifier'] }}_na">
+        N/A</label>
+    </div>
+    {% endif %}
+    {% endif %}
 
     {% elif field['type'] == constants.DOCUMENT %}
     <div class="custom-file">
@@ -130,5 +178,4 @@
     </small>
   </div>
 </div>
-</fieldset>
 {% endfor %} {# for field in fields #}

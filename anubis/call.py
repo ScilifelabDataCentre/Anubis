@@ -395,28 +395,50 @@ class CallSaver(AttachmentsSaver):
             except (TypeError, ValueError):
                 maxlength = None
             field['maxlength'] = maxlength
+
         elif type == constants.INTEGER:
             try:
                 minimum = int(form.get('minimum'))
             except (TypeError, ValueError):
                 minimum = None
-            field['minimum'] = minimum
             try:
                 maximum = int(form.get('maximum'))
             except (TypeError, ValueError):
                 maximum = None
+            if minimum is not None and maximum is not None and maximum <= minimum:
+                raise ValueError('Invalid score range.')
+            field['minimum'] = minimum
             field['maximum'] = maximum
+
         elif type == constants.FLOAT:
             try:
                 minimum = float(form.get('minimum'))
             except (TypeError, ValueError):
                 minimum = None
-            field['minimum'] = minimum
             try:
                 maximum = float(form.get('maximum'))
             except (TypeError, ValueError):
                 maximum = None
+            if minimum is not None and maximum is not None and maximum <= minimum:
+                raise ValueError('Invalid score range.')
+            field['minimum'] = minimum
             field['maximum'] = maximum
+
+        elif type == constants.SCORE:
+            try:
+                minimum = int(form.get('minimum'))
+            except (TypeError, ValueError):
+                minimum = None
+            try:
+                maximum = int(form.get('maximum'))
+            except (TypeError, ValueError):
+                maximum = None
+            if minimum is None or maximum is None or maximum <= minimum:
+                raise ValueError('Invalid score range.')
+            field['minimum'] = minimum
+            field['maximum'] = maximum
+            field['slider'] = utils.to_bool(form.get('slider'))
+
         return field
 
     def edit_field(self, fid, form=dict()):
@@ -444,6 +466,7 @@ class CallSaver(AttachmentsSaver):
             except (TypeError, ValueError):
                 maxlength = None
             field['maxlength'] = maxlength
+
         elif field['type'] == constants.INTEGER:
             try:
                 minimum = int(form.get('minimum'))
@@ -455,6 +478,7 @@ class CallSaver(AttachmentsSaver):
             except (TypeError, ValueError):
                 maximum = None
             field['maximum'] = maximum
+
         elif field['type'] == constants.FLOAT:
             try:
                 minimum = float(form.get('minimum'))
@@ -466,6 +490,21 @@ class CallSaver(AttachmentsSaver):
             except (TypeError, ValueError):
                 maximum = None
             field['maximum'] = maximum
+
+        elif field['type'] == constants.SCORE:
+            try:
+                minimum = int(form.get('minimum'))
+            except (TypeError, ValueError):
+                minimum = None
+            try:
+                maximum = int(form.get('maximum'))
+            except (TypeError, ValueError):
+                maximum = None
+            if minimum is None or maximum is None or maximum <= minimum:
+                raise ValueError('Invalid score range.')
+            field['minimum'] = minimum
+            field['maximum'] = maximum
+            field['slider'] = utils.to_bool(form.get('slider'))
 
     def delete_field(self, fid):
         for pos, field in enumerate(self.doc['fields']):

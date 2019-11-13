@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '0.3.8'
+__version__ = '0.3.9'
 
 class Constants:
     VERSION     = __version__
@@ -45,7 +45,7 @@ class Constants:
     LINE     = 'line'
     BOOLEAN  = 'boolean'
     INTEGER  = 'integer'
-    FLOAT     = 'float'
+    FLOAT    = 'float'
     SCORE    = 'score'
     DOCUMENT = 'document'
     FIELD_TYPES = (TEXT, LINE, BOOLEAN, INTEGER, FLOAT, SCORE, DOCUMENT)

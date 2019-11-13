@@ -60,6 +60,7 @@
 		<input type="checkbox" id="{{ field['identifier'] }}-required"
 		       name="required"
 		       class="form-check-input"
+		       aria-describedby="{{ field['identifier'] }}-requiredHelp"
 		       value="true"
 		       {{ field.get('required') and 'checked' or '' }}>
 		<label class="form-check-label"
@@ -146,6 +147,59 @@
 		     value="{{ field.get('maximum') or '' }}">
 	      <small id="maximumHelp" class="form-text text-muted">
                 Maximum value allowed, if any.
+	      </small>
+	    </div>
+	  </div>	
+
+	  {% elif field['type'] == constants.SCORE %}
+	  <div class="form-group row">
+	    <label for="{{ field['identifier'] }}-slider"
+		   class="col-md-2 col-form-label text-right">
+	      Slider input</label>
+	    <div class="col-md">
+	      <div class="form-check">
+		<input type="checkbox" id="{{ field['identifier'] }}-slider"
+		       name="slider"
+		       class="form-check-input"
+		       aria-describedby="{{ field['identifier'] }}-sliderHelp"
+		       value="true"
+		       {{ field.get('slider') and 'checked' or '' }}>
+		<label class="form-check-label"
+		       for="{{ field['identifier'] }}-slider">
+		  Yes</label>
+	      </div>
+	      <small id="{{ field['identifier'] }}-sliderHelp"
+		     class="form-text text-muted">
+                Input using a slider, else using radio buttons.
+	      </small>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="maxlength" class="col-md-2 col-form-label text-right">
+	      Minimum</label>
+	    <div class="col-md">
+	      <input type="number" id="minimum" name="minimum" step="1"
+		     class="form-control"
+		     aria-describedby="minimumHelp"
+		     value="{{ field.get('minimum') or '' }}">
+	      <small id="minimumHelp" class="form-text text-muted">
+                Minimum score value.
+	      </small>
+	    </div>
+	  </div>	
+	  <div class="form-group row">
+	    <label for="maxlength" class="col-md-2 col-form-label text-right">
+	      Maximum</label>
+	    <div class="col-md">
+	      <input type="number" id="maximum" name="maximum"
+                     {% if field_type == constants.INTEGER %}
+                     step="1"
+                     {% endif %}
+		     class="form-control"
+		     aria-describedby="maximumHelp"
+		     value="{{ field.get('maximum') or '' }}">
+	      <small id="maximumHelp" class="form-text text-muted">
+                Maximum score value.
 	      </small>
 	    </div>
 	  </div>	

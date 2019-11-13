@@ -23,6 +23,10 @@
     Maximum value {{ field['maximum'] }}.
     {% set br = True %}
     {% endif %}
+    {% if not utils.is_none(field.get('slider')) %}
+    {{ field['slider'] and 'Input using slider.' or 'Input using radio buttons.' }}
+    {% set br = True %}
+    {% endif %}
     {{ (br and '<br>' or '') | safe }}
     {{ field.get('description') | markdown }}
   </div>

@@ -155,24 +155,27 @@ class FieldMixin:
                 value = utils.to_bool(value)
             self.doc['values'][fid] = value
 
-        elif field['type'] in (constants.INTEGER, constants.FLOAT):
-            if field['type'] == constants.INTEGER:
-                converter = int
-            else:
+        elif field['type'] in (constants.INTEGER, constants.FLOAT, constants.SCORE):
+            if field['type'] == constants.FLOAT:
                 converter = float
+            else:
+                converter = int
             value = form.get(fid)
+            if form.get(f"{fid}_na"):
+                value = None
             try:
                 value = converter(value)
             except (TypeError, ValueError):
                 if field['required'] and value:
                     self.doc['errors'][fid] = 'invalid value'
                 value = None
-            if field.get('minimum') is not None:
-                if value < field['minimum']:
-                    self.doc['errors'][fid] = 'value is too low'
-            if field.get('maximum') is not None:
-                if value < field['maximum']:
-                    self.doc['errors'][fid] = 'value is too high'
+            if value is not None:
+                if field.get('minimum') is not None:
+                    if value < field['minimum']:
+                        self.doc['errors'][fid] = 'value is too low'
+                if field.get('maximum') is not None:
+                    if value > field['maximum']:
+                        self.doc['errors'][fid] = 'value is too high'
             self.doc['values'][fid] = value
 
         elif field['type'] in constants.DOCUMENT:
@@ -186,7 +189,7 @@ class FieldMixin:
                                     infile.read(),
                                     infile.mimetype)
 
-        # Error message already set; skip out
+        # Error message already set; skip
         if self.doc['errors'].get(fid): return
         if field['required'] and self.doc['values'][fid] is None:
             self.doc['errors'][fid] = 'missing value'
