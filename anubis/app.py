@@ -74,6 +74,7 @@ app.register_blueprint(anubis.call.blueprint, url_prefix='/call')
 app.register_blueprint(anubis.calls.blueprint, url_prefix='/calls')
 app.register_blueprint(anubis.submission.blueprint, url_prefix='/submission')
 app.register_blueprint(anubis.submissions.blueprint, url_prefix='/submissions')
+app.register_blueprint(anubis.evaluation.blueprint, url_prefix='/evaluation')
 app.register_blueprint(anubis.about.blueprint, url_prefix='/about')
 app.register_blueprint(anubis.site.blueprint, url_prefix='/site')
 

@@ -159,14 +159,26 @@ class SubmissionSaver(FieldMixin, AttachmentsSaver):
 
     DOCTYPE = constants.SUBMISSION
 
+    def __init__(self, doc=None, call=None):
+        if doc:
+            super().__init__(doc=doc)
+        elif call:
+            super().__init__(doc=None)
+            self.set_call(call)
+        else:
+            raise ValueError('doc or call must be specified')
+        self.set_user(flask.g.current_user)
+
     def initialize(self):
-        "Set the owner of the submission."
-        self.doc['user'] = flask.g.current_user['username']
         self.doc['values'] = {}
         self.doc['errors'] = {}
 
+    def set_user(self, user):
+        "Set the user for the submission; must be called at creation."
+        self.doc['user'] = user['username']
+
     def set_call(self, call):
-        "Set the call for the submission; must be called first."
+        "Set the call for the submission; must be called at creation."
         if self.doc.get('call'):
             raise ValueError('call has already been set')
         self.doc['call'] = call['identifier']
@@ -203,7 +215,7 @@ def get_submission(sid):
         return None
 
 def set_submission_tmp(submission, call=None):
-    """Set the 'tmp' property of the submission.
+    """Set the 'tmp' field of the submission.
     This is computed data that will not be stored with the document.
     Depends on login, access, status, etc.
     """
@@ -220,6 +232,7 @@ def set_submission_tmp(submission, call=None):
         tmp.is_readable = True
         tmp.is_editable = True
         tmp.is_submittable = True
+        tmp.is_reviewer = True
     elif flask.g.current_user:
         if flask.g.current_user['username'] == submission['user']:
             tmp.is_readable = True

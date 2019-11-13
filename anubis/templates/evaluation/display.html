@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block head_title %}
+Evaluation of {{ evaluation['tmp'].submission['identifier'] }}
+{% endblock %}
+
+{% block body_title %}
+Evaluation of {{ evaluation['tmp'].submission['identifier'] }}
+{% endblock %}
+
+{% block main %}
+{% set submission = evaluation['tmp'].submission %}
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Call</div>
+  <div class="col-md">
+    <a href="{{ url_for('call.display', cid=submission['tmp'].call['identifier']) }}"
+       title="{{ submission['tmp'].call['title'] }}">
+      {{ submission['tmp'].call['identifier'] }}: 
+      {{ submission['tmp'].call['title'] }}</a>
+  </div>
+</div>
+
+{# XXX access? #}
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">User</div>
+  <div class="col-md">
+    <a href="{{ url_for('user.display', username=submission['user']) }}">
+      {{ submission['user'] }}</a>
+  </div>
+</div>
+
+{% set fields = submission['tmp'].call['evaluation'] %}
+{% set values = evaluation['values'] %}
+{% set errors = evaluation['errors'] %}
+{% set attachments = {} %}
+{% include 'display_fields_values.html' %}
+
+{% endblock %} {# block main #}
+
+{% block actions %}
+<div class="mt-2">
+  <a href="{{ url_for('.edit', iuid=evaluation['_id']) }}"
+     role="button" class="btn btn-primary btn-block">Edit</a>
+</div>
+{% endblock %} {# block actions #}
+
+{% block info %}
+<div class="small">
+  Modified <span class="localtime">{{ evaluation['modified'] }}</span>
+  <span class="ml-4">
+    Created <span class="localtime">{{ evaluation['created'] }}</span>
+  </span>
+  <span class="ml-4">
+    <a href="{{ url_for('.logs', iuid=evaluation['_id']) }}">Logs</a>
+  </span>
+</div>
+{% endblock %} {# block info #}

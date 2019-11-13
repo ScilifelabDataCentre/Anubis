@@ -30,7 +30,7 @@ DESIGNS = {
     'submissions': {
         'views': {
             'identifier': {'map': "function (doc) {if (doc.doctype !== 'submission') return; emit(doc.identifier, null);}"},
-            # NOTE: excludeds submissions not marked 'submitted'
+            # NOTE: excludes submissions not marked 'submitted'
             'call': {'reduce': '_count',
                      'map': "function (doc) {if (doc.doctype !== 'submission' || !doc.submitted) return; emit(doc.call, null);}"},
             # NOTE: includes submissions not marked 'submitted'
@@ -38,6 +38,12 @@ DESIGNS = {
                      'map': "function (doc) {if (doc.doctype !== 'submission') return; emit(doc.user, null);}"},
             'user_call': {'reduce': '_count',
                           'map': "function (doc) {if (doc.doctype !== 'submission') return; emit([doc.user, doc.call], null);}"},
+        }
+    },
+    'evaluations': {
+        'views': {
+            'call': {'map': "function (doc) {if (doc.doctype !== 'evaluation') return; emit(doc.call, null);}"},
+            'submission_reviewer': {'map': "function (doc) {if (doc.doctype !== 'evaluation') return; emit([doc.submission, doc.reviewer], null);}"},
         }
     },
 }

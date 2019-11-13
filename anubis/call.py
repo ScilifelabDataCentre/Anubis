@@ -324,8 +324,8 @@ def submission(cid):
         utils.flash_error(f"Call {call['title']} is not open.")
 
     if utils.http_POST():
-        with anubis.submission.SubmissionSaver() as saver:
-            saver.set_call(call)
+        with anubis.submission.SubmissionSaver(call=call) as saver:
+            pass
         doc = saver
         return flask.redirect(
             flask.url_for('submission.edit', sid=doc['identifier']))
