@@ -97,7 +97,8 @@
 	      </small>
 	    </div>
 	  </div>
-	  {% if field['type'] in ('text', 'line') %}
+
+	  {% if field['type'] in (constants.TEXT, constants.LINE) %}
 	  <div class="form-group row">
 	    <label for="{{ field['identifier'] }}-maxlength" 
 		   class="col-md-2 col-form-label text-right">
@@ -114,6 +115,40 @@
 	      </small>
 	    </div>
 	  </div>
+
+	  {% elif field['type'] in (constants.INTEGER, constants.FLOAT) %}
+	  <div class="form-group row">
+	    <label for="maxlength" class="col-md-2 col-form-label text-right">
+	      Minimum</label>
+	    <div class="col-md">
+	      <input type="number" id="minimum" name="minimum"
+                     {% if field_type == constants.INTEGER %}
+                     step="1"
+                     {% endif %}
+		     class="form-control"
+		     aria-describedby="minimumHelp"
+		     value="{{ field.get('minimum') or '' }}">
+	      <small id="minimumHelp" class="form-text text-muted">
+                Minimum value allowed, if any.
+	      </small>
+	    </div>
+	  </div>	
+	  <div class="form-group row">
+	    <label for="maxlength" class="col-md-2 col-form-label text-right">
+	      Maximum</label>
+	    <div class="col-md">
+	      <input type="number" id="maximum" name="maximum"
+                     {% if field_type == constants.INTEGER %}
+                     step="1"
+                     {% endif %}
+		     class="form-control"
+		     aria-describedby="maximumHelp"
+		     value="{{ field.get('maximum') or '' }}">
+	      <small id="maximumHelp" class="form-text text-muted">
+                Maximum value allowed, if any.
+	      </small>
+	    </div>
+	  </div>	
 	  {% endif %}
 	</div>
 	<div class="modal-footer">

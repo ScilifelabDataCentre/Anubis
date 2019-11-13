@@ -27,62 +27,13 @@ Edit submission {{ submission['identifier'] }}
       </small>
     </div>
   </div>
-  {% for field in submission['tmp'].call['fields'] %}
-  <div class="form-group row">
-    <label for="{{ field['identifier'] }}"
-	   class="col-md-2 col-form-label text-right font-weight-bold">
-      {{ field['title'] }}
-    </label>
-    <div class="col-md">
-      {% if field['type'] == constants.TEXT %}
-      <textarea id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
-		class="form-control" rows="6"
-		{% if field.get('maxlength') %}
-		maxlength="{{ field['maxlength'] }}"
-		{% endif %}
-		aria-describedby="{{ field['identifier'] }}Help"
-		>{{ submission['values'][field['identifier']] or '' }}</textarea>
-      {% elif field['type'] == constants.LINE %}
-      <input type="text"
-	     id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
-	     class="form-control"
-	     {% if field.get('maxlength') %}
-	     maxlength="{{ field['maxlength'] }}"
-	     {% endif %}
-	     aria-describedby="{{ field['identifier'] }}Help"
-	     value="{{ submission['values'][field['identifier']] or '' }}">
-      {% elif field['type'] == constants.DOCUMENT %}
-      <div class="custom-file">
-        <input type="file"
-	       id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
-	       class="custom-file-input"
-	       aria-describedby="{{ field['identifier'] }}Help">
-        <label class="custom-file-label" for="{{ field['identifier'] }}">
-          {{ submission['values'][field['identifier']] or 'Choose document' }}
-        </label>
-      </div>
-      {% endif %}
-      <small id="{{ field['identifier'] }}Help" class="form-text text-muted">
-	<div class="row">
-	  <div class="col-md">
-	    {% if field.get('required') %}
-	    <strong>Required!</strong>
-	    {% endif %}
-	    {% if field.get('maxlength') %}
-	    Maximum {{ field['maxlength'] }} characters.
-	    {% endif %}
-	    {{ field.get('description') | markdown }}
-	  </div>
-	  {% if field['type'] == constants.TEXT %}
-	  <div class="col-md-3">
-	    Formatted using <a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
-	  </div>
-	  {% endif %}
-	</div>
-      </small>
-    </div>
-  </div>
-  {% endfor %} {# for field in submission['tmp'].call['fields'] #}
+
+  {% set fields = submission['tmp'].call['fields'] %}
+  {% set values = submission['values'] %}
+  {% set errors = submission['errors'] %}
+  {% set attachments = submission.get('_attachments', {}) %}
+  {% include 'edit_fields_values.html' %}
+
   <div class="form-group row">
     <div class="col-md-3 offset-md-2">
       <button type="submit" class="btn btn-block btn-primary">Save</button>

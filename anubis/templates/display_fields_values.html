@@ -1,0 +1,44 @@
+{# Required variables: fields, values, errors, attachments #}
+
+{% for field in fields %}
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">
+    {{ field['title'] }}
+  </div>
+  {% if errors.get(field['identifier']) %}
+  <div class="col-md-2 text-danger">
+    Error: {{ errors[field['identifier']] }}
+  </div>
+  {% endif %}
+  <div class="col-md text-break">
+
+    {% if field['type'] == constants.TEXT %}
+    {{ values.get(field['identifier']) | markdown }}
+
+    {% elif field['type'] == constants.LINE %}
+    {{ values.get(field['identifier']) or '-' }}
+
+    {% elif field['type'] == constants.INTEGER %}
+    {{ values.get(field['identifier']) | integer_value }}
+
+    {% elif field['type'] == constants.FLOAT %}
+    {{ values.get(field['identifier']) | float_value }}
+
+    {% elif field['type'] == constants.DOCUMENT %}
+    {% set documentname = values.get(field['identifier']) %}
+    {% if documentname %}
+    <span class="font-weight-bold">{{ documentname }}</span>
+    {% if attachments.get(documentname) %}
+    <a href="{{ url_for('submission.document', sid=submission['identifier'], documentname=documentname) }}"
+       role="button" class="btn btn-secondary btn-sm ml-4">
+      Download 
+      ({{ attachments[documentname]['length'] | thousands }} bytes)
+    </a>
+    {% else %}
+    (?)
+    {% endif %}
+    {% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endfor %} {# for field in fields #}

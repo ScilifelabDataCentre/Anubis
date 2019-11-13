@@ -199,6 +199,24 @@ def thousands(value):
     else:
         return value
 
+def integer_value(value):
+    "Template filter: Output field value integer."
+    if value is None:
+        return '-'
+    elif isinstance(value, int):
+        return '{:,}'.format(value)
+    else:
+        return '?'
+
+def float_value(value):
+    "Template filter: Output field value float."
+    if value is None:
+        return '-'
+    elif isinstance(value, (int, float)):
+        return '%.2f' % float(value)
+    else:
+        return '?'
+
 def do_markdown(value):
     "Template filter: Use Markdown to process the value."
     value = value or ''

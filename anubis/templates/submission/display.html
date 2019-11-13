@@ -40,45 +40,12 @@
   </div>
 </div>
 
-{% for field in submission['tmp'].call['fields'] %}
-<div class="row mb-2">
-  <div class="col-md-2 font-weight-bold text-right">
-    {{ field['title'] }}
-    {% if submission.errors.get(field['identifier']) %}
-    <br>
-    <span class="text-danger">
-      {{ submission.errors[field['identifier']] }}
-    </span>
-    {% endif %}
-  </div>
-  <div class="col-md text-break">
-    {% if field['type'] == constants.TEXT %}
-    {{ submission['values'].get(field['identifier']) | markdown }}
+{% set fields = submission['tmp'].call['fields'] %}
+{% set values = submission['values'] %}
+{% set errors = submission['errors'] %}
+{% set attachments = submission.get('_attachments', {}) %}
+{% include 'display_fields_values.html' %}
 
-    {% elif field['type'] == constants.LINE %}
-    {{ submission['values'].get(field['identifier']) }}
-
-    {% elif field['type'] == constants.DOCUMENT %}
-    {% set documentname = submission['values'].get(field['identifier']) %}
-    {% if documentname %}
-    <span class="font-weight-bold">{{ documentname }}</span>
-    {% if submission.get('_attachments', {}).get(documentname) %}
-    <a href="{{ url_for('submission.document', sid=submission['identifier'], documentname=documentname) }}"
-       role="button" class="btn btn-secondary btn-sm ml-4">
-      Download 
-      ({{ submission['_attachments'][documentname]['length'] | thousands }} bytes)
-    </a>
-    {% else %}
-    (?)
-    {% endif %}
-    {% else %}
-    -
-    {% endif %}
-    {% endif %}
-  </div>
-</div>
-
-{% endfor %} {# for field in submission['tmp'].call['fields'] #}
 {% endblock %} {# block main #}
 
 {% block actions %}

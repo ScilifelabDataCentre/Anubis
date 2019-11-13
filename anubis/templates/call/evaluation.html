@@ -14,7 +14,7 @@ Edit evaluation fields for {{ call['identifier'] }}
 {% set post_url = url_for('.evaluation_field', cid=call['identifier'], fid=field['identifier']) %}
 <div class="card mt-2">
   <div class="card-body">
-    {% include 'call/display_field.html' %}
+    {% include 'display_field_definition.html' %}
   </div>
 </div>
 {% endfor %} {# for field in call['evaluation'] #}
@@ -32,12 +32,12 @@ Edit evaluation fields for {{ call['identifier'] }}
 
 {% set post_url = url_for('.evaluation', cid=call['identifier']) %}
 {% for field_type in constants.FIELD_TYPES %}
-{% include 'call/modal_field_create.html' %}
+{% include 'modal_field_create.html' %}
 {% endfor %}
 
 {% for field in call['evaluation'] %}
 {% set post_url = url_for('.evaluation_field', cid=call['identifier'], fid=field['identifier']) %}
-{% include 'call/modal_field_edit.html' %}
+{% include 'modal_field_edit.html' %}
 {% endfor %}
 
 {% endblock %} {# block main #}

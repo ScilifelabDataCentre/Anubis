@@ -104,7 +104,7 @@
     {% for field in call['fields'] %}
     <div class="card mt-2">
       <div class="card-body">
-        {% include 'call/display_field.html' %}
+        {% include 'display_field_definition.html' %}
       </div>
     </div>
     {% endfor %}
@@ -118,7 +118,7 @@
     {% for field in call['evaluation'] %}
     <div class="card mt-2">
       <div class="card-body">
-        {% include 'call/display_field.html' %}
+        {% include 'display_field_definition.html' %}
       </div>
     </div>
     {% endfor %}

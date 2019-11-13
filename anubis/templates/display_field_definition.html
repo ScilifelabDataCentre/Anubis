@@ -15,11 +15,11 @@
     Maximum {{ field['maxlength'] }} characters.
     {% set br = True %}
     {% endif %}
-    {% if field.get('minimum') %}
+    {% if not utils.is_none(field.get('minimum')) %}
     Minimum value {{ field['minimum'] }}.
     {% set br = True %}
     {% endif %}
-    {% if field.get('maximum') %}
+    {% if not utils.is_none(field.get('maximum')) %}
     Maximum value {{ field['maximum'] }}.
     {% set br = True %}
     {% endif %}

@@ -136,3 +136,51 @@ class AttachmentsSaver(BaseSaver):
 
     def delete_attachment(self, filename):
         self._delete_attachments.add(filename)
+
+
+class FieldMixin:
+    "Mixin for setting a field value in the saver."
+
+    def set_field_value(self, field, form=dict()):
+        "Set the value according to field type."
+        fid = field['identifier']
+        self.doc['errors'].pop(fid, None)
+
+        if field['type'] in (constants.TEXT, constants.LINE):
+            self.doc['values'][fid] = form.get(fid)
+
+        elif field['type'] in (constants.INTEGER, constants.FLOAT):
+            if field['type'] == constants.INTEGER:
+                converter = int
+            else:
+                converter = float
+            value = form.get(fid)
+            try:
+                value = converter(value)
+            except (TypeError, ValueError):
+                if field['required'] and value:
+                    self.doc['errors'][fid] = 'invalid value'
+                value = None
+            if field.get('minimum') is not None:
+                if value < field['minimum']:
+                    self.doc['errors'][fid] = 'value is too low'
+            if field.get('maximum') is not None:
+                if value < field['maximum']:
+                    self.doc['errors'][fid] = 'value is too high'
+            self.doc['values'][fid] = value
+
+        elif field['type'] in constants.DOCUMENT:
+            infile = flask.request.files.get(fid)
+            if infile:
+                if self.doc['values'].get(fid) and \
+                   self.doc['values'][fid] != infile.name:
+                    self.delete_attachment(self.doc['values'][fid])
+                self.doc['values'][fid] = infile.filename
+                self.add_attachment(infile.filename,
+                                    infile.read(),
+                                    infile.mimetype)
+
+        # Error message already set; skip out
+        if self.doc['errors'].get(fid): return
+        if field['required'] and not self.doc['values'][fid]:
+            self.doc['errors'][fid] = 'missing value'

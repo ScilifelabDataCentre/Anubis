@@ -8,7 +8,7 @@ import anubis.call
 
 from . import constants
 from . import utils
-from .saver import AttachmentsSaver
+from .saver import AttachmentsSaver, FieldMixin
 
 
 blueprint = flask.Blueprint('submission', __name__)
@@ -154,7 +154,7 @@ def document(sid, documentname):
     return response
 
 
-class SubmissionSaver(AttachmentsSaver):
+class SubmissionSaver(FieldMixin, AttachmentsSaver):
     "Submission document saver context."
 
     DOCTYPE = constants.SUBMISSION
@@ -180,28 +180,6 @@ class SubmissionSaver(AttachmentsSaver):
         self.doc['identifier'] = f"{call['identifier']}:{counter:03d}"
         self.doc['values'] = dict([(f['identifier'], None) 
                                    for f in call['fields']])
-
-    def set_field_value(self, field, form=dict()):
-        "Set the value according to field type."
-        id = field['identifier']
-        if field['type'] in (constants.TEXT, constants.LINE):
-            self.doc['values'][id] = form.get(id)
-        elif field['type'] in constants.DOCUMENT:
-            infile = flask.request.files.get(id)
-            if infile:
-                if self.doc['values'].get(id) and \
-                   self.doc['values'][id] != infile.name:
-                    self.delete_attachment(self.doc['values'][id])
-                self.doc['values'][id] = infile.filename
-                self.add_attachment(infile.filename,
-                                    infile.read(),
-                                    infile.mimetype)
-        else:
-            raise ValueError(f"unknown field type {field['type']}")
-        if field['required'] and not self.doc['values'][id]:
-            self.doc['errors'][id] = 'missing value'
-        else:
-            self.doc['errors'].pop(id, None)
 
     def set_submitted(self):
         if not self.doc['tmp'].call['tmp'].is_open:

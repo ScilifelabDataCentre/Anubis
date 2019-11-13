@@ -1,0 +1,99 @@
+{# Required variables: fields, values, errors, attachments #}
+
+{% for field in fields %}
+<div class="form-group row">
+  <label for="{{ field['identifier'] }}"
+         class="col-md-2 col-form-label text-right font-weight-bold">
+    {{ field['title'] }}
+  </label>
+  <div class="col-md">
+
+    {% if field['type'] == constants.TEXT %}
+    <textarea id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
+	      class="form-control" rows="6"
+	      {% if field.get('maxlength') %}
+	      maxlength="{{ field['maxlength'] }}"
+	      {% endif %}
+	      aria-describedby="{{ field['identifier'] }}Help"
+	      >{{ values[field['identifier']] or '' }}</textarea>
+
+    {% elif field['type'] == constants.LINE %}
+    <input type="text"
+	   id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
+	   class="form-control"
+	   {% if field.get('maxlength') %}
+	   maxlength="{{ field['maxlength'] }}"
+	   {% endif %}
+	   aria-describedby="{{ field['identifier'] }}Help"
+	   value="{{ values[field['identifier']] or '' }}">
+
+    {% elif field['type'] == constants.INTEGER %}
+    <input type="number" step="1"
+           {% if field.get('minimum') %}
+           min="{{ field['minimum'] }}"
+           {% endif %}
+           {% if field.get('maximum') %}
+           max="{{ field['maximum'] }}"
+           {% endif %}
+	   id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
+	   class="form-control"
+	   {% if field.get('maxlength') %}
+	   maxlength="{{ field['maxlength'] }}"
+	   {% endif %}
+	   aria-describedby="{{ field['identifier'] }}Help"
+	   value="{{ values[field['identifier']] or '' }}">
+
+    {% elif field['type'] == constants.FLOAT %}
+    <input type="number" step="0.01"
+           {% if field.get('minimum') %}
+           min="{{ field['minimum'] }}"
+           {% endif %}
+           {% if field.get('maximum') %}
+           max="{{ field['maximum'] }}"
+           {% endif %}
+	   id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
+	   class="form-control"
+	   {% if field.get('maxlength') %}
+	   maxlength="{{ field['maxlength'] }}"
+	   {% endif %}
+	   aria-describedby="{{ field['identifier'] }}Help"
+	   value="{{ values[field['identifier']] or '' }}">
+
+    {% elif field['type'] == constants.DOCUMENT %}
+    <div class="custom-file">
+      <input type="file"
+	     id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
+	     class="custom-file-input"
+	     aria-describedby="{{ field['identifier'] }}Help">
+      <label class="custom-file-label" for="{{ field['identifier'] }}">
+        {{ values[field['identifier']] or 'Choose document' }}
+      </label>
+    </div>
+    {% endif %}
+
+    <small id="{{ field['identifier'] }}Help" class="form-text text-muted">
+      <div class="row">
+        {% if errors.get(field['identifier']) %}
+	<div class="col-md-2 text-danger">
+          Error: {{ errors[field['identifier']] }}
+        </div>
+        {% endif %}
+	<div class="col-md">
+	  {% if field.get('required') %}
+	  <strong>Required!</strong>
+	  {% endif %}
+	  {% if field.get('maxlength') %}
+	  Maximum {{ field['maxlength'] }} characters.
+	  {% endif %}
+	  {{ field.get('description') | markdown }}
+	</div>
+	{% if field['type'] == constants.TEXT %}
+	<div class="col-md-3">
+	  Formatted using <a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
+	</div>
+	{% endif %}
+      </div>
+    </small>
+  </div>
+</div>
+{% endfor %} {# for field in fields #}
