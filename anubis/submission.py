@@ -157,7 +157,7 @@ def document(sid, documentname):
 class SubmissionSaver(AttachmentsSaver):
     "Submission document saver context."
 
-    DOCTYPE = constants.DOCTYPE_SUBMISSION
+    DOCTYPE = constants.SUBMISSION
 
     def initialize(self):
         "Set the owner of the submission."

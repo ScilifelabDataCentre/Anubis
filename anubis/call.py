@@ -134,7 +134,7 @@ def document(cid, documentname):
 @blueprint.route('/<cid>/fields', methods=['GET', 'POST'])
 @utils.admin_required
 def fields(cid):
-    "Display input fields for delete, and add field."
+    "Display submission fields for delete, and add field."
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
@@ -154,7 +154,7 @@ def fields(cid):
 @blueprint.route('/<cid>/field/<fid>', methods=['POST', 'DELETE'])
 @utils.admin_required
 def field(cid, fid):
-    "Edit or delete the input field."
+    "Edit or delete the submission field."
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
@@ -334,7 +334,7 @@ def submission(cid):
 class CallSaver(AttachmentsSaver):
     "Call document saver context."
 
-    DOCTYPE = constants.DOCTYPE_CALL
+    DOCTYPE = constants.CALL
 
     def initialize(self):
         self.doc['opens'] = None
@@ -366,16 +366,24 @@ class CallSaver(AttachmentsSaver):
         self.doc['title'] = title
 
     def add_field(self, form=dict()):
-        id = form.get('identifier')
-        if not (id and constants.ID_RX.match(id)):
+        "Add a field to the submission definition."
+        field = self.get_new_field(form=form)
+        if field['identifier'] in [f['identifier'] for f in self.doc['fields']]:
+            raise ValueError('Field identifier is already in use.')
+        self.doc['fields'].append(field)
+
+    def get_new_field(self, form=dict()):
+        "Get the field definition from the form."
+        fid = form.get('identifier')
+        if not (fid and constants.ID_RX.match(fid)):
             raise ValueError('Invalid field identifier.')
         type = form.get('type')
         if type not in constants.FIELD_TYPES:
             raise ValueError('Invalid field type.')
-        title = form.get('title') or id.replace('_', ' ')
+        title = form.get('title') or fid.replace('_', ' ')
         title = ' '.join([w.capitalize() for w in title.split()])
         field = {'type': type,
-                 'identifier': id,
+                 'identifier': fid,
                  'title': title,
                  'description': form.get('description') or None,
                  'required': bool(form.get('required'))
@@ -383,31 +391,81 @@ class CallSaver(AttachmentsSaver):
         if type in (constants.TEXT, constants.LINE):
             try:
                 maxlength = int(form.get('maxlength'))
-                if maxlength <= 0: raise ValueERror
+                if maxlength <= 0: raise ValueError
             except (TypeError, ValueError):
                 maxlength = None
             field['maxlength'] = maxlength
-        self.doc['fields'].append(field)
+        elif type == constants.INTEGER:
+            try:
+                minimum = int(form.get('minimum'))
+            except (TypeError, ValueError):
+                minimum = None
+            field['minimum'] = minimum
+            try:
+                maximum = int(form.get('maximum'))
+            except (TypeError, ValueError):
+                maximum = None
+            field['maximum'] = maximum
+        elif type == constants.FLOAT:
+            try:
+                minimum = float(form.get('minimum'))
+            except (TypeError, ValueError):
+                minimum = None
+            field['minimum'] = minimum
+            try:
+                maximum = float(form.get('maximum'))
+            except (TypeError, ValueError):
+                maximum = None
+            field['maximum'] = maximum
+        return field
 
     def edit_field(self, fid, form=dict()):
+        "Edit the field for the submission definition."
         for field in self.doc['fields']:
-            if field['identifier'] == fid: break
+            if field['identifier'] == fid:
+                self.update_field(field, form=form)
+                break
         else:
-            raise KeyError('No such field.')
+            raise KeyError('No such submission field.')
+
+    def update_field(self, field, form=dict()):
+        "Edit the field definition from the form."
         title = form.get('title')
         if not title:
             title = ' '.join([w.capitalize() 
-                              for w in fid.replace('_', ' ').split()])
+                              for w in field['identifier'].replace('_', ' ').split()])
         field['title'] = title
         field['description'] = form.get('description') or None
         field['required'] = bool(form.get('required'))
         if field['type'] in (constants.TEXT, constants.LINE):
             try:
                 maxlength = int(form.get('maxlength'))
-                if maxlength <= 0: raise ValueERror
+                if maxlength <= 0: raise ValueError
             except (TypeError, ValueError):
                 maxlength = None
             field['maxlength'] = maxlength
+        elif field['type'] == constants.INTEGER:
+            try:
+                minimum = int(form.get('minimum'))
+            except (TypeError, ValueError):
+                minimum = None
+            field['minimum'] = minimum
+            try:
+                maximum = int(form.get('maximum'))
+            except (TypeError, ValueError):
+                maximum = None
+            field['maximum'] = maximum
+        elif field['type'] == constants.FLOAT:
+            try:
+                minimum = float(form.get('minimum'))
+            except (TypeError, ValueError):
+                minimum = None
+            field['minimum'] = minimum
+            try:
+                maximum = float(form.get('maximum'))
+            except (TypeError, ValueError):
+                maximum = None
+            field['maximum'] = maximum
 
     def delete_field(self, fid):
         for pos, field in enumerate(self.doc['fields']):
@@ -415,53 +473,21 @@ class CallSaver(AttachmentsSaver):
                 self.doc['fields'].pop(pos)
                 break
         else:
-            raise ValueError('No such field.')
+            raise ValueError('No such submission field.')
 
     def add_evaluation_field(self, form=dict()):
-        id = form.get('identifier')
-        if not (id and constants.ID_RX.match(id)):
-            raise ValueError('Invalid field identifier.')
-        type = form.get('type')
-        if type not in constants.FIELD_TYPES:
-            raise ValueError('Invalid field type.')
-        title = form.get('title') or id.replace('_', ' ')
-        title = ' '.join([w.capitalize() for w in title.split()])
-        field = {'type': type,
-                 'identifier': id,
-                 'title': title,
-                 'description': form.get('description') or None,
-                 'required': bool(form.get('required'))
-                 }
-        if type in (constants.TEXT, constants.LINE):
-            try:
-                maxlength = int(form.get('maxlength'))
-                if maxlength <= 0: raise ValueERror
-            except (TypeError, ValueError):
-                maxlength = None
-            field['maxlength'] = maxlength
+        field = self.get_new_field(form=form)
+        if field['identifier'] in [f['identifier'] for f in self.doc['evaluation']]:
+            raise ValueError('Field identifier is already in use.')
         self.doc['evaluation'].append(field)
 
     def edit_evaluation_field(self, fid, form=dict()):
         for field in self.doc['evaluation']:
-            if field['identifier'] == fid: break
+            if field['identifier'] == fid:
+                self.update_field(field, form=form)
+                break
         else:
-            raise KeyError('No such field.')
-        title = form.get('title')
-        if not title:
-            title = ' '.join([w.capitalize() 
-                              for w in fid.replace('_', ' ').split()])
-        field['title'] = title
-        field['description'] = form.get('description') or None
-        field['required'] = bool(form.get('required'))
-        if field['type'] == 'text':
-            try:
-                maxlength = int(form.get('maxlength'))
-                if maxlength <= 0: raise ValueERror
-            except (TypeError, ValueError):
-                maxlength = None
-            field['maxlength'] = maxlength
-        else:
-            raise ValueError('Invalid field type.')
+            raise KeyError('No such evaluation field.')
 
     def delete_evaluation_field(self, fid):
         for pos, field in enumerate(self.doc['evaluation']):
@@ -469,7 +495,7 @@ class CallSaver(AttachmentsSaver):
                 self.doc['evaluation'].pop(pos)
                 break
         else:
-            raise ValueError('No such field.')
+            raise ValueError('No such evaluation field.')
 
     def add_document(self, infile, description):
         "Add a document."

@@ -99,7 +99,7 @@
 </div>
 
 <div class="row">
-  <div class="col-md-2 font-weight-bold text-right">Input fields</div>
+  <div class="col-md-2 font-weight-bold text-right">Submission fields</div>
   <div class="col-md">
     {% for field in call['fields'] %}
     <div class="card mt-2">
@@ -150,11 +150,11 @@
 </div>
 <div class="mt-2">
   <a href="{{ url_for('.fields', cid=call['identifier']) }}"
-     role="button" class="btn btn-primary btn-block">Edit fields</a>
+     role="button" class="btn btn-primary btn-block">Edit submission fields</a>
 </div>
 <div class="mt-2">
   <a href="{{ url_for('.evaluation', cid=call['identifier']) }}"
-     role="button" class="btn btn-primary btn-block">Edit evaluation</a>
+     role="button" class="btn btn-primary btn-block">Edit evaluation fields</a>
 </div>
 {% endif %} {# if call['tmp'].is_editable #}
 {% if g.is_admin %} {# Always editable for admin #}

@@ -290,7 +290,7 @@ def disable(username):
 class UserSaver(BaseSaver):
     "User document saver context."
 
-    DOCTYPE = constants.DOCTYPE_USER
+    DOCTYPE = constants.USER
     HIDDEN_FIELDS = ['password']
 
     def initialize(self):

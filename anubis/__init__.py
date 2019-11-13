@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '0.3.6'
+__version__ = '0.3.7'
 
 class Constants:
     VERSION     = __version__
@@ -18,16 +18,16 @@ class Constants:
     EMAIL_RX = re.compile(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
 
     # CouchDB document types
-    DOCTYPE_USER       = 'user'
-    DOCTYPE_CALL       = 'call'
-    DOCTYPE_SUBMISSION = 'submission'
-    DOCTYPE_EVALUATION = 'evaluation'
-    DOCTYPE_DECISION   = 'decision'
-    DOCTYPE_LOG        = 'log'
+    USER       = 'user'
+    CALL       = 'call'
+    SUBMISSION = 'submission'
+    EVALUATION = 'evaluation'
+    DECISION   = 'decision'
+    LOG        = 'log'
 
     # User roles
     ADMIN = 'admin'
-    USER  = 'user'
+    # USER  = 'user' # Defined above
     USER_ROLES = (ADMIN, USER)
 
     # User statuses
@@ -44,7 +44,7 @@ class Constants:
     TEXT     = 'text'
     LINE     = 'line'
     INTEGER  = 'integer'
-    FLOAT    = 'float'
+    FLOAT     = 'float'
     SCORE    = 'score'
     DOCUMENT = 'document'
     FIELD_TYPES = (TEXT, LINE, INTEGER, FLOAT, SCORE, DOCUMENT)

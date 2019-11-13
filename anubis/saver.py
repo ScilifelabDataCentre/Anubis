@@ -89,7 +89,7 @@ class BaseSaver:
             if key in removed:
                 removed[key] = '***'
         entry = {'_id': utils.get_iuid(),
-                 'doctype': constants.DOCTYPE_LOG,
+                 'doctype': constants.LOG,
                  'docid': self.doc['_id'],
                  'added': added,
                  'updated': updated,

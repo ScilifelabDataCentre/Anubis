@@ -94,7 +94,57 @@
 	      </small>
 	    </div>
 	  </div>	
-	  {% endif %} {# if field_type in (constants.TEXT, constants.LINE) #}
+	  {% elif field_type == constants.INTEGER %}
+	  <div class="form-group row">
+	    <label for="maxlength" class="col-md-2 col-form-label text-right">
+	      Minimum</label>
+	    <div class="col-md">
+	      <input type="number" step="1" id="minimum" name="minimum"
+		     class="form-control"
+		     aria-describedby="minimumHelp">
+	      <small id="minimumHelp" class="form-text text-muted">
+                Minimum value allowed, if any.
+	      </small>
+	    </div>
+	  </div>	
+	  <div class="form-group row">
+	    <label for="maxlength" class="col-md-2 col-form-label text-right">
+	      Maximum</label>
+	    <div class="col-md">
+	      <input type="number" step="1" id="maximum" name="maximum"
+		     class="form-control"
+		     aria-describedby="maximumHelp">
+	      <small id="maximumHelp" class="form-text text-muted">
+                Maximum value allowed, if any.
+	      </small>
+	    </div>
+	  </div>	
+	  {% elif field_type == constants.FLOAT %}
+	  <div class="form-group row">
+	    <label for="maxlength" class="col-md-2 col-form-label text-right">
+	      Minimum</label>
+	    <div class="col-md">
+	      <input type="number" id="minimum" name="minimum"
+		     class="form-control"
+		     aria-describedby="minimumHelp">
+	      <small id="minimumHelp" class="form-text text-muted">
+                Minimum value allowed, if any.
+	      </small>
+	    </div>
+	  </div>	
+	  <div class="form-group row">
+	    <label for="maxlength" class="col-md-2 col-form-label text-right">
+	      Maximum</label>
+	    <div class="col-md">
+	      <input type="number" id="maximum" name="maximum"
+		     class="form-control"
+		     aria-describedby="maximumHelp">
+	      <small id="maximumHelp" class="form-text text-muted">
+                Maximum value allowed, if any.
+	      </small>
+	    </div>
+	  </div>	
+	  {% endif %}
 	</div>
 	<div class="modal-footer">
           <button type="button" class="btn btn-secondary"
