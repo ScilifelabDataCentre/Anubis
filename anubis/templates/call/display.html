@@ -102,8 +102,12 @@
   <div class="col-md-2 font-weight-bold text-right">Input fields</div>
   <div class="col-md">
     {% for field in call['fields'] %}
-    {% include 'call/display_field.html' %}
-    {% endfor %} {# for field in call['fields'] #}
+    <div class="card mt-2">
+      <div class="card-body">
+        {% include 'call/display_field.html' %}
+      </div>
+    </div>
+    {% endfor %}
   </div>
 </div>
 
@@ -112,8 +116,12 @@
   <div class="col-md-2 font-weight-bold text-right">Evaluation fields</div>
   <div class="col-md">
     {% for field in call['evaluation'] %}
-    {% include 'call/display_field.html' %}
-    {% endfor %} {# for field in call['evaluation'] #}
+    <div class="card mt-2">
+      <div class="card-body">
+        {% include 'call/display_field.html' %}
+      </div>
+    </div>
+    {% endfor %}
   </div>
 </div>
 {% endif %} {# if g.is_admin #}

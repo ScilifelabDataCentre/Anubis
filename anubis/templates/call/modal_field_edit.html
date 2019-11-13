@@ -1,0 +1,127 @@
+{# Required variables: field, post_url #}
+
+<div class="modal fade" id="{{ field['identifier'] }}-Modal" tabindex="-1" 
+     role="dialog" aria-labelledby="{{ field['identifier'] }}-ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <form action="{{ post_url }}"
+	    method="POST">
+	{{ csrf_token() }}
+	<div class="modal-header">
+          <h5 class="modal-title" id="{{ field['identifier'] }}-ModalLabel">
+	    Edit {{ field['type'] }} field</h5>
+          <button type="button" class="close"
+		  data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+	</div>
+	<div class="modal-body">
+	  <input type="hidden" name="type" value="text">
+	  <div class="form-group row">
+	    <label for="{{ field['identifier'] }}-identifier" 
+		   class="col-md-2 col-form-label text-right">
+	      Identifier</label>
+	    <div class="col-md">
+	      <input type="text" id="{{ field['identifier'] }}-identifier"
+		     class="form-control" readonly
+		     aria-describedby="{{ field['identifier'] }}-identifierHelp"
+		     value="{{ field['identifier'] }}">
+	      <small id="{{ field['identifier'] }}-identifierHelp"
+		     class="form-text text-muted">
+		<strong>Required!</strong>
+		<br>
+		Identifier for the field. It cannot be changed.
+	      </small>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="{{ field['identifier'] }}-title" 
+		   class="col-md-2 col-form-label text-right">
+	      Title</label>
+	    <div class="col-md">
+	      <input type="text" id="{{ field['identifier'] }}-title"
+		     name="title"
+		     class="form-control"
+		     aria-describedby="{{ field['identifier'] }}-titleHelp"
+		     value="{{ field.get('title') or '' }}">
+	      <small id="{{ field['identifier'] }}-titleHelp"
+		     class="form-text text-muted">
+		Descriptive title; the identifier will be used if not set.
+	      </small>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="{{ field['identifier'] }}-required"
+		   class="col-md-2 col-form-label text-right">
+	      Required</label>
+	    <div class="col-md">
+	      <div class="form-check">
+		<input type="checkbox" id="{{ field['identifier'] }}-required"
+		       name="required"
+		       class="form-check-input"
+		       value="true"
+		       {{ field.get('required') and 'checked' or '' }}>
+		<label class="form-check-label"
+		       for="{{ field['identifier'] }}-required">
+		  Yes</label>
+	      </div>
+	      <small id="{{ field['identifier'] }}-requiredHelp"
+		     class="form-text text-muted">
+		Is a field value required for a valid submission?
+	      </small>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="{{ field['identifier'] }}-description" 
+		   class="col-md-2 col-form-label text-right">
+	      Description</label>
+	    <div class="col-md">
+	      <textarea id="{{ field['identifier'] }}-description"
+			name="description"
+			class="form-control"
+			aria-describedby="{{ field['identifier'] }}-descriptionHelp"
+		>{{ field.get('description') or '' }}</textarea>
+	      <small id="{{ field['identifier'] }}-descriptionHelp" 
+		     class="form-text text-muted">
+		<div class="row">
+		  <div class="col-md">
+		    Short description of the information to be entered
+		    in the field.
+		  </div>
+		  <div class="col-md-4 text-right">
+		    Formatted using 
+		    <a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
+		  </div>
+		</div>
+	      </small>
+	    </div>
+	  </div>
+	  {% if field['type'] in ('text', 'line') %}
+	  <div class="form-group row">
+	    <label for="{{ field['identifier'] }}-maxlength" 
+		   class="col-md-2 col-form-label text-right">
+	      Maxlength</label>
+	    <div class="col-md">
+	      <input type="text" id="{{ field['identifier'] }}-maxlength"
+		     name="maxlength"
+		     class="form-control"
+		     aria-describedby="{{ field['identifier'] }}-maxlengthHelp"
+		     value="{{ field.get('maxlength') or '' }}">
+	      <small id="{{ field['identifier'] }}-maxlengthHelp"
+		     class="form-text text-muted">
+		Max number of characters.
+	      </small>
+	    </div>
+	  </div>
+	  {% endif %}
+	</div>
+	<div class="modal-footer">
+          <button type="button" class="btn btn-secondary"
+		  data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+	</div>
+      </form>
+    </div>
+  </div>
+</div>

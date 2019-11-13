@@ -370,7 +370,7 @@ class CallSaver(AttachmentsSaver):
         if not (id and constants.ID_RX.match(id)):
             raise ValueError('Invalid field identifier.')
         type = form.get('type')
-        if type not in constants.INPUT_FIELD_TYPES:
+        if type not in constants.FIELD_TYPES:
             raise ValueError('Invalid field type.')
         title = form.get('title') or id.replace('_', ' ')
         title = ' '.join([w.capitalize() for w in title.split()])
@@ -401,15 +401,13 @@ class CallSaver(AttachmentsSaver):
         field['title'] = title
         field['description'] = form.get('description') or None
         field['required'] = bool(form.get('required'))
-        if field['type'] == 'text':
+        if field['type'] in (constants.TEXT, constants.LINE):
             try:
                 maxlength = int(form.get('maxlength'))
                 if maxlength <= 0: raise ValueERror
             except (TypeError, ValueError):
                 maxlength = None
             field['maxlength'] = maxlength
-        else:
-            raise ValueError('Invalid field type.')
 
     def delete_field(self, fid):
         for pos, field in enumerate(self.doc['fields']):
@@ -424,7 +422,7 @@ class CallSaver(AttachmentsSaver):
         if not (id and constants.ID_RX.match(id)):
             raise ValueError('Invalid field identifier.')
         type = form.get('type')
-        if type not in constants.INPUT_FIELD_TYPES:
+        if type not in constants.FIELD_TYPES:
             raise ValueError('Invalid field type.')
         title = form.get('title') or id.replace('_', ' ')
         title = ' '.join([w.capitalize() for w in title.split()])
