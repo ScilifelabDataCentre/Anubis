@@ -205,7 +205,7 @@ def get_submission(sid):
 def set_submission_tmp(submission, call=None):
     """Set the 'tmp' property of the submission.
     This is computed data that will not be stored with the document.
-    Depends on login, privileges, etc.
+    Depends on login, access, status, etc.
     """
     submission['tmp'] = tmp = types.SimpleNamespace(is_readable=False,
                                                     is_editable=False,
@@ -224,7 +224,7 @@ def set_submission_tmp(submission, call=None):
         if flask.g.current_user['username'] == submission['user']:
             tmp.is_readable = True
             tmp.is_editable = True
-            tmp.is_submittable = tmp.call['tmp'].is_open
+            tmp.is_submittable = tmp.call['tmp'].is_open and not submission['errors']
         elif flask.g.current_user['username'] in tmp.call['reviewers']:
             tmp.is_reviewer = True
             tmp.is_readable = True
