@@ -199,6 +199,15 @@ def thousands(value):
     else:
         return value
 
+def boolean_value(value):
+    "Template filter: Output field value boolean."
+    if value is None:
+        return '-'
+    elif value:
+        return 'Yes'
+    else:
+        return 'No'
+
 def integer_value(value):
     "Template filter: Output field value integer."
     if value is None:

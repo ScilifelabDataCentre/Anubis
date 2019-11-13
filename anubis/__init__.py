@@ -43,11 +43,12 @@ class Constants:
     # Input field types
     TEXT     = 'text'
     LINE     = 'line'
+    BOOLEAN  = 'boolean'
     INTEGER  = 'integer'
     FLOAT     = 'float'
     SCORE    = 'score'
     DOCUMENT = 'document'
-    FIELD_TYPES = (TEXT, LINE, INTEGER, FLOAT, SCORE, DOCUMENT)
+    FIELD_TYPES = (TEXT, LINE, BOOLEAN, INTEGER, FLOAT, SCORE, DOCUMENT)
 
     # Content types
     HTML_MIMETYPE = 'text/html'

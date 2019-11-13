@@ -29,6 +29,7 @@ app.url_map.converters['iuid'] = utils.IuidConverter
 anubis.config.init(app)
 utils.mail.init_app(app)
 app.add_template_filter(utils.thousands)
+app.add_template_filter(utils.boolean_value)
 app.add_template_filter(utils.integer_value)
 app.add_template_filter(utils.float_value)
 app.add_template_filter(utils.do_markdown, name='markdown')

@@ -147,7 +147,13 @@ class FieldMixin:
         self.doc['errors'].pop(fid, None)
 
         if field['type'] in (constants.TEXT, constants.LINE):
-            self.doc['values'][fid] = form.get(fid)
+            self.doc['values'][fid] = form.get(fid) or None
+
+        elif field['type'] == constants.BOOLEAN:
+            value = form.get(fid) or None
+            if value:
+                value = utils.to_bool(value)
+            self.doc['values'][fid] = value
 
         elif field['type'] in (constants.INTEGER, constants.FLOAT):
             if field['type'] == constants.INTEGER:
@@ -182,5 +188,5 @@ class FieldMixin:
 
         # Error message already set; skip out
         if self.doc['errors'].get(fid): return
-        if field['required'] and not self.doc['values'][fid]:
+        if field['required'] and self.doc['values'][fid] is None:
             self.doc['errors'][fid] = 'missing value'

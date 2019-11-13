@@ -21,6 +21,9 @@
     {% elif field['type'] == constants.INTEGER %}
     {{ values.get(field['identifier']) | integer_value }}
 
+    {% elif field['type'] == constants.BOOLEAN %}
+    {{ values.get(field['identifier']) | boolean_value }}
+
     {% elif field['type'] == constants.FLOAT %}
     {{ values.get(field['identifier']) | float_value }}
 
