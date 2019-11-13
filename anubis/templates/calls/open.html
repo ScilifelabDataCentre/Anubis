@@ -30,7 +30,12 @@
       <td>
 	<a href="{{ url_for('submissions.call', cid=call['identifier']) }}">
 	  <span class="badge badge-primary">
-	    {{ call['tmp'].submissions_count }}</span>
+	    {% if g.is_admin %}
+	    {{ call['tmp'].submissions_count }}
+	    {% else %}
+	    {{ call['tmp'].my_submissions_count }}
+	    {% endif %}
+	  </span>
 	</a>
       </td>
       {% endif %}

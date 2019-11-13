@@ -20,7 +20,7 @@
   </div>
 </div>
 <div class="row mb-2">
-  <div class="col-md-2 font-weight-bold text-right">Closes</div>
+  <div class="col-md-2 font-weight-bold text-right">Call closes</div>
   <div class="col-md">
     <span class="mr-4">{{ submission['tmp'].call['closes'] or '-' }}</span>
     {{ macros.call_closes(submission['tmp'].call) }}
@@ -33,7 +33,7 @@
 
 {# XXX access? #}
 <div class="row mb-2">
-  <div class="col-md-2 font-weight-bold text-right">Submitter</div>
+  <div class="col-md-2 font-weight-bold text-right">User</div>
   <div class="col-md">
     <a href="{{ url_for('user.display', username=submission['user']) }}">
       {{ submission['user'] }}</a>
@@ -52,7 +52,7 @@
 
 {% if submission['tmp'].is_submittable %}
 {% if submission.get('submitted') %}
-<div class="mt-4">
+<div class="mt-2">
   <form action="{{ url_for('.unsubmit', sid=submission['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
@@ -61,7 +61,7 @@
   </form>
 </div>
 {% else %}
-<div class="mt-4">
+<div class="mt-2">
   <form action="{{ url_for('.submit', sid=submission['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
@@ -73,11 +73,11 @@
 {% endif %} {# if submission['tmp'].is_submittable #}
 
 {% if submission['tmp'].is_editable %}
-<div class="mt-4">
+<div class="mt-2">
   <a href="{{ url_for('.edit', sid=submission['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
-<div class="mt-4">
+<div class="mt-2">
   <form action="{{ url_for('.edit', sid=submission['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}

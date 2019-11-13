@@ -80,7 +80,7 @@ def submit(sid):
         return flask.redirect(flask.url_for('home'))
     if utils.http_POST():
         if not submission['tmp'].is_submittable:
-            utils.flash_error('You cannot submit; edit not allowed, or call closed.')
+            utils.flash_error('Submit disallowed; call closed.')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
         try:
@@ -99,8 +99,8 @@ def unsubmit(sid):
         utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
     if utils.http_POST():
-        if not submission['tmp'].is_editable:
-            utils.flash_error('You cannot unsubmit; edit not allowed, or call closed.')
+        if not submission['tmp'].is_submittable:
+            utils.flash_error('Unsubmit disallowed; call closed.')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
         try:
@@ -182,13 +182,13 @@ class SubmissionSaver(FieldMixin, AttachmentsSaver):
                                    for f in call['fields']])
 
     def set_submitted(self):
-        if not self.doc['tmp'].call['tmp'].is_open:
-            raise ValueError('the call for the submission is not open')
+        if not self.doc['tmp'].is_submittable:
+            raise ValueError('Submit is disallowed.')
         self.doc['submitted'] = utils.get_time()
 
     def set_unsubmitted(self):
-        if not self.doc['tmp'].call['tmp'].is_open:
-            raise ValueError('the call for the submission is not open')
+        if not self.doc['tmp'].is_submittable:
+            raise ValueError('Unsubmit is disallowed.')
         self.doc.pop('submitted', None)
 
 
@@ -223,7 +223,7 @@ def set_submission_tmp(submission, call=None):
     elif flask.g.current_user:
         if flask.g.current_user['username'] == submission['user']:
             tmp.is_readable = True
-            tmp.is_editable = True
+            tmp.is_editable = tmp.call['tmp'].is_open and not submission.get('submitted')
             tmp.is_submittable = tmp.call['tmp'].is_open and not submission['errors']
         elif flask.g.current_user['username'] in tmp.call['reviewers']:
             tmp.is_reviewer = True

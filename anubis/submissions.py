@@ -106,6 +106,8 @@ def get_submissions_count(username=None, call=None):
     else:
         raise ValueError('neither username nor call specified')
     if result:
+        print(result[0].value)
         return result[0].value
     else:
+        print(0)
         return 0

@@ -22,7 +22,7 @@ Edit evaluation fields for {{ call['identifier'] }}
 <div class="card mt-2">
   <div class="card-body">
     {% for field_type in constants.FIELD_TYPES %}
-    <button type="button" class="btn btn-primary mr-3"
+    <button type="button" class="btn btn-primary mt-2 mr-2"
 	    data-toggle="modal" data-target="#_{{ field_type }}Modal">
       Add {{ field_type }} field
     </button>
