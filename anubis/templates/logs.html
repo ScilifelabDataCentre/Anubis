@@ -1,10 +1,14 @@
 {% extends 'base.html' %}
 
-{% block head_title %}{{ title }} logs{% endblock %}
+{% block head_title %}Logs for '{{ title }}'{% endblock %}
 
-{% block body_title %}{{ title }} logs{% endblock %}
+{% block body_title %}Logs for '{{ title }}'{% endblock %}
 
-{% block main %}
+{% block supermain %}
+<div>
+  <a href="{{ back_url }}" 
+     role="button" class="btn btn-dark px-4 my-2">Back</a>
+</div>
 <table class="table">
   <thead>
     <tr>
@@ -31,7 +35,7 @@
     {% endfor %}
   </tbody>
 </table>
-{% endblock %}
+{% endblock %} {# block supermain #}
 
 {% block meta %}
 <div class="py-1">
@@ -40,10 +44,3 @@
   </div>
 </div>
 {% endblock %} {# block meta #}
-
-{% block actions %}
-<div>
-  <a href="{{ cancel_url }}" 
-     role="button" class="btn btn-dark btn-block">Back</a>
-</div>
-{% endblock %} {# block actions #}

@@ -17,7 +17,7 @@
     </td>
   </tr>
   <tr>
-    <th class="text-right">Reviewer</th>
+    <th class="text-right">Reviewer in calls</th>
     <td>
       {% for cid in user['reviewer'] %}
       <a href="{{ url_for('call.display', cid=cid) }}">{{ cid }}</a>
@@ -159,7 +159,7 @@
     Created <span class="localtime">{{ user['created'] }}</span>
   </span>
   <span class="ml-4">
-    <a href="{{ url_for('.logs', username=user['identifier']) }}">Logs</a>
+    <a href="{{ url_for('.logs', username=user['username']) }}">Logs</a>
   </span>
 </div>
 {% endblock %} {# block info #}

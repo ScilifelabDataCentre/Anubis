@@ -76,11 +76,12 @@ def submit(sid):
     if submission is None:
         utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
+    if not submission['cache']['is_submittable']:
+        utils.flash_error('Submit disallowed; call closed.')
+        return flask.redirect(
+            flask.url_for('.display', sid=submission['identifier']))
+
     if utils.http_POST():
-        if not submission['cache']['is_submittable']:
-            utils.flash_error('Submit disallowed; call closed.')
-            return flask.redirect(
-                flask.url_for('.display', sid=submission['identifier']))
         try:
             with SubmissionSaver(submission) as saver:
                 saver.set_submitted()
@@ -96,11 +97,12 @@ def unsubmit(sid):
     if submission is None:
         utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
+    if not submission['cache']['is_submittable']:
+        utils.flash_error('Unsubmit disallowed; call closed.')
+        return flask.redirect(
+            flask.url_for('.display', sid=submission['identifier']))
+
     if utils.http_POST():
-        if not submission['cache']['is_submittable']:
-            utils.flash_error('Unsubmit disallowed; call closed.')
-            return flask.redirect(
-                flask.url_for('.display', sid=submission['identifier']))
         try:
             with SubmissionSaver(submission) as saver:
                 saver.set_unsubmitted()
@@ -123,7 +125,7 @@ def logs(sid):
     return flask.render_template(
         'logs.html',
         title=f"Submission {submission['identifier']}",
-        cancel_url=flask.url_for('.display', sid=submission['identifier']),
+        back_url=flask.url_for('.display', sid=submission['identifier']),
         logs=utils.get_logs(submission['_id']))
 
 @blueprint.route('/<sid>/document/<documentname>')

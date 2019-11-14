@@ -86,7 +86,7 @@ def get_submissions(username=None, call=None):
     else:
         raise ValueError('neither username nor call specified')
     # XXX access has not been implemented yet; currently too permissive!
-    return [s for s in submissions if s['cache'].is_readable]
+    return [s for s in submissions if s['cache']['is_readable']]
 
 def get_submissions_count(username=None, call=None):
     "Get the number of submissions, specified by user and/or call."
@@ -106,8 +106,6 @@ def get_submissions_count(username=None, call=None):
     else:
         raise ValueError('neither username nor call specified')
     if result:
-        print(result[0].value)
         return result[0].value
     else:
-        print(0)
         return 0

@@ -31,6 +31,9 @@ def create(sid):
         with EvaluationSaver(submission=submission) as saver:
             pass
         evaluation = saver.doc
+    elif not evaluation['cache']['is_readable']:
+        utils.flash_error('You are not allowed to read this evaluation.')
+        return flask.redirect(flask.url_for('home'))
     return flask.redirect(flask.url_for('.display', iuid=evaluation['_id']))
 
 @blueprint.route('/<iuid:iuid>')
@@ -42,28 +45,101 @@ def display(iuid):
     except KeyError:
         utils.flash_error('No such evaluation.')
         return flask.redirect(flask.url_for('home'))
+    if not evaluation['cache']['is_readable']:
+        utils.flash_error('You are not allowed to read this evaluation.')
+        return flask.redirect(flask.url_for('home'))
+
     return flask.render_template('evaluation/display.html',
                                  evaluation=evaluation)
 
-@blueprint.route('/<iuid:iuid>/edit')
+@blueprint.route('/<iuid:iuid>/edit', methods=['GET', 'POST'])
 @utils.login_required
 def edit(iuid):
     "Edit the evaluation for the submission."
-    raise NotImplementedError
+    try:
+        evaluation = get_evaluation_cache(flask.g.db.get(iuid))
+    except KeyError:
+        utils.flash_error('No such evaluation.')
+        return flask.redirect(flask.url_for('home'))
+    if not evaluation['cache']['is_editable']:
+        utils.flash_error('You are not allowed to edit this evaluation.')
+        return flask.redirect(flask.url_for('home'))
+
+    if utils.http_GET():
+        return flask.render_template('evaluation/edit.html',
+                                     evaluation=evaluation)
+
+    elif utils.http_POST():
+        try:
+            with EvaluationSaver(doc=evaluation) as saver:
+                for field in evaluation['cache']['call']['evaluation']:
+                    saver.set_field_value(field, form=flask.request.form)
+        except ValueError as error:
+            utils.flash_error(str(error))
+            return flask.redirect(
+                flask.url_for('.edit', iuid=evaluation['_id']))
+        return flask.redirect(
+            flask.url_for('.display', iuid=evaluation['_id']))
+
+@blueprint.route('/<iuid:iuid>/finalize', methods=['POST'])
+@utils.login_required
+def finalize(iuid):
+    "Finalize the evaluation for the submission."
+    try:
+        evaluation = get_evaluation_cache(flask.g.db.get(iuid))
+    except KeyError:
+        utils.flash_error('No such evaluation.')
+        return flask.redirect(flask.url_for('home'))
+    if not evaluation['cache']['is_editable']:
+        utils.flash_error('You are not allowed to edit this evaluation.')
+        return flask.redirect(flask.url_for('home'))
+
+    if utils.http_POST():
+        try:
+            with EvaluationSaver(doc=evaluation) as saver:
+                saver['finalized'] = utils.get_time()
+        except ValueError as error:
+            utils.flash_error(str(error))
+        return flask.redirect(
+            flask.url_for('.display', iuid=evaluation['_id']))
+
+@blueprint.route('/<iuid:iuid>/unfinalize', methods=['POST'])
+@utils.login_required
+def unfinalize(iuid):
+    "Unfinalize the evaluation for the submission."
+    try:
+        evaluation = get_evaluation_cache(flask.g.db.get(iuid))
+    except KeyError:
+        utils.flash_error('No such evaluation.')
+        return flask.redirect(flask.url_for('home'))
+    if not evaluation['cache']['is_editable']:
+        utils.flash_error('You are not allowed to edit this evaluation.')
+        return flask.redirect(flask.url_for('home'))
+
+    if utils.http_POST():
+        try:
+            with EvaluationSaver(doc=evaluation) as saver:
+                saver['finalized'] = None
+        except ValueError as error:
+            utils.flash_error(str(error))
+        return flask.redirect(
+            flask.url_for('.display', iuid=evaluation['_id']))
 
 @blueprint.route('/<iuid>/logs')
 @utils.login_required
-def logs(cid):
+def logs(iuid):
     "Display the log records of the call."
     evaluation = flask.g.db.get(iuid)
     if evaluation is None:
         utils.flash_error('No such evaluation.')
         return flask.redirect(flask.url_for('home'))
 
+    evaluation = get_evaluation_cache(evaluation)
     return flask.render_template(
         'logs.html',
-        title=f"Evaluation {evaluation['identifier']}",
-        cancel_url=flask.url_for('.display', iuid=evaluation['_id']),
+        title=f"Evaluation of {evaluation['cache']['submission']['identifier']}" \
+              f" by {evaluation['reviewer']}",
+        back_url=flask.url_for('.display', iuid=evaluation['_id']),
         logs=utils.get_logs(evaluation['_id']))
 
 
@@ -99,16 +175,17 @@ def get_evaluation(submission, reviewer):
                                   reviewer['username']],
                              include_docs=True)
     try:
-        return result[0].doc
+        return get_evaluation_cache(result[0].doc)
     except IndexError:
         return None
 
 def get_evaluations(call=None):
     "Get all evaluations for submissions in a call."
-    result = [r.doc for r in flask.g.db.view('evaluations', 'call',
-                                             key=call['identifier'],
-                                             include_docs=True)]
-    
+    result = [get_evaluation_cache(r.doc)
+              for r in flask.g.db.view('evaluations', 'call',
+                                       key=call['identifier'],
+                                       include_docs=True)]
+
 def get_evaluation_cache(evaluation, call=None):
     """Set the'cache' field of the evaluation.
     This is computed data that will not be stored with the document.
@@ -116,10 +193,17 @@ def get_evaluation_cache(evaluation, call=None):
     """
     from anubis.call import get_call
     from anubis.submission import get_submission
-    evaluation['cache'] = cache = {}
+    evaluation['cache'] = cache = dict(is_readable=False,
+                                       is_editable=False)
     if call is None:
-        cache['call'] = get_call(evaluation['call'])
+        cache['call'] = call = get_call(evaluation['call'])
     else:
         cache['call'] = call
     cache['submission'] = get_submission(evaluation['submission'])
+    if flask.g.is_admin:
+        cache['is_readable'] = True
+        cache['is_editable'] = True
+    elif flask.g.current_user:
+        cache['is_readable'] = flask.g.current_user['username'] in call['reviewers']
+        cache['is_editable'] = flask.g.current_user['username'] == evaluation['reviewer']
     return evaluation

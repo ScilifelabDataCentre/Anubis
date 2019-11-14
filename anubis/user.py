@@ -230,7 +230,7 @@ def edit(username):
         else:
             return flask.redirect(flask.url_for('home'))
 
-@blueprint.route('/display/<username>/logs')
+@blueprint.route('/logs/<username>')
 @utils.login_required
 def logs(username):
     "Display the log records of the given user."
@@ -244,7 +244,7 @@ def logs(username):
     return flask.render_template(
         'logs.html',
         title=f"User {user['username']}",
-        cancel_url=flask.url_for('.display', username=user['username']),
+        back_url=flask.url_for('.display', username=user['username']),
         api_logs_url=flask.url_for('api_user.logs', username=user['username']),
         logs=utils.get_logs(user['_id']))
 
@@ -342,7 +342,6 @@ class UserSaver(BaseSaver):
         config = flask.current_app.config
         if password is None:
             self.doc['password'] = "code:%s" % utils.get_iuid()
-            print('set_password', self.doc['password'])
         else:
             if len(password) < config['MIN_PASSWORD_LENGTH']:
                 raise ValueError('password too short')

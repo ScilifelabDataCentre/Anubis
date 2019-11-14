@@ -306,7 +306,7 @@ def logs(cid):
     return flask.render_template(
         'logs.html',
         title=f"Call {call['identifier']}",
-        cancel_url=flask.url_for('.display', cid=call['identifier']),
+        back_url=flask.url_for('.display', cid=call['identifier']),
         logs=utils.get_logs(call['_id']))
 
 @blueprint.route('/<cid>/submission', methods=['POST'])
