@@ -36,7 +36,7 @@
   <div class="col-md-2 font-weight-bold text-right">Submissions</div>
   <div class="col-md">
     <a href="{{ url_for('submissions.call', cid=call['identifier']) }}">
-      <span class="badge badge-primary">{{ call['tmp'].submissions_count }}
+      <span class="badge badge-primary">{{ call['cache']['submissions_count'] }}
     </span></a>
   </div>
 </div>
@@ -60,7 +60,7 @@
   <div class="col-md-2 font-weight-bold text-right">My submissions</div>
   <div class="col-md">
     <a href="{{ url_for('submissions.user_call', username=g.current_user['username'], cid=call['identifier']) }}">
-      <span class="badge badge-primary">{{ call['tmp'].my_submissions_count }}
+      <span class="badge badge-primary">{{ call['cache']['my_submissions_count'] }}
     </span></a>
   </div>
 </div>
@@ -129,7 +129,7 @@
 {% endblock %} {# block main #}
 
 {% block actions %}
-{% if call['tmp'].is_open %}
+{% if call['cache']['is_open'] %}
 <div class="mt-2">
   <form action="{{ url_for('.submission', cid=call['identifier']) }}"
 	method="POST">
@@ -139,7 +139,7 @@
   </form>
 </div>
 {% endif %}
-{% if call['tmp'].is_editable %}
+{% if call['cache']['is_editable'] %}
 <div class="mt-2">
   <a href="{{ url_for('.edit', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
@@ -156,7 +156,7 @@
   <a href="{{ url_for('.evaluation', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit evaluation fields</a>
 </div>
-{% endif %} {# if call['tmp'].is_editable #}
+{% endif %} {# if call['cache']['is_editable'] #}
 {% if g.is_admin %} {# Always editable for admin #}
 <div class="mt-2">
   <a href="{{ url_for('.reviewers', cid=call['identifier']) }}"
@@ -167,7 +167,7 @@
      role="button" class="btn btn-info btn-block">Clone</a>
 </div>
 {% endif %} {# if g.is_admin #}
-{% if call['tmp'].is_editable %}
+{% if call['cache']['is_editable'] %}
 <div class="mt-2">
   <form action="{{ url_for('.edit', cid=call['identifier']) }}"
 	method="POST">
@@ -178,7 +178,7 @@
       Delete</button>
   </form>
 </div>
-{% endif %} {# if call['tmp'].is_editable #}
+{% endif %} {# if call['cache']['is_editable'] #}
 {% endblock %} {# block actions #}
 
 {% block info %}

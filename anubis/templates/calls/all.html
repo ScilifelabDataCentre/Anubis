@@ -31,7 +31,7 @@
       <td>
 	<a href="{{ url_for('submissions.call', cid=call['identifier']) }}">
 	  <span class="badge badge-primary">
-	    {{ call['tmp'].submissions_count }}</span>
+	    {{ call['cache']['submissions_count'] }}</span>
 	</a>
       </td>
       {% endif %}

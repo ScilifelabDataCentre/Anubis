@@ -13,17 +13,17 @@
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
   <div class="col-md">
-    <a href="{{ url_for('call.display', cid=submission['tmp'].call['identifier']) }}"
-       title="{{ submission['tmp'].call['title'] }}">
-      {{ submission['tmp'].call['identifier'] }}: 
-      {{ submission['tmp'].call['title'] }}</a>
+    <a href="{{ url_for('call.display', cid=submission['cache']['call']['identifier']) }}"
+       title="{{ submission['cache']['call']['title'] }}">
+      {{ submission['cache']['call']['identifier'] }}: 
+      {{ submission['cache']['call']['title'] }}</a>
   </div>
 </div>
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call closes</div>
   <div class="col-md">
-    <span class="mr-4">{{ submission['tmp'].call['closes'] or '-' }}</span>
-    {{ macros.call_closes(submission['tmp'].call) }}
+    <span class="mr-4">{{ submission['cache']['call']['closes'] or '-' }}</span>
+    {{ macros.call_closes(submission['cache']['call']) }}
   </div>
 </div>
 <div class="row mb-2">
@@ -40,7 +40,7 @@
   </div>
 </div>
 
-{% set fields = submission['tmp'].call['fields'] %}
+{% set fields = submission['cache']['call']['fields'] %}
 {% set values = submission['values'] %}
 {% set errors = submission['errors'] %}
 {% set attachments = submission.get('_attachments', {}) %}
@@ -50,7 +50,7 @@
 
 {% block actions %}
 
-{% if submission['tmp'].is_submittable %}
+{% if submission['cache']['is_submittable'] %}
 {% if submission.get('submitted') %}
 <div class="mt-2">
   <form action="{{ url_for('.unsubmit', sid=submission['identifier']) }}"
@@ -70,9 +70,9 @@
   </form>
 </div>
 {% endif %} {# if submission.get('submitted') #}
-{% endif %} {# if submission['tmp'].is_submittable #}
+{% endif %} {# if submission['cache']['is_submittable'] #}
 
-{% if submission['tmp'].is_editable %}
+{% if submission['cache']['is_editable'] %}
 <div class="mt-2">
   <a href="{{ url_for('.edit', sid=submission['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
@@ -87,8 +87,8 @@
       Delete</button>
   </form>
 </div>
-{% endif %} {# if submission['tmp'].is_editable #}
-{% if submission['tmp'].is_reviewer %}
+{% endif %} {# if submission['cache']['is_editable'] #}
+{% if submission['cache']['is_reviewer'] %}
 <div class="mt-2">
   <form action="{{ url_for('evaluation.create', sid=submission['identifier']) }}"
 	method="POST">
@@ -97,7 +97,7 @@
       Review</button>
   </form>
 </div>
-{% endif %} {# if submission['tmp'].is_reviewer #}
+{% endif %} {# if submission['cache']['is_reviewer'] #}
 
 {% endblock %} {# block actions #}
 

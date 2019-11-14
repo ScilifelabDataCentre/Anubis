@@ -33,8 +33,8 @@ class BaseSaver:
         self.finalize()
         self.doc['doctype'] = self.DOCTYPE
         self.doc['modified'] = utils.get_time()
-        self.original.pop('tmp', None)
-        self.doc.pop('tmp', None)
+        self.original.pop('cache', None)
+        self.doc.pop('cache', None)
         flask.g.db.put(self.doc)
         self.finish()
         self.add_log()

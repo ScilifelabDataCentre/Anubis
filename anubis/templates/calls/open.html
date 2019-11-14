@@ -31,9 +31,9 @@
 	<a href="{{ url_for('submissions.call', cid=call['identifier']) }}">
 	  <span class="badge badge-primary">
 	    {% if g.is_admin %}
-	    {{ call['tmp'].submissions_count }}
+	    {{ call['cache']['submissions_count'] }}
 	    {% else %}
-	    {{ call['tmp'].my_submissions_count }}
+	    {{ call['cache']['my_submissions_count'] }}
 	    {% endif %}
 	  </span>
 	</a>

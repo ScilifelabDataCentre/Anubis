@@ -31,11 +31,11 @@ All submissions from user
       <td>{{ submission.get('title') or '-' }}</td>
       <td>{{ macros.submitted(submission) }}</td>
       <td>
-	<a href="{{ url_for('call.display', cid=submission['tmp'].call['identifier']) }}"
-	   title="{{ submission['tmp'].call['title'] }}">
-	  {{ submission['tmp'].call['identifier'] }}</a>
+	<a href="{{ url_for('call.display', cid=submission['cache']['call']['identifier']) }}"
+	   title="{{ submission['cache']['call']['title'] }}">
+	  {{ submission['cache']['call']['identifier'] }}</a>
       </td>
-      <td>{{ macros.call_closes(submission['tmp'].call) }}</td>
+      <td>{{ macros.call_closes(submission['cache']['call']) }}</td>
     </tr>
     {% endfor %}
   </tbody>

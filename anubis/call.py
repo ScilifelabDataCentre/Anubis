@@ -1,7 +1,6 @@
 "Call for submissions."
 
 import copy
-import types
 
 import flask
 
@@ -105,7 +104,7 @@ def document(cid, documentname):
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_GET():
-        if not (flask.g.is_admin or call['tmp'].is_published):
+        if not (flask.g.is_admin or call['cache']['is_published']):
             utils.flash_error(f"Call {call['title']} has not been published.")
             return flask.redirect(flask.url_for('home'))
         try:
@@ -320,7 +319,7 @@ def submission(cid):
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
 
-    if not call['tmp'].is_open:
+    if not call['cache']['is_open']:
         utils.flash_error(f"Call {call['title']} is not open.")
 
     if utils.http_POST():
@@ -564,83 +563,83 @@ def get_call(cid):
                                              key=cid,
                                              include_docs=True)]
     if len(result) == 1:
-        return set_call_tmp(result[0])
+        return set_call_cache(result[0])
     else:
         return None
 
-def set_call_tmp(call):
-    """Set the 'tmp' item of the call.
+def set_call_cache(call):
+    """Set the 'cache' item of the call.
     This is computed data that will not be stored with the document.
     Depends on login, privileges, etc.
     """
     from anubis.submissions import get_submissions_count
-    call['tmp'] = tmp = types.SimpleNamespace()
+    call['cache'] = cache = {}
     # Submissions count
     if flask.g.is_admin:
-        tmp.submissions_count = get_submissions_count(call=call)
+        cache['submissions_count'] = get_submissions_count(call=call)
     if flask.g.current_user:
-        tmp.my_submissions_count = get_submissions_count(
+        cache['my_submissions_count'] = get_submissions_count(
             username=flask.g.current_user['username'], call=call)
     # Open/closed status
     now = utils.normalized_local_now()
     if call['opens']:
         if call['opens'] > now:
-            tmp.is_open = False
-            tmp.is_closed = False
-            tmp.is_published = False
-            tmp.text = 'Not yet open.'
-            tmp.color = 'secondary'
+            cache['is_open'] = False
+            cache['is_closed'] = False
+            cache['is_published'] = False
+            cache['text'] = 'Not yet open.'
+            cache['color'] = 'secondary'
         elif call['closes']:
             remaining = utils.days_remaining(call['closes'])
             if remaining > 7.0:
-                tmp.is_open = True
-                tmp.is_closed = False
-                tmp.is_published = True
-                tmp.text = f"{remaining:.0f} days remaining."
-                tmp.color = 'success'
+                cache['is_open'] = True
+                cache['is_closed'] = False
+                cache['is_published'] = True
+                cache['text'] = f"{remaining:.0f} days remaining."
+                cache['color'] = 'success'
             elif remaining > 2.0:
-                tmp.is_open = True
-                tmp.is_closed = False
-                tmp.is_published = True
-                tmp.text = f"{remaining:.0f} days remaining."
-                tmp.color = 'info'
+                cache['is_open'] = True
+                cache['is_closed'] = False
+                cache['is_published'] = True
+                cache['text'] = f"{remaining:.0f} days remaining."
+                cache['color'] = 'info'
             elif remaining >= 1.0:
-                tmp.is_open = True
-                tmp.is_closed = False
-                tmp.is_published = True
-                tmp.text = "Less than two days remaining."
-                tmp.color = 'warning'
+                cache['is_open'] = True
+                cache['is_closed'] = False
+                cache['is_published'] = True
+                cache['text'] = "Less than two days remaining."
+                cache['color'] = 'warning'
             elif remaining >= 0.0:
-                tmp.is_open = True
-                tmp.is_closed = False
-                tmp.is_published = True
-                tmp.text = "Less than one day remaining."
-                tmp.color = 'danger'
+                cache['is_open'] = True
+                cache['is_closed'] = False
+                cache['is_published'] = True
+                cache['text'] = "Less than one day remaining."
+                cache['color'] = 'danger'
             else:
-                tmp.is_open = False
-                tmp.is_closed = True
-                tmp.is_published = True
-                tmp.text = 'Closed.'
-                tmp.color = 'dark'
+                cache['is_open'] = False
+                cache['is_closed'] = True
+                cache['is_published'] = True
+                cache['text'] = 'Closed.'
+                cache['color'] = 'dark'
         else:
-            tmp.is_open = True
-            tmp.is_closed = False
-            tmp.is_published = True
-            tmp.text = 'Open with no closing date.'
-            tmp.color = 'success'
+            cache['is_open'] = True
+            cache['is_closed'] = False
+            cache['is_published'] = True
+            cache['text'] = 'Open with no closing date.'
+            cache['color'] = 'success'
     else:
         if call['closes']:
-            tmp.is_open = False
-            tmp.is_closed = False
-            tmp.is_published = False
-            tmp.text = 'No open date set.'
-            tmp.color = 'secondary'
+            cache['is_open'] = False
+            cache['is_closed'] = False
+            cache['is_published'] = False
+            cache['text'] = 'No open date set.'
+            cache['color'] = 'secondary'
         else:
-            tmp.is_open = False
-            tmp.is_closed = False
-            tmp.is_published = False
-            tmp.text = 'No open or close dates set.'
-            tmp.color = 'secondary'
+            cache['is_open'] = False
+            cache['is_closed'] = False
+            cache['is_published'] = False
+            cache['text'] = 'No open or close dates set.'
+            cache['color'] = 'secondary'
     # XXX disallow even admin if open?
-    tmp.is_editable = flask.g.is_admin
+    cache['is_editable'] = flask.g.is_admin
     return call

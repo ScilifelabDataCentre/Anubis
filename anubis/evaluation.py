@@ -1,7 +1,5 @@
 "Evaluation of a submission. Created from the outline in the call."
 
-import types
-
 import flask
 
 from . import constants
@@ -25,7 +23,7 @@ def create(sid):
         return flask.redirect(flask.url_for('home'))
     evaluation = get_evaluation(submission, flask.g.current_user)
     if evaluation is None:
-        call = submission['tmp'].call
+        call = submission['cache']['call']
         if not (flask.g.is_admin or
                 flask.g.current_user['username'] in call['reviewers']):
             utils.flash_error('You are not a reviewer for the call.')
@@ -33,14 +31,14 @@ def create(sid):
         with EvaluationSaver(submission=submission) as saver:
             pass
         evaluation = saver.doc
-    flask.redirect(flask.url_for('.display', iuid=evaluation['_id']))
+    return flask.redirect(flask.url_for('.display', iuid=evaluation['_id']))
 
 @blueprint.route('/<iuid:iuid>')
 @utils.login_required
 def display(iuid):
     "Display the evaluation for the submission."
     try:
-        evaluation = get_evaluation_tmp(flask.g.db.get(iuid))
+        evaluation = get_evaluation_cache(flask.g.db.get(iuid))
     except KeyError:
         utils.flash_error('No such evaluation.')
         return flask.redirect(flask.url_for('home'))
@@ -79,7 +77,7 @@ class EvaluationSaver(FieldMixin, BaseSaver):
             super().__init__(doc=doc)
         elif submission:
             super().__init__(doc=None)
-            self.doc['call'] = submission['tmp'].call['identifier']
+            self.doc['call'] = submission['cache']['call']['identifier']
             self.doc['submission'] = submission['identifier']
         else:
             raise ValueError('doc or submission must be specified')
@@ -111,17 +109,17 @@ def get_evaluations(call=None):
                                              key=call['identifier'],
                                              include_docs=True)]
     
-def get_evaluation_tmp(evaluation, call=None):
-    """Set the'tmp' field of the evaluation.
+def get_evaluation_cache(evaluation, call=None):
+    """Set the'cache' field of the evaluation.
     This is computed data that will not be stored with the document.
     Depends on login, access, status, etc.
     """
     from anubis.call import get_call
     from anubis.submission import get_submission
-    evaluation['tmp'] = tmp = types.SimpleNamespace()
+    evaluation['cache'] = cache = {}
     if call is None:
-        tmp.call = get_call(evaluation['call'])
+        cache['call'] = get_call(evaluation['call'])
     else:
-        tmp.call = call
-    tmp.submission = get_submission(evaluation['submission'])
+        cache['call'] = call
+    cache['submission'] = get_submission(evaluation['submission'])
     return evaluation

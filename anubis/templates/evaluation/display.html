@@ -1,35 +1,37 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Evaluation of {{ evaluation['tmp'].submission['identifier'] }}
+Evaluation of {{ evaluation['cache']['submission']['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-Evaluation of {{ evaluation['tmp'].submission['identifier'] }}
+Evaluation of <a href="{{ url_for('submission.display', sid=evaluation['cache']['submission']['identifier']) }}">
+  {{ evaluation['cache']['submission']['identifier'] }}
+</a>
 {% endblock %}
 
 {% block main %}
-{% set submission = evaluation['tmp'].submission %}
+{% set submission = evaluation['cache']['submission'] %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
   <div class="col-md">
-    <a href="{{ url_for('call.display', cid=submission['tmp'].call['identifier']) }}"
-       title="{{ submission['tmp'].call['title'] }}">
-      {{ submission['tmp'].call['identifier'] }}: 
-      {{ submission['tmp'].call['title'] }}</a>
+    <a href="{{ url_for('call.display', cid=submission['cache']['call']['identifier']) }}"
+       title="{{ submission['cache']['call']['title'] }}">
+      {{ submission['cache']['call']['identifier'] }}: 
+      {{ submission['cache']['call']['title'] }}</a>
   </div>
 </div>
 
 {# XXX access? #}
 <div class="row mb-2">
-  <div class="col-md-2 font-weight-bold text-right">User</div>
+  <div class="col-md-2 font-weight-bold text-right">Submitter</div>
   <div class="col-md">
     <a href="{{ url_for('user.display', username=submission['user']) }}">
       {{ submission['user'] }}</a>
   </div>
 </div>
 
-{% set fields = submission['tmp'].call['evaluation'] %}
+{% set fields = submission['cache']['call']['evaluation'] %}
 {% set values = evaluation['values'] %}
 {% set errors = evaluation['errors'] %}
 {% set attachments = {} %}

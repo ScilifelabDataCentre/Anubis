@@ -1,7 +1,5 @@
 "Submissions."
 
-import types
-
 import flask
 
 import anubis.call
@@ -21,7 +19,7 @@ def display(sid):
     if submission is None:
         utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
-    if not submission['tmp'].is_readable:
+    if not submission['cache']['is_readable']:
         utils.flash_error('You are not allowed to read the submission.')
         return flask.redirect(flask.url_for('home'))
     return flask.render_template('submission/display.html',
@@ -37,7 +35,7 @@ def edit(sid):
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_GET():
-        if not submission['tmp'].is_editable:
+        if not submission['cache']['is_editable']:
             utils.flash_error('You are not allowed to edit the submission.')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
@@ -45,14 +43,14 @@ def edit(sid):
                                      submission=submission)
 
     elif utils.http_POST():
-        if not submission['tmp'].is_editable:
+        if not submission['cache']['is_editable']:
             utils.flash_error('You are not allowed to edit the submission.')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
         try:
             with SubmissionSaver(submission) as saver:
                 saver['title'] = flask.request.form.get('_title') or None
-                for field in submission['tmp'].call['fields']:
+                for field in submission['cache']['call']['fields']:
                     saver.set_field_value(field, form=flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
@@ -62,7 +60,7 @@ def edit(sid):
             flask.url_for('.display', sid=submission['identifier']))
 
     elif utils.http_DELETE():
-        if not submission['tmp'].is_editable:
+        if not submission['cache']['is_editable']:
             utils.flash_error('You are not allowed to delete the submission.')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
@@ -79,7 +77,7 @@ def submit(sid):
         utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
     if utils.http_POST():
-        if not submission['tmp'].is_submittable:
+        if not submission['cache']['is_submittable']:
             utils.flash_error('Submit disallowed; call closed.')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
@@ -99,7 +97,7 @@ def unsubmit(sid):
         utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
     if utils.http_POST():
-        if not submission['tmp'].is_submittable:
+        if not submission['cache']['is_submittable']:
             utils.flash_error('Unsubmit disallowed; call closed.')
             return flask.redirect(
                 flask.url_for('.display', sid=submission['identifier']))
@@ -118,7 +116,7 @@ def logs(sid):
     if submission is None:
         utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
-    if not submission['tmp'].is_readable:
+    if not submission['cache']['is_readable']:
         utils.flash_error('You are not allowed to read the submission.')
         return flask.redirect(flask.url_for('home'))
 
@@ -136,7 +134,7 @@ def document(sid, documentname):
     if submission is None:
         utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
-    if not submission['tmp'].is_readable:
+    if not submission['cache']['is_readable']:
         utils.flash_error('You are not allowed to read the submission.')
         return flask.redirect(flask.url_for('home'))
 
@@ -194,12 +192,12 @@ class SubmissionSaver(FieldMixin, AttachmentsSaver):
                                    for f in call['fields']])
 
     def set_submitted(self):
-        if not self.doc['tmp'].is_submittable:
+        if not self.doc['cache']['is_submittable']:
             raise ValueError('Submit is disallowed.')
         self.doc['submitted'] = utils.get_time()
 
     def set_unsubmitted(self):
-        if not self.doc['tmp'].is_submittable:
+        if not self.doc['cache']['is_submittable']:
             raise ValueError('Unsubmit is disallowed.')
         self.doc.pop('submitted', None)
 
@@ -210,35 +208,37 @@ def get_submission(sid):
                                              key=sid,
                                              include_docs=True)]
     if len(result) == 1:
-        return set_submission_tmp(result[0])
+        return set_submission_cache(result[0])
     else:
         return None
 
-def set_submission_tmp(submission, call=None):
-    """Set the 'tmp' field of the submission.
+def set_submission_cache(submission, call=None):
+    """Set the 'cache' field of the submission.
     This is computed data that will not be stored with the document.
     Depends on login, access, status, etc.
     """
-    submission['tmp'] = tmp = types.SimpleNamespace(is_readable=False,
-                                                    is_editable=False,
-                                                    is_submittable=False,
-                                                    is_reviewer=False)
+    submission['cache'] = cache = dict(is_readable=False,
+                                       is_editable=False,
+                                       is_submittable=False,
+                                       is_reviewer=False)
     # Get the call for the submission.
     if call is None:
-        tmp.call = anubis.call.get_call(submission['call'])
+        cache['call'] = anubis.call.get_call(submission['call'])
     else:
-        tmp.call = call
+        cache['call'] = call
     if flask.g.is_admin:
-        tmp.is_readable = True
-        tmp.is_editable = True
-        tmp.is_submittable = True
-        tmp.is_reviewer = True
+        cache['is_readable'] = True
+        cache['is_editable'] = True
+        cache['is_submittable'] = True
+        cache['is_reviewer'] = True
     elif flask.g.current_user:
         if flask.g.current_user['username'] == submission['user']:
-            tmp.is_readable = True
-            tmp.is_editable = tmp.call['tmp'].is_open and not submission.get('submitted')
-            tmp.is_submittable = tmp.call['tmp'].is_open and not submission['errors']
-        elif flask.g.current_user['username'] in tmp.call['reviewers']:
-            tmp.is_reviewer = True
-            tmp.is_readable = True
+            cache['is_readable'] = True
+            cache['is_editable'] = cache['call']['cache']['is_open'] and \
+                                   not submission.get('submitted')
+            cache['is_submittable'] = cache['call']['cache']['is_open'] and \
+                                      not submission['errors']
+        elif flask.g.current_user['username'] in cache['call']['reviewers']:
+            cache['is_reviewer'] = True
+            cache['is_readable'] = True
     return submission
