@@ -9,6 +9,15 @@ from . import utils
 from .saver import AttachmentsSaver
 
 
+CALLS_DESIGN_DOC = {
+    'views': {
+        'identifier': {'map': "function (doc) {if (doc.doctype !== 'call') return; emit(doc.identifier, null);}"},
+        'closes': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.closes || !doc.opens) return; emit(doc.closes, null);}"},
+        'open_ended': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.opens || doc.closes) return; emit(doc.opens, null);}"},
+        'reviewer': {'map': "function (doc) {if (doc.doctype !== 'call') return; for (var i=0; i < doc.reviewers.length; i++) {emit(doc.reviewers[i], doc.identifier); }}"},
+    }
+}
+
 blueprint = flask.Blueprint('call', __name__)
 
 @blueprint.route('/', methods=['GET', 'POST'])

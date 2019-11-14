@@ -14,6 +14,15 @@ from . import utils
 from .saver import BaseSaver
 
 
+USERS_DESIGN_DOC = {
+    'views': {
+        'username': {'map': "function(doc) {if (doc.doctype !== 'user') return; emit(doc.username, null);}"},
+        'email': {'map': "function(doc) {if (doc.doctype !== 'user') return;  emit(doc.email, null);}"},
+        'apikey': {'map': "function(doc) {if (doc.doctype !== 'user') return;  emit(doc.apikey, null);}"},
+        'role': {'map': "function(doc) {if (doc.doctype !== 'user') return;  emit(doc.role, null);}"},
+    }
+}
+
 blueprint = flask.Blueprint('user', __name__)
 
 @blueprint.route('/login', methods=['GET', 'POST'])

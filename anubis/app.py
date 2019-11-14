@@ -6,7 +6,6 @@ import anubis.about
 import anubis.call
 import anubis.calls
 import anubis.config
-import anubis.designs
 import anubis.evaluation
 import anubis.submission
 import anubis.submissions
@@ -45,8 +44,19 @@ def setup_template_context():
 
 @app.before_first_request
 def init_database():
-    flask.g.db = utils.get_db()
-    anubis.designs.update()
+    "Get the database connection, and update the design document."
+    flask.g.db = db = utils.get_db()
+    logger = utils.get_logger()
+    if db.put_design('logs', utils.LOGS_DESIGN_DOC):
+        logger.info('Updated logs design document.')
+    if db.put_design('users', anubis.user.USERS_DESIGN_DOC):
+        logger.info('Updated users design document.')
+    if db.put_design('calls', anubis.call.CALLS_DESIGN_DOC):
+        logger.info('Updated calls design document.')
+    if db.put_design('submissions', anubis.call.SUBMISSIONS_DESIGN_DOC):
+        logger.info('Updated submissions design document.')
+    if db.put_design('evaluations', anubis.call.EVALUATIONS_DESIGN_DOC):
+        logger.info('Updated evaluations design document.')
 
 @app.before_request
 def prepare():

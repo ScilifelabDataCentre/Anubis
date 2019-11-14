@@ -7,6 +7,13 @@ from . import utils
 from .saver import BaseSaver, FieldMixin
 
 
+EVALUATIONS_DESIGN_DOC = {
+    'views': {
+        'call': {'map': "function (doc) {if (doc.doctype !== 'evaluation') return; emit(doc.call, null);}"},
+        'submission_reviewer': {'map': "function (doc) {if (doc.doctype !== 'evaluation') return; emit([doc.submission, doc.reviewer], null);}"},
+    }
+}
+
 blueprint = flask.Blueprint('evaluation', __name__)
 
 @blueprint.route('/<sid>', methods=['POST'])

@@ -9,6 +9,20 @@ from . import utils
 from .saver import AttachmentsSaver, FieldMixin
 
 
+SUBMISSIONS_DESIGN_DOC = {
+    'views': {
+        'identifier': {'map': "function (doc) {if (doc.doctype !== 'submission') return; emit(doc.identifier, null);}"},
+        # NOTE: excludes submissions not marked 'submitted'
+        'call': {'reduce': '_count',
+                 'map': "function (doc) {if (doc.doctype !== 'submission' || !doc.submitted) return; emit(doc.call, null);}"},
+        # NOTE: includes submissions not marked 'submitted'
+        'user': {'reduce': '_count',
+                 'map': "function (doc) {if (doc.doctype !== 'submission') return; emit(doc.user, null);}"},
+        'user_call': {'reduce': '_count',
+                      'map': "function (doc) {if (doc.doctype !== 'submission') return; emit([doc.user, doc.call], null);}"},
+    }
+}
+
 blueprint = flask.Blueprint('submission', __name__)
 
 @blueprint.route('/<sid>')

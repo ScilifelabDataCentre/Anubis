@@ -16,6 +16,12 @@ import werkzeug.routing
 from . import constants
 
 
+LOGS_DESIGN_DOC = {
+    'views': {
+        'doc': {'map': "function (doc) {if (doc.doctype !== 'log') return; emit([doc.docid, doc.timestamp], null);}"}
+    }
+}
+
 # Global logger instance.
 _logger = None
 def get_logger():
@@ -274,8 +280,6 @@ def get_db(dbserver=None, app=None):
         dbserver = get_dbserver(app=app)
     return dbserver[app.config['COUCHDB_DBNAME']]
 
-
-
 def get_logs(docid, cleanup=True):
     """Return the list of log entries for the given document identifier,
     sorted by reverse timestamp.
@@ -298,5 +302,3 @@ def delete(doc):
     if logs:
         flask.g.db.purge(logs)
     flask.g.db.purge([doc])
-
-
