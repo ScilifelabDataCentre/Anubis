@@ -30,7 +30,6 @@
   <div class="col-md-2 font-weight-bold text-right">Submitted</div>
   <div class="col-md">{{ macros.submitted(submission) }}</div>
 </div>
-
 {# XXX access? #}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">User</div>
@@ -39,6 +38,16 @@
       {{ submission['user'] }}</a>
   </div>
 </div>
+{% if submission['cache']['is_reviewer'] %}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Evaluations</div>
+  <div class="col-md">
+    <a href="{{ url_for('evaluations.submission', sid=submission['identifier']) }}">
+      <span class="badge badge-primary">
+	{{ submission['cache']['evaluations_count'] }}</span></a>
+  </div>
+</div>
+{% endif %} {# if submission['cache']['is_reviewer'] #}
 
 {% set fields = submission['cache']['call']['fields'] %}
 {% set values = submission['values'] %}

@@ -254,7 +254,8 @@ def logs(username):
         'logs.html',
         title=f"User {user['username']}",
         back_url=flask.url_for('.display', username=user['username']),
-        api_logs_url=flask.url_for('api_user.logs', username=user['username']),
+        # Commented out until API implemented, or not.
+        # api_logs_url=flask.url_for('api_user.logs', username=user['username']),
         logs=utils.get_logs(user['_id']))
 
 @blueprint.route('/all')

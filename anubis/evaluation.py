@@ -182,17 +182,19 @@ def get_evaluation(submission, reviewer):
     result = flask.g.db.view('evaluations', 'submission_reviewer',
                              key=[submission['identifier'], 
                                   reviewer['username']],
+                             reduce=False,
                              include_docs=True)
     try:
         return get_evaluation_cache(result[0].doc)
     except IndexError:
         return None
 
-def get_evaluations(call=None):
+def get_evaluations(call):
     "Get all evaluations for submissions in a call."
     result = [get_evaluation_cache(r.doc)
               for r in flask.g.db.view('evaluations', 'call',
                                        key=call['identifier'],
+                                       reduce=False,
                                        include_docs=True)]
 
 def get_evaluation_cache(evaluation, call=None):

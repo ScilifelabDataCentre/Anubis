@@ -13,10 +13,11 @@ import anubis.submissions
 import anubis.site
 import anubis.user
 
-import anubis.api.about
-import anubis.api.root
-import anubis.api.schema
-import anubis.api.user
+# Commented out until API implemented, or not.
+# import anubis.api.about
+# import anubis.api.root
+# import anubis.api.schema
+# import anubis.api.user
 
 from anubis import constants
 from anubis import utils
@@ -46,7 +47,7 @@ def setup_template_context():
 @app.before_first_request
 def init_database():
     "Get the database connection, and update the design document."
-    flask.g.db = db = utils.get_db()
+    db = utils.get_db()
     logger = utils.get_logger()
     if db.put_design('logs', utils.LOGS_DESIGN_DOC):
         logger.info('Updated logs design document.')
@@ -72,9 +73,9 @@ app.after_request(utils.log_access)
 
 @app.route('/')
 def home():
-    "Home page. Redirect to API root if JSON is accepted."
-    if utils.accept_json():
-        return flask.redirect(flask.url_for('api_root'))
+    "Home page. Commented out: (Redirect to API root if JSON is accepted)."
+    # if utils.accept_json():
+    #     return flask.redirect(flask.url_for('api_root'))
     # The list is already properly sorted.
     return flask.render_template('home.html', 
                                  calls=anubis.calls.get_open_calls())
@@ -90,10 +91,11 @@ app.register_blueprint(anubis.evaluations.blueprint, url_prefix='/evaluations')
 app.register_blueprint(anubis.about.blueprint, url_prefix='/about')
 app.register_blueprint(anubis.site.blueprint, url_prefix='/site')
 
-app.register_blueprint(anubis.api.root.blueprint, url_prefix='/api')
-app.register_blueprint(anubis.api.about.blueprint, url_prefix='/api/about')
-app.register_blueprint(anubis.api.schema.blueprint, url_prefix='/api/schema')
-app.register_blueprint(anubis.api.user.blueprint, url_prefix='/api/user')
+# Commented out until API implemented, or not.
+# app.register_blueprint(anubis.api.root.blueprint, url_prefix='/api')
+# app.register_blueprint(anubis.api.about.blueprint, url_prefix='/api/about')
+# app.register_blueprint(anubis.api.schema.blueprint, url_prefix='/api/schema')
+# app.register_blueprint(anubis.api.user.blueprint, url_prefix='/api/user')
 
 
 # This code is used only during development.

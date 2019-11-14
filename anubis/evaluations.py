@@ -37,20 +37,23 @@ def call(cid):
 
 @blueprint.route('/submission/<sid>')
 @utils.login_required
-def submission(cid):
+def submission(sid):
     "List all evaluations for a submission."
     from anubis.submission import get_submission
     submission = get_submission(sid)
-    if submision is None:
+    if submission is None:
         utils.flash_error('No such submission.')
         return flask.redirect(flask.url_for('home'))
-    if not submission['cache']['call']['cache']['reviewers']:
+    call = submission['cache']['call']
+    if not call['cache']['is_reviewer']:
         utils.flash_error("You are not a reviewer of the submission's call.")
         return flask.redirect(flask.url_for('home'))
 
+    scorefields = [f for f in call['evaluation']
+                   if f['type'] == constants.SCORE]
     evaluations = [get_evaluation_cache(r.doc)
                    for r in flask.g.db.view('evaluations', 'call',
-                                            key=cid,
+                                            key=call['identifier'],
                                             reduce=False,
                                             include_docs=True)]
     # XXX filter for evaluations access
@@ -68,11 +71,11 @@ def get_call_evaluations_count(call):
     else:
         return 0
 
-def get_submissions_evaluations_count(submission):
-    "Get the number of evaluations for the call."
+def get_submission_evaluations_count(submission):
+    "Get the number of evaluations for the submission."
     result = flask.g.db.view('evaluations', 'submission_reviewer',
-                             startkey=[submission['identifer'], ''],
-                             endkey=[submission['identifer'], 'ZZZZZZ'],
+                             startkey=[submission['identifier'], ''],
+                             endkey=[submission['identifier'], 'ZZZZZZ'],
                              reduce=True)
     if result:
         return result[0].value

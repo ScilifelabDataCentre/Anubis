@@ -593,7 +593,7 @@ def set_call_cache(call):
     if flask.g.current_user:
         cache['my_submissions_count'] = get_submissions_count(
             username=flask.g.current_user['username'], call=call)
-        cache['is_reviewer'] = flask.g.current_user['username'] in call['reviewers']
+        cache['is_reviewer'] |= flask.g.current_user['username'] in call['reviewers']
         cache['evaluations_count'] = get_call_evaluations_count(call)
     # Open/closed status
     now = utils.normalized_local_now()

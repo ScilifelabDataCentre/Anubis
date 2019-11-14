@@ -233,6 +233,7 @@ def set_submission_cache(submission, call=None):
     This is computed data that will not be stored with the document.
     Depends on login, access, status, etc.
     """
+    from anubis.evaluations import get_submission_evaluations_count
     submission['cache'] = cache = dict(is_readable=False,
                                        is_editable=False,
                                        is_submittable=False,
@@ -257,4 +258,6 @@ def set_submission_cache(submission, call=None):
         elif cache['call']['cache']['is_reviewer']:
             cache['is_readable'] = True
             cache['is_reviewer'] = True
+    if cache['is_reviewer']:
+        cache['evaluations_count'] = get_submission_evaluations_count(submission)
     return submission
