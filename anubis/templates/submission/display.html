@@ -41,10 +41,17 @@
 {% if submission['cache']['is_reviewer'] %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Evaluations</div>
-  <div class="col-md">
+  <div class="col-md-1">
     <a href="{{ url_for('evaluations.submission', sid=submission['identifier']) }}">
-      <span class="badge badge-primary">
+      <span class="badge badge-info">
 	{{ submission['cache']['evaluations_count'] }}</span></a>
+  </div>
+  <div class="col-md">
+    <form action="{{ url_for('evaluation.create', sid=submission['identifier']) }}"
+	  method="POST">
+      {{ csrf_token() }}
+      <button type="submit" class="btn btn-sm btn-info">My evaluation</button>
+    </form>
   </div>
 </div>
 {% endif %} {# if submission['cache']['is_reviewer'] #}
@@ -97,16 +104,6 @@
   </form>
 </div>
 {% endif %} {# if submission['cache']['is_editable'] #}
-{% if submission['cache']['is_reviewer'] %}
-<div class="mt-2">
-  <form action="{{ url_for('evaluation.create', sid=submission['identifier']) }}"
-	method="POST">
-    {{ csrf_token() }}
-    <button type="submit" class="btn btn-block btn-info">
-      My evaluation</button>
-  </form>
-</div>
-{% endif %} {# if submission['cache']['is_reviewer'] #}
 
 {% endblock %} {# block actions #}
 

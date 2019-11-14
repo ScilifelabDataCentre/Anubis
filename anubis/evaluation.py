@@ -13,6 +13,8 @@ EVALUATIONS_DESIGN_DOC = {
                  'map': "function(doc) {if (doc.doctype !== 'evaluation') return; emit(doc.call, null);}"},
         'submission_reviewer': {'reduce': '_count',
                                 'map': "function(doc) {if (doc.doctype !== 'evaluation') return; emit([doc.submission, doc.reviewer], null);}"},
+        'call_reviewer': {'reduce': '_count',
+                          'map': "function(doc) {if (doc.doctype !== 'evaluation') return; emit([doc.call, doc.reviewer], null);}"},
     }
 }
 

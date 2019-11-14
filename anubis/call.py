@@ -330,6 +330,8 @@ def submission(cid):
 
     if not call['cache']['is_open']:
         utils.flash_error(f"Call {call['title']} is not open.")
+    if not call['cache']['may_submit']:
+        utils.flash_error('You may not submit to this call.')
 
     if utils.http_POST():
         with anubis.submission.SubmissionSaver(call=call) as saver:
@@ -593,6 +595,7 @@ def set_call_cache(call):
     if flask.g.current_user:
         cache['my_submissions_count'] = get_submissions_count(
             username=flask.g.current_user['username'], call=call)
+        # Note: operator '|=' is intentional.
         cache['is_reviewer'] |= flask.g.current_user['username'] in call['reviewers']
         cache['evaluations_count'] = get_call_evaluations_count(call)
     # Open/closed status
@@ -655,4 +658,5 @@ def set_call_cache(call):
             cache['is_published'] = False
             cache['text'] = 'No open or close dates set.'
             cache['color'] = 'secondary'
+    cache['may_submit'] = not cache['is_reviewer'] or flask.g.is_admin
     return call
