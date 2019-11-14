@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block head_title %}
+Evaluations for call {{ call['identifier'] }}
+{% endblock %}
+
+{% block body_title %}
+Evaluations for call
+<a href="{{ url_for('call.display', cid=call['identifier']) }}">
+  {{ call['identifier'] }}</a>
+{% endblock %}
+
+{% block supermain %}
+<table id="evaluations" class="table">
+  <thead>
+    <tr>
+      <th>Submission</th>
+      {# XXX Check access to view user #}
+      <th>Submitter</th>
+      {% for scorefield in scorefields %}
+      <th>{{ scorefield['title'] }}</th>
+      {% endfor %}
+      <th>Reviewer</th>
+      <th>Finalized</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for evaluation in evaluations %}
+    {% set submission = evaluation['cache']['submission'] %}
+    <tr>
+      <td>
+	<a href="{{ url_for('submission.display', sid=submission['identifier']) }}"
+	   title="{{ submission.get('title') or '-' }}">
+	  {{ submission['identifier'] }}</a>
+      </td>
+      {# XXX Check access to view user #}
+      <td>{{ submission['user'] }}</td>
+      {% for scorefield in scorefields %}
+      <td>
+	{{ evaluation['values'].get(scorefield['identifier']) | value_or_none }}
+      </td>
+      {% endfor %}
+      <td>
+	<a href="{{ url_for('evaluation.display', iuid=evaluation['_id']) }}">
+	  {{ evaluation['reviewer'] }}</a>
+      <td>
+	{% if evaluation.get('finalized') %}
+	<span class="badge badge-success">Yes</span>
+	{% else %}
+	<span class="badge badge-warning">No</span>
+	{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %} {# block supermain #}
+
+{% block javascript %}
+<script>
+  $(function() {
+    $("#evaluations").DataTable( {
+      "pagingType": "full_numbers",
+      "pageLength": 25
+    });
+  });
+</script>
+{% endblock %}

@@ -7,6 +7,7 @@ import anubis.call
 import anubis.calls
 import anubis.config
 import anubis.evaluation
+import anubis.evaluations
 import anubis.submission
 import anubis.submissions
 import anubis.site
@@ -28,6 +29,7 @@ app.url_map.converters['iuid'] = utils.IuidConverter
 anubis.config.init(app)
 utils.mail.init_app(app)
 app.add_template_filter(utils.thousands)
+app.add_template_filter(utils.value_or_none)
 app.add_template_filter(utils.boolean_value)
 app.add_template_filter(utils.integer_value)
 app.add_template_filter(utils.float_value)
@@ -37,7 +39,6 @@ app.add_template_filter(utils.do_markdown, name='markdown')
 def setup_template_context():
     "Add useful stuff to the global context of Jinja2 templates."
     return dict(constants=constants,
-                utils=utils,
                 csrf_token=utils.csrf_token,
                 enumerate=enumerate,
                 sorted=sorted)
@@ -53,9 +54,9 @@ def init_database():
         logger.info('Updated users design document.')
     if db.put_design('calls', anubis.call.CALLS_DESIGN_DOC):
         logger.info('Updated calls design document.')
-    if db.put_design('submissions', anubis.call.SUBMISSIONS_DESIGN_DOC):
+    if db.put_design('submissions', anubis.submission.SUBMISSIONS_DESIGN_DOC):
         logger.info('Updated submissions design document.')
-    if db.put_design('evaluations', anubis.call.EVALUATIONS_DESIGN_DOC):
+    if db.put_design('evaluations', anubis.evaluation.EVALUATIONS_DESIGN_DOC):
         logger.info('Updated evaluations design document.')
 
 @app.before_request
@@ -85,6 +86,7 @@ app.register_blueprint(anubis.calls.blueprint, url_prefix='/calls')
 app.register_blueprint(anubis.submission.blueprint, url_prefix='/submission')
 app.register_blueprint(anubis.submissions.blueprint, url_prefix='/submissions')
 app.register_blueprint(anubis.evaluation.blueprint, url_prefix='/evaluation')
+app.register_blueprint(anubis.evaluations.blueprint, url_prefix='/evaluations')
 app.register_blueprint(anubis.about.blueprint, url_prefix='/about')
 app.register_blueprint(anubis.site.blueprint, url_prefix='/site')
 

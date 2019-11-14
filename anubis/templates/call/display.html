@@ -55,6 +55,16 @@
   </div>
 </div>
 {% endif %} {# if g.is_admin #}
+{% if call['cache']['is_reviewer'] %}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Evaluations</div>
+  <div class="col-md">
+    <a href="{{ url_for('evaluations.call', cid=call['identifier']) }}">
+      <span class="badge badge-primary">
+	{{ call['cache']['evaluations_count'] }}</span></a>
+  </div>
+</div>
+{% endif %} {# if call['cache']['is_reviewer'] #}
 {% if g.current_user %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">My submissions</div>

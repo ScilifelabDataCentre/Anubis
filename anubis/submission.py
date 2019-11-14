@@ -254,7 +254,7 @@ def set_submission_cache(submission, call=None):
                                    not submission.get('submitted')
             cache['is_submittable'] = cache['call']['cache']['is_open'] and \
                                       not submission['errors']
-        elif flask.g.current_user['username'] in cache['call']['reviewers']:
-            cache['is_reviewer'] = True
+        elif cache['call']['cache']['is_reviewer']:
             cache['is_readable'] = True
+            cache['is_reviewer'] = True
     return submission

@@ -51,7 +51,7 @@
       <input type="radio"
              id="{{ field['identifier'] }}_no" name="{{ field['identifier'] }}"
              class="custom-control-input"
-             {{ utils.is_none(value) and 'checked' }}
+             {{ value is none and 'checked' }}
              value="">
       <label class="custom-control-label" for="{{ field['identifier'] }}_no">
         N/A</label>
@@ -66,7 +66,7 @@
            {% endif %}
 	   id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
 	   class="form-control"
-           {% if not utils.is_none(value) %}
+           {% if value is not none %}
 	   value="{{ value }}"
            {% endif %}
 	   aria-describedby="{{ field['identifier'] }}Help">
@@ -81,7 +81,7 @@
            {% endif %}
 	   id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
 	   class="form-control"
-           {% if not utils.is_none(value) %}
+           {% if value is not none %}
 	   value="{{ value }}"
            {% endif %}
 	   aria-describedby="{{ field['identifier'] }}Help">
@@ -95,7 +95,7 @@
                min="{{ field['minimum'] }}" max="{{ field['maximum'] }}"
 	       id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
 	       class="custom-range"
-               {% if not utils.is_none(value) %}
+               {% if value is not none %}
 	       value="{{ value }}"
                {% endif %}
 	       aria-describedby="{{ field['identifier'] }}Help">
@@ -108,7 +108,7 @@
                  id="{{ field['identifier'] }}_na"
                  name="{{ field['identifier'] }}_na"
                  class="custom-control-input"
-                 {{ utils.is_none(value) and 'checked' }}
+                 {{ value is none and 'checked' }}
                  value="true">
           <label class="custom-control-label" for="{{ field['identifier'] }}_na">
             N/A</label>
@@ -133,7 +133,7 @@
       <input type="radio"
              id="{{ field['identifier'] }}_na" name="{{ field['identifier'] }}"
              class="custom-control-input"
-             {{ utils.is_none(value) and 'checked' or ''}}
+             {{ value is none and 'checked' or ''}}
              value="true">
       <label class="custom-control-label" for="{{ field['identifier'] }}_na">
         N/A</label>

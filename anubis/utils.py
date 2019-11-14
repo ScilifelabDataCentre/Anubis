@@ -103,10 +103,6 @@ def to_bool(s):
     s = s.lower()
     return s in ('true', 't', 'yes', 'y')
 
-def is_none(value):
-    "Is the value None? For use in templates."
-    return value is None
-
 def get_time(offset=None):
     """Current date and time (UTC) in ISO format, with millisecond precision.
     Add the specified offset in seconds, if given.
@@ -202,6 +198,13 @@ def thousands(value):
     "Template filter: Output integer with thousands delimiters."
     if isinstance(value, int):
         return '{:,}'.format(value)
+    else:
+        return value
+
+def value_or_none(value):
+    "Return dash if value is None, else value."
+    if value is None:
+        return '-'
     else:
         return value
 

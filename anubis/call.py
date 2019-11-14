@@ -582,13 +582,19 @@ def set_call_cache(call):
     Depends on login, privileges, etc.
     """
     from anubis.submissions import get_submissions_count
-    call['cache'] = cache = {}
+    from anubis.evaluations import get_call_evaluations_count
+    # XXX disallow even admin if open?
+    call['cache'] = cache = dict(is_editable=flask.g.is_admin,
+                                 is_reviewer=False)
     # Submissions count
     if flask.g.is_admin:
         cache['submissions_count'] = get_submissions_count(call=call)
+        cache['is_reviewer'] = True
     if flask.g.current_user:
         cache['my_submissions_count'] = get_submissions_count(
             username=flask.g.current_user['username'], call=call)
+        cache['is_reviewer'] = flask.g.current_user['username'] in call['reviewers']
+        cache['evaluations_count'] = get_call_evaluations_count(call)
     # Open/closed status
     now = utils.normalized_local_now()
     if call['opens']:
@@ -649,6 +655,4 @@ def set_call_cache(call):
             cache['is_published'] = False
             cache['text'] = 'No open or close dates set.'
             cache['color'] = 'secondary'
-    # XXX disallow even admin if open?
-    cache['is_editable'] = flask.g.is_admin
     return call

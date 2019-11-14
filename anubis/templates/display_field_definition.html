@@ -15,15 +15,15 @@
     Maximum {{ field['maxlength'] }} characters.
     {% set br = True %}
     {% endif %}
-    {% if not utils.is_none(field.get('minimum')) %}
+    {% if field.get('minimum') is not none %}
     Minimum value {{ field['minimum'] }}.
     {% set br = True %}
     {% endif %}
-    {% if not utils.is_none(field.get('maximum')) %}
+    {% if field.get('maximum') is not none %}
     Maximum value {{ field['maximum'] }}.
     {% set br = True %}
     {% endif %}
-    {% if not utils.is_none(field.get('slider')) %}
+    {% if field.get('slider') is not none %}
     {{ field['slider'] and 'Input using slider.' or 'Input using radio buttons.' }}
     {% set br = True %}
     {% endif %}
