@@ -15,7 +15,6 @@ import werkzeug.routing
 
 from . import constants
 
-
 LOGS_DESIGN_DOC = {
     'views': {
         'doc': {'map': "function (doc) {if (doc.doctype !== 'log') return; emit([doc.docid, doc.timestamp], null);}"}
