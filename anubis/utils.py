@@ -15,7 +15,14 @@ import werkzeug.routing
 
 from . import constants
 
-LOGS_DESIGN_DOC = {
+def init(app):
+    "Initialize; update CouchDB design documents."
+    db = get_db(app=app)
+    logger = get_logger(app)
+    if db.put_design('logs', DESIGN_DOC):
+        logger.info('Updated logs design document.')
+
+DESIGN_DOC = {
     'views': {
         'doc': {'map': "function (doc) {if (doc.doctype !== 'log') return; emit([doc.docid, doc.timestamp], null);}"}
     }
@@ -23,10 +30,13 @@ LOGS_DESIGN_DOC = {
 
 # Global logger instance.
 _logger = None
-def get_logger():
+def get_logger(app=None):
     global _logger
     if _logger is None:
-        config = flask.current_app.config
+        if app is None:
+            config = flask.current_app.config
+        else:
+            config = app.config
         _logger = logging.getLogger(config['LOG_NAME'])
         if config['LOG_DEBUG']:
             _logger.setLevel(logging.DEBUG)

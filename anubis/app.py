@@ -22,13 +22,20 @@ import anubis.user
 from anubis import constants
 from anubis import utils
 
-
 app = flask.Flask(__name__)
 
-# Get the configuration and initialize.
-app.url_map.converters['iuid'] = utils.IuidConverter
+# Get the configuration and initialize modules (database).
 anubis.config.init(app)
+
+app.url_map.converters['iuid'] = utils.IuidConverter
+
+anubis.utils.init(app)
+anubis.call.init(app)
+anubis.submission.init(app)
+anubis.evaluation.init(app)
+anubis.user.init(app)
 utils.mail.init_app(app)
+
 app.add_template_filter(utils.thousands)
 app.add_template_filter(utils.value_or_none)
 app.add_template_filter(utils.boolean_value)
@@ -43,22 +50,6 @@ def setup_template_context():
                 csrf_token=utils.csrf_token,
                 enumerate=enumerate,
                 sorted=sorted)
-
-@app.before_first_request
-def init_database():
-    "Get the database connection, and update the design document."
-    db = utils.get_db()
-    logger = utils.get_logger()
-    if db.put_design('logs', utils.LOGS_DESIGN_DOC):
-        logger.info('Updated logs design document.')
-    if db.put_design('users', anubis.user.USERS_DESIGN_DOC):
-        logger.info('Updated users design document.')
-    if db.put_design('calls', anubis.call.CALLS_DESIGN_DOC):
-        logger.info('Updated calls design document.')
-    if db.put_design('submissions', anubis.submission.SUBMISSIONS_DESIGN_DOC):
-        logger.info('Updated submissions design document.')
-    if db.put_design('evaluations', anubis.evaluation.EVALUATIONS_DESIGN_DOC):
-        logger.info('Updated evaluations design document.')
 
 @app.before_request
 def prepare():

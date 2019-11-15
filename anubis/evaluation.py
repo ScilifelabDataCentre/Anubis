@@ -7,7 +7,14 @@ from . import utils
 from .saver import BaseSaver, FieldMixin
 
 
-EVALUATIONS_DESIGN_DOC = {
+def init(app):
+    "Initialize; update CouchDB design documents."
+    db = utils.get_db(app=app)
+    logger = utils.get_logger(app)
+    if db.put_design('evaluations', DESIGN_DOC):
+        logger.info('Updated evaluations design document.')
+
+DESIGN_DOC = {
     'views': {
         'call': {'reduce': '_count',
                  'map': "function(doc) {if (doc.doctype !== 'evaluation') return; emit(doc.call, null);}"},

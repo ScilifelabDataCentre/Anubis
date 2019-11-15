@@ -9,7 +9,14 @@ from . import utils
 from .saver import AttachmentsSaver
 
 
-CALLS_DESIGN_DOC = {
+def init(app):
+    "Initialize; update CouchDB design documents."
+    db = utils.get_db(app=app)
+    logger = utils.get_logger(app)
+    if db.put_design('calls', DESIGN_DOC):
+        logger.info('Updated calls design document.')
+
+DESIGN_DOC = {
     'views': {
         'identifier': {'map': "function (doc) {if (doc.doctype !== 'call') return; emit(doc.identifier, null);}"},
         'closes': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.closes || !doc.opens) return; emit(doc.closes, null);}"},
