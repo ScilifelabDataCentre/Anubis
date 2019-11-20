@@ -277,20 +277,13 @@ def jsonify(result, schema_url=None):
         response.headers.add('Link', schema_url, rel='schema')
     return response
 
-def get_dbserver(app=None):
-    "Get the connection to the CouchDB database server."
+def get_db(app=None):
     if app is None:
         app = flask.current_app
-    return couchdb2.Server(href=app.config['COUCHDB_URL'],
-                           username=app.config['COUCHDB_USERNAME'],
-                           password=app.config['COUCHDB_PASSWORD'])
-
-def get_db(dbserver=None, app=None):
-    if app is None:
-        app = flask.current_app
-    if dbserver is None:
-        dbserver = get_dbserver(app=app)
-    return dbserver[app.config['COUCHDB_DBNAME']]
+    server = couchdb2.Server(href=app.config['COUCHDB_URL'],
+                             username=app.config['COUCHDB_USERNAME'],
+                             password=app.config['COUCHDB_PASSWORD'])
+    return server[app.config['COUCHDB_DBNAME']]
 
 def get_logs(docid, cleanup=True):
     """Return the list of log entries for the given document identifier,

@@ -25,7 +25,7 @@ def get_software():
         (constants.SOURCE_NAME, anubis.__version__, constants.SOURCE_URL),
         ('Python', f"{v.major}.{v.minor}.{v.micro}", 'https://www.python.org/'),
         ('Flask', flask.__version__, 'http://flask.pocoo.org/'),
-        ('CouchDB server', flask.g.dbserver.version, 
+        ('CouchDB server', flask.g.db.server.version, 
          'https://couchdb.apache.org/'),
         ('CouchDB2 interface', couchdb2.__version__, 
          'https://pypi.org/project/couchdb2'),

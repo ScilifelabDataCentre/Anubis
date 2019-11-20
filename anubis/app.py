@@ -29,7 +29,7 @@ anubis.config.init(app)
 
 app.url_map.converters['iuid'] = utils.IuidConverter
 
-anubis.utils.init(app)
+utils.init(app)
 anubis.call.init(app)
 anubis.submission.init(app)
 anubis.evaluation.init(app)
@@ -54,8 +54,7 @@ def setup_template_context():
 @app.before_request
 def prepare():
     "Open the database connection; get the current user."
-    flask.g.dbserver = utils.get_dbserver()
-    flask.g.db = utils.get_db(dbserver=flask.g.dbserver)
+    flask.g.db = utils.get_db()
     flask.g.current_user = anubis.user.get_current_user()
     flask.g.is_admin = flask.g.current_user and \
                        flask.g.current_user['role'] == constants.ADMIN
