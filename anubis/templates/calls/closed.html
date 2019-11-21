@@ -11,8 +11,8 @@
       <th>Call</th>
       {% if g.current_user %}
       <th class="text-break"
-	  title="Includes only submissions marked by the user as 'submitted'.">
-	Submissions</th>
+	  title="Includes only proposals marked by the user as 'submitted'.">
+	Proposals</th>
       {% endif %}
       <th>Title</th>
       <th>Closed</th>
@@ -28,9 +28,9 @@
       </td>
       {% if g.current_user %}
       <td>
-	<a href="{{ url_for('submissions.call', cid=call['identifier']) }}">
+	<a href="{{ url_for('proposals.call', cid=call['identifier']) }}">
 	  <span class="badge badge-primary">
-	    {{ call['cache']['submissions_count'] }}</span>
+	    {{ call['cache']['proposals_count'] }}</span>
 	</a>
       </td>
       {% endif %}

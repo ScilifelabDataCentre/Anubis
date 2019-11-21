@@ -43,8 +43,7 @@ def display(sid):
     if not proposal['cache']['is_readable']:
         utils.flash_error('You are not allowed to read the proposal.')
         return flask.redirect(flask.url_for('home'))
-    return flask.render_template('proposal/display.html',
-                                 proposal=proposal)
+    return flask.render_template('proposal/display.html', proposal=proposal)
 
 @blueprint.route('/<sid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.login_required
@@ -60,8 +59,7 @@ def edit(sid):
             utils.flash_error('You are not allowed to edit the proposal.')
             return flask.redirect(
                 flask.url_for('.display', sid=proposal['identifier']))
-        return flask.render_template('proposal/edit.html',
-                                     proposal=proposal)
+        return flask.render_template('proposal/edit.html', proposal=proposal)
 
     elif utils.http_POST():
         if not proposal['cache']['is_editable']:

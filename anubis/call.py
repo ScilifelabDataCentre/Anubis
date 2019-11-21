@@ -340,8 +340,10 @@ def create_proposal(cid):
 
     if not call['cache']['is_open']:
         utils.flash_error(f"Call {call['title']} is not open.")
+        return flask.redirect(flask.url_for('.display', cid=cid))
     if not call['cache']['may_submit']:
         utils.flash_error('You may not submit to this call.')
+        return flask.redirect(flask.url_for('.display', cid=cid))
 
     if utils.http_POST():
         with anubis.proposal.ProposalSaver(call=call) as saver:
@@ -669,5 +671,5 @@ def set_call_cache(call):
             cache['is_published'] = False
             cache['text'] = 'No open or close dates set.'
             cache['color'] = 'secondary'
-    cache['may_submit'] = not cache['is_reviewer'] or flask.g.is_admin
+    cache['may_submit'] = flask.g.is_admin or not cache['is_reviewer']
     return call
