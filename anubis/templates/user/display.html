@@ -81,25 +81,8 @@
     <td>{{ user.get('phone') or '-' }}</td>
   </tr>
   {% endif %}
-  {# Commented out until API implemented, or not.
-  <tr>
-    <th class="text-right">API key</th>
-    <td>{{ user.get('apikey') or '-' }}</td>
-  </tr>
-  #}
 </table>
 {% endblock %} {# block main #}
-
-{% block meta %}
-{# Commented out until API implemented, or not.
-<div class="py-1">
-  <div>
-    <a href="{{ url_for('api_user.display', username=user['username']) }}"
-       class="badge badge-pill badge-dark">API</a>
-  </div>
-</div>
-#}
-{% endblock %} {# block meta #}
 
 {% block actions %}
 <div class="mt-2">
