@@ -69,6 +69,15 @@ def log_access(response):
                       f" {response.status_code}")
     return response
 
+def get_db(app=None):
+    "Get a connection to the database."
+    if app is None:
+        app = flask.current_app
+    server = couchdb2.Server(href=app.config['COUCHDB_URL'],
+                             username=app.config['COUCHDB_USERNAME'],
+                             password=app.config['COUCHDB_PASSWORD'])
+    return server[app.config['COUCHDB_DBNAME']]
+
 # Global instance of mail interface.
 mail = flask_mail.Mail()
 
@@ -276,14 +285,6 @@ def jsonify(result, schema_url=None):
     if schema_url:
         response.headers.add('Link', schema_url, rel='schema')
     return response
-
-def get_db(app=None):
-    if app is None:
-        app = flask.current_app
-    server = couchdb2.Server(href=app.config['COUCHDB_URL'],
-                             username=app.config['COUCHDB_USERNAME'],
-                             password=app.config['COUCHDB_PASSWORD'])
-    return server[app.config['COUCHDB_DBNAME']]
 
 def get_logs(docid, cleanup=True):
     """Return the list of log entries for the given document identifier,

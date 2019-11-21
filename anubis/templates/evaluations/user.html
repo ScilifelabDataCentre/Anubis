@@ -1,33 +1,36 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Evaluations for call {{ call['identifier'] }}
+Evaluations by reviewer {{ user['username'] }}
 {% endblock %}
 
 {% block body_title %}
-Evaluations for call
-<a href="{{ url_for('call.display', cid=call['identifier']) }}">
-  {{ call['identifier'] }}</a>
+Evaluations by reviewer
+<a href="{{ url_for('user.display', username=user['username']) }}">
+  {{ user['username'] }}</a>
 {% endblock %}
 
 {% block supermain %}
 <table id="evaluations" class="table">
   <thead>
     <tr>
+      <th>Call</th>
       <th>Submission</th>
       {# XXX Check access to view user #}
       <th>Submitter</th>
-      <th>Reviewer</th>
       <th>Finalized</th>
-      {% for scorefield in scorefields %}
-      <th>{{ scorefield['title'] }}</th>
-      {% endfor %}
     </tr>
   </thead>
   <tbody>
     {% for evaluation in evaluations %}
+    {% set call = evaluation['cache']['call'] %}
     {% set submission = evaluation['cache']['submission'] %}
     <tr>
+      <td>
+	<a href="{{ url_for('call.display', cid=call['identifier']) }}"
+	   title="{{ call.get('title') or '-' }}">
+	  {{ call['identifier'] }}</a>
+      </td>
       <td>
 	<a href="{{ url_for('submission.display', sid=submission['identifier']) }}"
 	   title="{{ submission.get('title') or '-' }}">
@@ -36,21 +39,12 @@ Evaluations for call
       {# XXX Check access to view user #}
       <td>{{ submission['user'] }}</td>
       <td>
-	<a href="{{ url_for('evaluation.display', iuid=evaluation['_id']) }}">
-	  {{ evaluation['reviewer'] }}</a>
-      </td>
-      <td>
 	{% if evaluation.get('finalized') %}
 	<span class="badge badge-success">Yes</span>
 	{% else %}
 	<span class="badge badge-warning">No</span>
 	{% endif %}
       </td>
-      {% for scorefield in scorefields %}
-      <td>
-	{{ evaluation['values'].get(scorefield['identifier']) | value_or_none }}
-      </td>
-      {% endfor %}
     </tr>
     {% endfor %}
   </tbody>

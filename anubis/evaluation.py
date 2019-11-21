@@ -22,6 +22,8 @@ DESIGN_DOC = {
                                 'map': "function(doc) {if (doc.doctype !== 'evaluation') return; emit([doc.submission, doc.reviewer], null);}"},
         'call_reviewer': {'reduce': '_count',
                           'map': "function(doc) {if (doc.doctype !== 'evaluation') return; emit([doc.call, doc.reviewer], null);}"},
+        'reviewer': {'reduce': '_count',
+                     'map': "function(doc) {if (doc.doctype !== 'evaluation') return; emit(doc.reviewer, null);}"},
     }
 }
 
@@ -155,7 +157,8 @@ def logs(iuid):
     evaluation = get_evaluation_cache(evaluation)
     return flask.render_template(
         'logs.html',
-        title=f"Evaluation of {evaluation['cache']['submission']['identifier']}" \
+        title="Evaluation of" \
+              f" {evaluation['cache']['submission']['identifier']}" \
               f" by {evaluation['reviewer']}",
         back_url=flask.url_for('.display', iuid=evaluation['_id']),
         logs=utils.get_logs(evaluation['_id']))
@@ -224,6 +227,6 @@ def get_evaluation_cache(evaluation, call=None):
         cache['is_readable'] = True
         cache['is_editable'] = True
     elif flask.g.current_user:
-        cache['is_readable'] = flask.g.current_user['username'] in call['reviewers']
+        cache['is_readable'] = flask.g.current_user['username'] == evaluation['reviewer']
         cache['is_editable'] = flask.g.current_user['username'] == evaluation['reviewer']
     return evaluation

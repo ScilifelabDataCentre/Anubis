@@ -7,7 +7,9 @@ import sys
 import flask
 
 import anubis.app
-import anubis.designs
+import anubis.call
+import anubis.submission
+import anubis.evaluation
 import anubis.user
 
 from anubis import constants
@@ -31,12 +33,16 @@ def get_parser():
     return p
 
 def execute(pargs):
-    "Execute the command."
+    "Execute the command. Must be within a flask app context."
     if pargs.debug:
         flask.current_app.config['DEBUG'] = True
         flask.current_app.config['LOGFORMAT'] = '%(levelname)-10s %(message)s'
     if pargs.update:
-        designs.update()
+        utils.init(flask.current_app)
+        anubis.call.init(flask.current_app)
+        anubis.submission.init(flask.current_app)
+        anubis.evaluation.init(flask.current_app)
+        anubis.user.init(flask.current_app)
     if pargs.create_admin:
         with anubis.user.UserSaver() as saver:
             saver.set_username(input('username > '))
@@ -44,7 +50,7 @@ def execute(pargs):
             saver.set_password(getpass.getpass('password > '))
             saver.set_role(constants.ADMIN)
             saver.set_status(constants.ENABLED)
-    if pargs.create_user:
+    elif pargs.create_user:
         with anubis.user.UserSaver() as saver:
             saver.set_username(input('username > '))
             saver.set_email(input('email > '))

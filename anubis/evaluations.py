@@ -2,6 +2,8 @@
 
 import flask
 
+import anubis.user
+
 from . import constants
 from . import utils
 from .evaluation import get_evaluation_cache
@@ -49,8 +51,6 @@ def submission(sid):
         utils.flash_error("You are not a reviewer of the submission's call.")
         return flask.redirect(flask.url_for('home'))
 
-    scorefields = [f for f in call['evaluation']
-                   if f['type'] == constants.SCORE]
     evaluations = [get_evaluation_cache(r.doc)
                    for r in flask.g.db.view('evaluations', 'call',
                                             key=call['identifier'],
@@ -60,6 +60,26 @@ def submission(sid):
     return flask.render_template('evaluations/submission.html',
                                  submission=submission,
                                  evaluations=evaluations)
+
+@blueprint.route('/user/<username>')
+@utils.login_required
+def user(username):
+    "List all evaluations for a user (reviewer)."
+    user = anubis.user.get_user(username=username)
+    if user is None:
+        utils.flash_error('No such user.')
+        return flask.redirect(flask.url_for('home'))
+    if not anubis.user.is_admin_or_self(user):
+        utils.flash_error("You may not view the user's evaluations.")
+        return flask.redirect(flask.url_for('home'))
+    evaluations = [get_evaluation_cache(r.doc)
+                   for r in flask.g.db.view('evaluations', 'reviewer',
+                                            key=user['username'],
+                                            reduce=False,
+                                            include_docs=True)]
+    return flask.render_template('evaluations/user.html', 
+                                 user=user,
+                                 submissions=evaluations)
 
 def get_call_evaluations_count(call):
     "Get the number of evaluations for the call."
