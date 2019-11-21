@@ -5,17 +5,17 @@
   {{ call['cache']['text'] }}</span>
 {%- endmacro %}
 
-{% macro submitted(submission) -%}
-{% if submission.get('submitted') %}
-<span class="badge badge-success localtime">{{ submission['submitted'] }}</span>
+{% macro submitted(proposal) -%}
+{% if proposal.get('submitted') %}
+<span class="badge badge-success localtime">{{ proposal['submitted'] }}</span>
 {% else %}
 <span class="badge badge-warning">Not submitted.</span>
 {% endif %}
 {%- endmacro %}
 
-{% macro finalized(evaluation) -%}
-{% if evaluation.get('finalized') %}
-<span class="badge badge-success localtime">{{ evaluation['finalized'] }}</span>
+{% macro finalized(review) -%}
+{% if review.get('finalized') %}
+<span class="badge badge-success localtime">{{ review['finalized'] }}</span>
 {% else %}
 <span class="badge badge-warning">Not finalized.</span>
 {% endif %}

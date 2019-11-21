@@ -9,7 +9,7 @@
   <thead>
     <tr>
       <th>Username</th>
-      <th>Submissions</th>
+      <th>Proposals</th>
       <th>Email</th>
       <th>Given name</th>
       <th>Family name</th>
@@ -32,8 +32,8 @@
           {{ user['username'] }}</a>
       </td>
       <td>
-	<a href="{{ url_for('submissions.user', username=user['username']) }}">
-	  <span class="badge badge-primary">{{ user['submissions_count'] }}</span>
+	<a href="{{ url_for('proposals.user', username=user['username']) }}">
+	  <span class="badge badge-primary">{{ user['proposals_count'] }}</span>
 	</a>
       </td>
       <td>{{ user['email'] }}</td>

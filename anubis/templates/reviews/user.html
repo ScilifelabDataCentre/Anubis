@@ -1,30 +1,30 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Evaluations by reviewer {{ user['username'] }}
+Reviews by user {{ user['username'] }}
 {% endblock %}
 
 {% block body_title %}
-Evaluations by reviewer
+Reviews by reviewer
 <a href="{{ url_for('user.display', username=user['username']) }}">
   {{ user['username'] }}</a>
 {% endblock %}
 
 {% block supermain %}
-<table id="evaluations" class="table">
+<table id="reviews" class="table">
   <thead>
     <tr>
       <th>Call</th>
-      <th>Submission</th>
+      <th>Proposal</th>
       {# XXX Check access to view user #}
       <th>Submitter</th>
       <th>Finalized</th>
     </tr>
   </thead>
   <tbody>
-    {% for evaluation in evaluations %}
-    {% set call = evaluation['cache']['call'] %}
-    {% set submission = evaluation['cache']['submission'] %}
+    {% for review in reviews %}
+    {% set call = review['cache']['call'] %}
+    {% set proposal = review['cache']['proposal'] %}
     <tr>
       <td>
 	<a href="{{ url_for('call.display', cid=call['identifier']) }}"
@@ -32,14 +32,14 @@ Evaluations by reviewer
 	  {{ call['identifier'] }}</a>
       </td>
       <td>
-	<a href="{{ url_for('submission.display', sid=submission['identifier']) }}"
-	   title="{{ submission.get('title') or '-' }}">
-	  {{ submission['identifier'] }}</a>
+	<a href="{{ url_for('proposal.display', sid=proposal['identifier']) }}"
+	   title="{{ proposal.get('title') or '-' }}">
+	  {{ proposal['identifier'] }}</a>
       </td>
       {# XXX Check access to view user #}
-      <td>{{ submission['user'] }}</td>
+      <td>{{ proposal['user'] }}</td>
       <td>
-	{% if evaluation.get('finalized') %}
+	{% if review.get('finalized') %}
 	<span class="badge badge-success">Yes</span>
 	{% else %}
 	<span class="badge badge-warning">No</span>
@@ -54,7 +54,7 @@ Evaluations by reviewer
 {% block javascript %}
 <script>
   $(function() {
-    $("#evaluations").DataTable( {
+    $("#reviews").DataTable( {
       "pagingType": "full_numbers",
       "pageLength": 25
     });

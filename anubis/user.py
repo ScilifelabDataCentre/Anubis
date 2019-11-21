@@ -173,7 +173,7 @@ def password():
 @utils.login_required
 def display(username):
     "Display the given user."
-    from .submissions import get_submissions_count
+    from .proposals import get_proposals_count
     user = get_user(username=username)
     if user is None:
         utils.flash_error('No such user.')
@@ -183,7 +183,7 @@ def display(username):
         return flask.redirect(flask.url_for('home'))
     user['reviewer'] = [r.value for r in flask.g.db.view('calls', 'reviewer',
                                                          key=user['username'])]
-    user['submissions_count'] = get_submissions_count(username=user['username'])
+    user['proposals_count'] = get_proposals_count(username=user['username'])
     return flask.render_template('user/display.html',
                                  user=user,
                                  enable_disable=is_admin_and_not_self(user),
@@ -269,10 +269,10 @@ def logs(username):
 @utils.admin_required
 def all():
     "Display list of all users."
-    from .submissions import get_submissions_count
+    from .proposals import get_proposals_count
     users = get_users(role=None)
     for user in users:
-        user['submissions_count'] = get_submissions_count(username=user['username'])
+        user['proposals_count'] = get_proposals_count(username=user['username'])
     return flask.render_template('user/all.html', users=users)
 
 @blueprint.route('/enable/<username>', methods=['POST'])
@@ -470,11 +470,11 @@ def send_password_code(user, action):
 
 def is_deletable(user):
     """Can the the given user account be deleted? 
-    Only when no submissions and not admin.
+    Only when no proposals and not admin.
     """
-    from .submissions import get_submissions_count
+    from .proposals import get_proposals_count
     if user['role'] == constants.ADMIN: return False
-    return not bool(get_submissions_count(username=user['username']))
+    return not bool(get_proposals_count(username=user['username']))
 
 def is_admin_or_self(user):
     "Is the current user admin, or the same as the given user?"

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block head_title %}
+All proposals from user {{ user['username'] }}
+{% endblock %}
+
+{% block body_title %}
+All proposals from user
+<a href="{{ url_for('user.display', username=user['username']) }}">
+  {{ user['username'] }}</a>
+{% endblock %}
+
+{% block supermain %}
+<table id="proposals" class="table">
+  <thead>
+    <tr>
+      <th>Proposal</th>
+      <th>Title</th>
+      <th>Submitted</th>
+      <th>Call</th>
+      <th>Closes</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for proposal in proposals %}
+    <tr>
+      <td>
+	<a href="{{ url_for('proposal.display', sid=proposal['identifier']) }}">
+	  {{ proposal['identifier'] }}</a>
+      </td>
+      <td>{{ proposal.get('title') or '-' }}</td>
+      <td>{{ macros.submitted(proposal) }}</td>
+      <td>
+	<a href="{{ url_for('call.display', cid=proposal['cache']['call']['identifier']) }}"
+	   title="{{ proposal['cache']['call']['title'] }}">
+	  {{ proposal['cache']['call']['identifier'] }}</a>
+      </td>
+      <td>{{ macros.call_closes(proposal['cache']['call']) }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %} {# block supermain #}
+
+{% block javascript %}
+<script>
+  $(function() {
+    $("#proposals").DataTable( {
+      "pagingType": "full_numbers",
+      "pageLength": 25
+    });
+  });
+</script>
+{% endblock %}

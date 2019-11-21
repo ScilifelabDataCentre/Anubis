@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block head_title %}{{ proposal['identifier'] }}{% endblock %}
+
+{% block body_title %}
+{{ proposal['identifier'] }}
+{% if proposal.get('title') %}
+<small>{{ proposal.get('title') }}</small>
+{% endif %}
+{% endblock %}
+
+{% block main %}
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Call</div>
+  <div class="col-md">
+    <a href="{{ url_for('call.display', cid=proposal['cache']['call']['identifier']) }}"
+       title="{{ proposal['cache']['call']['title'] }}">
+      {{ proposal['cache']['call']['identifier'] }}: 
+      {{ proposal['cache']['call']['title'] }}</a>
+  </div>
+</div>
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Call closes</div>
+  <div class="col-md">
+    <span class="mr-4">{{ proposal['cache']['call']['closes'] or '-' }}</span>
+    {{ macros.call_closes(proposal['cache']['call']) }}
+  </div>
+</div>
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Submitted</div>
+  <div class="col-md">{{ macros.submitted(proposal) }}</div>
+</div>
+{# XXX access? #}
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">User</div>
+  <div class="col-md">
+    <a href="{{ url_for('user.display', username=proposal['user']) }}">
+      {{ proposal['user'] }}</a>
+  </div>
+</div>
+{% if proposal['cache']['is_reviewer'] %}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Reviews</div>
+  <div class="col-md-1">
+    <a href="{{ url_for('reviews.proposal', sid=proposal['identifier']) }}">
+      <span class="badge badge-info">
+	{{ proposal['cache']['reviews_count'] }}</span></a>
+  </div>
+  <div class="col-md">
+    <form action="{{ url_for('review.create', sid=proposal['identifier']) }}"
+	  method="POST">
+      {{ csrf_token() }}
+      <button type="submit" class="btn btn-sm btn-info">My review</button>
+    </form>
+  </div>
+</div>
+{% endif %} {# if proposal['cache']['is_reviewer'] #}
+
+{% set fields = proposal['cache']['call']['proposal'] %}
+{% set values = proposal['values'] %}
+{% set errors = proposal['errors'] %}
+{% set attachments = proposal.get('_attachments', {}) %}
+{% include 'display_fields_values.html' %}
+
+{% endblock %} {# block main #}
+
+{% block actions %}
+
+{% if proposal['cache']['is_submittable'] %}
+{% if proposal.get('submitted') %}
+<div class="mt-2">
+  <form action="{{ url_for('.unsubmit', sid=proposal['identifier']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <button type="submit" class="btn btn-block btn-warning">
+      Unsubmit</button>
+  </form>
+</div>
+{% else %}
+<div class="mt-2">
+  <form action="{{ url_for('.submit', sid=proposal['identifier']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <button type="submit" class="btn btn-block btn-success">
+      Submit</button>
+  </form>
+</div>
+{% endif %} {# if proposal.get('submitted') #}
+{% endif %} {# if proposal['cache']['is_submittable'] #}
+
+{% if proposal['cache']['is_editable'] %}
+<div class="mt-2">
+  <a href="{{ url_for('.edit', sid=proposal['identifier']) }}"
+     role="button" class="btn btn-primary btn-block">Edit</a>
+</div>
+<div class="mt-2">
+  <form action="{{ url_for('.edit', sid=proposal['identifier']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <input type="hidden" name="_http_method" value="DELETE">
+    <button type="submit" class="btn btn-block btn-sm btn-danger"
+	    onclick="return confirm('Really delete the proposal?')">
+      Delete</button>
+  </form>
+</div>
+{% endif %} {# if proposal['cache']['is_editable'] #}
+
+{% endblock %} {# block actions #}
+
+{% block info %}
+<div class="small">
+  Modified <span class="localtime">{{ proposal['modified'] }}</span>
+  <span class="ml-4">
+    Created <span class="localtime">{{ proposal['created'] }}</span>
+  </span>
+  <span class="ml-4">
+    <a href="{{ url_for('.logs', sid=proposal['identifier']) }}">Logs</a>
+  </span>
+</div>
+{% endblock %} {# block info #}

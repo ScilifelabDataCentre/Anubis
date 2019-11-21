@@ -1,40 +1,40 @@
 {% extends 'base.html' %}
 
-{% block head_title %}Submissions in call {{ call['identifier'] }}{% endblock %}
+{% block head_title %}Proposals in call {{ call['identifier'] }}{% endblock %}
 
 {% block body_title %}
-Submissions in call
+Proposals in call
 <a href="{{ url_for('call.display', cid=call['identifier']) }}">
   {{ call['identifier'] }}</a>
 {% endblock %}
 
 {% block supermain %}
 <p class="lead">
-  <strong>NOTE</strong>: Includes only submissions marked by the user
+  <strong>NOTE</strong>: Includes only proposals marked by the user
   as 'submitted'.
 </p>
 
-<table id="submissions" class="table">
+<table id="proposals" class="table">
   <thead>
     <tr>
-      <th>Submission</th>
+      <th>Proposal</th>
       <th>Title</th>
       {# XXX Check access to view user #}
       <th>Submitter</th>
     </tr>
   </thead>
   <tbody>
-    {% for submission in submissions %}
+    {% for proposal in proposals %}
     <tr>
       <td>
-	<a href="{{ url_for('submission.display', sid=submission['identifier']) }}">
-	  {{ submission['identifier'] }}</a>
+	<a href="{{ url_for('proposal.display', sid=proposal['identifier']) }}">
+	  {{ proposal['identifier'] }}</a>
       </td>
-      <td>{{ submission.get('title') or '-' }}</td>
+      <td>{{ proposal.get('title') or '-' }}</td>
       {# XXX Check access to view user #}
       <td>
-	<a href="{{ url_for('user.display', username=submission['user']) }}">
-	  {{ submission['user'] }}</a>
+	<a href="{{ url_for('user.display', username=proposal['user']) }}">
+	  {{ proposal['user'] }}</a>
       </td>
     </tr>
     {% endfor %}
@@ -45,7 +45,7 @@ Submissions in call
 {% block javascript %}
 <script>
   $(function() {
-    $("#submissions").DataTable( {
+    $("#proposals").DataTable( {
       "pagingType": "full_numbers",
       "pageLength": 25
     });

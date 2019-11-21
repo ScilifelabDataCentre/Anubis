@@ -8,8 +8,8 @@ import flask
 
 import anubis.app
 import anubis.call
-import anubis.submission
-import anubis.evaluation
+import anubis.proposal
+import anubis.review
 import anubis.user
 
 from anubis import constants
@@ -40,8 +40,8 @@ def execute(pargs):
     if pargs.update:
         utils.init(flask.current_app)
         anubis.call.init(flask.current_app)
-        anubis.submission.init(flask.current_app)
-        anubis.evaluation.init(flask.current_app)
+        anubis.proposal.init(flask.current_app)
+        anubis.review.init(flask.current_app)
         anubis.user.init(flask.current_app)
     if pargs.create_admin:
         with anubis.user.UserSaver() as saver:

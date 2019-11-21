@@ -6,10 +6,10 @@ import anubis.about
 import anubis.call
 import anubis.calls
 import anubis.config
-import anubis.evaluation
-import anubis.evaluations
-import anubis.submission
-import anubis.submissions
+import anubis.review
+import anubis.reviews
+import anubis.proposal
+import anubis.proposals
 import anubis.site
 import anubis.user
 
@@ -25,8 +25,8 @@ app.url_map.converters['iuid'] = utils.IuidConverter
 
 utils.init(app)
 anubis.call.init(app)
-anubis.submission.init(app)
-anubis.evaluation.init(app)
+anubis.proposal.init(app)
+anubis.review.init(app)
 anubis.user.init(app)
 utils.mail.init_app(app)
 
@@ -66,10 +66,10 @@ def home():
 app.register_blueprint(anubis.user.blueprint, url_prefix='/user')
 app.register_blueprint(anubis.call.blueprint, url_prefix='/call')
 app.register_blueprint(anubis.calls.blueprint, url_prefix='/calls')
-app.register_blueprint(anubis.submission.blueprint, url_prefix='/submission')
-app.register_blueprint(anubis.submissions.blueprint, url_prefix='/submissions')
-app.register_blueprint(anubis.evaluation.blueprint, url_prefix='/evaluation')
-app.register_blueprint(anubis.evaluations.blueprint, url_prefix='/evaluations')
+app.register_blueprint(anubis.proposal.blueprint, url_prefix='/proposal')
+app.register_blueprint(anubis.proposals.blueprint, url_prefix='/proposals')
+app.register_blueprint(anubis.review.blueprint, url_prefix='/review')
+app.register_blueprint(anubis.reviews.blueprint, url_prefix='/reviews')
 app.register_blueprint(anubis.about.blueprint, url_prefix='/about')
 app.register_blueprint(anubis.site.blueprint, url_prefix='/site')
 

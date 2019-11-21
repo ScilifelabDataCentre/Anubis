@@ -1,19 +1,20 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Evaluations for submission {{ submission['identifier'] }}
+Reviews for call {{ call['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-Evaluations for submission
-<a href="{{ url_for('submission.display', sid=submission['identifier']) }}">
-  {{ submission['identifier'] }}</a>
+Reviews for call
+<a href="{{ url_for('call.display', cid=call['identifier']) }}">
+  {{ call['identifier'] }}</a>
 {% endblock %}
 
 {% block supermain %}
-<table id="evaluations" class="table">
+<table id="reviews" class="table">
   <thead>
     <tr>
+      <th>Proposal</th>
       {# XXX Check access to view user #}
       <th>Submitter</th>
       <th>Reviewer</th>
@@ -24,23 +25,30 @@ Evaluations for submission
     </tr>
   </thead>
   <tbody>
-    {% for evaluation in evaluations %}
+    {% for review in reviews %}
+    {% set proposal = review['cache']['proposal'] %}
     <tr>
-      <td>{{ submission['user'] }}</td>
       <td>
-	<a href="{{ url_for('evaluation.display', iuid=evaluation['_id']) }}">
-	  {{ evaluation['reviewer'] }}</a>
+	<a href="{{ url_for('proposal.display', sid=proposal['identifier']) }}"
+	   title="{{ proposal.get('title') or '-' }}">
+	  {{ proposal['identifier'] }}</a>
+      </td>
+      {# XXX Check access to view user #}
+      <td>{{ proposal['user'] }}</td>
       <td>
-	{% if evaluation.get('finalized') %}
+	<a href="{{ url_for('review.display', iuid=review['_id']) }}">
+	  {{ review['reviewer'] }}</a>
+      </td>
+      <td>
+	{% if review.get('finalized') %}
 	<span class="badge badge-success">Yes</span>
 	{% else %}
 	<span class="badge badge-warning">No</span>
 	{% endif %}
       </td>
-      {# XXX Check access to view user #}
       {% for scorefield in scorefields %}
       <td>
-	{{ evaluation['values'].get(scorefield['identifier']) | value_or_none }}
+	{{ review['values'].get(scorefield['identifier']) | value_or_none }}
       </td>
       {% endfor %}
     </tr>
@@ -52,7 +60,7 @@ Evaluations for submission
 {% block javascript %}
 <script>
   $(function() {
-    $("#evaluations").DataTable( {
+    $("#reviews").DataTable( {
       "pagingType": "full_numbers",
       "pageLength": 25
     });

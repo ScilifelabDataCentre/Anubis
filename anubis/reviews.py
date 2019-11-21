@@ -1,4 +1,4 @@
-"Evaluations lists."
+"Reviews lists."
 
 import flask
 
@@ -6,15 +6,15 @@ import anubis.user
 
 from . import constants
 from . import utils
-from .evaluation import get_evaluation_cache
+from .review import get_review_cache
 
 
-blueprint = flask.Blueprint('evaluations', __name__)
+blueprint = flask.Blueprint('reviews', __name__)
 
 @blueprint.route('/call/<cid>')
 @utils.login_required
 def call(cid):
-    "List all evaluations for a call."
+    "List all reviews for a call."
     from anubis.call import get_call
     call = get_call(cid)
     if call is None:
@@ -24,66 +24,66 @@ def call(cid):
         utils.flash_error('You are not a reviewer in the call.')
         return flask.redirect(flask.url_for('home'))
 
-    scorefields = [f for f in call['evaluation']
+    scorefields = [f for f in call['review']
                    if f['type'] == constants.SCORE]
-    evaluations = [get_evaluation_cache(r.doc)
-                   for r in flask.g.db.view('evaluations', 'call',
+    reviews = [get_review_cache(r.doc)
+                   for r in flask.g.db.view('reviews', 'call',
                                             key=cid,
                                             reduce=False,
                                             include_docs=True)]
-    # XXX filter for evaluations access
-    return flask.render_template('evaluations/call.html',
+    # XXX filter for reviews access
+    return flask.render_template('reviews/call.html',
                                  call=call,
                                  scorefields=scorefields,
-                                 evaluations=evaluations)
+                                 reviews=reviews)
 
-@blueprint.route('/submission/<sid>')
+@blueprint.route('/proposal/<sid>')
 @utils.login_required
-def submission(sid):
-    "List all evaluations for a submission."
-    from anubis.submission import get_submission
-    submission = get_submission(sid)
-    if submission is None:
-        utils.flash_error('No such submission.')
+def proposal(sid):
+    "List all reviews for a proposal."
+    from anubis.proposal import get_proposal
+    proposal = get_proposal(sid)
+    if proposal is None:
+        utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
-    call = submission['cache']['call']
+    call = proposal['cache']['call']
     if not call['cache']['is_reviewer']:
-        utils.flash_error("You are not a reviewer of the submission's call.")
+        utils.flash_error("You are not a reviewer of the proposal's call.")
         return flask.redirect(flask.url_for('home'))
 
-    evaluations = [get_evaluation_cache(r.doc)
-                   for r in flask.g.db.view('evaluations', 'call',
+    reviews = [get_review_cache(r.doc)
+                   for r in flask.g.db.view('reviews', 'call',
                                             key=call['identifier'],
                                             reduce=False,
                                             include_docs=True)]
-    # XXX filter for evaluations access
-    return flask.render_template('evaluations/submission.html',
-                                 submission=submission,
-                                 evaluations=evaluations)
+    # XXX filter for reviews access
+    return flask.render_template('reviews/proposal.html',
+                                 proposal=proposal,
+                                 reviews=reviews)
 
 @blueprint.route('/user/<username>')
 @utils.login_required
 def user(username):
-    "List all evaluations for a user (reviewer)."
+    "List all reviews for a user (reviewer)."
     user = anubis.user.get_user(username=username)
     if user is None:
         utils.flash_error('No such user.')
         return flask.redirect(flask.url_for('home'))
     if not anubis.user.is_admin_or_self(user):
-        utils.flash_error("You may not view the user's evaluations.")
+        utils.flash_error("You may not view the user's reviews.")
         return flask.redirect(flask.url_for('home'))
-    evaluations = [get_evaluation_cache(r.doc)
-                   for r in flask.g.db.view('evaluations', 'reviewer',
+    reviews = [get_review_cache(r.doc)
+                   for r in flask.g.db.view('reviews', 'reviewer',
                                             key=user['username'],
                                             reduce=False,
                                             include_docs=True)]
-    return flask.render_template('evaluations/user.html', 
+    return flask.render_template('reviews/user.html', 
                                  user=user,
-                                 submissions=evaluations)
+                                 proposals=reviews)
 
-def get_call_evaluations_count(call):
-    "Get the number of evaluations for the call."
-    result = flask.g.db.view('evaluations', 'call',
+def get_call_reviews_count(call):
+    "Get the number of reviews for the call."
+    result = flask.g.db.view('reviews', 'call',
                              key=call['identifier'],
                              reduce=True)
     if result:
@@ -91,11 +91,11 @@ def get_call_evaluations_count(call):
     else:
         return 0
 
-def get_submission_evaluations_count(submission):
-    "Get the number of evaluations for the submission."
-    result = flask.g.db.view('evaluations', 'submission_reviewer',
-                             startkey=[submission['identifier'], ''],
-                             endkey=[submission['identifier'], 'ZZZZZZ'],
+def get_proposal_reviews_count(proposal):
+    "Get the number of reviews for the proposal."
+    result = flask.g.db.view('reviews', 'proposal_reviewer',
+                             startkey=[proposal['identifier'], ''],
+                             endkey=[proposal['identifier'], 'ZZZZZZ'],
                              reduce=True)
     if result:
         return result[0].value

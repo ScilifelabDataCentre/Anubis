@@ -4,7 +4,7 @@
 
 {% block body_title %}
 {{ call['title'] }}
-<small class="text-muted ml-3">Call for submissions</small>
+<small class="text-muted ml-3">Call for proposals</small>
 {% endblock %}
 
 {% block main %}
@@ -33,20 +33,20 @@
 </div>
 {% if g.current_user %}
 <div class="row">
-  <div class="col-md-2 font-weight-bold text-right">My submissions</div>
+  <div class="col-md-2 font-weight-bold text-right">My proposals</div>
   <div class="col-md">
-    <a href="{{ url_for('submissions.user_call', username=g.current_user['username'], cid=call['identifier']) }}">
-      <span class="badge badge-primary">{{ call['cache']['my_submissions_count'] }}
+    <a href="{{ url_for('proposals.user_call', username=g.current_user['username'], cid=call['identifier']) }}">
+      <span class="badge badge-primary">{{ call['cache']['my_proposals_count'] }}
     </span></a>
   </div>
 </div>
 {% endif %} {# if g.current_user #}
 {% if g.is_admin %}
 <div class="row">
-  <div class="col-md-2 font-weight-bold text-right">Submissions</div>
+  <div class="col-md-2 font-weight-bold text-right">All proposals</div>
   <div class="col-md">
-    <a href="{{ url_for('submissions.call', cid=call['identifier']) }}">
-      <span class="badge badge-primary">{{ call['cache']['submissions_count'] }}
+    <a href="{{ url_for('proposals.call', cid=call['identifier']) }}">
+      <span class="badge badge-primary">{{ call['cache']['proposals_count'] }}
     </span></a>
   </div>
 </div>
@@ -67,11 +67,11 @@
 {% endif %} {# if g.is_admin #}
 {% if call['cache']['is_reviewer'] %}
 <div class="row">
-  <div class="col-md-2 font-weight-bold text-right">Evaluations</div>
+  <div class="col-md-2 font-weight-bold text-right">All reviews</div>
   <div class="col-md">
-    <a href="{{ url_for('evaluations.call', cid=call['identifier']) }}">
+    <a href="{{ url_for('reviews.call', cid=call['identifier']) }}">
       <span class="badge badge-info">
-	{{ call['cache']['evaluations_count'] }}</span></a>
+	{{ call['cache']['reviews_count'] }}</span></a>
   </div>
 </div>
 {% endif %} {# if call['cache']['is_reviewer'] #}
@@ -109,9 +109,9 @@
 </div>
 
 <div class="row">
-  <div class="col-md-2 font-weight-bold text-right">Submission fields</div>
+  <div class="col-md-2 font-weight-bold text-right">Proposal fields</div>
   <div class="col-md">
-    {% for field in call['fields'] %}
+    {% for field in call['proposal'] %}
     <div class="card mt-2">
       <div class="card-body">
         {% include 'display_field_definition.html' %}
@@ -123,9 +123,9 @@
 
 {% if g.is_admin %}
 <div class="row">
-  <div class="col-md-2 font-weight-bold text-right">Evaluation fields</div>
+  <div class="col-md-2 font-weight-bold text-right">Review fields</div>
   <div class="col-md">
-    {% for field in call['evaluation'] %}
+    {% for field in call['review'] %}
     <div class="card mt-2">
       <div class="card-body">
         {% include 'display_field_definition.html' %}
@@ -141,11 +141,11 @@
 {% block actions %}
 {% if call['cache']['is_open'] and call['cache']['may_submit'] %}
 <div class="mt-2">
-  <form action="{{ url_for('.submission', cid=call['identifier']) }}"
+  <form action="{{ url_for('.proposal', cid=call['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-block btn-primary">
-      Create submission</button>
+      Create proposal</button>
   </form>
 </div>
 {% endif %}
@@ -159,12 +159,12 @@
      role="button" class="btn btn-primary btn-block">Edit documents</a>
 </div>
 <div class="mt-2">
-  <a href="{{ url_for('.fields', cid=call['identifier']) }}"
-     role="button" class="btn btn-primary btn-block">Edit submission fields</a>
+  <a href="{{ url_for('.proposal', cid=call['identifier']) }}"
+     role="button" class="btn btn-primary btn-block">Edit proposal fields</a>
 </div>
 <div class="mt-2">
-  <a href="{{ url_for('.evaluation', cid=call['identifier']) }}"
-     role="button" class="btn btn-primary btn-block">Edit evaluation fields</a>
+  <a href="{{ url_for('.review', cid=call['identifier']) }}"
+     role="button" class="btn btn-primary btn-block">Edit review fields</a>
 </div>
 {% endif %} {# if call['cache']['is_editable'] #}
 {% if g.is_admin %} {# Always editable for admin #}

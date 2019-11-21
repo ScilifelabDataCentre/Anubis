@@ -1,8 +1,8 @@
-"Submissions review handling system."
+"Proposals review handling system."
 
 import re
 
-__version__ = '0.4.8'
+__version__ = '0.5.0'
 
 class Constants:
     VERSION     = __version__
@@ -18,12 +18,12 @@ class Constants:
     EMAIL_RX = re.compile(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
 
     # CouchDB document types
-    USER       = 'user'
-    CALL       = 'call'
-    SUBMISSION = 'submission'
-    EVALUATION = 'evaluation'
-    DECISION   = 'decision'
-    LOG        = 'log'
+    USER     = 'user'
+    CALL     = 'call'
+    PROPOSAL = 'proposal'
+    REVIEW   = 'review'
+    DECISION = 'decision'
+    LOG      = 'log'
 
     # User roles
     ADMIN = 'admin'

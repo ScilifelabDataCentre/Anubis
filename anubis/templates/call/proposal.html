@@ -1,28 +1,27 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Edit evaluation fields for {{ call['identifier'] }}
+Edit proposal fields for {{ call['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-Edit evaluation fields for {{ call['identifier'] }}
+Edit proposal fields for {{ call['identifier'] }}
 {% endblock %}
 
 {% block main %}
 
-{% for field in call['evaluation'] %}
-{% set post_url = url_for('.evaluation_field', cid=call['identifier'], fid=field['identifier']) %}
+{% for field in call['proposal'] %}
+{% set post_url = url_for('.proposal', cid=call['identifier'], fid=field['identifier']) %}
 <div class="card mt-2">
   <div class="card-body">
     {% include 'display_field_definition.html' %}
   </div>
 </div>
-{% endfor %} {# for field in call['evaluation'] #}
-
+{% endfor %} {# for field in call['proposal'] #}
 <div class="card mt-2">
   <div class="card-body">
     {% for field_type in constants.FIELD_TYPES %}
-    <button type="button" class="btn btn-primary mt-2 mr-2"
+    <button type="button" class="btn btn-primary mr-2 mb-2"
 	    data-toggle="modal" data-target="#_{{ field_type }}Modal">
       Add {{ field_type }} field
     </button>
@@ -30,13 +29,13 @@ Edit evaluation fields for {{ call['identifier'] }}
   </div>
 </div>
 
-{% set post_url = url_for('.evaluation', cid=call['identifier']) %}
+{% set post_url = url_for('.proposal', cid=call['identifier']) %}
 {% for field_type in constants.FIELD_TYPES %}
 {% include 'modal_field_create.html' %}
 {% endfor %}
 
-{% for field in call['evaluation'] %}
-{% set post_url = url_for('.evaluation_field', cid=call['identifier'], fid=field['identifier']) %}
+{% for field in call['proposal'] %}
+{% set post_url = url_for('.proposal', cid=call['identifier'], fid=field['identifier']) %}
 {% include 'modal_field_edit.html' %}
 {% endfor %}
 

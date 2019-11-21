@@ -1,15 +1,11 @@
 {% extends 'base.html' %}
 
-{% block head_title %}
-Edit submission {{ submission['identifier'] }}
-{% endblock %}
+{% block head_title %}Edit proposal {{ proposal['identifier'] }}{% endblock %}
 
-{% block body_title %}
-Edit submission {{ submission['identifier'] }}
-{% endblock %}
+{% block body_title %}Edit proposal {{ proposal['identifier'] }}{% endblock %}
 
 {% block main %}
-<form action="{{ url_for('.edit', sid=submission['identifier']) }}"
+<form action="{{ url_for('.edit', sid=proposal['identifier']) }}"
       enctype="multipart/form-data"
       method="POST">
   {{ csrf_token() }}
@@ -21,17 +17,17 @@ Edit submission {{ submission['identifier'] }}
       <input type="text" id="_title" name="_title"
              class="form-control" autofocus
              aria-describedby="_titleHelp"
-	     value="{{ submission.get('title') or '' }}">
+	     value="{{ proposal.get('title') or '' }}">
       <small id="_titleHelp" class="form-text text-muted">
-        Brief descriptive title for the submission.
+        Brief descriptive title for the proposal.
       </small>
     </div>
   </div>
 
-  {% set fields = submission['cache']['call']['fields'] %}
-  {% set values = submission['values'] %}
-  {% set errors = submission['errors'] %}
-  {% set attachments = submission.get('_attachments', {}) %}
+  {% set fields = proposal['cache']['call']['fields'] %}
+  {% set values = proposal['values'] %}
+  {% set errors = proposal['errors'] %}
+  {% set attachments = proposal.get('_attachments', {}) %}
   {% include 'edit_fields_values.html' %}
 
   <div class="form-group row">
@@ -44,7 +40,7 @@ Edit submission {{ submission['identifier'] }}
 
 {% block actions %}
 <div class="mt-2">
-  <form action="{{ url_for('.display', sid=submission['identifier']) }}"
+  <form action="{{ url_for('.display', sid=proposal['identifier']) }}"
 	method="GET">
     <button type="submit" class="btn btn-block btn-dark">Cancel</button>
   </form>

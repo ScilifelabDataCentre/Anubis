@@ -1,4 +1,4 @@
-"Call for submissions."
+"Call for proposals."
 
 import copy
 
@@ -146,30 +146,31 @@ def document(cid, documentname):
         return flask.redirect(
             flask.url_for('.documents', cid=call['identifier']))
 
-@blueprint.route('/<cid>/fields', methods=['GET', 'POST'])
+@blueprint.route('/<cid>/proposal', methods=['GET', 'POST'])
 @utils.admin_required
-def fields(cid):
-    "Display submission fields for delete, and add field."
+def proposal(cid):
+    "Display proposal fields for delete, and add field."
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_GET():
-        return flask.render_template('call/fields.html', call=call)
+        return flask.render_template('call/proposal.html', call=call)
 
     elif utils.http_POST():
         try:
             with CallSaver(call) as saver:
-                saver.add_field(form=flask.request.form)
+                saver.add_proposal_field(form=flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
-        return flask.redirect(flask.url_for('.fields', cid=call['identifier']))
+        return flask.redirect(
+            flask.url_for('.proposal', cid=call['identifier']))
 
-@blueprint.route('/<cid>/field/<fid>', methods=['POST', 'DELETE'])
+@blueprint.route('/<cid>/proposal/<fid>', methods=['POST', 'DELETE'])
 @utils.admin_required
-def field(cid, fid):
-    "Edit or delete the submission field."
+def proposal_field(cid, fid):
+    "Edit or delete the proposal field."
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
@@ -178,18 +179,20 @@ def field(cid, fid):
     if utils.http_POST():
         try:
             with CallSaver(call) as saver:
-                saver.edit_field(fid, form=flask.request.form)
+                saver.edit_proposal_field(fid, form=flask.request.form)
         except (KeyError, ValueError) as error:
             utils.flash_error(str(error))
-        return flask.redirect(flask.url_for('.fields', cid=call['identifier']))
+        return flask.redirect(
+            flask.url_for('.proposal', cid=call['identifier']))
 
     elif utils.http_DELETE():
         try:
             with CallSaver(call) as saver:
-                saver.delete_field(fid)
+                saver.delete_proposal_field(fid)
         except ValueError as error:
             utils.flash_error(str(error))
-        return flask.redirect(flask.url_for('.fields', cid=call['identifier']))
+        return flask.redirect(
+            flask.url_for('.proposal', cid=call['identifier']))
 
 @blueprint.route('/<cid>/reviewers', methods=['GET', 'POST', 'DELETE'])
 @utils.admin_required
@@ -236,31 +239,31 @@ def reviewers(cid):
         return flask.redirect(
             flask.url_for('.reviewers', cid=call['identifier']))
 
-@blueprint.route('/<cid>/evaluation', methods=['GET', 'POST'])
+@blueprint.route('/<cid>/review', methods=['GET', 'POST'])
 @utils.admin_required
-def evaluation(cid):
-    "Display evaluation fields for delete, and add field."
+def review(cid):
+    "Display review fields for delete, and add field."
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_GET():
-        return flask.render_template('call/evaluation.html', call=call)
+        return flask.render_template('call/review.html', call=call)
 
     elif utils.http_POST():
         try:
             with CallSaver(call) as saver:
-                saver.add_evaluation_field(form=flask.request.form)
+                saver.add_review_field(form=flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
         return flask.redirect(
-            flask.url_for('.evaluation', cid=call['identifier']))
+            flask.url_for('.review', cid=call['identifier']))
 
-@blueprint.route('/<cid>/evaluation/<fid>', methods=['POST', 'DELETE'])
+@blueprint.route('/<cid>/review/<fid>', methods=['POST', 'DELETE'])
 @utils.admin_required
-def evaluation_field(cid, fid):
-    "Edit or delete the evaluation field."
+def review_field(cid, fid):
+    "Edit or delete the review field."
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
@@ -269,20 +272,20 @@ def evaluation_field(cid, fid):
     if utils.http_POST():
         try:
             with CallSaver(call) as saver:
-                saver.edit_evaluation_field(fid, form=flask.request.form)
+                saver.edit_review_field(fid, form=flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
         return flask.redirect(
-            flask.url_for('.evaluation', cid=call['identifier']))
+            flask.url_for('.review', cid=call['identifier']))
 
     elif utils.http_DELETE():
         try:
             with CallSaver(call) as saver:
-                saver.delete_evaluation_field(fid)
+                saver.delete_review_field(fid)
         except ValueError as error:
             utils.flash_error(str(error))
         return flask.redirect(
-            flask.url_for('.evaluation', cid=call['identifier']))
+            flask.url_for('.review', cid=call['identifier']))
 
 @blueprint.route('/<cid>/clone', methods=['GET', 'POST'])
 @utils.admin_required
@@ -301,7 +304,7 @@ def clone(cid):
             with CallSaver() as saver:
                 saver.set_identifier(flask.request.form.get('identifier'))
                 saver.set_title(flask.request.form.get('title'))
-                saver.doc['fields'] = copy.deepcopy(call['fields'])
+                saver.doc['proposal'] = copy.deepcopy(call['proposal'])
                 # Do not copy documents.
                 # Do not copy reviewers or chairs.
             new = saver.doc
@@ -325,11 +328,11 @@ def logs(cid):
         back_url=flask.url_for('.display', cid=call['identifier']),
         logs=utils.get_logs(call['_id']))
 
-@blueprint.route('/<cid>/submission', methods=['POST'])
+@blueprint.route('/<cid>/proposal', methods=['POST'])
 @utils.login_required
-def submission(cid):
-    "Create a new submission within the call."
-    import anubis.submission 
+def create_proposal(cid):
+    "Create a new proposal within the call."
+    import anubis.proposal 
     call = get_call(cid)
     if call is None:
         utils.flash_error('No such call.')
@@ -341,11 +344,11 @@ def submission(cid):
         utils.flash_error('You may not submit to this call.')
 
     if utils.http_POST():
-        with anubis.submission.SubmissionSaver(call=call) as saver:
+        with anubis.proposal.ProposalSaver(call=call) as saver:
             pass
         doc = saver
         return flask.redirect(
-            flask.url_for('submission.edit', sid=doc['identifier']))
+            flask.url_for('proposal.edit', sid=doc['identifier']))
 
 
 class CallSaver(AttachmentsSaver):
@@ -356,9 +359,9 @@ class CallSaver(AttachmentsSaver):
     def initialize(self):
         self.doc['opens'] = None
         self.doc['closes'] = None
-        self.doc['fields'] = []
+        self.doc['proposal'] = []
         self.doc['documents'] = []
-        self.doc['evaluation'] = []
+        self.doc['review'] = []
         self.doc['reviewers'] = []
         self.doc['chairs'] = []
 
@@ -382,12 +385,13 @@ class CallSaver(AttachmentsSaver):
             raise ValueError('Title must be provided.')
         self.doc['title'] = title
 
-    def add_field(self, form=dict()):
-        "Add a field to the submission definition."
+    def add_proposal_field(self, form=dict()):
+        "Add a field to the proposal definition."
         field = self.get_new_field(form=form)
-        if field['identifier'] in [f['identifier'] for f in self.doc['fields']]:
+        if field['identifier'] in [f['identifier'] 
+                                   for f in self.doc['proposal']]:
             raise ValueError('Field identifier is already in use.')
-        self.doc['fields'].append(field)
+        self.doc['proposal'].append(field)
 
     def get_new_field(self, form=dict()):
         "Get the field definition from the form."
@@ -458,14 +462,14 @@ class CallSaver(AttachmentsSaver):
 
         return field
 
-    def edit_field(self, fid, form=dict()):
-        "Edit the field for the submission definition."
-        for field in self.doc['fields']:
+    def edit_proposal_field(self, fid, form=dict()):
+        "Edit the field for the proposal definition."
+        for field in self.doc['proposal']:
             if field['identifier'] == fid:
                 self.update_field(field, form=form)
                 break
         else:
-            raise KeyError('No such submission field.')
+            raise KeyError('No such proposal field.')
 
     def update_field(self, field, form=dict()):
         "Edit the field definition from the form."
@@ -523,35 +527,35 @@ class CallSaver(AttachmentsSaver):
             field['maximum'] = maximum
             field['slider'] = utils.to_bool(form.get('slider'))
 
-    def delete_field(self, fid):
-        for pos, field in enumerate(self.doc['fields']):
+    def delete_proposal_field(self, fid):
+        for pos, field in enumerate(self.doc['proposal']):
             if field['identifier'] == fid:
-                self.doc['fields'].pop(pos)
+                self.doc['proposal'].pop(pos)
                 break
         else:
-            raise ValueError('No such submission field.')
+            raise ValueError('No such proposal field.')
 
-    def add_evaluation_field(self, form=dict()):
+    def add_review_field(self, form=dict()):
         field = self.get_new_field(form=form)
-        if field['identifier'] in [f['identifier'] for f in self.doc['evaluation']]:
+        if field['identifier'] in [f['identifier'] for f in self.doc['review']]:
             raise ValueError('Field identifier is already in use.')
-        self.doc['evaluation'].append(field)
+        self.doc['review'].append(field)
 
-    def edit_evaluation_field(self, fid, form=dict()):
-        for field in self.doc['evaluation']:
+    def edit_review_field(self, fid, form=dict()):
+        for field in self.doc['review']:
             if field['identifier'] == fid:
                 self.update_field(field, form=form)
                 break
         else:
-            raise KeyError('No such evaluation field.')
+            raise KeyError('No such review field.')
 
-    def delete_evaluation_field(self, fid):
-        for pos, field in enumerate(self.doc['evaluation']):
+    def delete_review_field(self, fid):
+        for pos, field in enumerate(self.doc['review']):
             if field['identifier'] == fid:
-                self.doc['evaluation'].pop(pos)
+                self.doc['review'].pop(pos)
                 break
         else:
-            raise ValueError('No such evaluation field.')
+            raise ValueError('No such review field.')
 
     def add_document(self, infile, description):
         "Add a document."
@@ -590,21 +594,21 @@ def set_call_cache(call):
     This is computed data that will not be stored with the document.
     Depends on login, privileges, etc.
     """
-    from anubis.submissions import get_submissions_count
-    from anubis.evaluations import get_call_evaluations_count
+    from anubis.proposals import get_proposals_count
+    from anubis.reviews import get_call_reviews_count
     # XXX disallow even admin if open?
     call['cache'] = cache = dict(is_editable=flask.g.is_admin,
                                  is_reviewer=False)
-    # Submissions count
+    # Proposals count
     if flask.g.is_admin:
-        cache['submissions_count'] = get_submissions_count(call=call)
+        cache['proposals_count'] = get_proposals_count(call=call)
         cache['is_reviewer'] = True
     if flask.g.current_user:
-        cache['my_submissions_count'] = get_submissions_count(
+        cache['my_proposals_count'] = get_proposals_count(
             username=flask.g.current_user['username'], call=call)
         # Note: operator '|=' is intentional.
         cache['is_reviewer'] |= flask.g.current_user['username'] in call['reviewers']
-        cache['evaluations_count'] = get_call_evaluations_count(call)
+        cache['reviews_count'] = get_call_reviews_count(call)
     # Open/closed status
     now = utils.normalized_local_now()
     if call['opens']:

@@ -1,23 +1,23 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Edit evaluation of {{ evaluation['cache']['submission']['identifier'] }}
+Edit review of {{ review['cache']['submission']['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-Edit evaluation of {{ evaluation['cache']['submission']['identifier'] }}
+Edit review of {{ review['cache']['submission']['identifier'] }}
 {% endblock %}
 
 {% block main %}
-<form action="{{ url_for('.edit', iuid=evaluation['_id']) }}"
+<form action="{{ url_for('.edit', iuid=review['_id']) }}"
       enctype="multipart/form-data"
       method="POST">
   {{ csrf_token() }}
 
-  {% set fields = evaluation['cache']['submission']['cache']['call']['evaluation'] %}
-  {% set values = evaluation['values'] %}
-  {% set errors = evaluation['errors'] %}
-  {% set attachments = evaluation.get('_attachments', {}) %}
+  {% set fields = review['cache']['submission']['cache']['call']['review'] %}
+  {% set values = review['values'] %}
+  {% set errors = review['errors'] %}
+  {% set attachments = review.get('_attachments', {}) %}
   {% include 'edit_fields_values.html' %}
 
   <div class="form-group row">
@@ -30,7 +30,7 @@ Edit evaluation of {{ evaluation['cache']['submission']['identifier'] }}
 
 {% block actions %}
 <div class="mt-2">
-  <form action="{{ url_for('.display', iuid=evaluation['_id']) }}"
+  <form action="{{ url_for('.display', iuid=review['_id']) }}"
 	method="GET">
     <button type="submit" class="btn btn-block btn-dark">Cancel</button>
   </form>

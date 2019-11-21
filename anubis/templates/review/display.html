@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block head_title %}
+Review of {{ review['cache']['proposal']['identifier'] }}
+{% endblock %}
+
+{% block body_title %}
+Review of
+<a href="{{ url_for('proposal.display', sid=review['cache']['proposal']['identifier']) }}">
+  {{ review['cache']['proposal']['identifier'] }}
+</a>
+{% endblock %}
+
+{% block main %}
+{% set proposal = review['cache']['proposal'] %}
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Proposal title</div>
+  <div class="col-md">{{ proposal['title'] }}</div>
+</div>
+{# XXX access? #}
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Submitter</div>
+  <div class="col-md">
+    <a href="{{ url_for('user.display', username=proposal['user']) }}">
+      {{ proposal['user'] }}</a>
+  </div>
+</div>
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Call</div>
+  <div class="col-md">
+    <a href="{{ url_for('call.display', cid=proposal['cache']['call']['identifier']) }}"
+       title="{{ proposal['cache']['call']['title'] }}">
+      {{ proposal['cache']['call']['identifier'] }}: 
+      {{ proposal['cache']['call']['title'] }}</a>
+  </div>
+</div>
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Reviewer</div>
+  <div class="col-md">
+    <a href="{{ url_for('user.display', username=review['reviewer']) }}">
+      {{ review['reviewer'] }}</a>
+  </div>
+</div>
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Finalized</div>
+  <div class="col-md">{{ macros.finalized(review) }}</div>
+</div>
+
+{% set fields = proposal['cache']['call']['review'] %}
+{% set values = review['values'] %}
+{% set errors = review['errors'] %}
+{% set attachments = review.get('_attachments', {}) %}
+{% include 'display_fields_values.html' %}
+
+{% endblock %} {# block main #}
+
+{% block actions %}
+{% if review.get('finalized') %}
+<div class="mt-2">
+  <form action="{{ url_for('.unfinalize', iuid=review['_id']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <button type="submit" class="btn btn-block btn-warning">
+      Unfinalize</button>
+  </form>
+</div>
+{% else %}
+<div class="mt-2">
+  <form action="{{ url_for('.finalize', iuid=review['_id']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <button type="submit" class="btn btn-block btn-success">
+      Finalize</button>
+  </form>
+</div>
+{% endif %} {# if review.get('finalized') #}
+<div class="mt-2">
+  <a href="{{ url_for('.edit', iuid=review['_id']) }}"
+     role="button" class="btn btn-primary btn-block">Edit</a>
+</div>
+{% endblock %} {# block actions #}
+
+{% block info %}
+<div class="small">
+  Modified <span class="localtime">{{ review['modified'] }}</span>
+  <span class="ml-4">
+    Created <span class="localtime">{{ review['created'] }}</span>
+  </span>
+  <span class="ml-4">
+    <a href="{{ url_for('.logs', iuid=review['_id']) }}">Logs</a>
+  </span>
+</div>
+{% endblock %} {# block info #}
