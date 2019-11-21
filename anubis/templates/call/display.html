@@ -141,7 +141,7 @@
 {% block actions %}
 {% if call['cache']['is_open'] and call['cache']['may_submit'] %}
 <div class="mt-2">
-  <form action="{{ url_for('.proposal', cid=call['identifier']) }}"
+  <form action="{{ url_for('.create_proposal', cid=call['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-block btn-primary">
