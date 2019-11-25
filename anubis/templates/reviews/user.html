@@ -32,7 +32,7 @@ Reviews by reviewer
 	  {{ call['identifier'] }}</a>
       </td>
       <td>
-	<a href="{{ url_for('proposal.display', sid=proposal['identifier']) }}"
+	<a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}"
 	   title="{{ proposal.get('title') or '-' }}">
 	  {{ proposal['identifier'] }}</a>
       </td>

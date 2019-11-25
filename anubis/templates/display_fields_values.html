@@ -32,7 +32,7 @@
     {% if documentname %}
     <span class="font-weight-bold">{{ documentname }}</span>
     {% if attachments.get(documentname) %}
-    <a href="{{ url_for('submission.document', sid=submission['identifier'], documentname=documentname) }}"
+    <a href="{{ url_for('proposal.document', pid=proposal['identifier'], documentname=documentname) }}"
        role="button" class="btn btn-secondary btn-sm ml-4">
       Download 
       ({{ attachments[documentname]['length'] | thousands }} bytes)

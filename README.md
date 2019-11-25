@@ -5,71 +5,55 @@ Proposal review handling system.
 ## Entities
 
 - User
-  - Required: username, email
-  - Configurable: affiliation, postal address, gender, birth date, title
+  - Required: username, email.
+  - Configurable: affiliation, postal address, gender, birth date, title.
   - Login required, password and reset code sent by email.
   - Roles:
-    - Admin: can do everything
-    - User: ordinary users
-    - Capacity; role within a specific call
-      - "submitter" if user has submitted within a specific call
-      - "reviewer" for a specific call; designated by admin
+    - Admin: can do everything.
+    - User: ordinary users.
+    - Reviewer = a user designated as reviewer for a call by admin.
   - Anonymity
-    - Users are anonymous vs other users by default (except admin)
-    - Reviewers visible to each other within call: settable
-    - Users visible to reviewers within call: settable
+    - Users are anonymous vs other users (except admin, who can see all)
   
 - Call
-  - = Call for submissions.
-  - Container of submissions.
+  - = Call for proposals.
+  - Container of proposals.
   - Unique prefix (identifier) letters, digits, underscore
   - With info, documents, instructions, etc, for the user (applicant).
-  - Configurable fields to be filled in for a submission.
+  - Configurable fields to be filled in for a proposal.
   - Handled by admin.
   - Date opened
   - Date closed (time, local)
   - Status determined by dates.
   
-- Submission
-  - = Application; the proposal to be reviewed.
-  - Belongs to one and only one call.
+- Proposal
+  - = Application = submission; the proposal to be reviewed.
+  - Belongs to one and only one call, and one and only one user.
   - Identifier: {prefix}:001
   - Information fields; defined in the call.
   - Attached documents (project description, CV,...)
   - Made by user.
-  - Submitted or not submitted
-  - Consortium = group of user that may access a submission.
-  - Reviewer relation
+  - Submitted or not submitted.
+  - Reviewer relation: TODO
     - Interest
     - Conflict-of-interest
     - Assignment
     - Responsibility
   
-- Evaluation
-  - A reviewer's comments and assessment of a submission.
+- Review
+  - A reviewer's comments and assessment of a proposal.
   - Criteria = reviewer's assessment fields; defined in the call.
-  - Owned by reviewer; settable privileges for other reviewers.
-
-- Decision
-  - Aggregated evaluations from reviewers.
-  - Anonymous reviewers or not? settable
-  - Conclusion: Consensus comment and assessment.
-  - Judgement
-    - Classes (shortlist, excluded...)
-    - Priority; numerical
-    - Ranking; relative order
-  - Grant (amount of money, or other resource)
-  - Which info to communicate to submitter, and to public
-  - Date of communication
+  - Owned by reviewer.
 
 - Overview
-  - Tables of various submission properties
+  - Aggregated reviews from reviewers.
+  - Tables of various proposal properties
   - Tables of various assessment properties
   - Aggregates of properties
 
 ## Built on
 
-Python3, Flask, CouchDB server, CouchDB2 (Python module), jsonschema,
+Python3, Flask, CouchDB server, CouchDB2 (Python module),
 Bootstrap, jQuery, DataTables.
 
 ## Commercial systems

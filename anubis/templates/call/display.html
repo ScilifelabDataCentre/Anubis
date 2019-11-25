@@ -3,7 +3,7 @@
 {% block head_title %}{{ call['identifier'] }}{% endblock %}
 
 {% block body_title %}
-{{ call['title'] }}
+{{ call['identifier'] }}: {{ call['title'] }}
 <small class="text-muted ml-3">Call for proposals</small>
 {% endblock %}
 
@@ -26,10 +26,6 @@
     <span class="mr-4">{{ call['closes'] or '-' }}</span>
     {{ macros.call_closes(call) }}
   </div>
-</div>
-<div class="row">
-  <div class="col-md-2 font-weight-bold text-right">Identifier</div>
-  <div class="col-md">{{ call['identifier'] }}</div>
 </div>
 {% if g.current_user %}
 <div class="row">
@@ -109,7 +105,7 @@
 </div>
 
 <div class="row">
-  <div class="col-md-2 font-weight-bold text-right">Proposal fields</div>
+  <div class="col-md-2 font-weight-bold text-right">Proposal inputs</div>
   <div class="col-md">
     {% for field in call['proposal'] %}
     <div class="card mt-2">
@@ -123,7 +119,7 @@
 
 {% if g.is_admin %}
 <div class="row">
-  <div class="col-md-2 font-weight-bold text-right">Review fields</div>
+  <div class="col-md-2 font-weight-bold text-right">Review inputs</div>
   <div class="col-md">
     {% for field in call['review'] %}
     <div class="card mt-2">

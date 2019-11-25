@@ -42,12 +42,12 @@
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Reviews</div>
   <div class="col-md-1">
-    <a href="{{ url_for('reviews.proposal', sid=proposal['identifier']) }}">
+    <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}">
       <span class="badge badge-info">
 	{{ proposal['cache']['reviews_count'] }}</span></a>
   </div>
   <div class="col-md">
-    <form action="{{ url_for('review.create', sid=proposal['identifier']) }}"
+    <form action="{{ url_for('review.create', pid=proposal['identifier']) }}"
 	  method="POST">
       {{ csrf_token() }}
       <button type="submit" class="btn btn-sm btn-info">My review</button>
@@ -69,7 +69,7 @@
 {% if proposal['cache']['is_submittable'] %}
 {% if proposal.get('submitted') %}
 <div class="mt-2">
-  <form action="{{ url_for('.unsubmit', sid=proposal['identifier']) }}"
+  <form action="{{ url_for('.unsubmit', pid=proposal['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-block btn-warning">
@@ -78,7 +78,7 @@
 </div>
 {% else %}
 <div class="mt-2">
-  <form action="{{ url_for('.submit', sid=proposal['identifier']) }}"
+  <form action="{{ url_for('.submit', pid=proposal['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-block btn-success">
@@ -90,11 +90,11 @@
 
 {% if proposal['cache']['is_editable'] %}
 <div class="mt-2">
-  <a href="{{ url_for('.edit', sid=proposal['identifier']) }}"
+  <a href="{{ url_for('.edit', pid=proposal['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
 <div class="mt-2">
-  <form action="{{ url_for('.edit', sid=proposal['identifier']) }}"
+  <form action="{{ url_for('.edit', pid=proposal['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
     <input type="hidden" name="_http_method" value="DELETE">
@@ -114,7 +114,7 @@
     Created <span class="localtime">{{ proposal['created'] }}</span>
   </span>
   <span class="ml-4">
-    <a href="{{ url_for('.logs', sid=proposal['identifier']) }}">Logs</a>
+    <a href="{{ url_for('.logs', pid=proposal['identifier']) }}">Logs</a>
   </span>
 </div>
 {% endblock %} {# block info #}

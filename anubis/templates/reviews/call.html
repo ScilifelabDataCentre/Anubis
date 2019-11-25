@@ -29,7 +29,7 @@ Reviews for call
     {% set proposal = review['cache']['proposal'] %}
     <tr>
       <td>
-	<a href="{{ url_for('proposal.display', sid=proposal['identifier']) }}"
+	<a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}"
 	   title="{{ proposal.get('title') or '-' }}">
 	  {{ proposal['identifier'] }}</a>
       </td>

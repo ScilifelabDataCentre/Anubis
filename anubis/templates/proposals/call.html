@@ -27,7 +27,7 @@ Proposals in call
     {% for proposal in proposals %}
     <tr>
       <td>
-	<a href="{{ url_for('proposal.display', sid=proposal['identifier']) }}">
+	<a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}">
 	  {{ proposal['identifier'] }}</a>
       </td>
       <td>{{ proposal.get('title') or '-' }}</td>

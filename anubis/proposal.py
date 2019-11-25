@@ -32,11 +32,11 @@ DESIGN_DOC = {
 
 blueprint = flask.Blueprint('proposal', __name__)
 
-@blueprint.route('/<sid>')
+@blueprint.route('/<pid>')
 @utils.login_required
-def display(sid):
+def display(pid):
     "Display the proposal."
-    proposal = get_proposal(sid)
+    proposal = get_proposal(pid)
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
@@ -45,11 +45,11 @@ def display(sid):
         return flask.redirect(flask.url_for('home'))
     return flask.render_template('proposal/display.html', proposal=proposal)
 
-@blueprint.route('/<sid>/edit', methods=['GET', 'POST', 'DELETE'])
+@blueprint.route('/<pid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.login_required
-def edit(sid):
+def edit(pid):
     "Edit the proposal."
-    proposal = get_proposal(sid)
+    proposal = get_proposal(pid)
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
@@ -58,47 +58,47 @@ def edit(sid):
         if not proposal['cache']['is_editable']:
             utils.flash_error('You are not allowed to edit the proposal.')
             return flask.redirect(
-                flask.url_for('.display', sid=proposal['identifier']))
+                flask.url_for('.display', pid=proposal['identifier']))
         return flask.render_template('proposal/edit.html', proposal=proposal)
 
     elif utils.http_POST():
         if not proposal['cache']['is_editable']:
             utils.flash_error('You are not allowed to edit the proposal.')
             return flask.redirect(
-                flask.url_for('.display', sid=proposal['identifier']))
+                flask.url_for('.display', pid=proposal['identifier']))
         try:
             with ProposalSaver(proposal) as saver:
                 saver['title'] = flask.request.form.get('_title') or None
-                for field in proposal['cache']['call']['fields']:
+                for field in proposal['cache']['call']['proposal']:
                     saver.set_field_value(field, form=flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
             return flask.redirect(
-                flask.url_for('.edit', sid=proposal['identifier']))
+                flask.url_for('.edit', pid=proposal['identifier']))
         return flask.redirect(
-            flask.url_for('.display', sid=proposal['identifier']))
+            flask.url_for('.display', pid=proposal['identifier']))
 
     elif utils.http_DELETE():
         if not proposal['cache']['is_editable']:
             utils.flash_error('You are not allowed to delete the proposal.')
             return flask.redirect(
-                flask.url_for('.display', sid=proposal['identifier']))
+                flask.url_for('.display', pid=proposal['identifier']))
         utils.delete(proposal)
-        utils.flash_message(f"Deleted proposal {sid}.")
+        utils.flash_message(f"Deleted proposal {pid}.")
         return flask.redirect(flask.url_for('home'))
 
-@blueprint.route('/<sid>/submit', methods=['POST'])
+@blueprint.route('/<pid>/submit', methods=['POST'])
 @utils.login_required
-def submit(sid):
+def submit(pid):
     "Submit the proposal."
-    proposal = get_proposal(sid)
+    proposal = get_proposal(pid)
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
     if not proposal['cache']['is_submittable']:
         utils.flash_error('Submit disallowed; call closed.')
         return flask.redirect(
-            flask.url_for('.display', sid=proposal['identifier']))
+            flask.url_for('.display', pid=proposal['identifier']))
 
     if utils.http_POST():
         try:
@@ -106,20 +106,20 @@ def submit(sid):
                 saver.set_submitted()
         except ValueError as error:
             utils.flash_error(str(error))
-        return flask.redirect(flask.url_for('.display', sid=sid))
+        return flask.redirect(flask.url_for('.display', pid=pid))
 
-@blueprint.route('/<sid>/unsubmit', methods=['POST'])
+@blueprint.route('/<pid>/unsubmit', methods=['POST'])
 @utils.login_required
-def unsubmit(sid):
+def unsubmit(pid):
     "Unsubmit the proposal."
-    proposal = get_proposal(sid)
+    proposal = get_proposal(pid)
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
     if not proposal['cache']['is_submittable']:
         utils.flash_error('Unsubmit disallowed; call closed.')
         return flask.redirect(
-            flask.url_for('.display', sid=proposal['identifier']))
+            flask.url_for('.display', pid=proposal['identifier']))
 
     if utils.http_POST():
         try:
@@ -127,13 +127,13 @@ def unsubmit(sid):
                 saver.set_unsubmitted()
         except ValueError as error:
             utils.flash_error(str(error))
-        return flask.redirect(flask.url_for('.display', sid=sid))
+        return flask.redirect(flask.url_for('.display', pid=pid))
 
-@blueprint.route('/<sid>/logs')
+@blueprint.route('/<pid>/logs')
 @utils.login_required
-def logs(sid):
+def logs(pid):
     "Display the log records of the given proposal."
-    proposal = get_proposal(sid)
+    proposal = get_proposal(pid)
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
@@ -144,14 +144,14 @@ def logs(sid):
     return flask.render_template(
         'logs.html',
         title=f"Proposal {proposal['identifier']}",
-        back_url=flask.url_for('.display', sid=proposal['identifier']),
+        back_url=flask.url_for('.display', pid=proposal['identifier']),
         logs=utils.get_logs(proposal['_id']))
 
-@blueprint.route('/<sid>/document/<documentname>')
+@blueprint.route('/<pid>/document/<documentname>')
 @utils.login_required
-def document(sid, documentname):
+def document(pid, documentname):
     "Download the given proposal document (attachment file)."
-    proposal = get_proposal(sid)
+    proposal = get_proposal(pid)
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
@@ -164,7 +164,7 @@ def document(sid, documentname):
     except KeyError:
         utils.flash_error('No such document in proposal.')
         return flask.redirect(
-            flask.url_for('.display', sid=proposal['identifier']))
+            flask.url_for('.display', pid=proposal['identifier']))
     outfile = flask.g.db.get_attachment(proposal, documentname)
     response = flask.make_response(outfile.read())
     response.headers.set('Content-Type', stub['content_type'])
@@ -210,7 +210,7 @@ class ProposalSaver(FieldMixin, AttachmentsSaver):
             call['counter'] = counter
         self.doc['identifier'] = f"{call['identifier']}:{counter:03d}"
         self.doc['values'] = dict([(f['identifier'], None) 
-                                   for f in call['fields']])
+                                   for f in call['proposal']])
 
     def set_submitted(self):
         if not self.doc['cache']['is_submittable']:
@@ -223,10 +223,10 @@ class ProposalSaver(FieldMixin, AttachmentsSaver):
         self.doc.pop('submitted', None)
 
 
-def get_proposal(sid):
+def get_proposal(pid):
     "Return the proposal with the given identifier."
     result = [r.doc for r in flask.g.db.view('proposals', 'identifier',
-                                             key=sid,
+                                             key=pid,
                                              include_docs=True)]
     if len(result) == 1:
         return set_proposal_cache(result[0])

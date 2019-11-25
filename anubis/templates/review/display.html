@@ -6,7 +6,7 @@ Review of {{ review['cache']['proposal']['identifier'] }}
 
 {% block body_title %}
 Review of
-<a href="{{ url_for('proposal.display', sid=review['cache']['proposal']['identifier']) }}">
+<a href="{{ url_for('proposal.display', pid=review['cache']['proposal']['identifier']) }}">
   {{ review['cache']['proposal']['identifier'] }}
 </a>
 {% endblock %}

@@ -19,10 +19,14 @@
   <tr>
     <th class="text-right">Reviewer in calls</th>
     <td>
-      {% for cid in user['reviewer'] %}
+      {% if user['reviewer_calls'] %}
+      {% for cid in user['reviewer_calls'] %}
       <a href="{{ url_for('call.display', cid=cid) }}">{{ cid }}</a>
       <br>
       {% endfor %}
+      {% else %}
+      <i>None</i>
+      {% endif %}
     </td>
   </tr>
   <tr>

@@ -4,7 +4,6 @@ import sys
 
 import couchdb2
 import flask
-import jsonschema
 
 import anubis
 from . import constants
@@ -29,8 +28,6 @@ def get_software():
          'https://couchdb.apache.org/'),
         ('CouchDB2 interface', couchdb2.__version__, 
          'https://pypi.org/project/couchdb2'),
-        ('jsonschema', jsonschema.__version__, 
-         'https://pypi.org/project/jsonschema'),
         ('Bootstrap', constants.BOOTSTRAP_VERSION, 'https://getbootstrap.com/'),
         ('jQuery', constants.JQUERY_VERSION, 'https://jquery.com/'),
         ('DataTables', constants.DATATABLES_VERSION, 'https://datatables.net/'),

@@ -6,7 +6,7 @@ Reviews for proposal {{ proposal['identifier'] }}
 
 {% block body_title %}
 Reviews for proposal
-<a href="{{ url_for('proposal.display', sid=proposal['identifier']) }}">
+<a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}">
   {{ proposal['identifier'] }}</a>
 {% endblock %}
 

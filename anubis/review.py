@@ -29,15 +29,15 @@ DESIGN_DOC = {
 
 blueprint = flask.Blueprint('review', __name__)
 
-@blueprint.route('/<sid>', methods=['POST'])
+@blueprint.route('/<pid>', methods=['POST'])
 @utils.login_required
-def create(sid):
+def create(pid):
     """Create a new review for the proposal.
     Redirect to existing if the user (reviewer) already has one.
     """
     from anubis.proposal import get_proposal
     from anubis.call import get_call
-    proposal = get_proposal(sid)
+    proposal = get_proposal(pid)
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))

@@ -37,12 +37,12 @@ def call(cid):
                                  scorefields=scorefields,
                                  reviews=reviews)
 
-@blueprint.route('/proposal/<sid>')
+@blueprint.route('/proposal/<pid>')
 @utils.login_required
-def proposal(sid):
+def proposal(pid):
     "List all reviews for a proposal."
     from anubis.proposal import get_proposal
-    proposal = get_proposal(sid)
+    proposal = get_proposal(pid)
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))

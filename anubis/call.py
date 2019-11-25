@@ -328,7 +328,7 @@ def logs(cid):
         back_url=flask.url_for('.display', cid=call['identifier']),
         logs=utils.get_logs(call['_id']))
 
-@blueprint.route('/<cid>/proposal', methods=['POST'])
+@blueprint.route('/<cid>/create_proposal', methods=['POST'])
 @utils.login_required
 def create_proposal(cid):
     "Create a new proposal within the call."
@@ -350,7 +350,7 @@ def create_proposal(cid):
             pass
         doc = saver
         return flask.redirect(
-            flask.url_for('proposal.edit', sid=doc['identifier']))
+            flask.url_for('proposal.edit', pid=doc['identifier']))
 
 
 class CallSaver(AttachmentsSaver):
@@ -600,17 +600,20 @@ def set_call_cache(call):
     from anubis.reviews import get_call_reviews_count
     # XXX disallow even admin if open?
     call['cache'] = cache = dict(is_editable=flask.g.is_admin,
-                                 is_reviewer=False)
+                                 is_reviewer=False,
+                                 may_submit=False)
     # Proposals count
     if flask.g.is_admin:
         cache['proposals_count'] = get_proposals_count(call=call)
         cache['is_reviewer'] = True
-    if flask.g.current_user:
+        cache['may_submit'] = True
+    elif flask.g.current_user:
         cache['my_proposals_count'] = get_proposals_count(
             username=flask.g.current_user['username'], call=call)
         # Note: operator '|=' is intentional.
         cache['is_reviewer'] |= flask.g.current_user['username'] in call['reviewers']
         cache['reviews_count'] = get_call_reviews_count(call)
+        cache['may_submit'] = not cache['is_reviewer']
     # Open/closed status
     now = utils.normalized_local_now()
     if call['opens']:
@@ -671,5 +674,4 @@ def set_call_cache(call):
             cache['is_published'] = False
             cache['text'] = 'No open or close dates set.'
             cache['color'] = 'secondary'
-    cache['may_submit'] = flask.g.is_admin or not cache['is_reviewer']
     return call
