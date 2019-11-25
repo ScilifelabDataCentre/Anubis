@@ -5,44 +5,33 @@ Reviews for proposal {{ proposal['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-Reviews for proposal
+Reviews for proposal {{ proposal['identifier'] }}
 <a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}">
   {{ proposal['identifier'] }}</a>
 {% endblock %}
 
 {% block supermain %}
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Proposal title</div>
+  <div class="col-md">
+    <a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}">
+      {{ proposal['title'] }}</a>
+  </div>
+</div>
+
 <table id="reviews" class="table">
   <thead>
     <tr>
-      {# XXX Check access to view user #}
-      <th>Submitter</th>
       <th>Reviewer</th>
-      <th>Finalized</th>
-      {% for scorefield in scorefields %}
-      <th>{{ scorefield['title'] }}</th>
-      {% endfor %}
     </tr>
   </thead>
   <tbody>
-    {% for review in reviews %}
+    {% for reviewer in reviewers %}
     <tr>
-      <td>{{ proposal['user'] }}</td>
       <td>
-	<a href="{{ url_for('review.display', iuid=review['_id']) }}">
-	  {{ review['reviewer'] }}</a>
-      <td>
-	{% if review.get('finalized') %}
-	<span class="badge badge-success">Yes</span>
-	{% else %}
-	<span class="badge badge-warning">No</span>
-	{% endif %}
+	<a href="{{ url_for('user.display', username=user['username']) }}">
+	  {{ user['username'] }}</a>
       </td>
-      {# XXX Check access to view user #}
-      {% for scorefield in scorefields %}
-      <td>
-	{{ review['values'].get(scorefield['identifier']) | value_or_none }}
-      </td>
-      {% endfor %}
     </tr>
     {% endfor %}
   </tbody>

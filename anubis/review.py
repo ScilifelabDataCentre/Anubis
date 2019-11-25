@@ -18,8 +18,8 @@ DESIGN_DOC = {
     'views': {
         'call': {'reduce': '_count',
                  'map': "function(doc) {if (doc.doctype !== 'review') return; emit(doc.call, null);}"},
-        'proposal_reviewer': {'reduce': '_count',
-                                'map': "function(doc) {if (doc.doctype !== 'review') return; emit([doc.proposal, doc.reviewer], null);}"},
+        'proposal': {'reduce': '_count',
+                     'map': "function(doc) {if (doc.doctype !== 'review') return; emit(doc.proposal, null);}"},
         'call_reviewer': {'reduce': '_count',
                           'map': "function(doc) {if (doc.doctype !== 'review') return; emit([doc.call, doc.reviewer], null);}"},
         'reviewer': {'reduce': '_count',
@@ -28,33 +28,6 @@ DESIGN_DOC = {
 }
 
 blueprint = flask.Blueprint('review', __name__)
-
-@blueprint.route('/<pid>', methods=['POST'])
-@utils.login_required
-def create(pid):
-    """Create a new review for the proposal.
-    Redirect to existing if the user (reviewer) already has one.
-    """
-    from anubis.proposal import get_proposal
-    from anubis.call import get_call
-    proposal = get_proposal(pid)
-    if proposal is None:
-        utils.flash_error('No such proposal.')
-        return flask.redirect(flask.url_for('home'))
-    review = get_review(proposal, flask.g.current_user)
-    if review is None:
-        call = proposal['cache']['call']
-        if not (flask.g.is_admin or
-                flask.g.current_user['username'] in call['reviewers']):
-            utils.flash_error('You are not a reviewer for the call.')
-            return flask.redirect(flask.url_for('home'))
-        with ReviewSaver(proposal=proposal) as saver:
-            pass
-        review = saver.doc
-    elif not review['cache']['is_readable']:
-        utils.flash_error('You are not allowed to read this review.')
-        return flask.redirect(flask.url_for('home'))
-    return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
 @blueprint.route('/<iuid:iuid>')
 @utils.login_required
@@ -72,7 +45,7 @@ def display(iuid):
     return flask.render_template('review/display.html',
                                  review=review)
 
-@blueprint.route('/<iuid:iuid>/edit', methods=['GET', 'POST'])
+@blueprint.route('/<iuid:iuid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.login_required
 def edit(iuid):
     "Edit the review for the proposal."
@@ -100,6 +73,11 @@ def edit(iuid):
                 flask.url_for('.edit', iuid=review['_id']))
         return flask.redirect(
             flask.url_for('.display', iuid=review['_id']))
+
+    elif utils.http_DELETE():
+        utils.delete(review)
+        utils.flash_message('Deleted review.')
+        return flask.redirect(flask.url_for('home'))
 
 @blueprint.route('/<iuid:iuid>/finalize', methods=['POST'])
 @utils.login_required
@@ -145,7 +123,7 @@ def unfinalize(iuid):
         return flask.redirect(
             flask.url_for('.display', iuid=review['_id']))
 
-@blueprint.route('/<iuid>/logs')
+@blueprint.route('/<iuid:iuid>/logs')
 @utils.login_required
 def logs(iuid):
     "Display the log records of the call."
@@ -162,6 +140,31 @@ def logs(iuid):
               f" by {review['reviewer']}",
         back_url=flask.url_for('.display', iuid=review['_id']),
         logs=utils.get_logs(review['_id']))
+
+@blueprint.route('/<iuid:iuid>/document/<documentname>')
+@utils.login_required
+def document(iuid, documentname):
+    "Download the given review document (attachment file)."
+    review = get_review(iuid)
+    if review is None:
+        utils.flash_error('No such review.')
+        return flask.redirect(flask.url_for('home'))
+    if not review['cache']['is_readable']:
+        utils.flash_error('You are not allowed to read this review.')
+        return flask.redirect(flask.url_for('home'))
+
+    try:
+        stub = review['_attachments'][documentname]
+    except KeyError:
+        utils.flash_error('No such document in review.')
+        return flask.redirect(
+            flask.url_for('.display', iuid=review['identifier']))
+    outfile = flask.g.db.get_attachment(review, documentname)
+    response = flask.make_response(outfile.read())
+    response.headers.set('Content-Type', stub['content_type'])
+    response.headers.set('Content-Disposition', 'attachment', 
+                         filename=documentname)
+    return response
 
 
 class ReviewSaver(FieldMixin, BaseSaver):

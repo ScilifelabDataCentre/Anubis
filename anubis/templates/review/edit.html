@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Edit review of {{ review['cache']['submission']['identifier'] }}
+Edit review of {{ review['cache']['proposal']['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-Edit review of {{ review['cache']['submission']['identifier'] }}
+Edit review of {{ review['cache']['proposal']['identifier'] }}
 {% endblock %}
 
 {% block main %}
@@ -14,7 +14,7 @@ Edit review of {{ review['cache']['submission']['identifier'] }}
       method="POST">
   {{ csrf_token() }}
 
-  {% set fields = review['cache']['submission']['cache']['call']['review'] %}
+  {% set fields = review['cache']['proposal']['cache']['call']['review'] %}
   {% set values = review['values'] %}
   {% set errors = review['errors'] %}
   {% set attachments = review.get('_attachments', {}) %}

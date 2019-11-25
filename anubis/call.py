@@ -596,23 +596,26 @@ def set_call_cache(call):
     This is computed data that will not be stored with the document.
     Depends on login, privileges, etc.
     """
-    from anubis.proposals import get_proposals_count
-    from anubis.reviews import get_call_reviews_count
+    import anubis.proposals
+    import anubis.reviews
     # XXX disallow even admin if open?
     call['cache'] = cache = dict(is_editable=flask.g.is_admin,
                                  is_reviewer=False,
                                  may_submit=False)
     # Proposals count
     if flask.g.is_admin:
-        cache['proposals_count'] = get_proposals_count(call=call)
+        cache['proposals_count'] = anubis.proposals.get_proposals_count(
+            call=call)
         cache['is_reviewer'] = True
         cache['may_submit'] = True
+        cache['my_proposals_count'] = anubis.proposals.get_proposals_count(
+            username=flask.g.current_user['username'], call=call)
+        cache['reviews_count'] = anubis.reviews.get_call_reviews_count(call)
     elif flask.g.current_user:
-        cache['my_proposals_count'] = get_proposals_count(
+        cache['my_proposals_count'] = anubis.proposals.get_proposals_count(
             username=flask.g.current_user['username'], call=call)
         # Note: operator '|=' is intentional.
         cache['is_reviewer'] |= flask.g.current_user['username'] in call['reviewers']
-        cache['reviews_count'] = get_call_reviews_count(call)
         cache['may_submit'] = not cache['is_reviewer']
     # Open/closed status
     now = utils.normalized_local_now()

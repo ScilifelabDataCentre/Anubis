@@ -38,29 +38,64 @@
       {{ proposal['user'] }}</a>
   </div>
 </div>
-{% if proposal['cache']['is_reviewer'] %}
-<div class="row">
+{% if g.is_admin %}
+<div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Reviews</div>
-  <div class="col-md-1">
-    <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}">
-      <span class="badge badge-info">
-	{{ proposal['cache']['reviews_count'] }}</span></a>
-  </div>
   <div class="col-md">
-    <form action="{{ url_for('review.create', pid=proposal['identifier']) }}"
-	  method="POST">
-      {{ csrf_token() }}
-      <button type="submit" class="btn btn-sm btn-info">My review</button>
-    </form>
+    <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}">
+      All reviews</a>
   </div>
 </div>
-{% endif %} {# if proposal['cache']['is_reviewer'] #}
+{% endif %} {# if g.is_admin #}
 
-{% set fields = proposal['cache']['call']['proposal'] %}
 {% set values = proposal['values'] %}
-{% set errors = proposal['errors'] %}
 {% set attachments = proposal.get('_attachments', {}) %}
-{% include 'display_fields_values.html' %}
+
+{% for field in proposal['cache']['call']['proposal'] %}
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">
+    {{ field['title'] }}
+  </div>
+  {% if proposal['errors'].get(field['identifier']) %}
+  <div class="col-md-2 text-danger">
+    Error: {{ proposal['errors'][field['identifier']] }}
+  </div>
+  {% endif %}
+  <div class="col-md text-break">
+
+    {% if field['type'] == constants.TEXT %}
+    {{ values.get(field['identifier']) | markdown }}
+
+    {% elif field['type'] == constants.LINE %}
+    {{ values.get(field['identifier']) or '-' }}
+
+    {% elif field['type'] in (constants.INTEGER, constants.SCORE) %}
+    {{ values.get(field['identifier']) | integer_value }}
+
+    {% elif field['type'] == constants.BOOLEAN %}
+    {{ values.get(field['identifier']) | boolean_value }}
+
+    {% elif field['type'] == constants.FLOAT %}
+    {{ values.get(field['identifier']) | float_value }}
+
+    {% elif field['type'] == constants.DOCUMENT %}
+    {% set documentname = values.get(field['identifier']) %}
+    {% if documentname %}
+    <span class="font-weight-bold">{{ documentname }}</span>
+    {% if attachments.get(documentname) %}
+    <a href="{{ url_for('.document', pid=proposal['identifier'], documentname=documentname) }}"
+       role="button" class="btn btn-secondary btn-sm ml-4">
+      Download 
+      ({{ attachments[documentname]['length'] | thousands }} bytes)
+    </a>
+    {% else %}
+    (?)
+    {% endif %}
+    {% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endfor %} {# for field in ... #}
 
 {% endblock %} {# block main #}
 

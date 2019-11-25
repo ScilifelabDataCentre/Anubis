@@ -37,13 +37,24 @@
   </div>
 </div>
 {% endif %} {# if g.current_user #}
-{% if g.is_admin %}
+
+{% if call['cache']['is_reviewer'] %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">All proposals</div>
   <div class="col-md">
     <a href="{{ url_for('proposals.call', cid=call['identifier']) }}">
       <span class="badge badge-primary">{{ call['cache']['proposals_count'] }}
     </span></a>
+  </div>
+</div>
+{% endif %} {# if call['cache']['is_reviewer'] #}
+{% if g.is_admin %}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">All reviews</div>
+  <div class="col-md">
+    <a href="{{ url_for('reviews.call', cid=call['identifier']) }}">
+      <span class="badge badge-info">
+	{{ call['cache']['reviews_count'] }}</span></a>
   </div>
 </div>
 <div class="row">
@@ -61,16 +72,6 @@
   </div>
 </div>
 {% endif %} {# if g.is_admin #}
-{% if call['cache']['is_reviewer'] %}
-<div class="row">
-  <div class="col-md-2 font-weight-bold text-right">All reviews</div>
-  <div class="col-md">
-    <a href="{{ url_for('reviews.call', cid=call['identifier']) }}">
-      <span class="badge badge-info">
-	{{ call['cache']['reviews_count'] }}</span></a>
-  </div>
-</div>
-{% endif %} {# if call['cache']['is_reviewer'] #}
 <div class="row my-3">
   <div class="col-md-2 font-weight-bold text-right">Description</div>
   <div class="col-md">

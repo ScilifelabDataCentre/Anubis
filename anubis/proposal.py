@@ -41,7 +41,7 @@ def display(pid):
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
     if not proposal['cache']['is_readable']:
-        utils.flash_error('You are not allowed to read the proposal.')
+        utils.flash_error('You are not allowed to read this proposal.')
         return flask.redirect(flask.url_for('home'))
     return flask.render_template('proposal/display.html', proposal=proposal)
 
@@ -53,19 +53,15 @@ def edit(pid):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
+    if not proposal['cache']['is_editable']:
+        utils.flash_error('You are not allowed to edit this proposal.')
+        return flask.redirect(
+            flask.url_for('.display', pid=proposal['identifier']))
 
     if utils.http_GET():
-        if not proposal['cache']['is_editable']:
-            utils.flash_error('You are not allowed to edit the proposal.')
-            return flask.redirect(
-                flask.url_for('.display', pid=proposal['identifier']))
         return flask.render_template('proposal/edit.html', proposal=proposal)
 
     elif utils.http_POST():
-        if not proposal['cache']['is_editable']:
-            utils.flash_error('You are not allowed to edit the proposal.')
-            return flask.redirect(
-                flask.url_for('.display', pid=proposal['identifier']))
         try:
             with ProposalSaver(proposal) as saver:
                 saver['title'] = flask.request.form.get('_title') or None
@@ -79,10 +75,6 @@ def edit(pid):
             flask.url_for('.display', pid=proposal['identifier']))
 
     elif utils.http_DELETE():
-        if not proposal['cache']['is_editable']:
-            utils.flash_error('You are not allowed to delete the proposal.')
-            return flask.redirect(
-                flask.url_for('.display', pid=proposal['identifier']))
         utils.delete(proposal)
         utils.flash_message(f"Deleted proposal {pid}.")
         return flask.redirect(flask.url_for('home'))
@@ -129,6 +121,34 @@ def unsubmit(pid):
             utils.flash_error(str(error))
         return flask.redirect(flask.url_for('.display', pid=pid))
 
+@blueprint.route('/<pid>/review/<username>', methods=['POST'])
+@utils.admin_required
+def review(pid, username):
+    "Create a new review for the proposal for the given reviewer."
+    import anubis.review
+    import anubis.user
+    proposal = get_proposal(pid)
+    if proposal is None:
+        utils.flash_error('No such proposal.')
+        return flask.redirect(flask.url_for('home'))
+    reviewer = anubis.user.get_user(username=username)
+    if reviewer is None:
+        utils.flash_error('No such user.')
+        return flask.redirect(
+            flask.url_for('.display', pid=proposal['identifier']))
+    if reviewer['username'] not in proposal['cache']['call']['reviewers']:
+        utils.flash_error('User is not a reviewer in the call.')
+        return flask.redirect(
+            flask.url_for('.display', pid=proposal['identifier']))
+    review = get_review(proposal, reviewer)
+    if review is not None:
+        utils.flash_message('The review already exists.')
+        return flask.redirect(
+            flask.url_for('review.display', iuid=review['iuid']))
+    with anubis.review.ReviewSaver(proposal=proposal) as saver:
+        pass
+    return flask.redirect(flask.url_for('review.display',iuid=saver.doc['_id']))
+
 @blueprint.route('/<pid>/logs')
 @utils.login_required
 def logs(pid):
@@ -138,7 +158,7 @@ def logs(pid):
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
     if not proposal['cache']['is_readable']:
-        utils.flash_error('You are not allowed to read the proposal.')
+        utils.flash_error('You are not allowed to read this proposal.')
         return flask.redirect(flask.url_for('home'))
 
     return flask.render_template(
@@ -156,7 +176,7 @@ def document(pid, documentname):
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
     if not proposal['cache']['is_readable']:
-        utils.flash_error('You are not allowed to read the proposal.')
+        utils.flash_error('You are not allowed to read this proposal.')
         return flask.redirect(flask.url_for('home'))
 
     try:
@@ -238,7 +258,7 @@ def set_proposal_cache(proposal, call=None):
     This is computed data that will not be stored with the document.
     Depends on login, access, status, etc.
     """
-    from anubis.reviews import get_proposal_reviews_count
+    import anubis.reviews
     proposal['cache'] = cache = dict(is_readable=False,
                                        is_editable=False,
                                        is_submittable=False,
@@ -253,6 +273,7 @@ def set_proposal_cache(proposal, call=None):
         cache['is_editable'] = True
         cache['is_submittable'] = True
         cache['is_reviewer'] = True
+        cache['reviews_count'] = anubis.reviews.get_proposal_reviews_count(proposal)
     elif flask.g.current_user:
         if flask.g.current_user['username'] == proposal['user']:
             cache['is_readable'] = True
@@ -263,6 +284,4 @@ def set_proposal_cache(proposal, call=None):
         elif cache['call']['cache']['is_reviewer']:
             cache['is_readable'] = True
             cache['is_reviewer'] = True
-    if cache['is_reviewer']:
-        cache['reviews_count'] = get_proposal_reviews_count(proposal)
     return proposal

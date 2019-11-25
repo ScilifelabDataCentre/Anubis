@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Review of {{ review['cache']['proposal']['identifier'] }}
+Review of proposal {{ review['cache']['proposal']['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-Review of
+Review of proposal
 <a href="{{ url_for('proposal.display', pid=review['cache']['proposal']['identifier']) }}">
   {{ review['cache']['proposal']['identifier'] }}
 </a>
@@ -15,7 +15,10 @@ Review of
 {% set proposal = review['cache']['proposal'] %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Proposal title</div>
-  <div class="col-md">{{ proposal['title'] }}</div>
+  <div class="col-md">
+    <a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}">
+      {{ proposal['title'] }}</a>
+  </div>
 </div>
 {# XXX access? #}
 <div class="row mb-2">
@@ -46,11 +49,54 @@ Review of
   <div class="col-md">{{ macros.finalized(review) }}</div>
 </div>
 
-{% set fields = proposal['cache']['call']['review'] %}
 {% set values = review['values'] %}
-{% set errors = review['errors'] %}
 {% set attachments = review.get('_attachments', {}) %}
-{% include 'display_fields_values.html' %}
+
+{% for field in review['cache']['call']['review'] %}
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">
+    {{ field['title'] }}
+  </div>
+  {% if review['errors'].get(field['identifier']) %}
+  <div class="col-md-2 text-danger">
+    Error: {{ review['errors'][field['identifier']] }}
+  </div>
+  {% endif %}
+  <div class="col-md text-break">
+
+    {% if field['type'] == constants.TEXT %}
+    {{ values.get(field['identifier']) | markdown }}
+
+    {% elif field['type'] == constants.LINE %}
+    {{ values.get(field['identifier']) or '-' }}
+
+    {% elif field['type'] in (constants.INTEGER, constants.SCORE) %}
+    {{ values.get(field['identifier']) | integer_value }}
+
+    {% elif field['type'] == constants.BOOLEAN %}
+    {{ values.get(field['identifier']) | boolean_value }}
+
+    {% elif field['type'] == constants.FLOAT %}
+    {{ values.get(field['identifier']) | float_value }}
+
+    {% elif field['type'] == constants.DOCUMENT %}
+    {% set documentname = values.get(field['identifier']) %}
+    {% if documentname %}
+    <span class="font-weight-bold">{{ documentname }}</span>
+    {% if attachments.get(documentname) %}
+    <a href="{{ url_for('.document', pid=proposal['identifier'], documentname=documentname) }}"
+       role="button" class="btn btn-secondary btn-sm ml-4">
+      Download 
+      ({{ attachments[documentname]['length'] | thousands }} bytes)
+    </a>
+    {% else %}
+    (?)
+    {% endif %}
+    {% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endfor %} {# for field in ... #}
 
 {% endblock %} {# block main #}
 
@@ -77,6 +123,16 @@ Review of
 <div class="mt-2">
   <a href="{{ url_for('.edit', iuid=review['_id']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
+</div>
+<div class="mt-2">
+  <form action="{{ url_for('.edit', iuid=review['_id']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <input type="hidden" name="_http_method" value="DELETE">
+    <button type="submit" class="btn btn-block btn-sm btn-danger"
+	    onclick="return confirm('Really delete the review?')">
+      Delete</button>
+  </form>
 </div>
 {% endblock %} {# block actions #}
 
