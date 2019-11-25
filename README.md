@@ -1,6 +1,6 @@
 # Anubis
 
-Submission review handling system.
+Proposal review handling system.
 
 ## Entities
 

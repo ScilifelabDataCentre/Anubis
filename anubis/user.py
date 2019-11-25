@@ -25,7 +25,6 @@ DESIGN_DOC = {
     'views': {
         'username': {'map': "function(doc) {if (doc.doctype !== 'user') return; emit(doc.username, null);}"},
         'email': {'map': "function(doc) {if (doc.doctype !== 'user') return;  emit(doc.email, null);}"},
-        'apikey': {'map': "function(doc) {if (doc.doctype !== 'user') return;  emit(doc.apikey, null);}"},
         'role': {'map': "function(doc) {if (doc.doctype !== 'user') return;  emit(doc.role, null);}"},
     }
 }
@@ -229,8 +228,6 @@ def edit(username):
                 saver['phone'] = flask.request.form.get('phone') or None
             if is_admin_and_not_self(user):
                 saver.set_role(flask.request.form.get('role'))
-            if flask.request.form.get('apikey'):
-                saver.set_apikey()
         return flask.redirect(
             flask.url_for('.display', username=user['username']))
 
@@ -261,8 +258,6 @@ def logs(username):
         'logs.html',
         title=f"User {user['username']}",
         back_url=flask.url_for('.display', username=user['username']),
-        # Commented out until API implemented, or not.
-        # api_logs_url=flask.url_for('api_user.logs', username=user['username']),
         logs=utils.get_logs(user['_id']))
 
 @blueprint.route('/all')
@@ -365,9 +360,6 @@ class UserSaver(BaseSaver):
             self.doc['password'] = werkzeug.security.generate_password_hash(
                 password, salt_length=config['SALT_LENGTH'])
 
-    def set_apikey(self):
-        "Set a new API key."
-        self.doc['apikey'] = utils.get_iuid()
 
     def set_gender(self, gender):
         if gender not in flask.current_app.config['USER_GENDERS']:
@@ -385,8 +377,8 @@ class UserSaver(BaseSaver):
 
 # Utility functions
 
-def get_user(username=None, email=None, apikey=None, safe=False):
-    """Return the user for the given username, email or apikey.
+def get_user(username=None, email=None, safe=False):
+    """Return the user for the given username or email.
     Return None if no such user.
     """
     user = None
@@ -400,16 +392,10 @@ def get_user(username=None, email=None, apikey=None, safe=False):
                                key=email, include_docs=True)
         if len(rows) == 1:
             user = rows[0].doc
-    if user is None and apikey:
-        rows = flask.g.db.view('users', 'apikey', 
-                               key=apikey, include_docs=True)
-        if len(rows) == 1:
-            user = rows[0].doc
     if user and safe:
         user['iuid'] = user.pop('_id')
         user.pop('_rev')
         user.pop('password', None)
-        user.pop('apikey', None)
     return user
 
 def get_users(role, status=None, safe=False):
@@ -429,15 +415,13 @@ def get_users(role, status=None, safe=False):
             user['iuid'] = user.pop('_id')
             user.pop('_rev')
             user.pop('password', None)
-            user.pop('apikey', None)
     return result
 
 def get_current_user():
     """Return the user for the current session.
     Return None if no such user, or disabled.
     """
-    user = get_user(username=flask.session.get('username'),
-                    apikey=flask.request.headers.get('x-apikey'))
+    user = get_user(username=flask.session.get('username'))
     if user is None or user['status'] != constants.ENABLED:
         flask.session.pop('username', None)
         return None
