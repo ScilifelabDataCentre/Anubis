@@ -25,8 +25,6 @@ DESIGN_DOC = {
         # NOTE: includes proposals not marked 'submitted'
         'user': {'reduce': '_count',
                  'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit(doc.user, null);}"},
-        'user_call': {'reduce': '_count',
-                      'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit([doc.user, doc.call], null);}"},
     }
 }
 

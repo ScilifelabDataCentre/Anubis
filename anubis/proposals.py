@@ -22,7 +22,7 @@ def call(cid):
         return flask.redirect(flask.url_for('home'))
     return flask.render_template('proposals/call.html', 
                                  call=call,
-                                 proposals=get_proposals(call=call))
+                                 proposals=get_proposals_call(call))
 
 @blueprint.route('/user/<username>')
 @utils.login_required
@@ -38,7 +38,7 @@ def user(username):
     return flask.render_template(
         'proposals/user.html', 
         user=user,
-        proposals=get_proposals(username=user['username']))
+        proposals=get_proposals_user(user['username']))
 
 @blueprint.route('/user/<username>/call/<cid>')
 @utils.login_required
@@ -55,56 +55,56 @@ def user_call(username, cid):
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
-    return flask.render_template(
-        'proposals/user.html', 
-        user=user,
-        proposals=get_proposals(username=user['username'], call=call))
+    proposals = [p for p in get_proposals_user(username)
+                 if p['cache']['call']['identifier'] == call['identifier']]
+    return flask.render_template('proposals/user.html', 
+                                 user=user,
+                                 proposals=proposals)
 
-def get_proposals(username=None, call=None):
-    """Get all proposals, specified by user and/or call.
-    Filter by user access.
+def get_proposals_user(username):
+    "Get all proposals created by the user."
+    return [anubis.proposal.set_proposal_cache(r.doc)
+            for r in flask.g.db.view('proposals', 'user',
+                                     key=username,
+                                     reduce=False,
+                                     include_docs=True)]
+
+def get_proposals_user_count(username):
+    "Get the number of proposals created by the user."
+    result = flask.g.db.view('proposals', 'user',
+                             key=username,
+                             reduce=True)
+    if result:
+        return result[0].value
+    else:
+        return 0
+
+def get_proposal_user_call(username, call):
+    "Get the proposal created by the user in the call."
+    proposals = [p for p in get_proposals_user(username)
+                 if p['call'] == call['identifier']]
+    if proposals:
+        return proposals[0]
+    else:
+        return None
+
+def get_proposals_call(call):
+    """Get all submitted proposals in the call.
+    NOTE: No check for user access!
     """
-    if username:
-        if call:
-            result = flask.g.db.view('proposals', 'user_call',
-                                     key=[username, call['identifier']],
+    return [anubis.proposal.set_proposal_cache(r.doc)
+            for r in flask.g.db.view('proposals', 'call',
+                                     key=call['identifier'],
                                      reduce=False,
-                                     include_docs=True)
-        else:
-            result = flask.g.db.view('proposals', 'user',
-                                     key=username,
-                                     reduce=False,
-                                     include_docs=True)
-        proposals = [anubis.proposal.set_proposal_cache(r.doc, call=call)
-                       for r in result]        
-    elif call:
-        proposals = [anubis.proposal.set_proposal_cache(r.doc, call=call)
-                       for r in flask.g.db.view('proposals', 'call',
-                                                key=call['identifier'],
-                                                reduce=False,
-                                                include_docs=True)]
-    else:
-        raise ValueError('neither username nor call specified')
-    # XXX access has not been implemented yet; currently too permissive!
-    return [s for s in proposals if s['cache']['is_readable']]
+                                     include_docs=True)]
 
-def get_proposals_count(username=None, call=None):
-    "Get the number of proposals, specified by user and/or call."
-    if username:
-        if call:
-            result = flask.g.db.view('proposals', 'user_call',
-                                     key=[username, call['identifier']],
-                                     reduce=True)
-        else:
-            result = flask.g.db.view('proposals', 'user',
-                                     key=username,
-                                     reduce=True)
-    elif call:
-        result = flask.g.db.view('proposals', 'call',
-                                 key=call['identifier'],
-                                 reduce=True)
-    else:
-        raise ValueError('neither username nor call specified')
+def get_proposals_call_count(call):
+    """Get the number of submitted proposals in the call.
+    NOTE: No check for user access!
+    """
+    result = flask.g.db.view('proposals', 'call',
+                             key=call['identifier'],
+                             reduce=True)
     if result:
         return result[0].value
     else:

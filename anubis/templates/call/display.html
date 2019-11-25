@@ -28,12 +28,24 @@
   </div>
 </div>
 {% if g.current_user %}
-<div class="row">
-  <div class="col-md-2 font-weight-bold text-right">My proposals</div>
+<div class="row my-2">
+  <div class="col-md-2 font-weight-bold text-right">My proposal</div>
   <div class="col-md">
-    <a href="{{ url_for('proposals.user_call', username=g.current_user['username'], cid=call['identifier']) }}">
-      <span class="badge badge-primary">{{ call['cache']['my_proposals_count'] }}
-    </span></a>
+    {% if proposal %}
+    <a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}"
+       class="font-weight-bold">
+      {{ proposal['identifier'] }}: {{ proposal['title'] }}
+    </a>
+    {% elif call['cache']['is_open'] and call['cache']['may_submit'] %}
+    <form action="{{ url_for('.create_proposal', cid=call['identifier']) }}"
+	  method="POST">
+      {{ csrf_token() }}
+      <button type="submit" class="btn btn-sm btn-primary">
+        Create proposal</button>
+    </form>
+    {% else %}
+    <i>None</i>
+    {% endif %}
   </div>
 </div>
 {% endif %} {# if g.current_user #}
@@ -136,16 +148,6 @@
 {% endblock %} {# block main #}
 
 {% block actions %}
-{% if call['cache']['is_open'] and call['cache']['may_submit'] %}
-<div class="mt-2">
-  <form action="{{ url_for('.create_proposal', cid=call['identifier']) }}"
-	method="POST">
-    {{ csrf_token() }}
-    <button type="submit" class="btn btn-block btn-primary">
-      Create proposal</button>
-  </form>
-</div>
-{% endif %}
 {% if call['cache']['is_editable'] %}
 <div class="mt-2">
   <a href="{{ url_for('.edit', cid=call['identifier']) }}"

@@ -48,55 +48,58 @@
 </div>
 {% endif %} {# if g.is_admin #}
 
-{% set values = proposal['values'] %}
-{% set attachments = proposal.get('_attachments', {}) %}
+<div class="card mt-4">
+  <div class="card-body">
+    {% set values = proposal['values'] %}
+    {% set attachments = proposal.get('_attachments', {}) %}
 
-{% for field in proposal['cache']['call']['proposal'] %}
-<div class="row mb-2">
-  <div class="col-md-2 font-weight-bold text-right">
-    {{ field['title'] }}
-  </div>
-  {% if proposal['errors'].get(field['identifier']) %}
-  <div class="col-md-2 text-danger">
-    Error: {{ proposal['errors'][field['identifier']] }}
-  </div>
-  {% endif %}
-  <div class="col-md text-break">
+    {% for field in proposal['cache']['call']['proposal'] %}
+    <div class="row mb-2">
+      <div class="col-md-2 font-weight-bold text-right">
+        {{ field['title'] }}
+      </div>
+      {% if proposal['errors'].get(field['identifier']) %}
+      <div class="col-md-2 text-danger">
+        Error: {{ proposal['errors'][field['identifier']] }}
+      </div>
+      {% endif %}
+      <div class="col-md text-break">
 
-    {% if field['type'] == constants.TEXT %}
-    {{ values.get(field['identifier']) | markdown }}
+        {% if field['type'] == constants.TEXT %}
+        {{ values.get(field['identifier']) | markdown }}
 
-    {% elif field['type'] == constants.LINE %}
-    {{ values.get(field['identifier']) or '-' }}
+        {% elif field['type'] == constants.LINE %}
+        {{ values.get(field['identifier']) or '-' }}
 
-    {% elif field['type'] in (constants.INTEGER, constants.SCORE) %}
-    {{ values.get(field['identifier']) | integer_value }}
+        {% elif field['type'] in (constants.INTEGER, constants.SCORE) %}
+        {{ values.get(field['identifier']) | integer_value }}
 
-    {% elif field['type'] == constants.BOOLEAN %}
-    {{ values.get(field['identifier']) | boolean_value }}
+        {% elif field['type'] == constants.BOOLEAN %}
+        {{ values.get(field['identifier']) | boolean_value }}
 
-    {% elif field['type'] == constants.FLOAT %}
-    {{ values.get(field['identifier']) | float_value }}
+        {% elif field['type'] == constants.FLOAT %}
+        {{ values.get(field['identifier']) | float_value }}
 
-    {% elif field['type'] == constants.DOCUMENT %}
-    {% set documentname = values.get(field['identifier']) %}
-    {% if documentname %}
-    <span class="font-weight-bold">{{ documentname }}</span>
-    {% if attachments.get(documentname) %}
-    <a href="{{ url_for('.document', pid=proposal['identifier'], documentname=documentname) }}"
-       role="button" class="btn btn-secondary btn-sm ml-4">
-      Download 
-      ({{ attachments[documentname]['length'] | thousands }} bytes)
-    </a>
-    {% else %}
-    (?)
-    {% endif %}
-    {% endif %}
-    {% endif %}
+        {% elif field['type'] == constants.DOCUMENT %}
+        {% set documentname = values.get(field['identifier']) %}
+        {% if documentname %}
+        <span class="font-weight-bold">{{ documentname }}</span>
+        {% if attachments.get(documentname) %}
+        <a href="{{ url_for('.document', pid=proposal['identifier'], documentname=documentname) }}"
+           role="button" class="btn btn-secondary btn-sm ml-4">
+          Download
+          ({{ attachments[documentname]['length'] | thousands }} bytes)
+        </a>
+        {% else %}
+        (?)
+        {% endif %}
+        {% endif %}
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %} {# for field in ... #}
   </div>
 </div>
-{% endfor %} {# for field in ... #}
-
 {% endblock %} {# block main #}
 
 {% block actions %}

@@ -48,11 +48,19 @@ def create():
 @blueprint.route('/<cid>')
 def display(cid):
     "Display the call."
+    import anubis.proposals
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
-    return flask.render_template('call/display.html', call=call)
+    if flask.g.current_user:
+        proposal = anubis.proposals.get_proposal_user_call(
+            flask.g.current_user['username'], call)
+    else:
+        proposal = None
+    return flask.render_template('call/display.html',
+                                 call=call,
+                                 proposal=proposal)
 
 @blueprint.route('/<cid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.admin_required
@@ -331,26 +339,31 @@ def logs(cid):
 @blueprint.route('/<cid>/create_proposal', methods=['POST'])
 @utils.login_required
 def create_proposal(cid):
-    "Create a new proposal within the call."
-    import anubis.proposal 
+    "Create a new proposal within the call. Redirect to an existing proposal."
+    import anubis.proposal
+    import anubis.proposals
     call = get_call(cid)
     if call is None:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
-
     if not call['cache']['is_open']:
-        utils.flash_error(f"Call {call['title']} is not open.")
+        utils.flash_error("The call is not open.")
         return flask.redirect(flask.url_for('.display', cid=cid))
     if not call['cache']['may_submit']:
         utils.flash_error('You may not submit to this call.')
         return flask.redirect(flask.url_for('.display', cid=cid))
 
     if utils.http_POST():
+        proposals = anubis.proposals.get_proposals_user(
+            flask.g.current_user['username'])
+        if proposals:
+            utils.flash_message('Proposal already exists for the call.')
+            return flask.redirect(
+                flask.url_for('proposal.display', pid=proposals[0]['identifier']))
         with anubis.proposal.ProposalSaver(call=call) as saver:
             pass
-        doc = saver
         return flask.redirect(
-            flask.url_for('proposal.edit', pid=doc['identifier']))
+            flask.url_for('proposal.edit', pid=saver.doc['identifier']))
 
 
 class CallSaver(AttachmentsSaver):
@@ -596,7 +609,6 @@ def set_call_cache(call):
     This is computed data that will not be stored with the document.
     Depends on login, privileges, etc.
     """
-    import anubis.proposals
     import anubis.reviews
     # XXX disallow even admin if open?
     call['cache'] = cache = dict(is_editable=flask.g.is_admin,
@@ -604,16 +616,11 @@ def set_call_cache(call):
                                  may_submit=False)
     # Proposals count
     if flask.g.is_admin:
-        cache['proposals_count'] = anubis.proposals.get_proposals_count(
-            call=call)
+        cache['proposals_count'] = anubis.proposals.get_proposals_call_count(call)
         cache['is_reviewer'] = True
         cache['may_submit'] = True
-        cache['my_proposals_count'] = anubis.proposals.get_proposals_count(
-            username=flask.g.current_user['username'], call=call)
         cache['reviews_count'] = anubis.reviews.get_call_reviews_count(call)
     elif flask.g.current_user:
-        cache['my_proposals_count'] = anubis.proposals.get_proposals_count(
-            username=flask.g.current_user['username'], call=call)
         # Note: operator '|=' is intentional.
         cache['is_reviewer'] |= flask.g.current_user['username'] in call['reviewers']
         cache['may_submit'] = not cache['is_reviewer']
