@@ -625,6 +625,8 @@ def set_call_cache(call):
     elif flask.g.current_user:
         # Note: operator '|=' is intentional.
         cache['is_reviewer'] |= flask.g.current_user['username'] in call['reviewers']
+        if cache['is_reviewer']:
+            cache['proposals_count'] = get_call_proposals_count(call)
         cache['may_submit'] = not cache['is_reviewer']
     # Open/closed status
     now = utils.normalized_local_now()

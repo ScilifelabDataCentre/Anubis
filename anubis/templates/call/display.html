@@ -28,26 +28,29 @@
   </div>
 </div>
 {% if g.current_user %}
+{% if proposal %}
 <div class="row my-2">
   <div class="col-md-2 font-weight-bold text-right">My proposal</div>
   <div class="col-md">
-    {% if proposal %}
     <a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}"
        class="font-weight-bold">
       {{ proposal['identifier'] }}: {{ proposal['title'] }}
     </a>
-    {% elif call['cache']['is_open'] and call['cache']['may_submit'] %}
+  </div>
+</div>
+{% elif call['cache']['is_open'] and call['cache']['may_submit'] %}
+<div class="row my-2">
+  <div class="col-md-2 font-weight-bold text-right">My proposal</div>
+  <div class="col-md">
     <form action="{{ url_for('.create_proposal', cid=call['identifier']) }}"
 	  method="POST">
       {{ csrf_token() }}
       <button type="submit" class="btn btn-primary">
         Create proposal</button>
     </form>
-    {% else %}
-    <i>None</i>
-    {% endif %}
   </div>
 </div>
+{% endif %}
 {% endif %} {# if g.current_user #}
 
 {% if call['cache']['is_reviewer'] %}
@@ -61,6 +64,30 @@
     </a>
   </div>
 </div>
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Reviewers</div>
+  <div class="col-md">
+    {% for reviewer in sorted(call['reviewers']) %}
+    {% if g.is_admin %}
+    <span class="mr-3">
+      <a href="{{ url_for('user.display', username=reviewer) }}">
+	{{ reviewer }}</a>
+      {% if reviewer in call['chairs'] %}(chair){% endif %}
+    </span>
+    {% elif reviewer == g.current_user['username'] %}
+    <span class="mr-3">
+      <strong>{{ reviewer }}</strong>
+      {% if reviewer in call['chairs'] %}(chair){% endif %}
+    </span>
+    {% else %}
+    <span class="mr-3">
+      {{ reviewer }}
+      {% if reviewer in call['chairs'] %}(chair){% endif %}
+    </span>
+    {% endif %}
+    {% endfor %}
+  </div>
+</div>
 {% endif %} {# if call['cache']['is_reviewer'] #}
 {% if g.is_admin %}
 <div class="row">
@@ -69,20 +96,6 @@
     <a href="{{ url_for('reviews.call', cid=call['identifier']) }}">
       <span class="badge badge-info px-3">
 	{{ call['cache']['reviews_count'] }}</span></a>
-  </div>
-</div>
-<div class="row">
-  <div class="col-md-2 font-weight-bold text-right">Reviewers</div>
-  <div class="col-md">
-    {% for reviewer in sorted(call['reviewers']) %}
-    <span class="mr-3">
-      <a href="{{ url_for('user.display', username=reviewer) }}">
-        {{ reviewer }}</a>
-      {% if reviewer in call['chairs'] %}
-      (chair)
-      {% endif %}
-    </span>
-    {% endfor %}
   </div>
 </div>
 {% endif %} {# if g.is_admin #}
