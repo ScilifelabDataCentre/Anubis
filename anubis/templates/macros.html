@@ -15,7 +15,7 @@
 
 {% macro finalized(review) -%}
 {% if review.get('finalized') %}
-<span class="badge badge-success localtime">{{ review['finalized'] }}</span>
+<span title="Finalized" class="badge badge-success localtime">{{ review['finalized'] }}</span>
 {% else %}
 <span class="badge badge-warning">Not finalized.</span>
 {% endif %}
