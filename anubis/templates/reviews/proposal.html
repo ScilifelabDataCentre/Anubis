@@ -5,7 +5,7 @@ Reviews for proposal {{ proposal['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-Reviews for proposal {{ proposal['identifier'] }}
+Reviews for proposal
 <a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}">
   {{ proposal['identifier'] }}</a>
 {% endblock %}
@@ -18,20 +18,57 @@ Reviews for proposal {{ proposal['identifier'] }}
       {{ proposal['title'] }}</a>
   </div>
 </div>
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Call</div>
+  <div class="col-md">
+    <a href="{{ url_for('call.display', cid=proposal['call']) }}">
+      {{ proposal['call'] }}</a>
+  </div>
+</div>
 
 <table id="reviews" class="table">
   <thead>
     <tr>
       <th>Reviewer</th>
+      <th>Review</th>
+      {% for scorefield in scorefields %}
+      <th>{{ scorefield['title'] }}</th>
+      {% endfor %}
     </tr>
   </thead>
   <tbody>
     {% for reviewer in reviewers %}
     <tr>
       <td>
-	<a href="{{ url_for('user.display', username=user['username']) }}">
-	  {{ user['username'] }}</a>
+	<a href="{{ url_for('user.display', username=reviewer) }}">
+	  {{ reviewer }}</a>
       </td>
+      {% set review = reviews_lookup.get(reviewer) %}
+      <td>
+	{% if review %}
+	<a href="{{ url_for('review.display', iuid=review['_id'] ) }}">
+	  Review</a>
+	{{ macros.finalized(review) }}
+	{% else %}
+	<form action="{{ url_for('review.create', pid=proposal['identifier'], username=reviewer) }}"
+	  method="POST">
+	  {{ csrf_token() }}
+	  <button type="submit" class="btn btn-sm btn-info">
+            Create review</button>
+	</form>
+	{% endif %}
+      </td>
+      {% if review %}
+      {% for scorefield in scorefields %}
+      <td>
+	{{ review['values'].get(scorefield['identifier']) | value_or_none }}
+      </td>
+      {% endfor %}
+      {% else %}
+      {% for scorefield in scorefields %}
+      <td>-</td>
+      {% endfor %}
+      {% endif %}
     </tr>
     {% endfor %}
   </tbody>

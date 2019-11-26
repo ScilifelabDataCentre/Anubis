@@ -54,7 +54,7 @@ def display(cid):
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
     if flask.g.current_user:
-        proposal = anubis.proposals.get_proposal_user_call(
+        proposal = anubis.proposals.get_user_call_proposal(
             flask.g.current_user['username'], call)
     else:
         proposal = None
@@ -341,7 +341,7 @@ def logs(cid):
 def create_proposal(cid):
     "Create a new proposal within the call. Redirect to an existing proposal."
     import anubis.proposal
-    import anubis.proposals
+    from .proposals import get_user_call_proposal
     call = get_call(cid)
     if call is None:
         utils.flash_error('No such call.')
@@ -354,16 +354,17 @@ def create_proposal(cid):
         return flask.redirect(flask.url_for('.display', cid=cid))
 
     if utils.http_POST():
-        proposals = anubis.proposals.get_proposals_user(
-            flask.g.current_user['username'])
-        if proposals:
+        proposal = get_user_call_proposal(flask.g.current_user['username'],
+                                          call)
+        if proposal:
             utils.flash_message('Proposal already exists for the call.')
             return flask.redirect(
-                flask.url_for('proposal.display', pid=proposals[0]['identifier']))
-        with anubis.proposal.ProposalSaver(call=call) as saver:
-            pass
-        return flask.redirect(
-            flask.url_for('proposal.edit', pid=saver.doc['identifier']))
+                flask.url_for('proposal.display', pid=proposal['identifier']))
+        else:
+            with anubis.proposal.ProposalSaver(call=call) as saver:
+                pass
+            return flask.redirect(
+                flask.url_for('proposal.edit', pid=saver.doc['identifier']))
 
 
 class CallSaver(AttachmentsSaver):
@@ -609,17 +610,18 @@ def set_call_cache(call):
     This is computed data that will not be stored with the document.
     Depends on login, privileges, etc.
     """
-    import anubis.reviews
+    from .proposals import get_call_proposals_count
+    from .reviews import get_call_reviews_count
     # XXX disallow even admin if open?
     call['cache'] = cache = dict(is_editable=flask.g.is_admin,
                                  is_reviewer=False,
                                  may_submit=False)
     # Proposals count
     if flask.g.is_admin:
-        cache['proposals_count'] = anubis.proposals.get_proposals_call_count(call)
+        cache['proposals_count'] = get_call_proposals_count(call)
         cache['is_reviewer'] = True
         cache['may_submit'] = True
-        cache['reviews_count'] = anubis.reviews.get_call_reviews_count(call)
+        cache['reviews_count'] = get_call_reviews_count(call)
     elif flask.g.current_user:
         # Note: operator '|=' is intentional.
         cache['is_reviewer'] |= flask.g.current_user['username'] in call['reviewers']

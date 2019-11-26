@@ -3,8 +3,8 @@
 {% block head_title %}{{ call['identifier'] }}{% endblock %}
 
 {% block body_title %}
+<small class="text-muted mr-2">Call for proposals</small>
 {{ call['identifier'] }}: {{ call['title'] }}
-<small class="text-muted ml-3">Call for proposals</small>
 {% endblock %}
 
 {% block main %}
@@ -40,7 +40,7 @@
     <form action="{{ url_for('.create_proposal', cid=call['identifier']) }}"
 	  method="POST">
       {{ csrf_token() }}
-      <button type="submit" class="btn btn-sm btn-primary">
+      <button type="submit" class="btn btn-primary">
         Create proposal</button>
     </form>
     {% else %}
@@ -55,8 +55,10 @@
   <div class="col-md-2 font-weight-bold text-right">All proposals</div>
   <div class="col-md">
     <a href="{{ url_for('proposals.call', cid=call['identifier']) }}">
-      <span class="badge badge-primary">{{ call['cache']['proposals_count'] }}
-    </span></a>
+      <span class="badge badge-primary px-3">
+	{{ call['cache']['proposals_count'] }}
+      </span>
+    </a>
   </div>
 </div>
 {% endif %} {# if call['cache']['is_reviewer'] #}
@@ -65,7 +67,7 @@
   <div class="col-md-2 font-weight-bold text-right">All reviews</div>
   <div class="col-md">
     <a href="{{ url_for('reviews.call', cid=call['identifier']) }}">
-      <span class="badge badge-info">
+      <span class="badge badge-info px-3">
 	{{ call['cache']['reviews_count'] }}</span></a>
   </div>
 </div>
@@ -166,14 +168,14 @@
      role="button" class="btn btn-primary btn-block">Edit review fields</a>
 </div>
 {% endif %} {# if call['cache']['is_editable'] #}
-{% if g.is_admin %} {# Always editable for admin #}
+{% if g.is_admin %} {# Reviewers always editable for admin #}
 <div class="mt-2">
   <a href="{{ url_for('.reviewers', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit reviewers</a>
 </div>
-<div class="mt-2">
+<div class="mt-4">
   <a href="{{ url_for('.clone', cid=call['identifier']) }}"
-     role="button" class="btn btn-info btn-block">Clone</a>
+     role="button" class="btn btn-primary btn-block">Clone</a>
 </div>
 {% endif %} {# if g.is_admin #}
 {% if call['cache']['is_editable'] %}

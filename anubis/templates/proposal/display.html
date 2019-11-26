@@ -3,10 +3,8 @@
 {% block head_title %}{{ proposal['identifier'] }}{% endblock %}
 
 {% block body_title %}
-{{ proposal['identifier'] }}
-{% if proposal.get('title') %}
-<small>{{ proposal.get('title') }}</small>
-{% endif %}
+<small class="text-muted mr-2">Proposal</small>
+{{ proposal['identifier'] }}: {{ proposal.get('title') or '' }}
 {% endblock %}
 
 {% block main %}
@@ -27,23 +25,25 @@
   </div>
 </div>
 <div class="row mb-2">
-  <div class="col-md-2 font-weight-bold text-right">Submitted</div>
-  <div class="col-md">{{ macros.submitted(proposal) }}</div>
-</div>
-{# XXX access? #}
-<div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">User</div>
   <div class="col-md">
     <a href="{{ url_for('user.display', username=proposal['user']) }}">
       {{ proposal['user'] }}</a>
   </div>
 </div>
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Submitted</div>
+  <div class="col-md">{{ macros.submitted(proposal) }}</div>
+</div>
 {% if g.is_admin %}
 <div class="row mb-2">
-  <div class="col-md-2 font-weight-bold text-right">Reviews</div>
+  <div class="col-md-2 font-weight-bold text-right">All reviews</div>
   <div class="col-md">
     <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}">
-      All reviews</a>
+      <span class="badge badge-info px-3">
+	{{ proposal['cache']['reviews_count'] }}
+      </span>
+    </a>
   </div>
 </div>
 {% endif %} {# if g.is_admin #}

@@ -2,6 +2,9 @@
 
 import flask
 
+import anubis.user
+import anubis.proposal
+
 from . import constants
 from . import utils
 from .saver import BaseSaver, FieldMixin
@@ -20,21 +23,47 @@ DESIGN_DOC = {
                  'map': "function(doc) {if (doc.doctype !== 'review') return; emit(doc.call, null);}"},
         'proposal': {'reduce': '_count',
                      'map': "function(doc) {if (doc.doctype !== 'review') return; emit(doc.proposal, null);}"},
-        'call_reviewer': {'reduce': '_count',
-                          'map': "function(doc) {if (doc.doctype !== 'review') return; emit([doc.call, doc.reviewer], null);}"},
         'reviewer': {'reduce': '_count',
                      'map': "function(doc) {if (doc.doctype !== 'review') return; emit(doc.reviewer, null);}"},
+        'call_reviewer': {'reduce': '_count',
+                          'map': "function(doc) {if (doc.doctype !== 'review') return; emit([doc.call, doc.reviewer], null);}"},
+        'proposal_reviewer': {'map': "function(doc) {if (doc.doctype !== 'review') return; emit([doc.proposal, doc.reviewer], null);}"},
     }
 }
 
 blueprint = flask.Blueprint('review', __name__)
+
+@blueprint.route('/create/<pid>/<username>', methods=['POST'])
+@utils.admin_required
+def create(pid, username):
+    "Create a new review for the proposal for the given reviewer."
+    proposal = anubis.proposal.get_proposal(pid)
+    if proposal is None:
+        utils.flash_error('No such proposal.')
+        return flask.redirect(flask.url_for('home'))
+    user = anubis.user.get_user(username=username)
+    if user is None:
+        utils.flash_error('No such user.')
+    elif user['username'] not in proposal['cache']['call']['reviewers']:
+        utils.flash_error('User is not a reviewer in the call.')
+    else:
+        review = get_review(proposal, user)
+        if review is not None:
+            utils.flash_message('The review already exists.')
+            return flask.redirect(
+                flask.url_for('review.display', iuid=review['iuid']))
+        with ReviewSaver(proposal=proposal) as saver:
+            saver.set_reviewer(user)
+        print('created review', saver.doc['_id'])
+    return flask.redirect(
+        flask.url_for('reviews.proposal', pid=proposal['identifier']))
 
 @blueprint.route('/<iuid:iuid>')
 @utils.login_required
 def display(iuid):
     "Display the review for the proposal."
     try:
-        review = get_review_cache(flask.g.db.get(iuid))
+        review = set_review_cache(flask.g.db.get(iuid))
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
@@ -50,7 +79,7 @@ def display(iuid):
 def edit(iuid):
     "Edit the review for the proposal."
     try:
-        review = get_review_cache(flask.g.db.get(iuid))
+        review = set_review_cache(flask.g.db.get(iuid))
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
@@ -84,7 +113,7 @@ def edit(iuid):
 def finalize(iuid):
     "Finalize the review for the proposal."
     try:
-        review = get_review_cache(flask.g.db.get(iuid))
+        review = set_review_cache(flask.g.db.get(iuid))
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
@@ -106,7 +135,7 @@ def finalize(iuid):
 def unfinalize(iuid):
     "Unfinalize the review for the proposal."
     try:
-        review = get_review_cache(flask.g.db.get(iuid))
+        review = set_review_cache(flask.g.db.get(iuid))
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
@@ -132,7 +161,7 @@ def logs(iuid):
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
 
-    review = get_review_cache(review)
+    review = set_review_cache(review)
     return flask.render_template(
         'logs.html',
         title="Review of" \
@@ -200,19 +229,19 @@ def get_review(proposal, reviewer):
                              reduce=False,
                              include_docs=True)
     try:
-        return get_review_cache(result[0].doc)
+        return set_review_cache(result[0].doc)
     except IndexError:
         return None
 
 def get_reviews(call):
     "Get all reviews for proposals in a call."
-    result = [get_review_cache(r.doc)
+    result = [set_review_cache(r.doc)
               for r in flask.g.db.view('reviews', 'call',
                                        key=call['identifier'],
                                        reduce=False,
                                        include_docs=True)]
 
-def get_review_cache(review, call=None):
+def set_review_cache(review, call=None):
     """Set the'cache' field of the review.
     This is computed data that will not be stored with the document.
     Depends on login, access, status, etc.

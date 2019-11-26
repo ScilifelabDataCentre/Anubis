@@ -10,6 +10,7 @@
     <tr>
       <th>Username</th>
       <th>Proposals</th>
+      <th>Reviews</th>
       <th>Email</th>
       <th>Given name</th>
       <th>Family name</th>
@@ -33,17 +34,24 @@
       </td>
       <td>
 	<a href="{{ url_for('proposals.user', username=user['username']) }}">
-	  <span class="badge badge-primary">{{ user['proposals_count'] }}</span>
+	  <span class="badge badge-primary px-3">
+	    {{ user['cache']['proposals_count'] }}</span>
+	</a>
+      </td>
+      <td>
+	<a href="{{ url_for('reviews.user', username=user['username']) }}">
+	  <span class="badge badge-info px-3">
+	    {{ user['cache']['reviews_count'] }}</span>
 	</a>
       </td>
       <td>{{ user['email'] }}</td>
-      <td>{{ user['givenname'] }}</td>
-      <td>{{ user['familyname'] }}</td>
+      <td>{{ user['givenname'] or '-' }}</td>
+      <td>{{ user['familyname'] or '-' }}</td>
       {% if config['USER_GENDERS'] %}
       <td>{{ (user.get('gender') or '-').capitalize() }}</td>
       {% endif %}
       {% if config['USER_BIRTHDATE'] %}
-      <td>{{ user.get('birthdate') }}</td>
+      <td>{{ user.get('birthdate') or '-' }}</td>
       {% endif %}
       <td>{{ user['role'] }}</td>
       <td>

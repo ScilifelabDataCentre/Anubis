@@ -29,7 +29,7 @@
       {% if g.current_user %}
       <td>
 	<a href="{{ url_for('proposals.call', cid=call['identifier']) }}">
-	  <span class="badge badge-primary">
+	  <span class="badge badge-primary px-3">
 	    {% if g.is_admin %}
 	    {{ call['cache']['proposals_count'] }}
 	    {% else %}

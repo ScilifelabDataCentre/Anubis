@@ -172,7 +172,7 @@ def password():
 @utils.login_required
 def display(username):
     "Display the given user."
-    from .proposals import get_proposals_count
+    from .proposals import get_user_proposals_count
     user = get_user(username=username)
     if user is None:
         utils.flash_error('No such user.')
@@ -180,12 +180,12 @@ def display(username):
     if not is_admin_or_self(user):
         utils.flash_error('Access not allowed.')
         return flask.redirect(flask.url_for('home'))
-    user['reviewer_calls'] = [r.value for r in 
-                              flask.g.db.view('calls', 'reviewer',
-                                              key=user['username'])]
-    user['proposals_count'] = get_proposals_count(username=user['username'])
+    set_user_cache(user)
+    reviewer_calls = [r.value for r in flask.g.db.view('calls', 'reviewer', 
+                                                       key=user['username'])]
     return flask.render_template('user/display.html',
                                  user=user,
+                                 reviewer_calls=reviewer_calls,
                                  enable_disable=is_admin_and_not_self(user),
                                  deletable=is_deletable(user))
 
@@ -265,10 +265,8 @@ def logs(username):
 @utils.admin_required
 def all():
     "Display list of all users."
-    from .proposals import get_proposals_count
-    users = get_users(role=None)
-    for user in users:
-        user['proposals_count'] = get_proposals_count(username=user['username'])
+    from .proposals import get_user_proposals_count
+    users = [set_user_cache(u) for u in get_users(role=None)]
     return flask.render_template('user/all.html', users=users)
 
 @blueprint.route('/enable/<username>', methods=['POST'])
@@ -376,8 +374,6 @@ class UserSaver(BaseSaver):
         self.doc['birthdate'] = birthdate
 
 
-# Utility functions
-
 def get_user(username=None, email=None, safe=False):
     """Return the user for the given username or email.
     Return None if no such user.
@@ -397,6 +393,17 @@ def get_user(username=None, email=None, safe=False):
         user['iuid'] = user.pop('_id')
         user.pop('_rev')
         user.pop('password', None)
+    return user
+
+def set_user_cache(user):
+    """Set the 'cache' item for the user.
+    This is computed data that will not be stored with the document.
+    """
+    from .proposals import get_user_proposals_count
+    from .reviews import get_user_reviews_count
+    user['cache'] = cache = {}
+    cache['proposals_count'] = get_user_proposals_count(user['username'])
+    cache['reviews_count'] = get_user_reviews_count(user['username'])
     return user
 
 def get_users(role, status=None, safe=False):
@@ -426,7 +433,7 @@ def get_current_user():
     if user is None or user['status'] != constants.ENABLED:
         flask.session.pop('username', None)
         return None
-    return user
+    return set_user_cache(user)
 
 def do_login(username, password):
     """Set the session cookie if successful login.
@@ -457,9 +464,11 @@ def is_deletable(user):
     """Can the the given user account be deleted? 
     Only when no proposals and not admin.
     """
-    from .proposals import get_proposals_count
+    import anubis.proposals
+    import anubis.reviews
     if user['role'] == constants.ADMIN: return False
-    return not bool(get_proposals_count(username=user['username']))
+    return not (anubis.proposals.get_user_proposals_count(user['username']) or
+                anubis.reviews.get_user_reviews_count(user['username']))
 
 def is_admin_or_self(user):
     "Is the current user admin, or the same as the given user?"

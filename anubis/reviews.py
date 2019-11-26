@@ -4,10 +4,10 @@ import flask
 
 import anubis.user
 import anubis.proposal
+import anubis.review
 
 from . import constants
 from . import utils
-from .review import get_review_cache
 
 
 blueprint = flask.Blueprint('reviews', __name__)
@@ -24,11 +24,11 @@ def call(cid):
 
     scorefields = [f for f in call['review']
                    if f['type'] == constants.SCORE]
-    reviews = [get_review_cache(r.doc)
-                   for r in flask.g.db.view('reviews', 'call',
-                                            key=cid,
-                                            reduce=False,
-                                            include_docs=True)]
+    reviews = [anubis.review.set_review_cache(r.doc)
+               for r in flask.g.db.view('reviews', 'call',
+                                        key=cid,
+                                        reduce=False,
+                                        include_docs=True)]
     return flask.render_template('reviews/call.html',
                                  call=call,
                                  scorefields=scorefields,
@@ -44,17 +44,19 @@ def proposal(pid):
         return flask.redirect(flask.url_for('home'))
 
     call = proposal['cache']['call']
+    print('reviewers:', call['reviewers'])
     scorefields = [f for f in call['review']
                    if f['type'] == constants.SCORE]
-    reviews = [get_review_cache(r.doc)
+    reviews = [anubis.review.set_review_cache(r.doc)
                for r in flask.g.db.view('reviews', 'call',
                                         key=call['identifier'],
                                         reduce=False,
                                         include_docs=True)]
+    reviews_lookup = {r['reviewer']:r for r in reviews}
     return flask.render_template('reviews/proposal.html',
                                  proposal=proposal,
                                  reviewers=call['reviewers'],
-                                 reviews=reviews,
+                                 reviews_lookup=reviews_lookup,
                                  scorefields=scorefields)
 
 @blueprint.route('/user/<username>')
@@ -68,14 +70,15 @@ def user(username):
     if not anubis.user.is_admin_or_self(user):
         utils.flash_error("You may not view the user's reviews.")
         return flask.redirect(flask.url_for('home'))
-    reviews = [get_review_cache(r.doc)
-                   for r in flask.g.db.view('reviews', 'reviewer',
-                                            key=user['username'],
-                                            reduce=False,
-                                            include_docs=True)]
+
+    reviews = [anubis.review.set_review_cache(r.doc)
+               for r in flask.g.db.view('reviews', 'reviewer',
+                                        key=user['username'],
+                                        reduce=False,
+                                        include_docs=True)]
     return flask.render_template('reviews/user.html', 
                                  user=user,
-                                 proposals=reviews)
+                                 reviews=reviews)
 
 def get_call_reviews_count(call):
     "Get the number of reviews for the call."
@@ -91,6 +94,16 @@ def get_proposal_reviews_count(proposal):
     "Get the number of reviews for the proposal."
     result = flask.g.db.view('reviews', 'proposal',
                              key=proposal['identifier'],
+                             reduce=True)
+    if result:
+        return result[0].value
+    else:
+        return 0
+
+def get_user_reviews_count(username):
+    "Get the number of reviews by the user (reviewer)."
+    result = flask.g.db.view('reviews', 'reviewer',
+                             key=username,
                              reduce=True)
     if result:
         return result[0].value

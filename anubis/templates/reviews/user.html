@@ -5,7 +5,7 @@ Reviews by user {{ user['username'] }}
 {% endblock %}
 
 {% block body_title %}
-Reviews by reviewer
+Reviews by user
 <a href="{{ url_for('user.display', username=user['username']) }}">
   {{ user['username'] }}</a>
 {% endblock %}
@@ -18,7 +18,7 @@ Reviews by reviewer
       <th>Proposal</th>
       {# XXX Check access to view user #}
       <th>Submitter</th>
-      <th>Finalized</th>
+      <th>Review</th>
     </tr>
   </thead>
   <tbody>
@@ -39,11 +39,9 @@ Reviews by reviewer
       {# XXX Check access to view user #}
       <td>{{ proposal['user'] }}</td>
       <td>
-	{% if review.get('finalized') %}
-	<span class="badge badge-success">Yes</span>
-	{% else %}
-	<span class="badge badge-warning">No</span>
-	{% endif %}
+	<a href="{{ url_for('review.display', iuid=review['_id']) }}">
+	  Review</a>
+	{{ macros.finalized(review) }}
       </td>
     </tr>
     {% endfor %}

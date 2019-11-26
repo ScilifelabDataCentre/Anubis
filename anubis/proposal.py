@@ -3,6 +3,7 @@
 import flask
 
 import anubis.call
+import anubis.user
 
 from . import constants
 from . import utils
@@ -118,34 +119,6 @@ def unsubmit(pid):
         except ValueError as error:
             utils.flash_error(str(error))
         return flask.redirect(flask.url_for('.display', pid=pid))
-
-@blueprint.route('/<pid>/review/<username>', methods=['POST'])
-@utils.admin_required
-def review(pid, username):
-    "Create a new review for the proposal for the given reviewer."
-    import anubis.review
-    import anubis.user
-    proposal = get_proposal(pid)
-    if proposal is None:
-        utils.flash_error('No such proposal.')
-        return flask.redirect(flask.url_for('home'))
-    reviewer = anubis.user.get_user(username=username)
-    if reviewer is None:
-        utils.flash_error('No such user.')
-        return flask.redirect(
-            flask.url_for('.display', pid=proposal['identifier']))
-    if reviewer['username'] not in proposal['cache']['call']['reviewers']:
-        utils.flash_error('User is not a reviewer in the call.')
-        return flask.redirect(
-            flask.url_for('.display', pid=proposal['identifier']))
-    review = get_review(proposal, reviewer)
-    if review is not None:
-        utils.flash_message('The review already exists.')
-        return flask.redirect(
-            flask.url_for('review.display', iuid=review['iuid']))
-    with anubis.review.ReviewSaver(proposal=proposal) as saver:
-        pass
-    return flask.redirect(flask.url_for('review.display',iuid=saver.doc['_id']))
 
 @blueprint.route('/<pid>/logs')
 @utils.login_required
