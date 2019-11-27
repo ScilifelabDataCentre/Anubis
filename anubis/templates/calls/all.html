@@ -9,11 +9,9 @@
   <thead>
     <tr>
       <th>Call</th>
-      {% if g.current_user %}
       <th class="text-break"
 	  title="Includes only proposals marked by the user as 'submitted'.">
 	Proposals</th>
-      {% endif %}
       <th>Title</th>
       <th>Opens</th>
       <th colspan="2">Closes</th>
@@ -27,14 +25,12 @@
 	   title="{{ call['title'] }}">
 	  {{ call['identifier'] }}</a>
       </td>
-      {% if g.current_user %}
       <td>
 	<a href="{{ url_for('proposals.call', cid=call['identifier']) }}">
 	  <span class="badge badge-primary px-3">
 	    {{ call['cache']['proposals_count'] }}</span>
 	</a>
       </td>
-      {% endif %}
       <td>{{ call['title'] }}</td>
       <td class="text-nowrap pl-2">{{ call['opens'] or 'No open date.' }}</td>
       <td class="text-nowrap pl-2">{{ call['closes'] or 'No closes date.' }}</td>
