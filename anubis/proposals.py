@@ -79,7 +79,7 @@ def get_user_proposals_count(username):
     else:
         return 0
 
-def get_user_call_proposal(username, call):
+def get_call_user_proposal(call, username):
     "Get the proposal created by the user in the call."
     proposals = [p for p in get_user_proposals(username)
                  if p['call'] == call['identifier']]

@@ -48,15 +48,14 @@ def create():
 @blueprint.route('/<cid>')
 def display(cid):
     "Display the call."
-    from .proposals import get_user_call_proposal
+    from .proposals import get_call_user_proposal
     from .reviews import get_call_reviews_count, get_call_reviewer_reviews_count
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
     if flask.g.current_user:
-        proposal = get_user_call_proposal(flask.g.current_user['username'],
-                                          call)
+        proposal = get_call_user_proposal(call,flask.g.current_user['username'])
         if flask.g.is_admin:
             all_reviews_count = get_call_reviews_count(call)
         else:
@@ -218,6 +217,7 @@ def proposal_field(cid, fid):
 def reviewers(cid):
     "Edit the list of reviewers."
     from .user import get_user
+    from .proposals import get_call_user_proposals
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
@@ -235,6 +235,11 @@ def reviewers(cid):
             utils.flash_error('No such user.')
             return flask.redirect(
                 flask.url_for('.reviewers', cid=call['identifier']))
+        if get_call_user_proposals(call, user['username']):
+            utils.flash_error('User has created a proposal in the call.')
+            return flask.redirect(
+                flask.url_for('.reviewers', cid=call['identifier']))
+
         if user['username'] not in call['reviewers']:
             with CallSaver(call) as saver:
                 saver['reviewers'].append(user['username'])
@@ -352,7 +357,7 @@ def logs(cid):
 def create_proposal(cid):
     "Create a new proposal within the call. Redirect to an existing proposal."
     from .proposal import ProposalSaver
-    from .proposals import get_user_call_proposal
+    from .proposals import get_call_user_proposal
     call = get_call(cid)
     if call is None:
         utils.flash_error('No such call.')
@@ -365,8 +370,7 @@ def create_proposal(cid):
         return flask.redirect(flask.url_for('.display', cid=cid))
 
     if utils.http_POST():
-        proposal = get_user_call_proposal(flask.g.current_user['username'],
-                                          call)
+        proposal = get_call_user_proposal(call,flask.g.current_user['username'])
         if proposal:
             utils.flash_message('Proposal already exists for the call.')
             return flask.redirect(
