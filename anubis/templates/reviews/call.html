@@ -17,11 +17,11 @@ Reviews for call
       <th>Proposal</th>
       {# XXX Check access to view user #}
       <th>Submitter</th>
-      <th>Reviewer</th>
       <th>Review</th>
       {% for scorefield in scorefields %}
       <th>{{ scorefield['title'] }}</th>
       {% endfor %}
+      <th>Reviewer</th>
     </tr>
   </thead>
   <tbody>
@@ -36,10 +36,6 @@ Reviews for call
       {# XXX Check access to view user #}
       <td>{{ proposal['user'] }}</td>
       <td>
-	<a href="{{ url_for('user.display', username=review['reviewer']) }}">
-	  {{ review['reviewer'] }}</a>
-      </td>
-      <td>
 	<a href="{{ url_for('review.display', iuid=review['_id']) }}">
 	  Review</a>
 	{{ macros.finalized(review) }}
@@ -49,6 +45,10 @@ Reviews for call
 	{{ review['values'].get(scorefield['identifier']) | value_or_none }}
       </td>
       {% endfor %}
+      <td>
+	<a href="{{ url_for('user.display', username=review['reviewer']) }}">
+	  {{ review['reviewer'] }}</a>
+      </td>
     </tr>
     {% endfor %}
   </tbody>

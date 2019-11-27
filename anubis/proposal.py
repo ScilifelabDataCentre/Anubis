@@ -35,6 +35,7 @@ blueprint = flask.Blueprint('proposal', __name__)
 @utils.login_required
 def display(pid):
     "Display the proposal."
+    from .review import get_my_review
     proposal = get_proposal(pid)
     if proposal is None:
         utils.flash_error('No such proposal.')
@@ -42,7 +43,10 @@ def display(pid):
     if not proposal['cache']['is_readable']:
         utils.flash_error('You are not allowed to read this proposal.')
         return flask.redirect(flask.url_for('home'))
-    return flask.render_template('proposal/display.html', proposal=proposal)
+    review = get_my_review(proposal, flask.g.current_user)
+    return flask.render_template('proposal/display.html',
+                                 proposal=proposal,
+                                 review=review)
 
 @blueprint.route('/<pid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.login_required

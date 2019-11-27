@@ -47,7 +47,7 @@ def create(pid, username):
     elif user['username'] not in proposal['cache']['call']['reviewers']:
         utils.flash_error('User is not a reviewer in the call.')
     else:
-        review = get_review(proposal, user)
+        review = get_my_review(proposal, user)
         if review is not None:
             utils.flash_message('The review already exists.')
             return flask.redirect(
@@ -63,7 +63,7 @@ def create(pid, username):
 def display(iuid):
     "Display the review for the proposal."
     try:
-        review = set_review_cache(flask.g.db.get(iuid))
+        review = get_review(iuid)
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
@@ -71,25 +71,23 @@ def display(iuid):
         utils.flash_error('You are not allowed to read this review.')
         return flask.redirect(flask.url_for('home'))
 
-    return flask.render_template('review/display.html',
-                                 review=review)
+    return flask.render_template('review/display.html', review=review)
 
 @blueprint.route('/<iuid:iuid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.login_required
 def edit(iuid):
     "Edit the review for the proposal."
     try:
-        review = set_review_cache(flask.g.db.get(iuid))
+        review = get_review(iuid)
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
     if not review['cache']['is_editable']:
         utils.flash_error('You are not allowed to edit this review.')
-        return flask.redirect(flask.url_for('home'))
+        return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
     if utils.http_GET():
-        return flask.render_template('review/edit.html',
-                                     review=review)
+        return flask.render_template('review/edit.html', review=review)
 
     elif utils.http_POST():
         try:
@@ -98,10 +96,8 @@ def edit(iuid):
                     saver.set_field_value(field, form=flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
-            return flask.redirect(
-                flask.url_for('.edit', iuid=review['_id']))
-        return flask.redirect(
-            flask.url_for('.display', iuid=review['_id']))
+            return flask.redirect(flask.url_for('.edit', iuid=review['_id']))
+        return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
     elif utils.http_DELETE():
         utils.delete(review)
@@ -113,13 +109,13 @@ def edit(iuid):
 def finalize(iuid):
     "Finalize the review for the proposal."
     try:
-        review = set_review_cache(flask.g.db.get(iuid))
+        review = get_review(iuid)
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
     if not review['cache']['is_editable']:
         utils.flash_error('You are not allowed to edit this review.')
-        return flask.redirect(flask.url_for('home'))
+        return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
     if utils.http_POST():
         try:
@@ -127,21 +123,20 @@ def finalize(iuid):
                 saver['finalized'] = utils.get_time()
         except ValueError as error:
             utils.flash_error(str(error))
-        return flask.redirect(
-            flask.url_for('.display', iuid=review['_id']))
+        return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
 @blueprint.route('/<iuid:iuid>/unfinalize', methods=['POST'])
 @utils.login_required
 def unfinalize(iuid):
     "Unfinalize the review for the proposal."
     try:
-        review = set_review_cache(flask.g.db.get(iuid))
+        review = get_review(iuid)
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
-    if not review['cache']['is_editable']:
+    if not review['cache']['is_unfinalizable']:
         utils.flash_error('You are not allowed to edit this review.')
-        return flask.redirect(flask.url_for('home'))
+        return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
     if utils.http_POST():
         try:
@@ -149,19 +144,18 @@ def unfinalize(iuid):
                 saver['finalized'] = None
         except ValueError as error:
             utils.flash_error(str(error))
-        return flask.redirect(
-            flask.url_for('.display', iuid=review['_id']))
+        return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
 @blueprint.route('/<iuid:iuid>/logs')
 @utils.login_required
 def logs(iuid):
     "Display the log records of the call."
-    review = flask.g.db.get(iuid)
-    if review is None:
+    try:
+        review = get_review(iuid)
+    except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
 
-    review = set_review_cache(review)
     return flask.render_template(
         'logs.html',
         title="Review of" \
@@ -174,8 +168,9 @@ def logs(iuid):
 @utils.login_required
 def document(iuid, documentname):
     "Download the given review document (attachment file)."
-    review = get_review(iuid)
-    if review is None:
+    try:
+        review = get_review(iuid)
+    except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
     if not review['cache']['is_readable']:
@@ -221,7 +216,13 @@ class ReviewSaver(FieldMixin, BaseSaver):
         self.doc['reviewer'] = user['username']
 
 
-def get_review(proposal, reviewer):
+def get_review(iuid):
+    "Get the review by its iuid."
+    review = flask.g.db[iuid]
+    if review['doctype'] != constants.REVIEW: raise KeyError
+    return set_review_cache(review)
+
+def get_my_review(proposal, reviewer):
     "Get the review of the proposal by the reviewer."
     result = flask.g.db.view('reviews', 'proposal_reviewer',
                              key=[proposal['identifier'], 
@@ -242,14 +243,15 @@ def get_reviews(call):
                                        include_docs=True)]
 
 def set_review_cache(review, call=None):
-    """Set the'cache' field of the review.
+    """Set the 'cache' field of the review.
     This is computed data that will not be stored with the document.
     Depends on login, access, status, etc.
     """
     from anubis.call import get_call
     from anubis.proposal import get_proposal
     review['cache'] = cache = dict(is_readable=False,
-                                       is_editable=False)
+                                   is_editable=False,
+                                   is_unfinalizable=False)
     if call is None:
         cache['call'] = call = get_call(review['call'])
     else:
@@ -257,8 +259,12 @@ def set_review_cache(review, call=None):
     cache['proposal'] = get_proposal(review['proposal'])
     if flask.g.is_admin:
         cache['is_readable'] = True
-        cache['is_editable'] = True
+        cache['is_editable'] = not review.get('finalized')
+        cache['is_unfinalizable'] = True
     elif flask.g.current_user:
         cache['is_readable'] = flask.g.current_user['username'] == review['reviewer']
-        cache['is_editable'] = flask.g.current_user['username'] == review['reviewer']
+        cache['is_editable'] = not review.get('finalized') and \
+                               flask.g.current_user['username'] == review['reviewer']
+        cache['is_unfinalizable'] = review.get('finalized') and \
+                                    flask.g.current_user['username'] == review['reviewer']
     return review
