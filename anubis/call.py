@@ -48,19 +48,30 @@ def create():
 @blueprint.route('/<cid>')
 def display(cid):
     "Display the call."
-    import anubis.proposals
+    from .proposals import get_user_call_proposal
+    from .reviews import get_call_reviews_count, get_call_reviewer_reviews_count
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
     if flask.g.current_user:
-        proposal = anubis.proposals.get_user_call_proposal(
-            flask.g.current_user['username'], call)
+        proposal = get_user_call_proposal(flask.g.current_user['username'],
+                                          call)
+        if flask.g.is_admin:
+            all_reviews_count = get_call_reviews_count(call)
+        else:
+            all_reviews_count = None
+        my_reviews_count = get_call_reviewer_reviews_count(
+            call, flask.g.current_user['username'])
     else:
         proposal = None
+        all_reviews_count = None
+        my_reviews_count = None
     return flask.render_template('call/display.html',
                                  call=call,
-                                 proposal=proposal)
+                                 proposal=proposal,
+                                 all_reviews_count=all_reviews_count,
+                                 my_reviews_count=my_reviews_count)
 
 @blueprint.route('/<cid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.admin_required
@@ -206,7 +217,7 @@ def proposal_field(cid, fid):
 @utils.admin_required
 def reviewers(cid):
     "Edit the list of reviewers."
-    import anubis.user
+    from .user import get_user
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
@@ -217,9 +228,9 @@ def reviewers(cid):
 
     elif utils.http_POST():
         reviewer = flask.request.form.get('reviewer')
-        user = anubis.user.get_user(username=reviewer)
+        user = get_user(username=reviewer)
         if user is None:
-            user = anubis.user.get_user(email=reviewer)
+            user = get_user(email=reviewer)
         if user is None:
             utils.flash_error('No such user.')
             return flask.redirect(
@@ -340,7 +351,7 @@ def logs(cid):
 @utils.login_required
 def create_proposal(cid):
     "Create a new proposal within the call. Redirect to an existing proposal."
-    import anubis.proposal
+    from .proposal import ProposalSaver
     from .proposals import get_user_call_proposal
     call = get_call(cid)
     if call is None:
@@ -361,7 +372,7 @@ def create_proposal(cid):
             return flask.redirect(
                 flask.url_for('proposal.display', pid=proposal['identifier']))
         else:
-            with anubis.proposal.ProposalSaver(call=call) as saver:
+            with ProposalSaver(call=call) as saver:
                 pass
             return flask.redirect(
                 flask.url_for('proposal.edit', pid=saver.doc['identifier']))
@@ -618,15 +629,14 @@ def set_call_cache(call):
                                  may_submit=False)
     # Proposals count
     if flask.g.is_admin:
-        cache['proposals_count'] = get_call_proposals_count(call)
         cache['is_reviewer'] = True
         cache['may_submit'] = True
+        cache['proposals_count'] = get_call_proposals_count(call)
         cache['reviews_count'] = get_call_reviews_count(call)
     elif flask.g.current_user:
         # Note: operator '|=' is intentional.
         cache['is_reviewer'] |= flask.g.current_user['username'] in call['reviewers']
-        if cache['is_reviewer']:
-            cache['proposals_count'] = get_call_proposals_count(call)
+        cache['proposals_count'] = get_call_proposals_count(call) # reviewers
         cache['may_submit'] = not cache['is_reviewer']
     # Open/closed status
     now = utils.normalized_local_now()

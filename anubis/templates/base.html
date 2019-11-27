@@ -43,15 +43,15 @@
       <div class="collapse navbar-collapse" id="top_navbar">
         <ul class="navbar-nav mr-auto">
           {% if g.current_user %}
-	  {% if g.current_user['cache']['proposals_count'] %}
+	  {% if g.current_user['cache']['my_proposals_count'] %}
           <li class="nav-item">
             <a href="{{ url_for('proposals.user', username=g.current_user['username']) }}"
 	       class="nav-link">My proposals</a>
           </li>
 	  {% endif %}
-	  {% if g.current_user['cache']['reviews_count'] %}
+	  {% if g.current_user['cache']['my_reviews_count'] %}
           <li class="nav-item">
-            <a href="{{ url_for('reviews.user', username=g.current_user['username']) }}"
+            <a href="{{ url_for('reviews.reviewer', username=g.current_user['username']) }}"
 	       class="nav-link">My reviews</a>
           </li>
 	  {% endif %}

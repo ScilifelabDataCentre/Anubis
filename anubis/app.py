@@ -1,4 +1,4 @@
-"Web app template."
+"Proposal review handling system."
 
 import flask
 

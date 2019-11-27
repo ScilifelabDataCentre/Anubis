@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '0.5.8'
+__version__ = '0.5.9'
 
 class Constants:
     VERSION     = __version__
@@ -34,7 +34,7 @@ class Constants:
     PENDING  = 'pending'
     ENABLED  = 'enabled'
     DISABLED = 'disabled'
-    USER_STATUSES = [PENDING, ENABLED, DISABLED]
+    USER_STATUSES = (PENDING, ENABLED, DISABLED)
 
     # User capacities (per call)
     SUBMITTER = 'submitter'

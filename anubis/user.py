@@ -402,8 +402,8 @@ def set_user_cache(user):
     from .proposals import get_user_proposals_count
     from .reviews import get_user_reviews_count
     user['cache'] = cache = {}
-    cache['proposals_count'] = get_user_proposals_count(user['username'])
-    cache['reviews_count'] = get_user_reviews_count(user['username'])
+    cache['my_proposals_count'] = get_user_proposals_count(user['username'])
+    cache['my_reviews_count'] = get_user_reviews_count(user['username'])
     return user
 
 def get_users(role, status=None, safe=False):

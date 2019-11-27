@@ -12,15 +12,15 @@
     <th class="text-right">Proposals</th>
     <td>
       <a href="{{ url_for('proposals.user', username=user['username']) }}">
-	<span class="badge badge-primary">{{ user['cache']['proposals_count'] }}</span>
+	<span class="badge badge-primary px-3">{{ user['cache']['my_proposals_count'] }}</span>
       </a>
     </td>
   </tr>
   <tr>
     <th class="text-right">Reviews</th>
     <td>
-      <a href="{{ url_for('reviews.user', username=user['username']) }}">
-	<span class="badge badge-primary">{{ user['cache']['reviews_count'] }}</span>
+      <a href="{{ url_for('reviews.reviewer', username=user['username']) }}">
+	<span class="badge badge-info px-3">{{ user['cache']['my_reviews_count'] }}</span>
       </a>
     </td>
   </tr>

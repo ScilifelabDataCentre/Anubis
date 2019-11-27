@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block head_title %}
+Reviews by user {{ user['username'] }}
+{% endblock %}
+
+{% block body_title %}
+Reviews by user
+<a href="{{ url_for('user.display', username=user['username']) }}">
+  {{ user['username'] }}</a>
+{% endblock %}
+
+{% block supermain %}
+<table id="reviews" class="table">
+  <thead>
+    <tr>
+      <th>Call</th>
+      <th>Proposal</th>
+      {# XXX Check access to view submitter #}
+      <th>Submitter</th>
+      <th>Review</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for review in reviews %}
+    {% set call = review['cache']['call'] %}
+    {% set proposal = review['cache']['proposal'] %}
+    <tr>
+      <td>
+	<a href="{{ url_for('call.display', cid=call['identifier']) }}"
+	   title="{{ call.get('title') or '-' }}">
+	  {{ call['identifier'] }}</a>
+      </td>
+      <td>
+	<a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}"
+	   title="{{ proposal.get('title') or '-' }}">
+	  {{ proposal['identifier'] }}</a>
+	{{ proposal['title'] }}
+      </td>
+      {# XXX Check access to view submitter #}
+      <td>{{ proposal['user'] }}</td>
+      <td>
+	<a href="{{ url_for('review.display', iuid=review['_id']) }}">
+	  Review</a>
+	{{ macros.finalized(review) }}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %} {# block supermain #}
+
+{% block javascript %}
+<script>
+  $(function() {
+    $("#reviews").DataTable( {
+      "pagingType": "full_numbers",
+      "pageLength": 25
+    });
+  });
+</script>
+{% endblock %}

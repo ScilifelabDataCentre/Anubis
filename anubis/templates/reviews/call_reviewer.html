@@ -1,48 +1,53 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Reviews by user {{ user['username'] }}
+Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
 Reviews by user
 <a href="{{ url_for('user.display', username=user['username']) }}">
   {{ user['username'] }}</a>
+in call
+<a href="{{ url_for('call.display', cid=call['identifier']) }}">
+  {{ call['identifier'] }}</a>
 {% endblock %}
 
 {% block supermain %}
 <table id="reviews" class="table">
   <thead>
     <tr>
-      <th>Call</th>
       <th>Proposal</th>
-      {# XXX Check access to view user #}
+      {# XXX Check access to view submitter #}
       <th>Submitter</th>
-      <th>Review</th>
+      <th>My review</th>
+      {% for scorefield in scorefields %}
+      <th>{{ scorefield['title'] }}</th>
+      {% endfor %}
     </tr>
   </thead>
   <tbody>
     {% for review in reviews %}
-    {% set call = review['cache']['call'] %}
     {% set proposal = review['cache']['proposal'] %}
     <tr>
-      <td>
-	<a href="{{ url_for('call.display', cid=call['identifier']) }}"
-	   title="{{ call.get('title') or '-' }}">
-	  {{ call['identifier'] }}</a>
-      </td>
       <td>
 	<a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}"
 	   title="{{ proposal.get('title') or '-' }}">
 	  {{ proposal['identifier'] }}</a>
+	{{ proposal['title'] }}
       </td>
-      {# XXX Check access to view user #}
+      {# XXX Check access to view submitter #}
       <td>{{ proposal['user'] }}</td>
       <td>
 	<a href="{{ url_for('review.display', iuid=review['_id']) }}">
 	  Review</a>
 	{{ macros.finalized(review) }}
       </td>
+      {% for scorefield in scorefields %}
+      <td>
+	{{ review['values'].get(scorefield['identifier']) | value_or_none }}
+      </td>
+      {% endfor %}
     </tr>
     {% endfor %}
   </tbody>
