@@ -9,13 +9,13 @@
   <thead>
     <tr>
       <th>Call</th>
+      <th>Title</th>
+      <th colspan="2">Closes</th>
       {% if g.is_admin %}
       <th class="text-break"
 	  title="Includes only proposals marked by the user as 'submitted'.">
 	Proposals</th>
       {% endif %} {# if g.is_admin #}
-      <th>Title</th>
-      <th colspan="2">Closes</th>
     </tr>
   </thead>
   <tbody>
@@ -26,6 +26,9 @@
 	   title="{{ call['title'] }}">
 	  {{ call['identifier'] }}</a>
       </td>
+      <td>{{ call['title'] }}</td>
+      <td class="text-nowrap pl-2">{{ call['closes'] or 'No closes date.' }}</td>
+      <td>{{ macros.call_closes(call) }}</td>
       {% if g.is_admin %}
       <td>
 	<a href="{{ url_for('proposals.call', cid=call['identifier']) }}">
@@ -35,9 +38,6 @@
 	</a>
       </td>
       {% endif %} {# if g.is_admin #}
-      <td>{{ call['title'] }}</td>
-      <td class="text-nowrap pl-2">{{ call['closes'] or 'No closes date.' }}</td>
-      <td>{{ macros.call_closes(call) }}</td>
     </tr>
     {% endfor %}
   </tbody>

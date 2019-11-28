@@ -17,19 +17,32 @@ in call
 <table id="reviews" class="table">
   <thead>
     <tr>
+      <th>Proposal</th>
+      <th>Proposal title</th>
+      {# XXX Check access to view submitter #}
+      <th>Submitter</th>
       <th>My review</th>
       {% for scorefield in scorefields %}
       <th>{{ scorefield['title'] }}</th>
       {% endfor %}
-      <th>Proposal</th>
-      {# XXX Check access to view submitter #}
-      <th>Submitter</th>
     </tr>
   </thead>
   <tbody>
     {% for review in reviews %}
     {% set proposal = review['cache']['proposal'] %}
     <tr>
+      <td>
+	<a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}"
+	   title="{{ proposal.get('title') or '-' }}">
+	  {{ proposal['identifier'] }}</a>
+      </td>
+      <td>{{ proposal['title'] }}</td>
+      {# XXX Check access to view submitter #}
+      <td>
+	<a href="{{ url_for('user.display', username=proposal['user']) }}">
+	  {{ proposal['user'] }}
+	</a>
+      </td>
       <td>
 	<a href="{{ url_for('review.display', iuid=review['_id']) }}">
 	  Review</a>
@@ -40,14 +53,6 @@ in call
 	{{ review['values'].get(scorefield['identifier']) | value_or_none }}
       </td>
       {% endfor %}
-      <td>
-	<a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}"
-	   title="{{ proposal.get('title') or '-' }}">
-	  {{ proposal['identifier'] }}</a>
-	{{ proposal['title'] }}
-      </td>
-      {# XXX Check access to view submitter #}
-      <td>{{ proposal['user'] }}</td>
     </tr>
     {% endfor %}
   </tbody>

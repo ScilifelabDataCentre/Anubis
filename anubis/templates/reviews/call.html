@@ -34,7 +34,11 @@ Reviews for call
 	  {{ proposal['identifier'] }}</a>
       </td>
       {# XXX Check access to view user #}
-      <td>{{ proposal['user'] }}</td>
+      <td>
+	<a href="{{ url_for('user.display', username=proposal['user']) }}">
+	  {{ proposal['user'] }}
+	</a>
+      </td>
       <td>
 	<a href="{{ url_for('review.display', iuid=review['_id']) }}">
 	  Review</a>

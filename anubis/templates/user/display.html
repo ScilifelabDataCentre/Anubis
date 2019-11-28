@@ -9,7 +9,7 @@
   <col style="width:20%">
   <col style="width:80%">
   <tr>
-    <th class="text-right">Proposals</th>
+    <th class="text-right">User's proposals</th>
     <td>
       <a href="{{ url_for('proposals.user', username=user['username']) }}">
 	<span class="badge badge-primary px-3">{{ user['cache']['my_proposals_count'] }}</span>
@@ -17,7 +17,7 @@
     </td>
   </tr>
   <tr>
-    <th class="text-right">Reviews</th>
+    <th class="text-right">User's reviews</th>
     <td>
       <a href="{{ url_for('reviews.reviewer', username=user['username']) }}">
 	<span class="badge badge-info px-3">{{ user['cache']['my_reviews_count'] }}</span>

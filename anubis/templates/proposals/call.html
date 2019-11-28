@@ -6,6 +6,7 @@
 Proposals in call
 <a href="{{ url_for('call.display', cid=call['identifier']) }}">
   {{ call['identifier'] }}</a>
+{{ call['title'] }}
 {% endblock %}
 
 {% block supermain %}
@@ -21,6 +22,9 @@ Proposals in call
       <th>Title</th>
       {# XXX Check access to view user #}
       <th>Submitter</th>
+      {% if g.is_admin %}
+      <th>Reviews</th>
+      {% endif %}
     </tr>
   </thead>
   <tbody>
@@ -36,6 +40,15 @@ Proposals in call
 	<a href="{{ url_for('user.display', username=proposal['user']) }}">
 	  {{ proposal['user'] }}</a>
       </td>
+      {% if g.is_admin %}
+      <td>
+	<a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}">
+	  <span class="badge badge-info px-3">
+	    {{ proposal['cache']['reviews_count'] }}
+	  </span>
+	</a>
+      </td>
+      {% endif %}
     </tr>
     {% endfor %}
   </tbody>

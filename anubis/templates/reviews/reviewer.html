@@ -16,6 +16,7 @@ Reviews by user
     <tr>
       <th>Call</th>
       <th>Proposal</th>
+      <th>Proposal title</th>
       {# XXX Check access to view submitter #}
       <th>Submitter</th>
       <th>Review</th>
@@ -35,8 +36,8 @@ Reviews by user
 	<a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}"
 	   title="{{ proposal.get('title') or '-' }}">
 	  {{ proposal['identifier'] }}</a>
-	{{ proposal['title'] }}
       </td>
+      <td>{{ proposal['title'] }}</td>
       {# XXX Check access to view submitter #}
       <td>{{ proposal['user'] }}</td>
       <td>
