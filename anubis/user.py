@@ -399,11 +399,12 @@ def set_user_cache(user):
     """Set the 'cache' item for the user.
     This is computed data that will not be stored with the document.
     """
-    from .proposals import get_user_proposals_count
+    from .proposals import get_user_proposals_count, get_user_unsubmitted_proposals_count
     from .reviews import get_user_reviews_count
     user['cache'] = cache = {}
     cache['my_proposals_count'] = get_user_proposals_count(user['username'])
     cache['my_reviews_count'] = get_user_reviews_count(user['username'])
+    cache['my_unsubmitted_count'] = get_user_unsubmitted_proposals_count(user['username'])
     return user
 
 def get_users(role, status=None, safe=False):

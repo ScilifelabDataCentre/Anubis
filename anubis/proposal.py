@@ -20,12 +20,15 @@ def init(app):
 DESIGN_DOC = {
     'views': {
         'identifier': {'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit(doc.identifier, null);}"},
-        # NOTE: excludes proposals not marked 'submitted'
+        # NOTE: excludes unsubmitted proposals
         'call': {'reduce': '_count',
-                 'map': "function (doc) {if (doc.doctype !== 'proposal' || !doc.submitted) return; emit(doc.call, null);}"},
-        # NOTE: includes proposals not marked 'submitted'
+                 'map': "function (doc) {if (doc.doctype !== 'proposal' || !doc.submitted) return; emit(doc.call, doc.user);}"},
+        # NOTE: includes unsubmitted proposals
         'user': {'reduce': '_count',
                  'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit(doc.user, null);}"},
+        # Unsubmitted proposals in any call
+        'unsubmitted': {'reduce': '_count',
+                        'map': "function (doc) {if (doc.doctype !== 'proposal' || doc.submitted) return; emit(doc.user, null);}"},
     }
 }
 

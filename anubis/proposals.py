@@ -70,7 +70,7 @@ def get_user_proposals(username):
                                      include_docs=True)]
 
 def get_user_proposals_count(username):
-    "Get the number of proposals created by the user."
+    "Get the number of proposals created by the user. Excludes no proposals."
     result = flask.g.db.view('proposals', 'user',
                              key=username,
                              reduce=True)
@@ -80,13 +80,23 @@ def get_user_proposals_count(username):
         return 0
 
 def get_call_user_proposal(call, username):
-    "Get the proposal created by the user in the call."
+    "Get the proposal created by the user in the call. Excludes no proposals."
     proposals = [p for p in get_user_proposals(username)
                  if p['call'] == call['identifier']]
     if proposals:
         return proposals[0]
     else:
         return None
+
+def get_user_unsubmitted_proposals_count(username):
+    "Get the number of unsubmitted proposals by the user."
+    result = flask.g.db.view('proposals', 'unsubmitted',
+                             key=username,
+                             reduce=True)
+    if result:
+        return result[0].value
+    else:
+        return 0
 
 def get_call_proposals(call):
     """Get all submitted proposals in the call.
@@ -109,3 +119,10 @@ def get_call_proposals_count(call):
         return result[0].value
     else:
         return 0
+
+def get_call_submitters(call):
+    "Get the set of users who have submitted a proposal in the call."
+    result = flask.g.db.view('proposals', 'call',
+                             key=call['identifier'],
+                             reduce=False)
+    return set([r.value for r in result])

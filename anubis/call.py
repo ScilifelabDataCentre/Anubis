@@ -559,6 +559,7 @@ class CallSaver(AttachmentsSaver):
             field['slider'] = utils.to_bool(form.get('slider'))
 
     def delete_proposal_field(self, fid):
+        "Delete the given field from proposal definition."
         for pos, field in enumerate(self.doc['proposal']):
             if field['identifier'] == fid:
                 self.doc['proposal'].pop(pos)
@@ -567,12 +568,14 @@ class CallSaver(AttachmentsSaver):
             raise ValueError('No such proposal field.')
 
     def add_review_field(self, form=dict()):
+        "Add a field to the review definition."
         field = self.get_new_field(form=form)
         if field['identifier'] in [f['identifier'] for f in self.doc['review']]:
             raise ValueError('Field identifier is already in use.')
         self.doc['review'].append(field)
 
     def edit_review_field(self, fid, form=dict()):
+        "Edit the review definition field."
         for field in self.doc['review']:
             if field['identifier'] == fid:
                 self.update_field(field, form=form)
@@ -581,6 +584,7 @@ class CallSaver(AttachmentsSaver):
             raise KeyError('No such review field.')
 
     def delete_review_field(self, fid):
+        "Delete the field from the review definition."
         for pos, field in enumerate(self.doc['review']):
             if field['identifier'] == fid:
                 self.doc['review'].pop(pos)
@@ -589,7 +593,7 @@ class CallSaver(AttachmentsSaver):
             raise ValueError('No such review field.')
 
     def add_document(self, infile, description):
-        "Add a document."
+        "Add a document to the call."
         self.add_attachment(infile.filename,
                             infile.read(),
                             infile.mimetype)
@@ -602,7 +606,7 @@ class CallSaver(AttachmentsSaver):
                                           'description': description})
 
     def delete_document(self, documentname):
-        "Add the named document."
+        "Delete the named document from the call."
         for pos, document in enumerate(self.doc['documents']):
             if document['name'] == documentname:
                 self.delete_attachment(documentname)

@@ -55,6 +55,13 @@ DEFAULT_SETTINGS = dict(
     MARKDOWN_URL = 'https://daringfireball.net/projects/markdown/syntax',
 )
 
+CALL_ACCESS_FLAGS = dict(
+    reviewer_reviews = "May a reviewer read the reviews of other reviewers' in the same call?",
+    reviewer_reviewers = "May a reviewer see the user information of a reviewer in the same call?",
+    reviewer_submitters = "May a reviewer see the user information of a submitter in the call?"
+)
+    
+
 def init(app):
     """Perform the configuration of the Flask app.
     Set the defaults, and then read JSON settings file.

@@ -46,7 +46,12 @@
 	  {% if g.current_user['cache']['my_proposals_count'] %}
           <li class="nav-item">
             <a href="{{ url_for('proposals.user', username=g.current_user['username']) }}"
-	       class="nav-link">My proposals</a>
+	       class="nav-link">My proposals
+	    {% if g.current_user['cache']['my_unsubmitted_count'] %}
+	      <span class="badge badge-warning font-weight-bold px-2" 
+		    title="You have unsubmitted proposals!">!</span>
+	    {% endif %}
+	    </a>
           </li>
 	  {% endif %}
 	  {% if g.current_user['cache']['my_reviews_count'] %}
