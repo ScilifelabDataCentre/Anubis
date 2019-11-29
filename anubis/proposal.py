@@ -26,7 +26,7 @@ DESIGN_DOC = {
         # NOTE: includes unsubmitted proposals
         'user': {'reduce': '_count',
                  'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit(doc.user, null);}"},
-        # Unsubmitted proposals in any call
+        # Unsubmitted proposals by user in any call.
         'unsubmitted': {'reduce': '_count',
                         'map': "function (doc) {if (doc.doctype !== 'proposal' || doc.submitted) return; emit(doc.user, null);}"},
     }

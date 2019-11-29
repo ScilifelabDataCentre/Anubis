@@ -258,34 +258,6 @@ def do_markdown(value):
     value = value or ''
     return jinja2.utils.Markup(markdown.markdown(value, output_format='html5'))
 
-def accept_json():
-    "Return True if the header Accept contains the JSON content type."
-    acc = flask.request.accept_mimetypes
-    best = acc.best_match([constants.JSON_MIMETYPE, constants.HTML_MIMETYPE])
-    return best == constants.JSON_MIMETYPE and \
-        acc[best] > acc[constants.HTML_MIMETYPE]
-
-def get_json(**data):
-    "Return the JSON structure after fixing up for external representation."
-    result = {'$id': flask.request.url,
-              'timestamp': get_time()}
-    try:
-        result['iuid'] = data.pop('_id')
-    except KeyError:
-        pass
-    data.pop('_rev', None)
-    data.pop('doctype', None)
-    result.update(data)
-    return result
-
-def jsonify(result, schema_url=None):
-    """Return a Response object containing the JSON of 'result'.
-    Optionally add a header Link to the schema."""
-    response = flask.jsonify(result)
-    if schema_url:
-        response.headers.add('Link', schema_url, rel='schema')
-    return response
-
 def get_logs(docid, cleanup=True):
     """Return the list of log entries for the given document identifier,
     sorted by reverse timestamp.

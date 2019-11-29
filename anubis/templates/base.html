@@ -45,19 +45,27 @@
           {% if g.current_user %}
 	  {% if g.current_user['cache']['my_proposals_count'] %}
           <li class="nav-item">
-            <a href="{{ url_for('proposals.user', username=g.current_user['username']) }}"
-	       class="nav-link">My proposals
 	    {% if g.current_user['cache']['my_unsubmitted_count'] %}
-	      <span class="badge badge-warning font-weight-bold px-2" 
-		    title="You have unsubmitted proposals!">!</span>
+            <a href="{{ url_for('proposals.user', username=g.current_user['username']) }}"
+	       title="You have unsubmitted proposals!"
+	       class="nav-link bg-warning active">My proposals</a>
+	    {% else %}
+            <a href="{{ url_for('proposals.user', username=g.current_user['username']) }}"
+	       class="nav-link">My proposals</a>
 	    {% endif %}
-	    </a>
           </li>
 	  {% endif %}
 	  {% if g.current_user['cache']['my_reviews_count'] %}
           <li class="nav-item">
+	    {% if g.current_user['cache']['my_unfinalized_count'] %}
+            <a href="{{ url_for('reviews.reviewer', username=g.current_user['username']) }}"
+	       title="You have unfinalized reviews!"
+	       class="nav-link active bg-warning">My reviews</a>
+	    {% else %}
             <a href="{{ url_for('reviews.reviewer', username=g.current_user['username']) }}"
 	       class="nav-link">My reviews</a>
+	    {% endif %}
+	    </a>
           </li>
 	  {% endif %}
           {% endif %} {# if g.is_admin #}

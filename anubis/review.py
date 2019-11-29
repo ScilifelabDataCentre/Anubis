@@ -19,15 +19,22 @@ def init(app):
 
 DESIGN_DOC = {
     'views': {
+        # Reviews for all proposals in call.
         'call': {'reduce': '_count',
                  'map': "function(doc) {if (doc.doctype !== 'review') return; emit(doc.call, null);}"},
+        # Reviews for a proposal.
         'proposal': {'reduce': '_count',
                      'map': "function(doc) {if (doc.doctype !== 'review') return; emit(doc.proposal, null);}"},
+        # Reviews per reviewer, in any call
         'reviewer': {'reduce': '_count',
                      'map': "function(doc) {if (doc.doctype !== 'review') return; emit(doc.reviewer, null);}"},
+        # Reviews per call and reviewer.
         'call_reviewer': {'reduce': '_count',
                           'map': "function(doc) {if (doc.doctype !== 'review') return; emit([doc.call, doc.reviewer], null);}"},
         'proposal_reviewer': {'map': "function(doc) {if (doc.doctype !== 'review') return; emit([doc.proposal, doc.reviewer], null);}"},
+        # Unfinalized reviews by reviewer, in any call.
+        'unfinalized': {'reduce': '_count',
+                        'map': "function(doc) {if (doc.doctype !== 'review' || doc.finalized) return; emit(doc.reviewer, null);}"},
     }
 }
 

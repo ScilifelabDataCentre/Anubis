@@ -130,9 +130,19 @@ def get_proposal_reviews_count(proposal):
     else:
         return 0
 
-def get_user_reviews_count(username):
+def get_reviewer_reviews_count(username):
     "Get the number of reviews by the reviewer (user)."
     result = flask.g.db.view('reviews', 'reviewer',
+                             key=username,
+                             reduce=True)
+    if result:
+        return result[0].value
+    else:
+        return 0
+
+def get_reviewer_unfinalized_reviews_count(username):
+    "Get the number of unfinalized reviews by the reviewer (user)."
+    result = flask.g.db.view('reviews', 'unfinalized',
                              key=username,
                              reduce=True)
     if result:

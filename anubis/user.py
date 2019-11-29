@@ -401,12 +401,15 @@ def set_user_cache(user):
     """Set the 'cache' item for the user.
     This is computed data that will not be stored with the document.
     """
-    from .proposals import get_user_proposals_count, get_user_unsubmitted_proposals_count
-    from .reviews import get_user_reviews_count
+    from .proposals import (get_user_proposals_count,
+                            get_user_unsubmitted_proposals_count)
+    from .reviews import (get_reviewer_reviews_count,
+                          get_reviewer_unfinalized_reviews_count)
     user['cache'] = cache = {}
     cache['my_proposals_count'] = get_user_proposals_count(user['username'])
-    cache['my_reviews_count'] = get_user_reviews_count(user['username'])
+    cache['my_reviews_count'] = get_reviewer_reviews_count(user['username'])
     cache['my_unsubmitted_count'] = get_user_unsubmitted_proposals_count(user['username'])
+    cache['my_unfinalized_count'] = get_reviewer_unfinalized_reviews_count(user['username'])
     return user
 
 def get_users(role, status=None, safe=False, cache=True):
@@ -474,7 +477,7 @@ def is_deletable(user):
     import anubis.reviews
     if user['role'] == constants.ADMIN: return False
     return not (anubis.proposals.get_user_proposals_count(user['username']) or
-                anubis.reviews.get_user_reviews_count(user['username']))
+                anubis.reviews.get_reviewer_reviews_count(user['username']))
 
 def is_admin_or_self(user):
     "Is the current user admin, or the same as the given user?"
