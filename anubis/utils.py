@@ -18,56 +18,14 @@ from . import constants
 def init(app):
     "Initialize; update CouchDB design documents."
     db = get_db(app=app)
-    logger = get_logger(app)
     if db.put_design('logs', DESIGN_DOC):
-        logger.info('Updated logs design document.')
+        print(' > Updated logs design document.')
 
 DESIGN_DOC = {
     'views': {
         'doc': {'map': "function (doc) {if (doc.doctype !== 'log') return; emit([doc.docid, doc.timestamp], null);}"}
     }
 }
-
-# Global logger instance.
-_logger = None
-def get_logger(app=None):
-    global _logger
-    if _logger is None:
-        if app is None:
-            config = flask.current_app.config
-        else:
-            config = app.config
-        _logger = logging.getLogger(config['LOG_NAME'])
-        if config['LOG_DEBUG']:
-            _logger.setLevel(logging.DEBUG)
-        else:
-            _logger.setLevel(logging.WARNING)
-        if config['LOG_FILEPATH']:
-            if config['LOG_ROTATING']:
-                loghandler = logging.TimedRotatingFileHandler(
-                    config['LOG_FILEPATH'],
-                    when='midnight',
-                    backupCount=config['LOG_ROTATING'])
-            else:
-                loghandler = logging.FileHandler(config['LOG_FILEPATH'])
-        else:
-            loghandler = logging.StreamHandler()
-        loghandler.setFormatter(logging.Formatter(config['LOG_FORMAT']))
-        _logger.addHandler(loghandler)
-    return _logger
-
-def log_access(response):
-    "Record access in the log."
-    if not flask.current_app.config['LOG_ACCESS']:
-        return response
-    if flask.g.current_user:
-        username = flask.g.current_user['username']
-    else:
-        username = None
-    get_logger().info(f"{flask.request.remote_addr} {username}"
-                      f" {flask.request.method} {flask.request.path}"
-                      f" {response.status_code}")
-    return response
 
 def get_db(app=None):
     "Get a connection to the database."

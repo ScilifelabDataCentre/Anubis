@@ -12,9 +12,8 @@ from .saver import AttachmentsSaver
 def init(app):
     "Initialize; update CouchDB design documents."
     db = utils.get_db(app=app)
-    logger = utils.get_logger(app)
     if db.put_design('calls', DESIGN_DOC):
-        logger.info('Updated calls design document.')
+        print( > 'Updated calls design document.')
 
 DESIGN_DOC = {
     'views': {

@@ -13,9 +13,8 @@ from .saver import AttachmentsSaver, FieldMixin
 def init(app):
     "Initialize; update CouchDB design documents."
     db = utils.get_db(app=app)
-    logger = utils.get_logger(app)
     if db.put_design('proposals', DESIGN_DOC):
-        logger.info('Updated proposals design document.')
+        print(' > Updated proposals design document.')
 
 DESIGN_DOC = {
     'views': {

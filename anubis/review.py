@@ -13,9 +13,8 @@ from .saver import BaseSaver, FieldMixin
 def init(app):
     "Initialize; update CouchDB design documents."
     db = utils.get_db(app=app)
-    logger = utils.get_logger(app)
     if db.put_design('reviews', DESIGN_DOC):
-        logger.info('Updated reviews design document.')
+        print(' > Updated reviews design document.')
 
 DESIGN_DOC = {
     'views': {

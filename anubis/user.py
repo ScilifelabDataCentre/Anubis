@@ -17,9 +17,8 @@ from .saver import BaseSaver
 def init(app):
     "Initialize; update CouchDB design documents."
     db = utils.get_db(app=app)
-    logger = utils.get_logger(app)
     if db.put_design('users', DESIGN_DOC):
-        logger.info('Updated users design document.')
+        print(' > Updated users design document.')
 
 DESIGN_DOC = {
     'views': {
@@ -59,8 +58,6 @@ def login():
 def logout():
     "Logout from the user account."
     username = flask.session.pop('username', None)
-    if username:
-        utils.get_logger().info(f"logged out {username}")
     return flask.redirect(flask.url_for('home'))
 
 @blueprint.route('/register', methods=['GET', 'POST'])
@@ -94,11 +91,9 @@ def register():
         except ValueError as error:
             utils.flash_error(error)
             return flask.redirect(flask.url_for('.register'))
-        utils.get_logger().info(f"registered user {user['username']}")
         # Directly enabled; send code to the user.
         if user['status'] == constants.ENABLED:
             send_password_code(user, 'registration')
-            utils.get_logger().info(f"enabled user {user['username']}")
             utils.flash_message('User account created; check your email.')
         # Was set to 'pending'; send email to admins.
         else:
@@ -110,7 +105,6 @@ def register():
             url = utils.url_for('.display', username=user['username'])
             message.body = f"To enable the user account, go to {url}"
             utils.mail.send(message)
-            utils.get_logger().info(f"pending user {user['username']}")
             utils.flash_message('User account created; an email will be sent'
                                 ' when it has been enabled by the admin.')
         return flask.redirect(flask.url_for('home'))
@@ -133,7 +127,6 @@ def reset():
             with UserSaver(user) as saver:
                 saver.set_password()
             send_password_code(user, 'password reset')
-        utils.get_logger().info(f"reset user {user['username']}")
         utils.flash_message('An email has been sent if the user account exists.')
         return flask.redirect(flask.url_for('home'))
 
@@ -164,7 +157,6 @@ def password():
         else:
             with UserSaver(user) as saver:
                 saver.set_password(password)
-            utils.get_logger().info(f"password user {user['username']}")
             do_login(username, password)
         return flask.redirect(flask.url_for('home'))
 
@@ -239,7 +231,6 @@ def edit(username):
             return flask.redirect(flask.url_for('.display', username=username))
         flask.g.db.delete(user)
         utils.flash_message(f"Deleted user {username}.")
-        utils.get_logger().info(f"deleted user {username}")
         if flask.g.is_admin:
             return flask.redirect(flask.url_for('.users'))
         else:
@@ -280,7 +271,6 @@ def enable(username):
         saver.set_status(constants.ENABLED)
         saver.set_password()
     send_password_code(user, 'enabled')
-    utils.get_logger().info(f"enabled user {username}")
     return flask.redirect(flask.url_for('.display', username=username))
 
 @blueprint.route('/disable/<username>', methods=['POST'])
@@ -293,7 +283,6 @@ def disable(username):
         return flask.redirect(flask.url_for('home'))
     with UserSaver(user) as saver:
         saver.set_status(constants.DISABLED)
-    utils.get_logger().info(f"disabled user {username}")
     return flask.redirect(flask.url_for('.display', username=username))
 
 
@@ -456,7 +445,6 @@ def do_login(username, password):
         raise ValueError
     flask.session['username'] = user['username']
     flask.session.permanent = True
-    utils.get_logger().info(f"logged in {user['username']}")
 
 def send_password_code(user, action):
     "Send an email with the one-time code to the user's email address."
