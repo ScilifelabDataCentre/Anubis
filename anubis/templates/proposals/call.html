@@ -19,7 +19,7 @@
       <th>Proposal</th>
       {# XXX Check access to view user #}
       <th>Submitter</th>
-      {% if g.is_admin %}
+      {% if privilege.is_admin() %}
       <th>Reviews</th>
       {% endif %}
     </tr>
@@ -30,7 +30,7 @@
       <td>{{ macros.proposal_link(proposal, title=True) }}</td>
       {# XXX Check access to view user #}
       <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
-      {% if g.is_admin %}
+      {% if privilege.is_admin() %}
       <td>
 	<a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
            role="button" class="btn btn-sm btn-info px-3">

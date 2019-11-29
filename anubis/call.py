@@ -5,6 +5,7 @@ import copy
 import flask
 
 from . import constants
+from . import privilege
 from . import utils
 from .saver import AttachmentsSaver
 
@@ -54,7 +55,7 @@ def display(cid):
         return flask.redirect(flask.url_for('home'))
     if flask.g.current_user:
         proposal = get_call_user_proposal(call,flask.g.current_user['username'])
-        if flask.g.is_admin:
+        if privilege.is_admin():
             all_reviews_count = utils.get_count('reviews', 'call',
                                                 call['identifier'])
         else:
@@ -138,7 +139,7 @@ def document(cid, documentname):
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_GET():
-        if not (flask.g.is_admin or call['cache']['is_published']):
+        if not (privilege.is_admin() or call['cache']['is_published']):
             utils.flash_error(f"Call {call['title']} has not been published.")
             return flask.redirect(flask.url_for('home'))
         try:
@@ -155,7 +156,7 @@ def document(cid, documentname):
         return response
 
     elif utils.http_DELETE():
-        if not flask.g.is_admin:
+        if not privilege.is_admin():
             utils.flash_error('You may not delete a document in the call.')
             return flask.redirect(
                 flask.url_for('.display', cid=call['identifier']))
@@ -630,10 +631,10 @@ def set_call_cache(call):
     Depends on login, privileges, etc.
     """
     # XXX disallow even admin if open?
-    call['cache'] = cache = dict(is_editable=flask.g.is_admin,
+    call['cache'] = cache = dict(is_editable=privilege.is_admin(),
                                  is_reviewer=False,
                                  may_submit=False)
-    if flask.g.is_admin:
+    if privilege.is_admin():
         cache['is_reviewer'] = flask.g.current_user['username'] in call['reviewers']
         cache['may_submit'] = True
         cache['proposals_count'] = utils.get_count('proposals', 'call', call)

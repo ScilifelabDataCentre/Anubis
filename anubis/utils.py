@@ -14,6 +14,7 @@ import markdown
 import werkzeug.routing
 
 from . import constants
+from . import privilege
 
 def init(app):
     "Initialize; update CouchDB design documents."
@@ -64,7 +65,7 @@ def admin_required(f):
     """
     @functools.wraps(f)
     def wrap(*args, **kwargs):
-        if not flask.g.is_admin:
+        if not privilege.is_admin():
             flask.abort(http.client.UNAUTHORIZED)
         return f(*args, **kwargs)
     return wrap

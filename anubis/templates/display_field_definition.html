@@ -1,7 +1,7 @@
 <div class="row">
-  {% if g.is_admin %}
+  {% if privilege.is_admin() %}
   <div class="col-md-2 font-weight-bold">{{ field['identifier'] }}</div>
-  {% endif %} {# if g.is_admin #}
+  {% endif %}
   <div class="col-md-2">
     {{ field['title'] }}
   </div>

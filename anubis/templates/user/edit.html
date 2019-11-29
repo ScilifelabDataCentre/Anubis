@@ -13,7 +13,7 @@
     <div class="col-md">
       <div class="row">
         <div class="col-md-6">
-          {% if g.is_admin %}
+          {% if privilege.is_admin() %}
           <input type="email" id="email" name="email"
                  class="form-control"
                  value="{{ user['email'] }}">

@@ -12,6 +12,7 @@ import anubis.proposal
 import anubis.proposals
 import anubis.site
 import anubis.user
+import anubis.privilege
 
 from anubis import constants
 from anubis import utils
@@ -44,15 +45,14 @@ def setup_template_context():
                 csrf_token=utils.csrf_token,
                 enumerate=enumerate,
                 sorted=sorted,
-                get_user=anubis.user.get_user)
+                get_user=anubis.user.get_user,
+                privilege=anubis.privilege)
 
 @app.before_request
 def prepare():
     "Open the database connection; get the current user."
     flask.g.db = utils.get_db()
     flask.g.current_user = anubis.user.get_current_user()
-    flask.g.is_admin = flask.g.current_user and \
-                       flask.g.current_user['role'] == constants.ADMIN
 
 @app.route('/')
 def home():

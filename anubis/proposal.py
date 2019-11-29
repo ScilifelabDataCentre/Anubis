@@ -6,6 +6,7 @@ import anubis.call
 import anubis.user
 
 from . import constants
+from . import privilege
 from . import utils
 from .saver import AttachmentsSaver, FieldMixin
 
@@ -244,7 +245,7 @@ def set_proposal_cache(proposal, call=None):
         cache['call'] = anubis.call.get_call(proposal['call'])
     else:
         cache['call'] = call
-    if flask.g.is_admin:
+    if privilege.is_admin():
         cache['is_readable'] = True
         cache['is_editable'] = True
         cache['is_submittable'] = True

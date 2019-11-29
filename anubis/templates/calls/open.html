@@ -10,11 +10,11 @@
     <tr>
       <th>Call</th>
       <th colspan="2">Closes</th>
-      {% if g.is_admin %}
+      {% if privilege.is_admin() %}
       <th class="text-break"
 	  title="Includes only proposals marked by the user as 'submitted'.">
 	Proposals</th>
-      {% endif %} {# if g.is_admin #}
+      {% endif %} {# if privilege.is_admin() #}
     </tr>
   </thead>
   <tbody>
@@ -23,9 +23,9 @@
       <td>{{ macros.call_link(call, title=True) }}</td>
       <td class="text-nowrap pl-2">{{ call['closes'] or 'No closes date.' }}</td>
       <td>{{ macros.call_closes(call) }}</td>
-      {% if g.is_admin %}
+      {% if privilege.is_admin() %}
       <td>{{ macros.proposals_link(call) }}</td>
-      {% endif %} {# if g.is_admin #}
+      {% endif %} {# if privilege.is_admin() #}
     </tr>
     {% endfor %}
   </tbody>

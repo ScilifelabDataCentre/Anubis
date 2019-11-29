@@ -10,6 +10,7 @@ import flask_mail
 import werkzeug.security
 
 from . import constants
+from . import privilege
 from . import utils
 from .saver import BaseSaver
 
@@ -201,7 +202,7 @@ def edit(username):
 
     elif utils.http_POST():
         with UserSaver(user) as saver:
-            if flask.g.is_admin:
+            if privilege.is_admin():
                 email = flask.request.form.get('email')
                 if email != user['email']:
                     saver.set_email(email)
@@ -230,7 +231,7 @@ def edit(username):
             return flask.redirect(flask.url_for('.display', username=username))
         flask.g.db.delete(user)
         utils.flash_message(f"Deleted user {username}.")
-        if flask.g.is_admin:
+        if privilege.is_admin():
             return flask.redirect(flask.url_for('.users'))
         else:
             return flask.redirect(flask.url_for('home'))
@@ -468,11 +469,11 @@ def is_deletable(user):
 def is_admin_or_self(user):
     "Is the current user admin, or the same as the given user?"
     if not flask.g.current_user: return False
-    if flask.g.is_admin: return True
+    if privilege.is_admin(): return True
     return flask.g.current_user['username'] == user['username']
 
 def is_admin_and_not_self(user):
     "Is the current user admin, but not the same as the given user?"
-    if flask.g.is_admin:
+    if privilege.is_admin():
         return flask.g.current_user['username'] != user['username']
     return False

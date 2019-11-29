@@ -31,7 +31,7 @@
   <div class="col-md-2 font-weight-bold text-right">Submitted</div>
   <div class="col-md">{{ macros.submitted(proposal) }}</div>
 </div>
-{% if g.is_admin %}
+{% if privilege.is_admin() %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">All reviews</div>
   <div class="col-md">
@@ -41,7 +41,7 @@
     </a>
   </div>
 </div>
-{% endif %} {# if g.is_admin #}
+{% endif %} {# if privilege.is_admin() #}
 {% if review %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">My review</div>

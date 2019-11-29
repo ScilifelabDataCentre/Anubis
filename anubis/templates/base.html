@@ -68,7 +68,7 @@
 	    </a>
           </li>
 	  {% endif %}
-          {% endif %} {# if g.is_admin #}
+          {% endif %} {# if g.current_user #}
           <li class="nav-item dropdown">
             <a href="#" id="navbarCalls" class="nav-link dropdown-toggle pr-4"
                role="button" data-toggle="dropdown"
@@ -78,16 +78,16 @@
                  href="{{ url_for('calls.open') }}">Open calls</a>
               <a class="dropdown-item"
                  href="{{ url_for('calls.closed') }}">Closed calls</a>
-              {% if g.is_admin %}
+              {% if privilege.is_admin() %}
               <a class="dropdown-item"
                  href="{{ url_for('calls.all') }}">All calls</a>
 	      <div class="dropdown-divider"></div>
               <a class="dropdown-item"
                  href="{{ url_for('call.create') }}">Create call</a>
-              {% endif %} {# if g.is_admin #}
+              {% endif %} {# if privilege.is_admin() #}
             </div>
           </li>
-          {% if g.is_admin %}
+          {% if privilege.is_admin() %}
           <li class="nav-item dropdown">
             <a href="#" id="navbarAdmin" class="nav-link dropdown-toggle pr-4"
                role="button" data-toggle="dropdown"
@@ -99,7 +99,7 @@
                  href="{{ url_for('about.settings') }}">Settings</a>
             </div>
           </li>
-          {% endif %} {# if g.is_admin #}
+          {% endif %} {# if privilege.is_admin() #}
         </ul>
 
         <ul class="navbar-nav justify-content-end">
