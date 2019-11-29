@@ -54,8 +54,6 @@ def prepare():
     flask.g.is_admin = flask.g.current_user and \
                        flask.g.current_user['role'] == constants.ADMIN
 
-app.after_request(utils.log_access)
-
 @app.route('/')
 def home():
     "Home page."
