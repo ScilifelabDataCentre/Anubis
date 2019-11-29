@@ -48,7 +48,6 @@ def create():
 def display(cid):
     "Display the call."
     from .proposals import get_call_user_proposal
-    from .reviews import get_call_reviews_count, get_call_reviewer_reviews_count
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
@@ -56,11 +55,13 @@ def display(cid):
     if flask.g.current_user:
         proposal = get_call_user_proposal(call,flask.g.current_user['username'])
         if flask.g.is_admin:
-            all_reviews_count = get_call_reviews_count(call)
+            all_reviews_count = utils.get_count('reviews', 'call',
+                                                call['identifier'])
         else:
             all_reviews_count = None
-        my_reviews_count = get_call_reviewer_reviews_count(
-            call, flask.g.current_user['username'])
+        my_reviews_count = utils.get_count('reviews', 'call_reviewer', 
+                           [call['identifier'],
+                            flask.g.current_user['username']])
     else:
         proposal = None
         all_reviews_count = None
@@ -628,8 +629,6 @@ def set_call_cache(call):
     This is computed data that will not be stored with the document.
     Depends on login, privileges, etc.
     """
-    from .proposals import get_call_proposals_count
-    from .reviews import get_call_reviews_count
     # XXX disallow even admin if open?
     call['cache'] = cache = dict(is_editable=flask.g.is_admin,
                                  is_reviewer=False,
@@ -637,11 +636,12 @@ def set_call_cache(call):
     if flask.g.is_admin:
         cache['is_reviewer'] = flask.g.current_user['username'] in call['reviewers']
         cache['may_submit'] = True
-        cache['proposals_count'] = get_call_proposals_count(call)
-        cache['reviews_count'] = get_call_reviews_count(call)
+        cache['proposals_count'] = utils.get_count('proposals', 'call', call)
+        cache['reviews_count'] = utils.get_count('reviews', 'call', 
+                                                 call['identifier'])
     elif flask.g.current_user:
         cache['is_reviewer'] = flask.g.current_user['username'] in call['reviewers']
-        cache['proposals_count'] = get_call_proposals_count(call) # reviewers
+        cache['proposals_count'] = utils.get_count('proposals', 'call', call)
         cache['may_submit'] = not cache['is_reviewer']
     # Open/closed status
     now = utils.normalized_local_now()

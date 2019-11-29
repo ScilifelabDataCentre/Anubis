@@ -36,6 +36,14 @@ def get_db(app=None):
                              password=app.config['COUCHDB_PASSWORD'])
     return server[app.config['COUCHDB_DBNAME']]
 
+def get_count(designname, viewname, key):
+    "Get the count for the given view and key."
+    result = flask.g.db.view(designname, viewname, key=key, reduce=True)
+    if result:
+        return result[0].value
+    else:
+        return 0
+
 # Global instance of mail interface.
 mail = flask_mail.Mail()
 

@@ -164,7 +164,6 @@ def password():
 @utils.login_required
 def display(username):
     "Display the given user."
-    from .proposals import get_user_proposals_count
     from .call import get_call
     user = get_user(username=username)
     if user is None:
@@ -390,15 +389,15 @@ def set_user_cache(user):
     """Set the 'cache' item for the user.
     This is computed data that will not be stored with the document.
     """
-    from .proposals import (get_user_proposals_count,
-                            get_user_unsubmitted_proposals_count)
-    from .reviews import (get_reviewer_reviews_count,
-                          get_reviewer_unfinalized_reviews_count)
     user['cache'] = cache = {}
-    cache['my_proposals_count'] = get_user_proposals_count(user['username'])
-    cache['my_reviews_count'] = get_reviewer_reviews_count(user['username'])
-    cache['my_unsubmitted_count'] = get_user_unsubmitted_proposals_count(user['username'])
-    cache['my_unfinalized_count'] = get_reviewer_unfinalized_reviews_count(user['username'])
+    cache['my_proposals_count'] = utils.get_count('proposals', 'user',
+                                                  user['username'])
+    cache['my_reviews_count'] = utils.get_count('reviews', 'reviewer',
+                                                user['username'])
+    cache['my_unsubmitted_count'] = utils.get_count('proposals', 'unsubmitted',
+                                                    user['username'])
+    cache['my_unfinalized_count'] = utils.get_count('reviews', 'unfinalized',
+                                                    user['username'])
     return user
 
 def get_users(role, status=None, safe=False, cache=True):
@@ -459,13 +458,12 @@ def send_password_code(user, action):
 
 def is_deletable(user):
     """Can the the given user account be deleted? 
-    Only when no proposals and not admin.
+    Only when no proposals, no reviews and not admin.
     """
-    import anubis.proposals
-    import anubis.reviews
     if user['role'] == constants.ADMIN: return False
-    return not (anubis.proposals.get_user_proposals_count(user['username']) or
-                anubis.reviews.get_reviewer_reviews_count(user['username']))
+    if utils.get_count('proposals', 'user', user['username']): return False
+    if utils.get_count('reviews', 'reviewer', user['username']): return False
+    return True
 
 def is_admin_or_self(user):
     "Is the current user admin, or the same as the given user?"

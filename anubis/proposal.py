@@ -235,7 +235,6 @@ def set_proposal_cache(proposal, call=None):
     This is computed data that will not be stored with the document.
     Depends on login, access, status, etc.
     """
-    from .reviews import get_proposal_reviews_count
     proposal['cache'] = cache = dict(is_readable=False,
                                        is_editable=False,
                                        is_submittable=False,
@@ -250,7 +249,8 @@ def set_proposal_cache(proposal, call=None):
         cache['is_editable'] = True
         cache['is_submittable'] = True
         cache['is_reviewer'] = True
-        cache['reviews_count'] = get_proposal_reviews_count(proposal)
+        cache['reviews_count'] = utils.get_count('reviews', 'proposal',
+                                                 proposal['identifier'])
     elif flask.g.current_user:
         if flask.g.current_user['username'] == proposal['user']:
             cache['is_readable'] = True
