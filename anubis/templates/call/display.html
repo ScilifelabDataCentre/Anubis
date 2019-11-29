@@ -20,7 +20,7 @@
   </div>
 </div>
 {% endif %}
-<div class="row">
+<div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
   <div class="col-md">
     <span class="mr-4">{{ call['closes'] or '-' }}</span>
@@ -31,12 +31,7 @@
 {% if proposal %}
 <div class="row my-2">
   <div class="col-md-2 font-weight-bold text-right">My proposal</div>
-  <div class="col-md">
-    <a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}"
-       class="font-weight-bold">
-      {{ proposal['identifier'] }} {{ proposal['title'] }}
-    </a>
-  </div>
+  <div class="col-md">{{ macros.proposal_link(proposal) }}</div>
 </div>
 {% elif call['cache']['is_open'] and call['cache']['may_submit'] %}
 <div class="row my-2">
@@ -53,60 +48,40 @@
 {% endif %}
 {% endif %} {# if g.current_user #}
 
-{% if call['cache']['is_reviewer'] %}
-<div class="row">
+{% if g.is_admin or call['cache']['is_reviewer'] %}
+<div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">All proposals</div>
-  <div class="col-md">
-    <a href="{{ url_for('proposals.call', cid=call['identifier']) }}">
-      <span class="badge badge-primary px-3">
-	{{ call['cache']['proposals_count'] }}
-      </span>
-    </a>
-  </div>
+  <div class="col-md">{{ macros.proposals_link(call) }}</div>
 </div>
-<div class="row">
+<div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Reviewers</div>
   <div class="col-md">
     {% for reviewer in sorted(call['reviewers']) %}
-    {% if g.is_admin %}
     <span class="mr-3">
-      <a href="{{ url_for('user.display', username=reviewer) }}">
-	{{ reviewer }}</a>
+      {{ macros.user_link(get_user(reviewer)) }}
       {% if reviewer in call['chairs'] %}(chair){% endif %}
-    </span>
-    {% elif reviewer == g.current_user['username'] %}
-    <span class="mr-3">
-      <strong>{{ reviewer }}</strong>
-      {% if reviewer in call['chairs'] %}(chair){% endif %}
-    </span>
-    {% else %}
-    <span class="mr-3">
-      {{ reviewer }}
-      {% if reviewer in call['chairs'] %}(chair){% endif %}
-    </span>
-    {% endif %}
     {% endfor %}
   </div>
 </div>
-<div class="row">
+<div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">My reviews</div>
   <div class="col-md">
-    <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=g.current_user['username']) }}">
-      <span class="badge badge-info px-3">{{ my_reviews_count }}</span>
-    </a>
+    <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=g.current_user['username']) }}"
+       role="button" class="btn btn-sm btn-info px-3">{{ my_reviews_count }}</a>
   </div>
 </div>
 {% endif %} {# if call['cache']['is_reviewer'] #}
 {% if g.is_admin %}
-<div class="row">
+<div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">All reviews</div>
   <div class="col-md">
-    <a href="{{ url_for('reviews.call', cid=call['identifier']) }}">
-      <span class="badge badge-info px-3">{{ all_reviews_count }}</span></a>
+    <a href="{{ url_for('reviews.call', cid=call['identifier']) }}"
+       role="button" class="btn btn-sm btn-info mt-1 px-3">
+      {{ all_reviews_count }}</a>
   </div>
 </div>
 {% endif %} {# if g.is_admin #}
-<div class="row my-3">
+<div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Description</div>
   <div class="col-md">
     <div class="card mt-2">
@@ -117,7 +92,7 @@
   </div>
 </div>
 
-<div class="row my-3">
+<div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Documents</div>
   <div class="col-md">
     {% for document in call.get('documents', []) %}

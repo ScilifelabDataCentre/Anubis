@@ -3,10 +3,8 @@
 {% block head_title %}Proposals in call {{ call['identifier'] }}{% endblock %}
 
 {% block body_title %}
-Proposals in call
-<a href="{{ url_for('call.display', cid=call['identifier']) }}">
-  {{ call['identifier'] }}</a>
-{{ call['title'] }}
+<small class="text-muted mr-2">Proposals in call</small>
+{{ macros.call_link(call, title=True) }}
 {% endblock %}
 
 {% block supermain %}
@@ -19,7 +17,6 @@ Proposals in call
   <thead>
     <tr>
       <th>Proposal</th>
-      <th>Title</th>
       {# XXX Check access to view user #}
       <th>Submitter</th>
       {% if g.is_admin %}
@@ -30,22 +27,14 @@ Proposals in call
   <tbody>
     {% for proposal in proposals %}
     <tr>
-      <td>
-	<a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}">
-	  {{ proposal['identifier'] }}</a>
-      </td>
-      <td>{{ proposal.get('title') or '-' }}</td>
+      <td>{{ macros.proposal_link(proposal, title=True) }}</td>
       {# XXX Check access to view user #}
-      <td>
-	<a href="{{ url_for('user.display', username=proposal['user']) }}">
-	  {{ proposal['user'] }}</a>
-      </td>
+      <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
       {% if g.is_admin %}
       <td>
-	<a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}">
-	  <span class="badge badge-info px-3">
-	    {{ proposal['cache']['reviews_count'] }}
-	  </span>
+	<a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
+           role="button" class="btn btn-sm btn-info px-3">
+	  {{ proposal['cache']['reviews_count'] }}
 	</a>
       </td>
       {% endif %}

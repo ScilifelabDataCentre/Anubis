@@ -5,9 +5,8 @@ Reviews for call {{ call['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-Reviews for call
-<a href="{{ url_for('call.display', cid=call['identifier']) }}">
-  {{ call['identifier'] }}</a>
+<small class="text-muted mr-2">Reviews of proposals in call</small>
+{{ macros.call_link(call, title=True) }}
 {% endblock %}
 
 {% block supermain %}
@@ -28,22 +27,9 @@ Reviews for call
     {% for review in reviews %}
     {% set proposal = review['cache']['proposal'] %}
     <tr>
-      <td>
-	<a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}"
-	   title="{{ proposal.get('title') or '-' }}">
-	  {{ proposal['identifier'] }}</a>
-      </td>
-      {# XXX Check access to view user #}
-      <td>
-	<a href="{{ url_for('user.display', username=proposal['user']) }}">
-	  {{ proposal['user'] }}
-	</a>
-      </td>
-      <td>
-	<a href="{{ url_for('review.display', iuid=review['_id']) }}">
-	  Review</a>
-	{{ macros.finalized(review) }}
-      </td>
+      <td>{{ macros.proposal_link(proposal, title=True) }}</td>
+      <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
+      <td>{{ macros.review_link(review) }}</td>
       {% for scorefield in scorefields %}
       <td>
 	{{ review['values'].get(scorefield['identifier']) | value_or_none }}

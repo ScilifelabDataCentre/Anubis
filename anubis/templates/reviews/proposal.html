@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Reviews for proposal {{ proposal['identifier'] }}
+Reviews of proposal {{ proposal['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-Reviews for proposal
+<small class="text-muted mr-2">Reviews of proposal</small>
 <a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}">
   {{ proposal['identifier'] }}</a>
 {{ proposal['title'] }}
@@ -15,8 +15,7 @@ Reviews for proposal
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
   <div class="col-md">
-    <a href="{{ url_for('call.display', cid=proposal['call']) }}">
-      {{ proposal['call'] }}</a>
+    {{ macros.call_link(proposal['cache']['call']) }}
   </div>
 </div>
 
@@ -40,9 +39,7 @@ Reviews for proposal
       {% set review = reviews_lookup.get(reviewer) %}
       <td>
 	{% if review %}
-	<a href="{{ url_for('review.display', iuid=review['_id'] ) }}">
-	  Review</a>
-	{{ macros.finalized(review) }}
+        {{ macros.review_link(review) }}
 	{% else %}
 	<form action="{{ url_for('review.create', pid=proposal['identifier'], username=reviewer) }}"
 	  method="POST">

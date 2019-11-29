@@ -173,6 +173,7 @@ def password():
 def display(username):
     "Display the given user."
     from .proposals import get_user_proposals_count
+    from .call import get_call
     user = get_user(username=username)
     if user is None:
         utils.flash_error('No such user.')
@@ -180,9 +181,9 @@ def display(username):
     if not is_admin_or_self(user):
         utils.flash_error('Access not allowed.')
         return flask.redirect(flask.url_for('home'))
-    set_user_cache(user)
-    reviewer_calls = [r.value for r in flask.g.db.view('calls', 'reviewer', 
-                                                       key=user['username'])]
+    reviewer_calls = [get_call(r.value)
+                      for r in flask.g.db.view('calls', 'reviewer', 
+                                               key=user['username'])]
     return flask.render_template('user/display.html',
                                  user=user,
                                  reviewer_calls=reviewer_calls,
@@ -265,9 +266,7 @@ def logs(username):
 @utils.admin_required
 def all():
     "Display list of all users."
-    from .proposals import get_user_proposals_count
-    users = [set_user_cache(u) for u in get_users(role=None)]
-    return flask.render_template('user/all.html', users=users)
+    return flask.render_template('user/all.html', users=get_users(role=None))
 
 @blueprint.route('/enable/<username>', methods=['POST'])
 @utils.admin_required
@@ -329,7 +328,7 @@ class UserSaver(BaseSaver):
     def set_email(self, email):
         if not constants.EMAIL_RX.match(email):
             raise ValueError('invalid email')
-        if get_user(email=email):
+        if get_user(email=email, cache=False):
             raise ValueError('email already in use')
         self.doc['email'] = email
         if self.doc.get('status') == constants.PENDING:
@@ -374,7 +373,7 @@ class UserSaver(BaseSaver):
         self.doc['birthdate'] = birthdate
 
 
-def get_user(username=None, email=None, safe=False):
+def get_user(username=None, email=None, safe=False, cache=True):
     """Return the user for the given username or email.
     Return None if no such user.
     """
@@ -389,10 +388,13 @@ def get_user(username=None, email=None, safe=False):
                                key=email, include_docs=True)
         if len(rows) == 1:
             user = rows[0].doc
-    if user and safe:
-        user['iuid'] = user.pop('_id')
-        user.pop('_rev')
-        user.pop('password', None)
+    if user:
+        if safe:
+            user['iuid'] = user.pop('_id')
+            user.pop('_rev')
+            user.pop('password', None)
+        if cache:
+            user = set_user_cache(user)
     return user
 
 def set_user_cache(user):
@@ -407,7 +409,7 @@ def set_user_cache(user):
     cache['my_unsubmitted_count'] = get_user_unsubmitted_proposals_count(user['username'])
     return user
 
-def get_users(role, status=None, safe=False):
+def get_users(role, status=None, safe=False, cache=True):
     "Get the users specified by role and optionally by status."
     assert role is None or role in constants.USER_ROLES
     assert status is None or status in constants.USER_STATUSES
@@ -424,6 +426,9 @@ def get_users(role, status=None, safe=False):
             user['iuid'] = user.pop('_id')
             user.pop('_rev')
             user.pop('password', None)
+    if cache:
+        for user in result:
+            set_user_cache(user)
     return result
 
 def get_current_user():
@@ -434,7 +439,7 @@ def get_current_user():
     if user is None or user['status'] != constants.ENABLED:
         flask.session.pop('username', None)
         return None
-    return set_user_cache(user)
+    return user
 
 def do_login(username, password):
     """Set the session cookie if successful login.

@@ -5,9 +5,8 @@ Reviews by user {{ user['username'] }}
 {% endblock %}
 
 {% block body_title %}
-Reviews by user
-<a href="{{ url_for('user.display', username=user['username']) }}">
-  {{ user['username'] }}</a>
+<small class="text-muted mr-2">Reviews by</small>
+{{ macros.user_link(user) }}
 {% endblock %}
 
 {% block supermain %}
@@ -16,7 +15,6 @@ Reviews by user
     <tr>
       <th>Call</th>
       <th>Proposal</th>
-      <th>Proposal title</th>
       {# XXX Check access to view submitter #}
       <th>Submitter</th>
       <th>Review</th>
@@ -24,27 +22,12 @@ Reviews by user
   </thead>
   <tbody>
     {% for review in reviews %}
-    {% set call = review['cache']['call'] %}
-    {% set proposal = review['cache']['proposal'] %}
     <tr>
-      <td>
-	<a href="{{ url_for('call.display', cid=call['identifier']) }}"
-	   title="{{ call.get('title') or '-' }}">
-	  {{ call['identifier'] }}</a>
-      </td>
-      <td>
-	<a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}"
-	   title="{{ proposal.get('title') or '-' }}">
-	  {{ proposal['identifier'] }}</a>
-      </td>
-      <td>{{ proposal['title'] }}</td>
+      <td>{{ macros.call_link(review['cache']['call']) }}</td>
+      <td>{{ macros.proposal_link(review['cache']['proposal']) }}</td>
       {# XXX Check access to view submitter #}
-      <td>{{ proposal['user'] }}</td>
-      <td>
-	<a href="{{ url_for('review.display', iuid=review['_id']) }}">
-	  Review</a>
-	{{ macros.finalized(review) }}
-      </td>
+      <td>{{ macros.user_link(get_user(review['cache']['proposal']['user'])) }}</td>
+      <td>{{ macros.review_link(review) }}</td>
     </tr>
     {% endfor %}
   </tbody>

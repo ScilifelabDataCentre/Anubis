@@ -9,7 +9,6 @@
   <thead>
     <tr>
       <th>Call</th>
-      <th>Title</th>
       <th>Opens</th>
       <th colspan="2">Closes</th>
       <th class="text-break"
@@ -20,21 +19,11 @@
   <tbody>
     {% for call in calls %}
     <tr>
-      <td>
-	<a href="{{ url_for('call.display', cid=call['identifier']) }}"
-	   title="{{ call['title'] }}">
-	  {{ call['identifier'] }}</a>
-      </td>
-      <td>{{ call['title'] }}</td>
+      <td>{{ macros.call_link(call, title=True) }}</td>
       <td class="text-nowrap pl-2">{{ call['opens'] or 'No open date.' }}</td>
       <td class="text-nowrap pl-2">{{ call['closes'] or 'No closes date.' }}</td>
       <td>{{ macros.call_closes(call) }}</td>
-      <td>
-	<a href="{{ url_for('proposals.call', cid=call['identifier']) }}">
-	  <span class="badge badge-primary px-3">
-	    {{ call['cache']['proposals_count'] }}</span>
-	</a>
-      </td>
+      <td>{{ macros.proposals_link(call) }}</td>
       </td>
     </tr>
     {% endfor %}

@@ -1,13 +1,12 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Proposals from user {{ user['username'] }}
+Proposals by user {{ user['username'] }}
 {% endblock %}
 
 {% block body_title %}
-Proposals from user
-<a href="{{ url_for('user.display', username=user['username']) }}">
-  {{ user['username'] }}</a>
+<small class="text-muted mr-2">Proposals by</small>
+{{ macros.user_link(user) }}
 {% endblock %}
 
 {% block supermain %}
@@ -15,7 +14,6 @@ Proposals from user
   <thead>
     <tr>
       <th>Proposal</th>
-      <th>Title</th>
       <th>Submitted</th>
       <th>Call</th>
       <th>Closes</th>
@@ -24,17 +22,9 @@ Proposals from user
   <tbody>
     {% for proposal in proposals %}
     <tr>
-      <td>
-	<a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}">
-	  {{ proposal['identifier'] }}</a>
-      </td>
-      <td>{{ proposal.get('title') or '-' }}</td>
+      <td>{{ macros.proposal_link(proposal, title=True) }}</td>
       <td>{{ macros.submitted(proposal) }}</td>
-      <td>
-	<a href="{{ url_for('call.display', cid=proposal['cache']['call']['identifier']) }}"
-	   title="{{ proposal['cache']['call']['title'] }}">
-	  {{ proposal['cache']['call']['identifier'] }}</a>
-      </td>
+      <td>{{ macros.call_link(proposal['cache']['call']) }}</td>
       <td>{{ macros.call_closes(proposal['cache']['call']) }}</td>
     </tr>
     {% endfor %}

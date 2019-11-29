@@ -635,15 +635,13 @@ def set_call_cache(call):
     call['cache'] = cache = dict(is_editable=flask.g.is_admin,
                                  is_reviewer=False,
                                  may_submit=False)
-    # Proposals count
     if flask.g.is_admin:
-        cache['is_reviewer'] = True
+        cache['is_reviewer'] = flask.g.current_user['username'] in call['reviewers']
         cache['may_submit'] = True
         cache['proposals_count'] = get_call_proposals_count(call)
         cache['reviews_count'] = get_call_reviews_count(call)
     elif flask.g.current_user:
-        # Note: operator '|=' is intentional.
-        cache['is_reviewer'] |= flask.g.current_user['username'] in call['reviewers']
+        cache['is_reviewer'] = flask.g.current_user['username'] in call['reviewers']
         cache['proposals_count'] = get_call_proposals_count(call) # reviewers
         cache['may_submit'] = not cache['is_reviewer']
     # Open/closed status

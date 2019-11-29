@@ -7,10 +7,7 @@ Review of proposal {{ review['cache']['proposal']['identifier'] }}
 
 {% block body_title %}
 <small class="text-muted mr-2">Review of proposal</small>
-<a href="{{ url_for('proposal.display', pid=review['cache']['proposal']['identifier']) }}">
-  {{ review['cache']['proposal']['identifier'] }}
-</a>
-{{ review['cache']['proposal']['title'] }}
+{{ macros.proposal_link(review['cache']['proposal'], title=True) }}
 {% endblock %}
 
 {% block main %}
@@ -19,29 +16,30 @@ Review of proposal {{ review['cache']['proposal']['identifier'] }}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Submitter</div>
   <div class="col-md">
-    <a href="{{ url_for('user.display', username=proposal['user']) }}">
-      {{ proposal['user'] }}</a>
+    {{ macros.user_link(get_user(proposal['user'])) }}
   </div>
 </div>
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
   <div class="col-md">
-    <a href="{{ url_for('call.display', cid=proposal['cache']['call']['identifier']) }}"
-       title="{{ proposal['cache']['call']['title'] }}">
-      {{ proposal['cache']['call']['identifier'] }}: 
-      {{ proposal['cache']['call']['title'] }}</a>
+    {{ macros.call_link(proposal['cache']['call'], title=True) }}
   </div>
 </div>
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Reviewer</div>
   <div class="col-md">
-    <a href="{{ url_for('user.display', username=review['reviewer']) }}">
-      {{ review['reviewer'] }}</a>
+    {{ macros.user_link(get_user(review['reviewer'])) }}
   </div>
 </div>
 <div class="row mb-2">
-  <div class="col-md-2 font-weight-bold text-right">Finalized</div>
-  <div class="col-md">{{ macros.finalized(review) }}</div>
+  <div class="col-md-2 font-weight-bold text-right">State</div>
+  <div class="col-md">
+    {% if review.get('finalized') %}
+    <span class="badge badge-success">Finalized</span>
+    {% else %}
+    <span class="badge badge-warning">Not finalized</span>
+    {% endif %}
+  </div>
 </div>
 
 {% set values = review['values'] %}

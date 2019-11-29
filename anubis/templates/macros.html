@@ -1,5 +1,54 @@
 {# Macros #}
 
+{% macro user_link(user) -%}
+<a href="{{ url_for('user.display', username=user['username']) }}"
+   role="button" class="btn btn-sm btn-outline-secondary px-3">
+  {% if user.get('familyname') %}
+  {{ user.get('givenname') or '' }} {{ user['familyname'] }}
+  {% else %}
+  {{ user['username'] }}
+  {% endif %}
+</a>
+{%- endmacro %}
+
+{% macro call_link(call, title=True) -%}
+<a href="{{ url_for('call.display', cid=call['identifier']) }}"
+   title="{{ call['title'] }}" role="button"
+   class="btn btn-sm btn-outline-primary px-3">
+  {{ call['identifier'] }}
+  {% if title %}
+  {{ call['title'] }}
+  {% endif %}
+</a>
+{%- endmacro %}
+
+{% macro proposal_link(proposal, title=True) -%}
+<a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}"
+   title="{{ proposal['title'] }}"
+   role="button" class="btn btn-sm btn-outline-primary font-weight-bold">
+  {{ proposal['identifier'] }}
+  {% if title %}
+  {{ proposal['title'] }}
+  {% endif %}
+</a>
+{%- endmacro %}
+
+{% macro review_link(review) -%}
+<a href="{{ url_for('review.display', iuid=review['_id']) }}"
+   class="btn btn-sm btn-outline-info px-3">
+  Review</a>
+{% if not review.get('finalized') %}
+<span class="badge badge-warning">Not finalized</span>
+{% endif %}
+{%- endmacro %}
+
+{% macro proposals_link(call) -%}
+<a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
+   role="button" class="btn btn-sm btn-primary px-3">
+  {{ call['cache']['proposals_count'] }}</a>
+</a>
+{%- endmacro %}
+
 {% macro call_closes(call) -%}
 <span class="badge badge-{{ call['cache']['color'] }}">
   {{ call['cache']['text'] }}</span>
@@ -7,17 +56,8 @@
 
 {% macro submitted(proposal) -%}
 {% if proposal.get('submitted') %}
-<span class="badge badge-success localtime">Submitted</span>
+<span class="badge badge-success">Submitted</span>
 {% else %}
 <span class="badge badge-warning">Not submitted</span>
 {% endif %}
 {%- endmacro %}
-
-{% macro finalized(review) -%}
-{% if review.get('finalized') %}
-<span title="Finalized" class="badge badge-success localtime">Finalized</span>
-{% else %}
-<span class="badge badge-warning">Not finalized</span>
-{% endif %}
-{%- endmacro %}
-

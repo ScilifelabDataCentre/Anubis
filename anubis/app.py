@@ -43,7 +43,8 @@ def setup_template_context():
     return dict(constants=constants,
                 csrf_token=utils.csrf_token,
                 enumerate=enumerate,
-                sorted=sorted)
+                sorted=sorted,
+                get_user=anubis.user.get_user)
 
 @app.before_request
 def prepare():

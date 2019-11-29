@@ -11,10 +11,7 @@
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
   <div class="col-md">
-    <a href="{{ url_for('call.display', cid=proposal['cache']['call']['identifier']) }}"
-       title="{{ proposal['cache']['call']['title'] }}">
-      {{ proposal['cache']['call']['identifier'] }}
-      {{ proposal['cache']['call']['title'] }}</a>
+    {{ macros.call_link(proposal['cache']['call'], title=True) }}
   </div>
 </div>
 <div class="row mb-2">
@@ -27,8 +24,7 @@
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">User</div>
   <div class="col-md">
-    <a href="{{ url_for('user.display', username=proposal['user']) }}">
-      {{ proposal['user'] }}</a>
+    {{ macros.user_link(get_user(proposal['user'])) }}
   </div>
 </div>
 <div class="row mb-2">
@@ -39,10 +35,9 @@
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">All reviews</div>
   <div class="col-md">
-    <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}">
-      <span class="badge badge-info px-3">
-	{{ proposal['cache']['reviews_count'] }}
-      </span>
+    <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
+       role="button" class="btn btn-sm btn-info px-3">
+      {{ proposal['cache']['reviews_count'] }}
     </a>
   </div>
 </div>
@@ -50,10 +45,7 @@
 {% if review %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">My review</div>
-  <div class="col-md">
-    <a href="{{ url_for('review.display', iuid=review['_id']) }}">Review</a>
-    {{ macros.finalized(review) }}
-  </div>
+  <div class="col-md">{{ macros.review_link(review) }}</div>
 </div>
 {% endif %} {# if review #}
 

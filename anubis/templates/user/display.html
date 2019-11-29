@@ -11,16 +11,18 @@
   <tr>
     <th class="text-right">User's proposals</th>
     <td>
-      <a href="{{ url_for('proposals.user', username=user['username']) }}">
-	<span class="badge badge-primary px-3">{{ user['cache']['my_proposals_count'] }}</span>
+      <a href="{{ url_for('proposals.user', username=user['username']) }}"
+         role="button" class="btn btn-sm btn-primary px-3">
+	{{ user['cache']['my_proposals_count'] }}
       </a>
     </td>
   </tr>
   <tr>
     <th class="text-right">User's reviews</th>
     <td>
-      <a href="{{ url_for('reviews.reviewer', username=user['username']) }}">
-	<span class="badge badge-info px-3">{{ user['cache']['my_reviews_count'] }}</span>
+      <a href="{{ url_for('reviews.reviewer', username=user['username']) }}"
+         role="button" class="btn btn-sm btn-info px-3">
+	{{ user['cache']['my_reviews_count'] }}
       </a>
     </td>
   </tr>
@@ -28,8 +30,8 @@
     <th class="text-right">Reviewer in calls</th>
     <td>
       {% if reviewer_calls %}
-      {% for cid in reviewer_calls %}
-      <a href="{{ url_for('call.display', cid=cid) }}">{{ cid }}</a>
+      {% for call in reviewer_calls %}
+      {{ macros.call_link(call, title=True) }}
       <br>
       {% endfor %}
       {% else %}
