@@ -238,8 +238,7 @@ def set_proposal_cache(proposal, call=None):
     """
     proposal['cache'] = cache = dict(is_readable=False,
                                        is_editable=False,
-                                       is_submittable=False,
-                                       is_reviewer=False)
+                                       is_submittable=False)
     # Get the call for the proposal.
     if call is None:
         cache['call'] = anubis.call.get_call(proposal['call'])
@@ -249,7 +248,6 @@ def set_proposal_cache(proposal, call=None):
         cache['is_readable'] = True
         cache['is_editable'] = True
         cache['is_submittable'] = True
-        cache['is_reviewer'] = True
         cache['reviews_count'] = utils.get_count('reviews', 'proposal',
                                                  proposal['identifier'])
     elif flask.g.current_user:
@@ -259,7 +257,6 @@ def set_proposal_cache(proposal, call=None):
                                    not proposal.get('submitted')
             cache['is_submittable'] = cache['call']['cache']['is_open'] and \
                                       not proposal['errors']
-        elif cache['call']['cache']['is_reviewer']:
+        elif privilege.is_call_reviewer(cache['call']):
             cache['is_readable'] = True
-            cache['is_reviewer'] = True
     return proposal

@@ -632,18 +632,15 @@ def set_call_cache(call):
     """
     # XXX disallow even admin if open?
     call['cache'] = cache = dict(is_editable=privilege.is_admin(),
-                                 is_reviewer=False,
                                  may_submit=False)
     if privilege.is_admin():
-        cache['is_reviewer'] = flask.g.current_user['username'] in call['reviewers']
         cache['may_submit'] = True
         cache['proposals_count'] = utils.get_count('proposals', 'call', call)
         cache['reviews_count'] = utils.get_count('reviews', 'call', 
                                                  call['identifier'])
     elif flask.g.current_user:
-        cache['is_reviewer'] = flask.g.current_user['username'] in call['reviewers']
         cache['proposals_count'] = utils.get_count('proposals', 'call', call)
-        cache['may_submit'] = not cache['is_reviewer']
+        cache['may_submit'] = privilege.is_call_reviewer(call)
     # Open/closed status
     now = utils.normalized_local_now()
     if call['opens']:

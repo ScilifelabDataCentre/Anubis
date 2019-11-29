@@ -48,7 +48,7 @@
 {% endif %}
 {% endif %} {# if g.current_user #}
 
-{% if privilege.is_admin() or call['cache']['is_reviewer'] %}
+{% if privilege.is_call_reviewer(call) or privilege.is_admin() %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">All proposals</div>
   <div class="col-md">{{ macros.proposals_link(call) }}</div>
@@ -70,7 +70,8 @@
        role="button" class="btn btn-sm btn-info px-3">{{ my_reviews_count }}</a>
   </div>
 </div>
-{% endif %} {# if call['cache']['is_reviewer'] #}
+{% endif %} {# if privilege.is_call_reviewer(call) or privilege.is_admin() #}
+
 {% if privilege.is_admin() %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">All reviews</div>
@@ -81,6 +82,7 @@
   </div>
 </div>
 {% endif %} {# if privilege.is_admin() #}
+
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Description</div>
   <div class="col-md">
