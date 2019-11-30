@@ -5,7 +5,6 @@ import copy
 import flask
 
 from . import constants
-from . import privilege
 from . import utils
 from .saver import AttachmentsSaver
 
@@ -48,30 +47,11 @@ def create():
 @blueprint.route('/<cid>')
 def display(cid):
     "Display the call."
-    from .proposals import get_call_user_proposal
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
-    if flask.g.current_user:
-        proposal = get_call_user_proposal(call,flask.g.current_user['username'])
-        if privilege.is_admin():
-            all_reviews_count = utils.get_count('reviews', 'call',
-                                                call['identifier'])
-        else:
-            all_reviews_count = None
-        my_reviews_count = utils.get_count('reviews', 'call_reviewer', 
-                           [call['identifier'],
-                            flask.g.current_user['username']])
-    else:
-        proposal = None
-        all_reviews_count = None
-        my_reviews_count = None
-    return flask.render_template('call/display.html',
-                                 call=call,
-                                 proposal=proposal,
-                                 all_reviews_count=all_reviews_count,
-                                 my_reviews_count=my_reviews_count)
+    return flask.render_template('call/display.html', call=call)
 
 @blueprint.route('/<cid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.admin_required
@@ -139,7 +119,8 @@ def document(cid, documentname):
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_GET():
-        if not (privilege.is_admin() or call['cache']['is_published']):
+        state = get_state(call)
+        if not (flask.g.is_admin or state['is_published']):
             utils.flash_error(f"Call {call['title']} has not been published.")
             return flask.redirect(flask.url_for('home'))
         try:
@@ -156,7 +137,7 @@ def document(cid, documentname):
         return response
 
     elif utils.http_DELETE():
-        if not privilege.is_admin():
+        if not flask.g.is_admin:
             utils.flash_error('You may not delete a document in the call.')
             return flask.redirect(
                 flask.url_for('.display', cid=call['identifier']))
@@ -363,10 +344,11 @@ def create_proposal(cid):
     if call is None:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
-    if not call['cache']['is_open']:
+    state = get_state(call)
+    if not state['is_open']:
         utils.flash_error("The call is not open.")
         return flask.redirect(flask.url_for('.display', cid=cid))
-    if not call['cache']['may_submit']:
+    if not allow_proposal(call):
         utils.flash_error('You may not submit to this call.')
         return flask.redirect(flask.url_for('.display', cid=cid))
 
@@ -615,36 +597,55 @@ class CallSaver(AttachmentsSaver):
                 break
 
 
-def get_call(cid):
+def get_call(cid, cache=True):
     "Return the call with the given identifier."
     result = [r.doc for r in flask.g.db.view('calls', 'identifier',
                                              key=cid,
                                              include_docs=True)]
     if len(result) == 1:
-        return set_call_cache(result[0])
+        if cache:
+            return set_cache(result[0])
+        else:
+            return result[0]
     else:
         return None
 
-def set_call_cache(call):
-    """Set the 'cache' item of the call.
-    This is computed data that will not be stored with the document.
-    Depends on login, privileges, etc.
-    """
-    # XXX disallow even admin if open?
-    call['cache'] = cache = dict(is_editable=privilege.is_admin(),
-                                 may_submit=False)
-    if privilege.is_admin():
-        cache['may_submit'] = True
-        cache['proposals_count'] = utils.get_count('proposals', 'call', call)
-        cache['reviews_count'] = utils.get_count('reviews', 'call', 
-                                                 call['identifier'])
+def set_cache(call):
+    "Set the cached, non-saved values for the call."
+    from .proposals import get_call_user_proposal
+    # Default permissions
+    call['cache'] = cache = dict(allow_call_edit=False,
+                                 allow_call_delete=False,
+                                 allow_proposal=False,
+                                 is_reviewer=False)
+
+    # Admin permissions
+    if flask.g.is_admin:
+        cache['allow_call_edit'] = True
+        cache['allow_call_delete'] = utils.get_count('proposals', 'call',
+                                                     call['identifier']) == 0
+        cache['all_proposals_count'] = utils.get_count('proposals', 'call',
+                                                       call['identifier'])
+        cache['allow_proposal'] = True
+        cache['proposal'] = get_call_user_proposal(
+            call, flask.g.current_user['username'])
+
+    # User permissions
     elif flask.g.current_user:
-        cache['proposals_count'] = utils.get_count('proposals', 'call', call)
-        cache['may_submit'] = privilege.is_call_reviewer(call)
-    # Open/closed status
-    now = utils.normalized_local_now()
+        cache['all_reviews_count'] = utils.get_count('reviews', 'call',
+                                                     call['identifier'])
+        cache['allow_proposal'] = not cache['is_reviewer']
+        cache['proposal'] = get_call_user_proposal(
+            call, flask.g.current_user['username'])
+        cache['is_reviewer'] = flask.g.current_user['username'] in call['reviewers']
+        if cache['is_reviewer']:
+            cache['my_reviews_count'] = utils.get_count(
+                'reviews', 'call_reviewer',
+                [call['identifier'], flask.g.current_user['username']])
+
+    # Set the current state of the call, computed from open/close and today.
     if call['opens']:
-        if call['opens'] > now:
+        if call['opens'] > utils.normalized_local_now():
             cache['is_open'] = False
             cache['is_closed'] = False
             cache['is_published'] = False

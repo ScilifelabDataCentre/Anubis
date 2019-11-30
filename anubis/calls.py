@@ -53,14 +53,17 @@ def get_closed_calls():
 
 def get_open_calls():
     "Get all currently open calls."
-    result = flask.g.db.view('calls', 'closes', 
-                             startkey=utils.normalized_local_now(),
-                             endkey='ZZZZZZ',
-                             include_docs=True)
-    calls = [anubis.call.set_call_cache(r.doc) for r in result]
-    result = flask.g.db.view('calls', 'open_ended', 
-                             startkey='',
-                             endkey=utils.normalized_local_now(),
-                             include_docs=True)
-    calls.extend([anubis.call.set_call_cache(r.doc) for r in result])
+    calls = [r.doc 
+             for r in flask.g.db.view('calls', 'closes', 
+                                      startkey=utils.normalized_local_now(),
+                                      endkey='ZZZZZZ',
+                                      include_docs=True)]
+    calls.extend([r.doc
+                  for r in flask.g.db.view('calls', 'open_ended', 
+                                           startkey='',
+                                           endkey=utils.normalized_local_now(),
+                                           include_docs=True)])
+    for call in calls:
+        anubis.call.set_all_counts(call)
+        call['__state'] = anubis.call.get_state(call)
     return calls

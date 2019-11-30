@@ -12,24 +12,22 @@ import anubis.proposal
 import anubis.proposals
 import anubis.site
 import anubis.user
-import anubis.privilege
 
 from anubis import constants
 from anubis import utils
 
 app = flask.Flask(__name__)
 
-# Get the configuration and initialize modules (database).
+# Get the configuration and initialize modules.
 anubis.config.init(app)
-
-app.url_map.converters['iuid'] = utils.IuidConverter
-
 utils.init(app)
 anubis.call.init(app)
 anubis.proposal.init(app)
 anubis.review.init(app)
 anubis.user.init(app)
 utils.mail.init_app(app)
+
+app.url_map.converters['iuid'] = utils.IuidConverter
 
 app.add_template_filter(utils.thousands)
 app.add_template_filter(utils.value_or_none)
@@ -45,14 +43,28 @@ def setup_template_context():
                 csrf_token=utils.csrf_token,
                 enumerate=enumerate,
                 sorted=sorted,
-                get_user=anubis.user.get_user,
-                privilege=anubis.privilege)
+                get_user=anubis.user.get_user)
 
 @app.before_request
 def prepare():
     "Open the database connection; get the current user."
     flask.g.db = utils.get_db()
     flask.g.current_user = anubis.user.get_current_user()
+    flask.g.is_admin = anubis.user.is_admin()
+    if flask.g.current_user:
+        user = flask.g.current_user
+        flask.g.my_proposals_count = utils.get_count('proposals',
+                                                     'user',
+                                                     user['username'])
+        flask.g.my_reviews_count = utils.get_count('reviews',
+                                                   'reviewer',
+                                                   user['username'])
+        flask.g.my_unsubmitted_proposals_count = utils.get_count('proposals',
+                                                                 'unsubmitted',
+                                                                 user['username'])
+        flask.g.my_unfinalized_reviews_count = utils.get_count('reviews',
+                                                               'unfinalized',
+                                                               user['username'])
 
 @app.route('/')
 def home():

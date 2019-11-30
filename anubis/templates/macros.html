@@ -45,13 +45,13 @@
 {% macro proposals_link(call) -%}
 <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
    role="button" class="btn btn-sm btn-primary px-3">
-  {{ call['cache']['proposals_count'] }}</a>
+  {{ call['__all_proposals_count'] }}</a>
 </a>
 {%- endmacro %}
 
 {% macro call_closes(call) -%}
-<span class="badge badge-{{ call['cache']['color'] }}">
-  {{ call['cache']['text'] }}</span>
+<span class="badge badge-{{ call['__state']['color'] }}">
+  {{ call['__state']['text'] }}</span>
 {%- endmacro %}
 
 {% macro submitted(proposal) -%}

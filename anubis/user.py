@@ -10,7 +10,6 @@ import flask_mail
 import werkzeug.security
 
 from . import constants
-from . import privilege
 from . import utils
 from .saver import BaseSaver
 
@@ -202,7 +201,7 @@ def edit(username):
 
     elif utils.http_POST():
         with UserSaver(user) as saver:
-            if privilege.is_admin():
+            if flask.g.is_admin:
                 email = flask.request.form.get('email')
                 if email != user['email']:
                     saver.set_email(email)
@@ -231,7 +230,7 @@ def edit(username):
             return flask.redirect(flask.url_for('.display', username=username))
         flask.g.db.delete(user)
         utils.flash_message(f"Deleted user {username}.")
-        if privilege.is_admin():
+        if flask.g.is_admin:
             return flask.redirect(flask.url_for('.users'))
         else:
             return flask.redirect(flask.url_for('home'))
@@ -257,7 +256,13 @@ def logs(username):
 @utils.admin_required
 def all():
     "Display list of all users."
-    return flask.render_template('user/all.html', users=get_users(role=None))
+    users = get_users(role=None)
+    for user in users:
+        user['__proposals_count'] = utils.get_count('proposals', 'user',
+                                                    user['username'])
+        user['__reviews_count'] = utils.get_count('reviews', 'reviewer',
+                                                  user['username'])
+    return flask.render_template('user/all.html', users=users)
 
 @blueprint.route('/enable/<username>', methods=['POST'])
 @utils.admin_required
@@ -317,7 +322,7 @@ class UserSaver(BaseSaver):
     def set_email(self, email):
         if not constants.EMAIL_RX.match(email):
             raise ValueError('invalid email')
-        if get_user(email=email, cache=False):
+        if get_user(email=email):
             raise ValueError('email already in use')
         self.doc['email'] = email
         if self.doc.get('status') == constants.PENDING:
@@ -362,7 +367,7 @@ class UserSaver(BaseSaver):
         self.doc['birthdate'] = birthdate
 
 
-def get_user(username=None, email=None, safe=False, cache=True):
+def get_user(username=None, email=None, safe=False):
     """Return the user for the given username or email.
     Return None if no such user.
     """
@@ -382,26 +387,9 @@ def get_user(username=None, email=None, safe=False, cache=True):
             user['iuid'] = user.pop('_id')
             user.pop('_rev')
             user.pop('password', None)
-        if cache:
-            user = set_user_cache(user)
     return user
 
-def set_user_cache(user):
-    """Set the 'cache' item for the user.
-    This is computed data that will not be stored with the document.
-    """
-    user['cache'] = cache = {}
-    cache['my_proposals_count'] = utils.get_count('proposals', 'user',
-                                                  user['username'])
-    cache['my_reviews_count'] = utils.get_count('reviews', 'reviewer',
-                                                user['username'])
-    cache['my_unsubmitted_count'] = utils.get_count('proposals', 'unsubmitted',
-                                                    user['username'])
-    cache['my_unfinalized_count'] = utils.get_count('reviews', 'unfinalized',
-                                                    user['username'])
-    return user
-
-def get_users(role, status=None, safe=False, cache=True):
+def get_users(role, status=None, safe=False):
     "Get the users specified by role and optionally by status."
     assert role is None or role in constants.USER_ROLES
     assert status is None or status in constants.USER_STATUSES
@@ -418,9 +406,6 @@ def get_users(role, status=None, safe=False, cache=True):
             user['iuid'] = user.pop('_id')
             user.pop('_rev')
             user.pop('password', None)
-    if cache:
-        for user in result:
-            set_user_cache(user)
     return result
 
 def get_current_user():
@@ -457,9 +442,16 @@ def send_password_code(user, action):
     message.body = f"To set your password, go to {url}"
     utils.mail.send(message)
 
+def is_admin(user=None):
+    "Is the user admin? Default user: current_user."
+    if user is None:
+        user = flask.g.current_user
+    if user is None: return False
+    return user['role'] == constants.ADMIN
+
 def is_deletable(user):
     """Can the the given user account be deleted? 
-    Only when no proposals, no reviews and not admin.
+    Only when not admin, no proposals and no reviews.
     """
     if user['role'] == constants.ADMIN: return False
     if utils.get_count('proposals', 'user', user['username']): return False
@@ -469,11 +461,11 @@ def is_deletable(user):
 def is_admin_or_self(user):
     "Is the current user admin, or the same as the given user?"
     if not flask.g.current_user: return False
-    if privilege.is_admin(): return True
+    if flask.g.is_admin: return True
     return flask.g.current_user['username'] == user['username']
 
 def is_admin_and_not_self(user):
     "Is the current user admin, but not the same as the given user?"
-    if privilege.is_admin():
+    if flask.g.is_admin:
         return flask.g.current_user['username'] != user['username']
     return False

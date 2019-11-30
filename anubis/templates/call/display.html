@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block main %}
-{% if privilege.is_admin() %}
+{% if g.is_admin %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Opens</div>
   <div class="col-md">
@@ -19,7 +19,7 @@
     {% endif %}
   </div>
 </div>
-{% endif %}
+{% endif %} {# if g.is_admin #}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
   <div class="col-md">
@@ -33,7 +33,7 @@
   <div class="col-md-2 font-weight-bold text-right">My proposal</div>
   <div class="col-md">{{ macros.proposal_link(proposal) }}</div>
 </div>
-{% elif call['cache']['is_open'] and call['cache']['may_submit'] %}
+{% elif state['is_open'] and allow_proposal %}
 <div class="row my-2">
   <div class="col-md-2 font-weight-bold text-right">My proposal</div>
   <div class="col-md">
@@ -45,10 +45,10 @@
     </form>
   </div>
 </div>
-{% endif %}
+{% endif %} {# if proposal #}
 {% endif %} {# if g.current_user #}
 
-{% if privilege.is_call_reviewer(call) or privilege.is_admin() %}
+{% if is_call_reviewer or g.is_admin %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">All proposals</div>
   <div class="col-md">{{ macros.proposals_link(call) }}</div>
@@ -67,21 +67,22 @@
   <div class="col-md-2 font-weight-bold text-right">My reviews</div>
   <div class="col-md">
     <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=g.current_user['username']) }}"
-       role="button" class="btn btn-sm btn-info px-3">{{ my_reviews_count }}</a>
+       role="button" class="btn btn-sm btn-info px-3">
+      {{ call['__my_reviews_count'] }}</a>
   </div>
 </div>
-{% endif %} {# if privilege.is_call_reviewer(call) or privilege.is_admin() #}
+{% endif %} {# if is_call_reviewer or g.is_admin #}
 
-{% if privilege.is_admin() %}
+{% if g.is_admin %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">All reviews</div>
   <div class="col-md">
     <a href="{{ url_for('reviews.call', cid=call['identifier']) }}"
        role="button" class="btn btn-sm btn-info mt-1 px-3">
-      {{ all_reviews_count }}</a>
+      {{ call['__all_reviews_count'] }}</a>
   </div>
 </div>
-{% endif %} {# if privilege.is_admin() #}
+{% endif %} {# if g.is_admin #}
 
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Description</div>
@@ -129,7 +130,7 @@
   </div>
 </div>
 
-{% if privilege.is_admin() %}
+{% if g.is_admin %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Review inputs</div>
   <div class="col-md">
@@ -142,12 +143,12 @@
     {% endfor %}
   </div>
 </div>
-{% endif %} {# if privilege.is_admin() #}
+{% endif %} {# if g.is_admin #}
 
 {% endblock %} {# block main #}
 
 {% block actions %}
-{% if call['cache']['is_editable'] %}
+{% if allow_call_edit %}
 <div class="mt-2">
   <a href="{{ url_for('.edit', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
@@ -164,8 +165,8 @@
   <a href="{{ url_for('.review', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit review fields</a>
 </div>
-{% endif %} {# if call['cache']['is_editable'] #}
-{% if privilege.is_admin() %} {# Reviewers always editable for admin #}
+{% endif %} {# if allow_call_edit #}
+{% if g.is_admin %} {# Reviewers always editable for admin #}
 <div class="mt-2">
   <a href="{{ url_for('.reviewers', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit reviewers</a>
@@ -174,8 +175,8 @@
   <a href="{{ url_for('.clone', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Clone</a>
 </div>
-{% endif %} {# if privilege.is_admin() #}
-{% if call['cache']['is_editable'] %}
+{% endif %} {# if g.is_admin #}
+{% if allow_call_delete %}
 <div class="mt-2">
   <form action="{{ url_for('.edit', cid=call['identifier']) }}"
 	method="POST">
@@ -186,11 +187,11 @@
       Delete</button>
   </form>
 </div>
-{% endif %} {# if call['cache']['is_editable'] #}
+{% endif %} {# if allow_call_delete #}
 {% endblock %} {# block actions #}
 
 {% block info %}
-{% if privilege.is_admin() %}
+{% if g.is_admin %}
 <div class="small">
   Modified <span class="localtime">{{ call['modified'] }}</span>
   <span class="ml-4">
@@ -200,5 +201,5 @@
     <a href="{{ url_for('.logs', cid=call['identifier']) }}">Logs</a>
   </span>
 </div>
-{% endif %} {# if privilege.is_admin() #}
+{% endif %} {# if g.is_admin #}
 {% endblock %} {# block info #}

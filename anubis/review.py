@@ -6,7 +6,6 @@ import anubis.user
 import anubis.proposal
 
 from . import constants
-from . import privilege
 from . import utils
 from .saver import BaseSaver, FieldMixin
 
@@ -264,7 +263,7 @@ def set_review_cache(review, call=None):
     else:
         cache['call'] = call
     cache['proposal'] = get_proposal(review['proposal'])
-    if privilege.is_admin():
+    if flask.g.is_admin:
         cache['is_readable'] = True
         cache['is_editable'] = not review.get('finalized')
         cache['is_unfinalizable'] = True
