@@ -81,9 +81,6 @@
               {% if g.is_admin %}
               <a class="dropdown-item"
                  href="{{ url_for('calls.all') }}">All calls</a>
-	      <div class="dropdown-divider"></div>
-              <a class="dropdown-item"
-                 href="{{ url_for('call.create') }}">Create call</a>
               {% endif %} {# if g.is_admin #}
             </div>
           </li>

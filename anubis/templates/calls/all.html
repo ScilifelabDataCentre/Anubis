@@ -4,16 +4,16 @@
 
 {% block body_title %}All calls{% endblock %}
 
-{% block supermain %}
+{% block main %}
 <table id="calls" class="table table-sm">
   <thead>
     <tr>
       <th>Call</th>
       <th>Opens</th>
-      <th colspan="2">Closes</th>
-      <th class="text-break"
-	  title="Includes only proposals marked by the user as 'submitted'.">
-	Proposals</th>
+      <th>Closes</th>
+      <th></th>
+      <th>Proposals</th>
+      <th>Reviews</a>
     </tr>
   </thead>
   <tbody>
@@ -24,12 +24,19 @@
       <td class="text-nowrap pl-2">{{ call['closes'] or 'No closes date.' }}</td>
       <td>{{ macros.call_closes(call) }}</td>
       <td>{{ macros.proposals_link(call) }}</td>
-      </td>
+      <td>{{ macros.reviews_link(call) }}</td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
-{% endblock %} {# block supermain #}
+{% endblock %} {# block main #}
+
+{% block actions %}
+<div class="mt-2">
+  <a href="{{ url_for('call.create') }}"
+     role="button" class="btn btn-primary btn-block">Create</a>
+</div>
+{% endblock %} {# block actions #}
 
 {% block javascript %}
 <script>

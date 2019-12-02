@@ -40,7 +40,7 @@
 		     class="form-control"
 		     aria-describedby="titleHelp">
 	      <small id="titleHelp" class="form-text text-muted">
-		Descriptive title; the identifier will be used if not set.
+		Descriptive title. If not set, the identifier will be used.
 	      </small>
 	    </div>
 	  </div>
@@ -57,27 +57,6 @@
 	      </div>
 	      <small id="requiredHelp" class="form-text text-muted">
 		Is a field value required for a valid proposal?
-	      </small>
-	    </div>
-	  </div>
-	  <div class="form-group row">
-	    <label for="description" class="col-md-2 col-form-label text-right">
-	      Description</label>
-	    <div class="col-md">
-	      <textarea id="description" name="description"
-			class="form-control"
-			aria-describedby="descriptionHelp"></textarea>
-	      <small id="descriptionHelp" class="form-text text-muted">
-		<div class="row">
-		  <div class="col-md">
-		    Short description of the information to be entered
-		    in the field.
-		  </div>
-		  <div class="col-md-4 text-right">
-		    Formatted using 
-		    <a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
-		  </div>
-		</div>
 	      </small>
 	    </div>
 	  </div>
@@ -171,7 +150,29 @@
 	      </small>
 	    </div>
 	  </div>	
-	  {% endif %}
+	  {% endif %} {# if field_type == ... #}
+
+	  <div class="form-group row">
+	    <label for="description" class="col-md-2 col-form-label text-right">
+	      Description</label>
+	    <div class="col-md">
+	      <textarea id="description" name="description"
+			class="form-control"
+			aria-describedby="descriptionHelp"></textarea>
+	      <small id="descriptionHelp" class="form-text text-muted">
+		<div class="row">
+		  <div class="col-md">
+		    Description of the information to be entered
+		    in the field.
+		  </div>
+		  <div class="col-md-4 text-right">
+		    Formatted using 
+		    <a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
+		  </div>
+		</div>
+	      </small>
+	    </div>
+	  </div>
 	</div>
 	<div class="modal-footer">
           <button type="button" class="btn btn-secondary"

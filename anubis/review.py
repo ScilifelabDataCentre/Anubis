@@ -222,11 +222,14 @@ class ReviewSaver(FieldMixin, BaseSaver):
         self.doc['reviewer'] = user['username']
 
 
-def get_review(iuid):
+def get_review(iuid, cache=True):
     "Get the review by its iuid."
     review = flask.g.db[iuid]
     if review['doctype'] != constants.REVIEW: raise KeyError
-    return set_review_cache(review)
+    if cache:
+        return set_cache(review)
+    else:
+        return review
 
 def get_my_review(proposal, reviewer):
     "Get the review of the proposal by the reviewer."
@@ -236,19 +239,19 @@ def get_my_review(proposal, reviewer):
                              reduce=False,
                              include_docs=True)
     try:
-        return set_review_cache(result[0].doc)
+        return set_cache(result[0].doc)
     except IndexError:
         return None
 
 def get_reviews(call):
     "Get all reviews for proposals in a call."
-    result = [set_review_cache(r.doc)
+    result = [set_cache(r.doc)
               for r in flask.g.db.view('reviews', 'call',
                                        key=call['identifier'],
                                        reduce=False,
                                        include_docs=True)]
 
-def set_review_cache(review, call=None):
+def set_cache(review, call=None):
     """Set the 'cache' field of the review.
     This is computed data that will not be stored with the document.
     Depends on login, access, status, etc.

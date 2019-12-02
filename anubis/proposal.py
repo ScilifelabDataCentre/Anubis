@@ -227,13 +227,13 @@ def get_proposal(pid, cache=True):
                                              include_docs=True)]
     if len(result) == 1:
         if cache:
-            return set_proposal_cache(result[0])
+            return set_cache(result[0])
         else:
             return result[0]
     else:
         return None
 
-def set_proposal_cache(proposal, call=None):
+def set_cache(proposal, call=None):
     """Set the 'cache' field of the proposal.
     This is computed data that will not be stored with the document.
     Depends on login, access, status, etc.

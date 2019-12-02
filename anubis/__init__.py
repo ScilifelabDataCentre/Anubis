@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '0.5.16'
+__version__ = '0.5.18'
 
 class Constants:
     VERSION     = __version__
@@ -41,14 +41,14 @@ class Constants:
     REVIEWER  = 'reviewer'
 
     # Input field types
-    TEXT     = 'text'
     LINE     = 'line'
     BOOLEAN  = 'boolean'
     INTEGER  = 'integer'
     FLOAT    = 'float'
     SCORE    = 'score'
+    TEXT     = 'text'
     DOCUMENT = 'document'
-    FIELD_TYPES = (TEXT, LINE, BOOLEAN, INTEGER, FLOAT, SCORE, DOCUMENT)
+    FIELD_TYPES = (LINE, BOOLEAN, INTEGER, FLOAT, SCORE, TEXT, DOCUMENT)
 
     # Content types
     HTML_MIMETYPE = 'text/html'

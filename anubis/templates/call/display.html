@@ -87,11 +87,7 @@
 {% if call['cache']['is_chair'] or g.is_admin %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">All reviews</div>
-  <div class="col-md">
-    <a href="{{ url_for('reviews.call', cid=call['identifier']) }}"
-       role="button" class="btn btn-sm btn-info mt-1 px-3">
-      {{ call['cache']['all_reviews_count'] }}</a>
-  </div>
+  <div class="col-md">{{ macros.reviews_link(call) }}</div>
 </div>
 {% endif %} {# if call['cache']['is_chair'] or g.is_admin #}
 

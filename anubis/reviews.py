@@ -23,7 +23,7 @@ def call(cid):
 
     scorefields = [f for f in call['review']
                    if f['type'] == constants.SCORE]
-    reviews = [anubis.review.set_review_cache(r.doc)
+    reviews = [anubis.review.set_cache(r.doc)
                for r in flask.g.db.view('reviews', 'call',
                                         key=cid,
                                         reduce=False,
@@ -52,7 +52,7 @@ def call_reviewer(cid, username):
         utils.flash_error("The user is not a reviewer in the call.")
         return flask.redirect(flask.url_for('home'))
 
-    reviews = [anubis.review.set_review_cache(r.doc)
+    reviews = [anubis.review.set_cache(r.doc)
                for r in flask.g.db.view('reviews', 'call_reviewer',
                                         key=[call['identifier'], user['username']],
                                         reduce=False,
@@ -75,7 +75,7 @@ def proposal(pid):
         return flask.redirect(flask.url_for('home'))
 
     call = proposal['cache']['call']
-    reviews = [anubis.review.set_review_cache(r.doc)
+    reviews = [anubis.review.set_cache(r.doc)
                for r in flask.g.db.view('reviews', 'call',
                                         key=call['identifier'],
                                         reduce=False,
@@ -101,7 +101,7 @@ def reviewer(username):
         utils.flash_error("You may not view the user's reviews.")
         return flask.redirect(flask.url_for('home'))
 
-    reviews = [anubis.review.set_review_cache(r.doc)
+    reviews = [anubis.review.set_cache(r.doc)
                for r in flask.g.db.view('reviews', 'reviewer',
                                         key=user['username'],
                                         reduce=False,

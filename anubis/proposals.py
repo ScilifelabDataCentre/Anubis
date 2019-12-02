@@ -63,10 +63,11 @@ def user_call(username, cid):
 
 def get_user_proposals(username):
     "Get all proposals created by the user. Cache not set."
-    return [r.doc for r in flask.g.db.view('proposals', 'user',
-                                           key=username,
-                                           reduce=False,
-                                           include_docs=True)]
+    return [anubis.proposal.set_cache(r.doc)
+            for r in flask.g.db.view('proposals', 'user',
+                                     key=username,
+                                     reduce=False,
+                                     include_docs=True)]
 
 def get_call_user_proposal(call, username):
     """Get the proposal created by the user in the call. Cache not set.
@@ -83,10 +84,11 @@ def get_call_proposals(call):
     """Get all submitted proposals in the call. Cache not set.
     NOTE: No check for user access!
     """
-    return [r.doc for r in flask.g.db.view('proposals', 'call',
-                                           key=call['identifier'],
-                                           reduce=False,
-                                           include_docs=True)]
+    return [anubis.proposal.set_cache(r.doc)
+            for r in flask.g.db.view('proposals', 'call',
+                                     key=call['identifier'],
+                                     reduce=False,
+                                     include_docs=True)]
 
 def get_call_submitters(call):
     "Get the set of users who have submitted a proposal in the call."

@@ -39,16 +39,24 @@
 {% macro review_link(review) -%}
 <a href="{{ url_for('review.display', iuid=review['_id']) }}"
    class="btn btn-sm btn-outline-info px-3">
-  Review</a>
-{% if not review.get('finalized') %}
-<span class="badge badge-warning">Not finalized</span>
-{% endif %}
+  Review
+  {% if not review.get('finalized') %}
+  <span class="badge badge-warning">Not finalized</span>
+  {% endif %}
+</a>
 {%- endmacro %}
 
 {% macro proposals_link(call) -%}
 <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
    role="button" class="btn btn-sm btn-primary px-3">
   {{ call['cache']['all_proposals_count'] }}</a>
+</a>
+{%- endmacro %}
+
+{% macro reviews_link(call) -%}
+<a href="{{ url_for('reviews.call', cid=call['identifier']) }}"
+   role="button" class="btn btn-sm btn-info px-3">
+  {{ call['cache']['all_reviews_count'] }}</a>
 </a>
 {%- endmacro %}
 

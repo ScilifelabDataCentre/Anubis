@@ -11,7 +11,7 @@ Edit proposal fields for {{ call['identifier'] }}
 {% block main %}
 
 {% for field in call['proposal'] %}
-{% set post_url = url_for('.proposal', cid=call['identifier'], fid=field['identifier']) %}
+{% set post_url = url_for('.proposal_field', cid=call['identifier'], fid=field['identifier']) %}
 <div class="card mt-2">
   <div class="card-body">
     {% include 'display_field_definition.html' %}
@@ -35,7 +35,7 @@ Edit proposal fields for {{ call['identifier'] }}
 {% endfor %}
 
 {% for field in call['proposal'] %}
-{% set post_url = url_for('.proposal', cid=call['identifier'], fid=field['identifier']) %}
+{% set post_url = url_for('.proposal_field', cid=call['identifier'], fid=field['identifier']) %}
 {% include 'modal_field_edit.html' %}
 {% endfor %}
 
