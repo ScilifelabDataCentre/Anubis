@@ -35,13 +35,13 @@
       <td>
 	<a href="{{ url_for('proposals.user', username=user['username']) }}">
 	  <span class="badge badge-primary px-3">
-	    {{ user['__proposals_count'] }}</span>
+	    {{ user['cache']['proposals_count'] }}</span>
 	</a>
       </td>
       <td>
 	<a href="{{ url_for('reviews.reviewer', username=user['username']) }}">
 	  <span class="badge badge-info px-3">
-	    {{ user['__reviews_count'] }}</span>
+	    {{ user['cache']['reviews_count'] }}</span>
 	</a>
       </td>
       <td>{{ user['email'] }}</td>

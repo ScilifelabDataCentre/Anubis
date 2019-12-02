@@ -127,7 +127,7 @@
 {% endif %} {# if proposal.get('submitted') #}
 {% endif %} {# if proposal['cache']['is_submittable'] #}
 
-{% if proposal['cache']['is_editable'] %}
+{% if proposal['cache']['allow_edit'] %}
 <div class="mt-2">
   <a href="{{ url_for('.edit', pid=proposal['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
@@ -142,7 +142,7 @@
       Delete</button>
   </form>
 </div>
-{% endif %} {# if proposal['cache']['is_editable'] #}
+{% endif %} {# if proposal['cache']['allow_edit'] #}
 
 {% endblock %} {# block actions #}
 

@@ -42,7 +42,7 @@ def display(pid):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
-    if not proposal['cache']['is_readable']:
+    if not proposal['cache']['allow_read']:
         utils.flash_error('You are not allowed to read this proposal.')
         return flask.redirect(flask.url_for('home'))
     review = get_my_review(proposal, flask.g.current_user)
@@ -58,7 +58,7 @@ def edit(pid):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
-    if not proposal['cache']['is_editable']:
+    if not proposal['cache']['allow_edit']:
         utils.flash_error('You are not allowed to edit this proposal.')
         return flask.redirect(
             flask.url_for('.display', pid=proposal['identifier']))
@@ -134,7 +134,7 @@ def logs(pid):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
-    if not proposal['cache']['is_readable']:
+    if not proposal['cache']['allow_read']:
         utils.flash_error('You are not allowed to read this proposal.')
         return flask.redirect(flask.url_for('home'))
 
@@ -152,7 +152,7 @@ def document(pid, documentname):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
-    if not proposal['cache']['is_readable']:
+    if not proposal['cache']['allow_read']:
         utils.flash_error('You are not allowed to read this proposal.')
         return flask.redirect(flask.url_for('home'))
 
@@ -220,13 +220,16 @@ class ProposalSaver(FieldMixin, AttachmentsSaver):
         self.doc.pop('submitted', None)
 
 
-def get_proposal(pid):
+def get_proposal(pid, cache=True):
     "Return the proposal with the given identifier."
     result = [r.doc for r in flask.g.db.view('proposals', 'identifier',
                                              key=pid,
                                              include_docs=True)]
     if len(result) == 1:
-        return set_proposal_cache(result[0])
+        if cache:
+            return set_proposal_cache(result[0])
+        else:
+            return result[0]
     else:
         return None
 
@@ -235,27 +238,27 @@ def set_proposal_cache(proposal, call=None):
     This is computed data that will not be stored with the document.
     Depends on login, access, status, etc.
     """
-    proposal['cache'] = cache = dict(is_readable=False,
-                                       is_editable=False,
-                                       is_submittable=False)
+    proposal['cache'] = cache = dict(allow_read=False,
+                                     allow_edit=False,
+                                     is_submittable=False)
     # Get the call for the proposal.
     if call is None:
-        cache['call'] = anubis.call.get_call(proposal['call'])
+        cache['call'] = anubis.call.get_call(proposal['call'], cache=True)
     else:
-        cache['call'] = call
+        cache['call'] = anubis.call.set_cache(call)
     if flask.g.is_admin:
-        cache['is_readable'] = True
-        cache['is_editable'] = True
+        cache['allow_read'] = True
+        cache['allow_edit'] = True
         cache['is_submittable'] = True
         cache['reviews_count'] = utils.get_count('reviews', 'proposal',
                                                  proposal['identifier'])
     elif flask.g.current_user:
         if flask.g.current_user['username'] == proposal['user']:
-            cache['is_readable'] = True
-            cache['is_editable'] = cache['call']['cache']['is_open'] and \
-                                   not proposal.get('submitted')
+            cache['allow_read'] = True
+            cache['allow_edit'] = cache['call']['cache']['is_open'] and \
+                                  not proposal.get('submitted')
             cache['is_submittable'] = cache['call']['cache']['is_open'] and \
                                       not proposal['errors']
-        elif anubis.call.is_call_reviewer(cache['call']):
-            cache['is_readable'] = True
+        elif cache['call']['cache']['is_reviewer']:
+            cache['allow_read'] = True
     return proposal

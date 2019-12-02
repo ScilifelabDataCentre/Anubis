@@ -172,6 +172,7 @@ def display(username):
     if not is_admin_or_self(user):
         utils.flash_error('Access not allowed.')
         return flask.redirect(flask.url_for('home'))
+    user = set_cache(user)
     reviewer_calls = [get_call(r.value)
                       for r in flask.g.db.view('calls', 'reviewer', 
                                                key=user['username'])]
@@ -258,10 +259,7 @@ def all():
     "Display list of all users."
     users = get_users(role=None)
     for user in users:
-        user['__proposals_count'] = utils.get_count('proposals', 'user',
-                                                    user['username'])
-        user['__reviews_count'] = utils.get_count('reviews', 'reviewer',
-                                                  user['username'])
+        set_cache(user)
     return flask.render_template('user/all.html', users=users)
 
 @blueprint.route('/enable/<username>', methods=['POST'])
@@ -469,3 +467,14 @@ def is_admin_and_not_self(user):
     if flask.g.is_admin:
         return flask.g.current_user['username'] != user['username']
     return False
+
+def set_cache(user):
+    """Set the cached, non-saved values for the call.
+    This does NOT de-reference any other entities.
+    """
+    user['cache'] = cache = {}
+    cache['proposals_count'] = utils.get_count('proposals', 'user',
+                                               user['username'])
+    cache['reviews_count'] = utils.get_count('reviews', 'reviewer',
+                                             user['username'])
+    return user

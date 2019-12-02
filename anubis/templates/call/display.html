@@ -28,61 +28,72 @@
   </div>
 </div>
 {% if g.current_user %}
-{% if proposal %}
+{% if call['cache']['proposal'] %}
 <div class="row my-2">
   <div class="col-md-2 font-weight-bold text-right">My proposal</div>
-  <div class="col-md">{{ macros.proposal_link(proposal) }}</div>
+  <div class="col-md">
+    {{ macros.proposal_link(call['cache']['proposal']) }}
+  </div>
 </div>
-{% elif state['is_open'] and allow_proposal %}
+{% elif call['cache']['is_open'] and call['cache']['allow_proposal'] %}
 <div class="row my-2">
   <div class="col-md-2 font-weight-bold text-right">My proposal</div>
   <div class="col-md">
     <form action="{{ url_for('.create_proposal', cid=call['identifier']) }}"
 	  method="POST">
       {{ csrf_token() }}
-      <button type="submit" class="btn btn-primary">
-        Create proposal</button>
+      <button type="submit" class="btn btn-primary">Create proposal</button>
     </form>
   </div>
 </div>
-{% endif %} {# if proposal #}
+{% endif %} {# if call['cache']['proposal'] #}
 {% endif %} {# if g.current_user #}
 
-{% if is_call_reviewer or g.is_admin %}
+{% if call['cache']['is_reviewer'] or g.is_admin %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">All proposals</div>
   <div class="col-md">{{ macros.proposals_link(call) }}</div>
 </div>
+{% endif %} {# if call['cache']['is_reviewer'] or g.is_admin #}
+
+{% if call['cache']['is_reviewer'] or g.is_admin %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Reviewers</div>
   <div class="col-md">
+    {% if call['reviewers'] %}
     {% for reviewer in sorted(call['reviewers']) %}
     <span class="mr-3">
-      {{ macros.user_link(get_user(reviewer)) }}
-      {% if reviewer in call['chairs'] %}(chair){% endif %}
+      {{ macros.user_link(get_user(reviewer), chair=reviewer in call['chairs']) }}
+    </span>
     {% endfor %}
+    {% else %}
+    -
+    {% endif %}
   </div>
 </div>
+{% endif %} {# if call['cache']['is_reviewer'] or g.is_admin #}
+
+{% if call['cache']['is_reviewer'] %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">My reviews</div>
   <div class="col-md">
     <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=g.current_user['username']) }}"
        role="button" class="btn btn-sm btn-info px-3">
-      {{ call['__my_reviews_count'] }}</a>
+      {{ call['cache']['my_reviews_count'] }}</a>
   </div>
 </div>
-{% endif %} {# if is_call_reviewer or g.is_admin #}
+{% endif %} {# if call['cache']['is_reviewer'] #}
 
-{% if g.is_admin %}
+{% if call['cache']['is_chair'] or g.is_admin %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">All reviews</div>
   <div class="col-md">
     <a href="{{ url_for('reviews.call', cid=call['identifier']) }}"
        role="button" class="btn btn-sm btn-info mt-1 px-3">
-      {{ call['__all_reviews_count'] }}</a>
+      {{ call['cache']['all_reviews_count'] }}</a>
   </div>
 </div>
-{% endif %} {# if g.is_admin #}
+{% endif %} {# if call['cache']['is_chair'] or g.is_admin #}
 
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Description</div>
@@ -148,7 +159,7 @@
 {% endblock %} {# block main #}
 
 {% block actions %}
-{% if allow_call_edit %}
+{% if call['cache']['allow_edit'] %}
 <div class="mt-2">
   <a href="{{ url_for('.edit', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
@@ -165,7 +176,7 @@
   <a href="{{ url_for('.review', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit review fields</a>
 </div>
-{% endif %} {# if allow_call_edit #}
+{% endif %} {# if call['cache']['allow_edit'] #}
 {% if g.is_admin %} {# Reviewers always editable for admin #}
 <div class="mt-2">
   <a href="{{ url_for('.reviewers', cid=call['identifier']) }}"
@@ -176,7 +187,7 @@
      role="button" class="btn btn-primary btn-block">Clone</a>
 </div>
 {% endif %} {# if g.is_admin #}
-{% if allow_call_delete %}
+{% if call['cache']['allow_delete'] %}
 <div class="mt-2">
   <form action="{{ url_for('.edit', cid=call['identifier']) }}"
 	method="POST">
@@ -187,7 +198,7 @@
       Delete</button>
   </form>
 </div>
-{% endif %} {# if allow_call_delete #}
+{% endif %} {# if call['cache']['allow_delete'] #}
 {% endblock %} {# block actions #}
 
 {% block info %}

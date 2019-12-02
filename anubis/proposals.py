@@ -62,15 +62,16 @@ def user_call(username, cid):
                                  proposals=proposals)
 
 def get_user_proposals(username):
-    "Get all proposals created by the user."
-    return [anubis.proposal.set_proposal_cache(r.doc)
-            for r in flask.g.db.view('proposals', 'user',
-                                     key=username,
-                                     reduce=False,
-                                     include_docs=True)]
+    "Get all proposals created by the user. Cache not set."
+    return [r.doc for r in flask.g.db.view('proposals', 'user',
+                                           key=username,
+                                           reduce=False,
+                                           include_docs=True)]
 
 def get_call_user_proposal(call, username):
-    "Get the proposal created by the user in the call. Excludes no proposals."
+    """Get the proposal created by the user in the call. Cache not set.
+    Excludes no proposals.
+    """
     proposals = [p for p in get_user_proposals(username)
                  if p['call'] == call['identifier']]
     if proposals:
@@ -79,14 +80,13 @@ def get_call_user_proposal(call, username):
         return None
 
 def get_call_proposals(call):
-    """Get all submitted proposals in the call.
+    """Get all submitted proposals in the call. Cache not set.
     NOTE: No check for user access!
     """
-    return [anubis.proposal.set_proposal_cache(r.doc)
-            for r in flask.g.db.view('proposals', 'call',
-                                     key=call['identifier'],
-                                     reduce=False,
-                                     include_docs=True)]
+    return [r.doc for r in flask.g.db.view('proposals', 'call',
+                                           key=call['identifier'],
+                                           reduce=False,
+                                           include_docs=True)]
 
 def get_call_submitters(call):
     "Get the set of users who have submitted a proposal in the call."

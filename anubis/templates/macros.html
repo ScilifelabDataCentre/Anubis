@@ -1,12 +1,15 @@
 {# Macros #}
 
-{% macro user_link(user) -%}
+{% macro user_link(user, chair=False) -%}
 <a href="{{ url_for('user.display', username=user['username']) }}"
    role="button" class="btn btn-sm btn-outline-secondary px-3">
   {% if user.get('familyname') %}
   {{ user.get('givenname') or '' }} {{ user['familyname'] }}
   {% else %}
   {{ user['username'] }}
+  {% endif %}
+  {% if chair %}
+  (chair)
   {% endif %}
 </a>
 {%- endmacro %}
@@ -45,13 +48,13 @@
 {% macro proposals_link(call) -%}
 <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
    role="button" class="btn btn-sm btn-primary px-3">
-  {{ call['__all_proposals_count'] }}</a>
+  {{ call['cache']['all_proposals_count'] }}</a>
 </a>
 {%- endmacro %}
 
 {% macro call_closes(call) -%}
-<span class="badge badge-{{ call['__state']['color'] }}">
-  {{ call['__state']['text'] }}</span>
+<span class="badge badge-{{ call['cache']['color'] }}">
+  {{ call['cache']['text'] }}</span>
 {%- endmacro %}
 
 {% macro submitted(proposal) -%}

@@ -35,10 +35,7 @@ Reviews for call {{ call['identifier'] }}
 	{{ review['values'].get(scorefield['identifier']) | value_or_none }}
       </td>
       {% endfor %}
-      <td>
-	<a href="{{ url_for('user.display', username=review['reviewer']) }}">
-	  {{ review['reviewer'] }}</a>
-      </td>
+      <td>{{ macros.user_link(get_user(review['reviewer'])) }}</td>
     </tr>
     {% endfor %}
   </tbody>

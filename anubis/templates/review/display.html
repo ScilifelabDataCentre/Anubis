@@ -104,7 +104,7 @@ Review of proposal {{ review['cache']['proposal']['identifier'] }}
   </form>
 </div>
 {% endif %} {# if review['cache']['is_unfinalizable'] #}
-{% if review['cache']['is_editable'] %}
+{% if review['cache']['allow_edit'] %}
 <div class="mt-2">
   <form action="{{ url_for('.finalize', iuid=review['_id']) }}"
 	method="POST">
@@ -127,7 +127,7 @@ Review of proposal {{ review['cache']['proposal']['identifier'] }}
       Delete</button>
   </form>
 </div>
-{% endif %} {# if review['cache']['is_editable'] #}
+{% endif %} {# if review['cache']['allow_edit'] #}
 {% endblock %} {# block actions #}
 
 {% block info %}

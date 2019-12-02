@@ -14,6 +14,7 @@ Edit reviewers for call {{ call['identifier'] }}
 	 class="col-md-2 col-form-label text-right font-weight-bold">
     Reviewers</label>
   <div class="col-md">
+    {% if call['reviewers'] %}
     <table class="table table-sm table-borderless">
       {% for username in sorted(call['reviewers']) %}
       <tr>
@@ -36,6 +37,9 @@ Edit reviewers for call {{ call['identifier'] }}
       </tr>
       {% endfor %}
     </table>
+    {% else %}
+    -
+    {% endif %}
   </div>
 </div>
 <div class="form-group row">
@@ -43,29 +47,27 @@ Edit reviewers for call {{ call['identifier'] }}
 	 class="col-md-2 col-form-label text-right font-weight-bold">
     Add reviewer</label>
   <div class="col-md">
-    <div class="col-md">
-      <form action="{{ url_for('.reviewers', cid=call['identifier']) }}"
-	    method="POST">
-	{{ csrf_token() }}
-        <div class="form-group">
-	  <input type="text" id="reviewer" name="reviewer"
-                 class="form-control"
-                 aria-describedby="reviewerHelp">
-          <div class="form-check mt-2">
-            <input type="checkbox" id="chair" name="chair"
-                   class="form-check-input" value="true">
-            <label class="form-check-label" for="chair">Chair</label>
-          </div>
-	  <small id="reviewerHelp" class="form-text text-muted">
-	    Add a reviewer, which must have an account. Username or
-	    email address.
-	  </small>
+    <form action="{{ url_for('.reviewers', cid=call['identifier']) }}"
+	  method="POST">
+      {{ csrf_token() }}
+      <div class="form-group">
+	<input type="text" id="reviewer" name="reviewer"
+               class="form-control"
+               aria-describedby="reviewerHelp">
+        <div class="form-check mt-2">
+          <input type="checkbox" id="chair" name="chair"
+                 class="form-check-input" value="true">
+          <label class="form-check-label" for="chair">Chair</label>
         </div>
-	<div class="form-group mt-3">
-	  <button type="submit" class="btn btn-primary">Save</button>
-	</div>
-      </form>
-    </div>
+	<small id="reviewerHelp" class="form-text text-muted">
+	  Add a reviewer, which must have an account. Username or
+	  email address.
+	</small>
+      </div>
+      <div class="form-group mt-3">
+	<button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
   </div>
 </div>
 {% endblock %} {# block main #}

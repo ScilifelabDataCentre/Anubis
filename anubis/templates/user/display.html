@@ -13,7 +13,7 @@
     <td>
       <a href="{{ url_for('proposals.user', username=user['username']) }}"
          role="button" class="btn btn-sm btn-primary px-3">
-	{{ user['cache']['my_proposals_count'] }}
+	{{ user['cache']['proposals_count'] }}
       </a>
     </td>
   </tr>
@@ -22,7 +22,7 @@
     <td>
       <a href="{{ url_for('reviews.reviewer', username=user['username']) }}"
          role="button" class="btn btn-sm btn-info px-3">
-	{{ user['cache']['my_reviews_count'] }}
+	{{ user['cache']['reviews_count'] }}
       </a>
     </td>
   </tr>

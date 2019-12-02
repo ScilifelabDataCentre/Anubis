@@ -79,8 +79,8 @@ def edit(cid):
         return flask.redirect(flask.url_for('.display', cid=call['identifier']))
 
     elif utils.http_DELETE():
-        if not is_editable(call):
-            utils.flash_error('call cannot be deleted')
+        if not allow_edit(call):
+            utils.flash_error('You may not delete the call.')
             return flask.redirect(
                 flask.url_for('.display', cid=call['identifier']))
         utils.delete(call)
@@ -199,7 +199,7 @@ def proposal_field(cid, fid):
 def reviewers(cid):
     "Edit the list of reviewers."
     from .user import get_user
-    from .proposals import get_call_user_proposals
+    from .proposals import get_call_user_proposal
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
@@ -217,8 +217,8 @@ def reviewers(cid):
             utils.flash_error('No such user.')
             return flask.redirect(
                 flask.url_for('.reviewers', cid=call['identifier']))
-        if get_call_user_proposals(call, user['username']):
-            utils.flash_error('User has created a proposal in the call.')
+        if get_call_user_proposal(call, user['username']):
+            utils.flash_error('User has a proposal in the call.')
             return flask.redirect(
                 flask.url_for('.reviewers', cid=call['identifier']))
 
@@ -344,12 +344,11 @@ def create_proposal(cid):
     if call is None:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
-    state = get_state(call)
-    if not state['is_open']:
+    if not call['cache']['is_open']:
         utils.flash_error("The call is not open.")
         return flask.redirect(flask.url_for('.display', cid=cid))
-    if not allow_proposal(call):
-        utils.flash_error('You may not submit to this call.')
+    if not call['cache']['allow_proposal']:
+        utils.flash_error('You may not create a proposal in this call.')
         return flask.redirect(flask.url_for('.display', cid=cid))
 
     if utils.http_POST():
@@ -611,34 +610,38 @@ def get_call(cid, cache=True):
         return None
 
 def set_cache(call):
-    "Set the cached, non-saved values for the call."
+    """Set the cached, non-saved values for the call.
+    This does NOT de-reference any other entities.
+    """
     from .proposals import get_call_user_proposal
-    # Default permissions
-    call['cache'] = cache = dict(allow_call_edit=False,
-                                 allow_call_delete=False,
+
+    call['cache'] = cache = dict(allow_edit=False,
+                                 allow_delete=False,
                                  allow_proposal=False,
-                                 is_reviewer=False)
+                                 is_reviewer=False,
+                                 is_chair=False)
 
     # Admin permissions
     if flask.g.is_admin:
-        cache['allow_call_edit'] = True
-        cache['allow_call_delete'] = utils.get_count('proposals', 'call',
-                                                     call['identifier']) == 0
+        cache['allow_edit'] = True
+        cache['allow_delete'] = utils.get_count('proposals', 'call',
+                                                call['identifier']) == 0
         cache['all_proposals_count'] = utils.get_count('proposals', 'call',
                                                        call['identifier'])
+        cache['all_reviews_count'] = utils.get_count('reviews', 'call',
+                                                     call['identifier'])
         cache['allow_proposal'] = True
-        cache['proposal'] = get_call_user_proposal(
-            call, flask.g.current_user['username'])
 
     # User permissions
     elif flask.g.current_user:
+        cache['all_proposals_count'] = utils.get_count('proposals', 'call',
+                                                       call['identifier'])
         cache['all_reviews_count'] = utils.get_count('reviews', 'call',
                                                      call['identifier'])
-        cache['allow_proposal'] = not cache['is_reviewer']
-        cache['proposal'] = get_call_user_proposal(
-            call, flask.g.current_user['username'])
         cache['is_reviewer'] = flask.g.current_user['username'] in call['reviewers']
+        cache['allow_proposal'] = not cache['is_reviewer']
         if cache['is_reviewer']:
+            cache['is_chair'] = flask.g.current_user['username'] in call['chairs']
             cache['my_reviews_count'] = utils.get_count(
                 'reviews', 'call_reviewer',
                 [call['identifier'], flask.g.current_user['username']])

@@ -73,7 +73,7 @@ def display(iuid):
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
-    if not review['cache']['is_readable']:
+    if not review['cache']['allow_read']:
         utils.flash_error('You are not allowed to read this review.')
         return flask.redirect(flask.url_for('home'))
 
@@ -88,7 +88,7 @@ def edit(iuid):
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
-    if not review['cache']['is_editable']:
+    if not review['cache']['allow_edit']:
         utils.flash_error('You are not allowed to edit this review.')
         return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
@@ -119,7 +119,7 @@ def finalize(iuid):
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
-    if not review['cache']['is_editable']:
+    if not review['cache']['allow_edit']:
         utils.flash_error('You are not allowed to edit this review.')
         return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
@@ -179,7 +179,7 @@ def document(iuid, documentname):
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
-    if not review['cache']['is_readable']:
+    if not review['cache']['allow_read']:
         utils.flash_error('You are not allowed to read this review.')
         return flask.redirect(flask.url_for('home'))
 
@@ -255,8 +255,8 @@ def set_review_cache(review, call=None):
     """
     from anubis.call import get_call
     from anubis.proposal import get_proposal
-    review['cache'] = cache = dict(is_readable=False,
-                                   is_editable=False,
+    review['cache'] = cache = dict(allow_read=False,
+                                   allow_edit=False,
                                    is_unfinalizable=False)
     if call is None:
         cache['call'] = call = get_call(review['call'])
@@ -264,13 +264,13 @@ def set_review_cache(review, call=None):
         cache['call'] = call
     cache['proposal'] = get_proposal(review['proposal'])
     if flask.g.is_admin:
-        cache['is_readable'] = True
-        cache['is_editable'] = not review.get('finalized')
+        cache['allow_read'] = True
+        cache['allow_edit'] = not review.get('finalized')
         cache['is_unfinalizable'] = True
     elif flask.g.current_user:
-        cache['is_readable'] = flask.g.current_user['username'] == review['reviewer']
-        cache['is_editable'] = not review.get('finalized') and \
-                               flask.g.current_user['username'] == review['reviewer']
+        cache['allow_read'] = flask.g.current_user['username'] == review['reviewer']
+        cache['allow_edit'] = not review.get('finalized') and \
+                              flask.g.current_user['username'] == review['reviewer']
         cache['is_unfinalizable'] = review.get('finalized') and \
                                     flask.g.current_user['username'] == review['reviewer']
     return review
