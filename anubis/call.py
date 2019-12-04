@@ -377,6 +377,7 @@ class CallSaver(AttachmentsSaver):
         self.doc['review'] = []
         self.doc['reviewers'] = []
         self.doc['chairs'] = []
+        self.doc['access'] = {k: False for k in constants.ACCESS}
 
     def set_identifier(self, identifier):
         "Call identifier."

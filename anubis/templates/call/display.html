@@ -11,16 +11,10 @@
 {% if g.is_admin %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Opens</div>
-  <div class="col-md">
-    {% if call['opens'] %}
-    {{ call['opens'] }}
-    {% else %}
-    Not set
-    {% endif %}
-  </div>
+  <div class="col-md">{{ call['opens'] or '-' }}</div>
 </div>
 {% endif %} {# if g.is_admin #}
-<div class="row mb-2">
+<div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
   <div class="col-md">
     <span class="mr-4">{{ call['closes'] or '-' }}</span>
@@ -29,14 +23,14 @@
 </div>
 {% if g.current_user %}
 {% if call['cache']['proposal'] %}
-<div class="row my-2">
+<div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">My proposal</div>
   <div class="col-md">
     {{ macros.proposal_link(call['cache']['proposal']) }}
   </div>
 </div>
 {% elif call['cache']['is_open'] and call['cache']['allow_proposal'] %}
-<div class="row my-2">
+<div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">My proposal</div>
   <div class="col-md">
     <form action="{{ url_for('.create_proposal', cid=call['identifier']) }}"
@@ -50,14 +44,14 @@
 {% endif %} {# if g.current_user #}
 
 {% if call['cache']['is_reviewer'] or g.is_admin %}
-<div class="row mb-2">
+<div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">All proposals</div>
   <div class="col-md">{{ macros.proposals_link(call) }}</div>
 </div>
 {% endif %} {# if call['cache']['is_reviewer'] or g.is_admin #}
 
 {% if call['cache']['is_reviewer'] or g.is_admin %}
-<div class="row mb-2">
+<div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">Reviewers</div>
   <div class="col-md">
     {% if call['reviewers'] %}
@@ -74,7 +68,7 @@
 {% endif %} {# if call['cache']['is_reviewer'] or g.is_admin #}
 
 {% if call['cache']['is_reviewer'] %}
-<div class="row mb-2">
+<div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">My reviews</div>
   <div class="col-md">
     <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=g.current_user['username']) }}"
@@ -85,13 +79,13 @@
 {% endif %} {# if call['cache']['is_reviewer'] #}
 
 {% if call['cache']['is_chair'] or g.is_admin %}
-<div class="row mb-2">
+<div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">All reviews</div>
   <div class="col-md">{{ macros.reviews_link(call) }}</div>
 </div>
 {% endif %} {# if call['cache']['is_chair'] or g.is_admin #}
 
-<div class="row mb-2">
+<div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">Description</div>
   <div class="col-md">
     <div class="card mt-2">
@@ -102,10 +96,11 @@
   </div>
 </div>
 
-<div class="row mb-2">
+<div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">Documents</div>
   <div class="col-md">
-    {% for document in call.get('documents', []) %}
+    {% if call.get('documents') %}
+    {% for document in call['documents'] %}
     <div class="card mt-2">
       <div class="card-header">
         <span class="font-weight-bold">{{ document['name'] }}</span>
@@ -120,11 +115,14 @@
       </div>
       {% endif %}
     </div>
-    {% endfor %} {# for document in call.get('documents', []) #}
+    {% endfor %} {# for document in call['documents'] #}
+    {% else %}
+    -
+    {% endif %}
   </div>
 </div>
 
-<div class="row">
+<div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">Proposal inputs</div>
   <div class="col-md">
     {% for field in call['proposal'] %}
@@ -138,7 +136,7 @@
 </div>
 
 {% if g.is_admin %}
-<div class="row">
+<div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">Review inputs</div>
   <div class="col-md">
     {% for field in call['review'] %}

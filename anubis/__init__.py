@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '0.5.18'
+__version__ = '0.5.19'
 
 class Constants:
     VERSION     = __version__
@@ -22,7 +22,6 @@ class Constants:
     CALL     = 'call'
     PROPOSAL = 'proposal'
     REVIEW   = 'review'
-    DECISION = 'decision'
     LOG      = 'log'
 
     # User roles
@@ -36,10 +35,6 @@ class Constants:
     DISABLED = 'disabled'
     USER_STATUSES = (PENDING, ENABLED, DISABLED)
 
-    # User capacities (per call)
-    SUBMITTER = 'submitter'
-    REVIEWER  = 'reviewer'
-
     # Input field types
     LINE     = 'line'
     BOOLEAN  = 'boolean'
@@ -50,12 +45,15 @@ class Constants:
     DOCUMENT = 'document'
     FIELD_TYPES = (LINE, BOOLEAN, INTEGER, FLOAT, SCORE, TEXT, DOCUMENT)
 
-    # Content types
-    HTML_MIMETYPE = 'text/html'
-    JSON_MIMETYPE = 'application/json'
-
-    # Misc
-    JSON_SCHEMA_URL = 'http://json-schema.org/draft-07/schema#'
+    # Access keys
+    ACCESS = ('allow_reviewer_read_submitter',
+              'allow_reviewer_read_reviewer',
+              'allow_reviewer_read_reviews',
+              'allow_public_read_proposal',
+              'allow_public_read_submitter',
+              'allow_public_read_reviews',
+              'allow_public_read_reviewers',
+              'allow_public_read_decision')
 
     def __setattr__(self, key, value):
         raise ValueError('cannot set constant')

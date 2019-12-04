@@ -18,13 +18,7 @@ Edit reviewers for call {{ call['identifier'] }}
     <table class="table table-sm table-borderless">
       {% for username in sorted(call['reviewers']) %}
       <tr>
-        <td>
-          <a href="{{ url_for('user.display', username=username) }}">
-            {{ username }}</a>
-          {% if username in call['chairs'] %}
-          (chair)
-          {% endif %}
-        </td>
+        <td>{{ macros.user_link(get_user(username), chair=username in call['chairs']) }}</td>
         <td>
           <form action="{{ url_for('.reviewers', cid=call['identifier']) }}"
 	        method="POST">
