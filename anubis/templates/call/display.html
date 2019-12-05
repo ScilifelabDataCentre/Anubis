@@ -8,12 +8,14 @@
 {% endblock %}
 
 {% block main %}
+
 {% if g.is_admin %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Opens</div>
   <div class="col-md">{{ call['opens'] or '-' }}</div>
 </div>
 {% endif %} {# if g.is_admin #}
+
 <div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
   <div class="col-md">
@@ -21,6 +23,7 @@
     {{ macros.call_closes(call) }}
   </div>
 </div>
+
 {% if g.current_user %}
 {% if call['cache']['proposal'] %}
 <div class="row mt-2">
@@ -78,12 +81,12 @@
 </div>
 {% endif %} {# if call['cache']['is_reviewer'] #}
 
-{% if call['cache']['is_chair'] or g.is_admin %}
+{% if call['cache']['allow_view_reviews'] %}
 <div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">All reviews</div>
   <div class="col-md">{{ macros.reviews_link(call) }}</div>
 </div>
-{% endif %} {# if call['cache']['is_chair'] or g.is_admin #}
+{% endif %} {# if call['cache']['allow_view_reviews'] #}
 
 <div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">Description</div>
@@ -150,6 +153,24 @@
 </div>
 {% endif %} {# if g.is_admin #}
 
+{% if g.is_admin %}
+<div class="row mt-2">
+  <div class="col-md-2 font-weight-bold text-right">Access</div>
+  <div class="col-md-5">
+    <table class="table table-sm table-borderless">
+      {% for flag in constants.ACCESS %}
+      <tr>
+        <td>{{ flag }}</td>
+        <td>
+          {{ (call.get('access', {}).get(flag) and '&#x2714;' or '-') |safe }}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+{% endif %} {# if g.is_admin #}
+
 {% endblock %} {# block main #}
 
 {% block actions %}
@@ -171,10 +192,14 @@
      role="button" class="btn btn-primary btn-block">Edit review fields</a>
 </div>
 {% endif %} {# if call['cache']['allow_edit'] #}
-{% if g.is_admin %} {# Reviewers always editable for admin #}
+{% if g.is_admin %}
 <div class="mt-2">
   <a href="{{ url_for('.reviewers', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit reviewers</a>
+</div>
+<div class="mt-2">
+  <a href="{{ url_for('.access', cid=call['identifier']) }}"
+     role="button" class="btn btn-primary btn-block">Edit access</a>
 </div>
 <div class="mt-4">
   <a href="{{ url_for('.clone', cid=call['identifier']) }}"

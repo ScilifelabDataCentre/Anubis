@@ -114,7 +114,13 @@
             {% if g.current_user %}
             <a href="{{ url_for('user.display', username=g.current_user['username']) }}"
 	       role="button" class="btn btn-outline-secondary my-2 my-sm-0">
-              User {{ g.current_user['username'] }}</a>
+              {% if g.current_user.get('familyname') %}
+              {{ g.current_user.get('givenname') or '' }}
+              {{ g.current_user['familyname'] }}
+              {% else %}
+              User {{ g.current_user['username'] }}
+              {% endif %}
+            </a>
             {% else %}
             <form action="{{ url_for('user.login') }}"
                   class="form-inline my-2 my-sm-0"

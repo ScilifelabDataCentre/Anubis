@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '0.5.19'
+__version__ = '0.5.20'
 
 class Constants:
     VERSION     = __version__
@@ -45,15 +45,17 @@ class Constants:
     DOCUMENT = 'document'
     FIELD_TYPES = (LINE, BOOLEAN, INTEGER, FLOAT, SCORE, TEXT, DOCUMENT)
 
-    # Access keys
-    ACCESS = ('allow_reviewer_read_submitter',
-              'allow_reviewer_read_reviewer',
-              'allow_reviewer_read_reviews',
-              'allow_public_read_proposal',
-              'allow_public_read_submitter',
-              'allow_public_read_reviews',
-              'allow_public_read_reviewers',
-              'allow_public_read_decision')
+    # Access flags
+    ACCESS = (#'allow_reviewer_view_submitter',
+              #'allow_reviewer_view_reviewers',
+              'allow_reviewer_view_reviews',
+              #'allow_public_view_proposal',
+              #'allow_public_view_submitter',
+              #'allow_public_view_reviews',
+              #'allow_public_view_reviewers',
+              #'allow_submitter_view_all_decisions',
+              #'allow_public_view_all_decisions',
+    )
 
     def __setattr__(self, key, value):
         raise ValueError('cannot set constant')

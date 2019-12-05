@@ -263,8 +263,7 @@ def review(cid):
                 saver.add_review_field(form=flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
-        return flask.redirect(
-            flask.url_for('.review', cid=call['identifier']))
+        return flask.redirect(flask.url_for('.review', cid=call['identifier']))
 
 @blueprint.route('/<cid>/review/<fid>', methods=['POST', 'DELETE'])
 @utils.admin_required
@@ -281,8 +280,7 @@ def review_field(cid, fid):
                 saver.edit_review_field(fid, form=flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
-        return flask.redirect(
-            flask.url_for('.review', cid=call['identifier']))
+        return flask.redirect(flask.url_for('.review', cid=call['identifier']))
 
     elif utils.http_DELETE():
         try:
@@ -290,8 +288,29 @@ def review_field(cid, fid):
                 saver.delete_review_field(fid)
         except ValueError as error:
             utils.flash_error(str(error))
-        return flask.redirect(
-            flask.url_for('.review', cid=call['identifier']))
+        return flask.redirect(flask.url_for('.review', cid=call['identifier']))
+
+@blueprint.route('/<cid>/access', methods=['GET', 'POST'])
+@utils.admin_required
+def access(cid):
+    "Edit the access flags for the call."
+    call = get_call(cid)
+    if not call:
+        utils.flash_error('No such call.')
+        return flask.redirect(flask.url_for('home'))
+
+    if utils.http_GET():
+        return flask.render_template('call/access.html', call=call)
+
+    elif utils.http_POST():
+        try:
+            with CallSaver(call) as saver:
+                saver.edit_access(form=flask.request.form)
+        except ValueError as error:
+            utils.flash_error(str(error))
+            return flask.redirect(
+                flask.url_for('.access', cid=call['identifier']))
+        return flask.redirect(flask.url_for('.display', cid=call['identifier']))
 
 @blueprint.route('/<cid>/clone', methods=['GET', 'POST'])
 @utils.admin_required
@@ -596,6 +615,12 @@ class CallSaver(AttachmentsSaver):
                 self.doc['documents'].pop(pos)
                 break
 
+    def edit_access(self, form=dict()):
+        "Edit the access flags."
+        self.doc['access'] = {}
+        for flag in constants.ACCESS:
+            self.doc['access'][flag] = utils.to_bool(form.get(flag))
+
 
 def get_call(cid, cache=True):
     "Return the call with the given identifier."
@@ -619,6 +644,7 @@ def set_cache(call):
     call['cache'] = cache = dict(allow_edit=False,
                                  allow_delete=False,
                                  allow_proposal=False,
+                                 allow_view_reviews=False,
                                  is_reviewer=False,
                                  is_chair=False)
 
@@ -629,23 +655,27 @@ def set_cache(call):
                                                 call['identifier']) == 0
         cache['all_proposals_count'] = utils.get_count('proposals', 'call',
                                                        call['identifier'])
+        cache['allow_view_reviews'] = True
         cache['all_reviews_count'] = utils.get_count('reviews', 'call',
                                                      call['identifier'])
         cache['allow_proposal'] = True
 
-    # User permissions
+    # User/reviewer permissions
     elif flask.g.current_user:
-        cache['all_proposals_count'] = utils.get_count('proposals', 'call',
-                                                       call['identifier'])
-        cache['all_reviews_count'] = utils.get_count('reviews', 'call',
-                                                     call['identifier'])
         cache['is_reviewer'] = flask.g.current_user['username'] in call['reviewers']
         cache['allow_proposal'] = not cache['is_reviewer']
+        cache['all_proposals_count'] = utils.get_count('proposals', 'call',
+                                                       call['identifier'])
         if cache['is_reviewer']:
             cache['is_chair'] = flask.g.current_user['username'] in call['chairs']
             cache['my_reviews_count'] = utils.get_count(
                 'reviews', 'call_reviewer',
                 [call['identifier'], flask.g.current_user['username']])
+            cache['allow_view_reviews'] = cache['is_chair'] or \
+                                          call['access'].get('allow_reviewer_view_reviews')
+            if cache['allow_view_reviews']:
+                cache['all_reviews_count'] = utils.get_count('reviews', 'call',
+                                                             call['identifier'])
 
     # Set the current state of the call, computed from open/close and today.
     if call['opens']:

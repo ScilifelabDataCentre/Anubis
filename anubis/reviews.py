@@ -13,13 +13,17 @@ from . import utils
 blueprint = flask.Blueprint('reviews', __name__)
 
 @blueprint.route('/call/<cid>')
-@utils.admin_required
+@utils.login_required
 def call(cid):
     "List all reviews for a call."
     call = anubis.call.get_call(cid)
     if call is None:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
+    if not call['cache']['allow_view_reviews']:
+        utils.flash_error('You may not view the reviews of the call.')
+        return flask.redirect(
+            flask.url_for('call.display', cid=call['identifier']))
 
     scorefields = [f for f in call['review']
                    if f['type'] == constants.SCORE]

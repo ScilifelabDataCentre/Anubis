@@ -6,7 +6,7 @@
   {% if user.get('familyname') %}
   {{ user.get('givenname') or '' }} {{ user['familyname'] }}
   {% else %}
-  {{ user['username'] }}
+  User {{ user['username'] }}
   {% endif %}
   {% if chair %}
   (chair)

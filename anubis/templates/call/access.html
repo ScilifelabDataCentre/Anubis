@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block head_title %}
+Edit access for call {{ call['identifier'] }}
+{% endblock %}
+
+{% block body_title %}
+Edit access for call {{ call['identifier'] }}
+{% endblock %}
+
+{% block main %}
+<form action="{{ url_for('.access', cid=call['identifier']) }}"
+      method="POST">
+  {{ csrf_token() }}
+  {% for flag in constants.ACCESS %}
+  <div class="form-group row">
+    <label for="{{ flag }}"
+           class="col-md-4 col-form-label font-weight-bold text-right">
+      {{ flag }}</label>
+    <div class="col-md">
+      <div class="form-check form-check-inline pt-1">
+	<input type="checkbox" id="{{ flag }}" name="{{ flag }}"
+	       class="form-check-input" value="true"
+               {{ call.get('access', {}).get(flag) and 'checked' or '' }}>
+	<label class="form-check-label" for="{{ flag }}">Yes</label>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  <div class="form-group row">
+    <div class="col-md-2 offset-md-4">
+      <div class="form-group mt-3">
+	<button type="submit" class="btn btn-block btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %} {# block main #}
+
+{% block actions %}
+<div class="mt-2">
+  <form action="{{ url_for('.display', cid=call['identifier']) }}"
+	method="GET">
+    <button type="submit" class="btn btn-block btn-dark">Back</button>
+  </form>
+</div>
+{% endblock %}
+
