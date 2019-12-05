@@ -49,12 +49,14 @@ def call_reviewer(cid, username):
     if user is None:
         utils.flash_error('No such user.')
         return flask.redirect(flask.url_for('home'))
-    if not anubis.user.is_admin_or_self(user):
-        utils.flash_error("You may not view the user's reviews.")
-        return flask.redirect(flask.url_for('home'))
     if user['username'] not in call['reviewers']:
         utils.flash_error("The user is not a reviewer in the call.")
         return flask.redirect(flask.url_for('home'))
+    if not (anubis.user.is_admin_or_self(user) or
+            call['cache']['allow_view_reviews']):
+        utils.flash_error("You may not view the user's reviews.")
+        return flask.redirect(
+            flask.url_for('call.display', cid=call['identifier']))
 
     reviews = [anubis.review.set_cache(r.doc)
                for r in flask.g.db.view('reviews', 'call_reviewer',
@@ -70,13 +72,17 @@ def call_reviewer(cid, username):
                                  scorefields=scorefields)
 
 @blueprint.route('/proposal/<pid>')
-@utils.admin_required
+@utils.login_required
 def proposal(pid):
     "List all reviewers and reviews for a proposal."
     proposal = anubis.proposal.get_proposal(pid)
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
+    if not call['cache']['allow_view_reviews']:
+        utils.flash_error('You may not view the reviews of the call.')
+        return flask.redirect(
+            flask.url_for('call.display', cid=call['identifier']))
 
     call = proposal['cache']['call']
     reviews = [anubis.review.set_cache(r.doc)
@@ -101,9 +107,11 @@ def reviewer(username):
     if user is None:
         utils.flash_error('No such user.')
         return flask.redirect(flask.url_for('home'))
+    # Access to view all reviews of a specific call is not sufficient.
     if not anubis.user.is_admin_or_self(user):
         utils.flash_error("You may not view the user's reviews.")
-        return flask.redirect(flask.url_for('home'))
+        return flask.redirect(
+            flask.url_for('call.display', cid=call['identifier']))
 
     reviews = [anubis.review.set_cache(r.doc)
                for r in flask.g.db.view('reviews', 'reviewer',
