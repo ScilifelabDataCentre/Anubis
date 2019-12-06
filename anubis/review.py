@@ -108,7 +108,8 @@ def edit(iuid):
     elif utils.http_DELETE():
         utils.delete(review)
         utils.flash_message('Deleted review.')
-        return flask.redirect(flask.url_for('home'))
+        return flask.redirect(
+            flask.url_for('call.display', cid=review['cache']['call']['identifier']))
 
 @blueprint.route('/<iuid:iuid>/finalize', methods=['POST'])
 @utils.login_required

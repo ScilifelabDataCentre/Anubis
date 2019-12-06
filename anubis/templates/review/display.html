@@ -80,7 +80,7 @@ Review of proposal {{ review['cache']['proposal']['identifier'] }}
     <a href="{{ url_for('.document', pid=proposal['identifier'], documentname=documentname) }}"
        role="button" class="btn btn-secondary btn-sm ml-4">
       Download 
-      ({{ attachments[documentname]['length'] | thousands }} bytes)
+      ({{ attachments[documentname]['length'] | filesizeformat }})
     </a>
     {% else %}
     (?)

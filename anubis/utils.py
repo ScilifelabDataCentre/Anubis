@@ -178,20 +178,6 @@ def flash_message(msg):
     "Flash information message."
     flask.flash(str(msg), 'message')
 
-def thousands(value):
-    "Template filter: Output integer with thousands delimiters."
-    if isinstance(value, int):
-        return '{:,}'.format(value)
-    else:
-        return value
-
-def value_or_none(value):
-    "Return dash if value is None, else value."
-    if value is None:
-        return '-'
-    else:
-        return value
-
 def boolean_value(value):
     "Template filter: Output field value boolean."
     if value is None:

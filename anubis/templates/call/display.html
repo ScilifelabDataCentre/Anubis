@@ -110,7 +110,8 @@
         <a href="{{ url_for('call.document', cid=call['identifier'], documentname=document['name']) }}"
            role="button" class="btn btn-secondary btn-sm ml-4">
           Download
-          ({{ call['_attachments'][document['name']]['length'] | thousands }} bytes)            </a>
+          ({{ call['_attachments'][document['name']]['length'] | filesizeformat }})
+        </a>
       </div>
       {% if document.get('description') %}
       <div class="card-body">
@@ -128,6 +129,7 @@
 <div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">Proposal inputs</div>
   <div class="col-md">
+    {% if call['proposal'] %}
     {% for field in call['proposal'] %}
     <div class="card mt-2">
       <div class="card-body">
@@ -135,6 +137,9 @@
       </div>
     </div>
     {% endfor %}
+    {% else %}
+    -
+    {% endif %}
   </div>
 </div>
 
@@ -142,6 +147,7 @@
 <div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">Review inputs</div>
   <div class="col-md">
+    {% if call['review'] %}
     {% for field in call['review'] %}
     <div class="card mt-2">
       <div class="card-body">
@@ -149,27 +155,30 @@
       </div>
     </div>
     {% endfor %}
+    {% else %}
+    -
+    {% endif %}
   </div>
 </div>
 {% endif %} {# if g.is_admin #}
 
-{% if g.is_admin %}
+{% if call['cache']['is_reviewer'] or g.is_admin %}
 <div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">Access</div>
   <div class="col-md-5">
     <table class="table table-sm table-borderless">
       {% for flag in constants.ACCESS %}
       <tr>
-        <td>{{ flag }}</td>
+        <td>{{ flag|capitalize|replace('_',' ') }}</td>
         <td>
-          {{ (call.get('access', {}).get(flag) and '&#x2714;' or '-') |safe }}
+          {{ call.get('access', {}).get(flag) and '&#x2714;'|safe or '-' }}
         </td>
       </tr>
       {% endfor %}
     </table>
   </div>
 </div>
-{% endif %} {# if g.is_admin #}
+{% endif %} {# if call['cache']['is_reviewer'] or g.is_admin #}
 
 {% endblock %} {# block main #}
 

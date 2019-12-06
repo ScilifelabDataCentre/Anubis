@@ -25,17 +25,23 @@ def call(cid):
         return flask.redirect(
             flask.url_for('call.display', cid=call['identifier']))
 
-    scorefields = [f for f in call['review']
-                   if f['type'] == constants.SCORE]
+    proposals = [anubis.proposal.set_cache(r.doc)
+                 for r in flask.g.db.view('proposals', 'call',
+                                          key=call['identifier'],
+                                          reduce=False,
+                                          include_docs=True)]
     reviews = [anubis.review.set_cache(r.doc)
                for r in flask.g.db.view('reviews', 'call',
-                                        key=cid,
+                                        key=call['identifier'],
                                         reduce=False,
                                         include_docs=True)]
+    reviews_lookup = {f"r['proposal'] r['reviewer']":r for r in reviews}
+    scorefields = [f for f in call['review'] if f['type'] == constants.SCORE]
     return flask.render_template('reviews/call.html',
                                  call=call,
-                                 scorefields=scorefields,
-                                 reviews=reviews)
+                                 proposals=proposals,
+                                 reviews_lookup=reviews_lookup,
+                                 scorefields=scorefields)
 
 @blueprint.route('/call/<cid>/reviewer/<username>')
 @utils.login_required
@@ -58,17 +64,24 @@ def call_reviewer(cid, username):
         return flask.redirect(
             flask.url_for('call.display', cid=call['identifier']))
 
+    proposals = [anubis.proposal.set_cache(r.doc)
+                 for r in flask.g.db.view('proposals', 'call',
+                                          key=call['identifier'],
+                                          reduce=False,
+                                          include_docs=True)]
     reviews = [anubis.review.set_cache(r.doc)
                for r in flask.g.db.view('reviews', 'call_reviewer',
-                                        key=[call['identifier'], user['username']],
+                                        key=[call['identifier'],
+                                             user['username']],
                                         reduce=False,
                                         include_docs=True)]
-    scorefields = [f for f in call['review']
-                   if f['type'] == constants.SCORE]
+    reviews_lookup = {r['proposal']:r for r in reviews}
+    scorefields = [f for f in call['review'] if f['type'] == constants.SCORE]
     return flask.render_template('reviews/call_reviewer.html', 
                                  call=call,
+                                 proposals=proposals,
                                  user=user,
-                                 reviews=reviews,
+                                 reviews_lookup=reviews_lookup,
                                  scorefields=scorefields)
 
 @blueprint.route('/proposal/<pid>')
@@ -79,20 +92,20 @@ def proposal(pid):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
+
+    call = proposal['cache']['call']
     if not call['cache']['allow_view_reviews']:
         utils.flash_error('You may not view the reviews of the call.')
         return flask.redirect(
             flask.url_for('call.display', cid=call['identifier']))
 
-    call = proposal['cache']['call']
     reviews = [anubis.review.set_cache(r.doc)
-               for r in flask.g.db.view('reviews', 'call',
-                                        key=call['identifier'],
+               for r in flask.g.db.view('reviews', 'proposal',
+                                        key=proposal['identifier'],
                                         reduce=False,
                                         include_docs=True)]
     reviews_lookup = {r['reviewer']:r for r in reviews}
-    scorefields = [f for f in call['review']
-                   if f['type'] == constants.SCORE]
+    scorefields = [f for f in call['review'] if f['type'] == constants.SCORE]
     return flask.render_template('reviews/proposal.html',
                                  proposal=proposal,
                                  reviewers=call['reviewers'],

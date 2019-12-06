@@ -25,18 +25,21 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
     </tr>
   </thead>
   <tbody>
-    {% for review in reviews %}
-    {% set proposal = review['cache']['proposal'] %}
+    {% for proposal in proposals %}
     <tr>
       <td>{{ macros.proposal_link(proposal, title=True) }}</td>
-      {# XXX Check access to view submitter #}
-      <td>{{ macros.user(get_user(proposal['user'])) }}</td>
+      <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
+      {% set review = reviews_lookup.get(proposal['identifier']) %}
+      {% if review %}
       <td>{{ macros.review_link(review) }}</td>
       {% for scorefield in scorefields %}
       <td>
-	{{ review['values'].get(scorefield['identifier']) | value_or_none }}
+	{{ review['values'].get(scorefield['identifier']) | default('-',True) }}
       </td>
       {% endfor %}
+      {% else %}
+      <td>-</td>
+      {% endif %}
     </tr>
     {% endfor %}
   </tbody>

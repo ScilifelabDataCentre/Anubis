@@ -24,19 +24,25 @@ Reviews for call {{ call['identifier'] }}
     </tr>
   </thead>
   <tbody>
-    {% for review in reviews %}
-    {% set proposal = review['cache']['proposal'] %}
+    {% for proposal in proposals %}
+    {% for reviewer in call['reviewers'] %}
     <tr>
       <td>{{ macros.proposal_link(proposal, title=True) }}</td>
       <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
+      {% set review = reviews_lookup.get("{} {}".format(proposal['identifier'], reviewer)) %}
+      {% if review %}
       <td>{{ macros.review_link(review) }}</td>
       {% for scorefield in scorefields %}
       <td>
-	{{ review['values'].get(scorefield['identifier']) | value_or_none }}
+	{{ review['values'].get(scorefield['identifier']) | default('-',True) }}
       </td>
+      <td>{{ macros.user_link(get_user(reviewer)) }}</td>
       {% endfor %}
-      <td>{{ macros.user_link(get_user(review['reviewer'])) }}</td>
+      {% else %}
+      <td>-</td>
+      {% endif %}
     </tr>
+    {% endfor %}
     {% endfor %}
   </tbody>
 </table>

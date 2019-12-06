@@ -210,6 +210,10 @@ def reviewers(cid):
 
     elif utils.http_POST():
         reviewer = flask.request.form.get('reviewer')
+        if not reviewer:
+            utils.flash_error('No reviewer specified.')
+            return flask.redirect(
+                flask.url_for('.reviewers', cid=call['identifier']))
         user = get_user(username=reviewer)
         if user is None:
             user = get_user(email=reviewer)

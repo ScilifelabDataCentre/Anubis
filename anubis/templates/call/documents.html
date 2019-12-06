@@ -14,7 +14,7 @@
         <div class="row">
           <div class="col-md">
             <span class="font-weight-bold">{{ document['name'] }}</span>
-            ({{ call['_attachments'][document['name']]['length'] | thousands }} bytes)
+            ({{ call['_attachments'][document['name']]['length'] | filesizeformat }})
           </div>
           <div class="col-md text-right">
             <form action="{{ url_for('.document', cid=call['identifier'], documentname=document['name']) }}"

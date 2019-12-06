@@ -16,7 +16,7 @@ Edit access for call {{ call['identifier'] }}
   <div class="form-group row">
     <label for="{{ flag }}"
            class="col-md-4 col-form-label font-weight-bold text-right">
-      {{ flag }}</label>
+      {{ flag|capitalize|replace('_',' ') }}</label>
     <div class="col-md">
       <div class="form-check form-check-inline pt-1">
 	<input type="checkbox" id="{{ flag }}" name="{{ flag }}"

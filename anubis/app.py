@@ -29,8 +29,6 @@ utils.mail.init_app(app)
 
 app.url_map.converters['iuid'] = utils.IuidConverter
 
-app.add_template_filter(utils.thousands)
-app.add_template_filter(utils.value_or_none)
 app.add_template_filter(utils.boolean_value)
 app.add_template_filter(utils.integer_value)
 app.add_template_filter(utils.float_value)
