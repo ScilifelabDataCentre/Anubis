@@ -648,6 +648,7 @@ def set_cache(call):
     call['cache'] = cache = dict(allow_edit=False,
                                  allow_delete=False,
                                  allow_proposal=False,
+                                 allow_view_reviewers=False,
                                  allow_view_reviews=False,
                                  is_reviewer=False,
                                  is_chair=False)
@@ -659,6 +660,7 @@ def set_cache(call):
                                                 call['identifier']) == 0
         cache['all_proposals_count'] = utils.get_count('proposals', 'call',
                                                        call['identifier'])
+        cache['allow_view_reviewers'] = True
         cache['allow_view_reviews'] = True
         cache['all_reviews_count'] = utils.get_count('reviews', 'call',
                                                      call['identifier'])
@@ -675,6 +677,8 @@ def set_cache(call):
             cache['my_reviews_count'] = utils.get_count(
                 'reviews', 'call_reviewer',
                 [call['identifier'], flask.g.current_user['username']])
+            cache['allow_view_reviewers'] = cache['is_chair'] or \
+                                            call['access'].get('allow_reviewer_view_reviewers')
             cache['allow_view_reviews'] = cache['is_chair'] or \
                                           call['access'].get('allow_reviewer_view_reviews')
             if cache['allow_view_reviews']:

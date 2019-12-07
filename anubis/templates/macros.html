@@ -1,12 +1,13 @@
 {# Macros #}
 
-{% macro user_link(user, chair=False) -%}
+{% macro user_link(user, fullname=True, label=True, chair=False) -%}
 <a href="{{ url_for('user.display', username=user['username']) }}"
-   role="button" class="btn btn-sm btn-outline-secondary px-3">
-  {% if user.get('familyname') %}
-  {{ user.get('givenname') or '' }} {{ user['familyname'] }}
+   class="font-weight-bold text-secondary">
+  {% if fullname and user.get('familyname') %}
+  {{ user.get('givenname')|default('', True) }} {{ user['familyname'] }}
   {% else %}
-  User {{ user['username'] }}
+  {% if label %}User{% endif %}
+  {{ user['username'] }}
   {% endif %}
   {% if chair %}
   (chair)
@@ -28,7 +29,7 @@
 {% macro proposal_link(proposal, title=True) -%}
 <a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}"
    title="{{ proposal['title'] }}"
-   role="button" class="btn btn-sm btn-outline-primary font-weight-bold">
+   class="font-weight-bold">
   {{ proposal['identifier'] }}
   {% if title %}
   {{ proposal['title'] }}
@@ -38,7 +39,7 @@
 
 {% macro review_link(review) -%}
 <a href="{{ url_for('review.display', iuid=review['_id']) }}"
-   class="btn btn-sm btn-outline-info px-3">
+   class="font-weight-bold text-info">
   Review
   {% if not review.get('finalized') %}
   <span class="badge badge-warning">Not finalized</span>

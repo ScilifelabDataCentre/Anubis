@@ -2,7 +2,12 @@
 
 {% block head_title %}User {{ user['username'] }}{% endblock %}
 
-{% block body_title %}User {{ user['username'] }}{% endblock %}
+{% block body_title %}
+User {{ user['username'] }}
+{% if user.get('familyname') %}
+({{ user.get('givenname')|default('', True) }}  {{ user['familyname'] }})
+{% endif %}
+{% endblock %}
 
 {% block main %}
 <table class="table table-sm table-borderless">
@@ -31,8 +36,7 @@
     <td>
       {% if reviewer_calls %}
       {% for call in reviewer_calls %}
-      {{ macros.call_link(call, title=True) }}
-      <br>
+      <p class="mb-2">{{ macros.call_link(call, title=True) }}</p>
       {% endfor %}
       {% else %}
       -

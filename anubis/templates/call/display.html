@@ -53,7 +53,7 @@
 </div>
 {% endif %} {# if call['cache']['is_reviewer'] or g.is_admin #}
 
-{% if call['cache']['is_reviewer'] or g.is_admin %}
+{% if call['cache']['allow_view_reviewers'] %}
 <div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">Reviewers</div>
   <div class="col-md">
@@ -68,7 +68,7 @@
     {% endif %}
   </div>
 </div>
-{% endif %} {# if call['cache']['is_reviewer'] or g.is_admin #}
+{% endif %} {# if call['cache']['allow_view_reviewers'] #}
 
 {% if call['cache']['is_reviewer'] %}
 <div class="row mt-2">
@@ -171,7 +171,7 @@
       <tr>
         <td>{{ flag|capitalize|replace('_',' ') }}</td>
         <td>
-          {{ call.get('access', {}).get(flag) and '&#x2714;'|safe or '-' }}
+          {{ call.get('access', {}).get(flag) and '&#x2714;'|safe or '&#10006;'|safe }}
         </td>
       </tr>
       {% endfor %}

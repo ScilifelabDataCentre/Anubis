@@ -24,7 +24,6 @@ Reviews of proposal {{ proposal['identifier'] }}
     <tr>
       <th>Reviewer</th>
       <th>Review</th>
-      <th>Create review</th>
       {% for scorefield in scorefields %}
       <th>{{ scorefield['title'] }}</th>
       {% endfor %}
@@ -37,14 +36,12 @@ Reviews of proposal {{ proposal['identifier'] }}
       <td>{{ macros.user_link(get_user(reviewer)) }}</td>
       {% if review %}
       <td>{{ macros.review_link(review) }}</td>
-      <td></td>
       {% for scorefield in scorefields %}
       <td>
 	{{ review['values'].get(scorefield['identifier']) | default('-',True) }}
       </td>
       {% endfor %}
       {% else %}
-      <td>-</td>
       <td>
 	<form action="{{ url_for('review.create', pid=proposal['identifier'], username=reviewer) }}"
 	      method="POST">

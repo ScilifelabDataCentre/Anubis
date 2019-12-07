@@ -47,7 +47,7 @@ class Constants:
 
     # Access flags
     ACCESS = (#'allow_reviewer_view_submitter',
-              #'allow_reviewer_view_reviewers',
+              'allow_reviewer_view_reviewers',
               'allow_reviewer_view_reviews',
               #'allow_public_view_proposal',
               #'allow_public_view_submitter',

@@ -35,7 +35,8 @@ def call(cid):
                                         key=call['identifier'],
                                         reduce=False,
                                         include_docs=True)]
-    reviews_lookup = {f"r['proposal'] r['reviewer']":r for r in reviews}
+    reviews_lookup = {f"{r['proposal']} {r['reviewer']}":r for r in reviews}
+    print(reviews_lookup.keys())
     scorefields = [f for f in call['review'] if f['type'] == constants.SCORE]
     return flask.render_template('reviews/call.html',
                                  call=call,
