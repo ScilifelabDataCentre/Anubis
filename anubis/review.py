@@ -206,13 +206,14 @@ class ReviewSaver(FieldMixin, BaseSaver):
     def __init__(self, doc=None, proposal=None):
         if doc:
             super().__init__(doc=doc)
+            self.set_reviewer(flask.g.current_user)
         elif proposal:
             super().__init__(doc=None)
             self.doc['call'] = proposal['cache']['call']['identifier']
             self.doc['proposal'] = proposal['identifier']
+            self.set_reviewer(flask.g.current_user)
         else:
             raise ValueError('doc or proposal must be specified')
-        self.set_reviewer(flask.g.current_user)
 
     def initialize(self):
         self.doc['values'] = {}
@@ -272,9 +273,11 @@ def set_cache(review, call=None):
         cache['allow_edit'] = not review.get('finalized')
         cache['is_unfinalizable'] = True
     elif flask.g.current_user:
-        cache['allow_read'] = flask.g.current_user['username'] == review['reviewer']
-        cache['allow_edit'] = not review.get('finalized') and \
-                              flask.g.current_user['username'] == review['reviewer']
-        cache['is_unfinalizable'] = review.get('finalized') and \
-                                    flask.g.current_user['username'] == review['reviewer']
+        if flask.g.current_user['username'] == review['reviewer']:
+            cache['allow_read'] = True
+            cache['allow_edit'] = not review.get('finalized')
+                              
+            cache['is_unfinalizable'] = review.get('finalized')
+        else:
+            cache['allow_read'] = call['cache']['allow_view_reviews']
     return review
