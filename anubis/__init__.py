@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '0.5.22'
+__version__ = '0.5.23'
 
 class Constants:
     VERSION     = __version__
@@ -46,13 +46,9 @@ class Constants:
     FIELD_TYPES = (LINE, BOOLEAN, INTEGER, FLOAT, SCORE, TEXT, DOCUMENT)
 
     # Access flags
-    ACCESS = (# not implemented 'allow_reviewer_view_submitter',
-              'allow_reviewer_view_reviewers',
-              'allow_reviewer_view_reviews',
+    ACCESS = ('allow_reviewer_view_reviews',
               # not implemented 'allow_public_view_proposal',
-              # not implemented 'allow_public_view_submitter',
               # not implemented 'allow_public_view_reviews',
-              # not implemented 'allow_public_view_reviewers',
               # not implemented 'allow_submitter_view_all_decisions',
               # not implemented 'allow_public_view_all_decisions',
     )

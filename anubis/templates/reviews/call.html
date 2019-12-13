@@ -16,9 +16,7 @@ Reviews of proposals in call {{ call['identifier'] }}
       {# XXX Check access to view user #}
       <th>Submitter</th>
       <th>Proposal</th>
-      {% if call['cache']['allow_view_reviewers'] %}
       <th>Reviewer</th>
-      {% endif %}
       <th>Review</th>
       {% for scorefield in scorefields %}
       <th>{{ scorefield['title'] }}</th>
@@ -31,9 +29,7 @@ Reviews of proposals in call {{ call['identifier'] }}
     <tr>
       <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
       <td>{{ macros.proposal_link(proposal, title=True) }}</td>
-      {% if call['cache']['allow_view_reviewers'] %}
       <td>{{ macros.user_link(get_user(reviewer)) }}</td>
-      {% endif %}
       {% set review = reviews_lookup.get("{} {}".format(proposal['identifier'], reviewer)) %}
       {% if review %}
       <td>{{ macros.review_link(review) }}</td>

@@ -120,8 +120,8 @@ def finalize(iuid):
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
-    if not review['cache']['allow_edit']:
-        utils.flash_error('You are not allowed to edit this review.')
+    if not review['cache']['is_finalizable']:
+        utils.flash_error('You are not allowed to finalize this review.')
         return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
     if utils.http_POST():
@@ -142,7 +142,7 @@ def unfinalize(iuid):
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
     if not review['cache']['is_unfinalizable']:
-        utils.flash_error('You are not allowed to edit this review.')
+        utils.flash_error('You are not allowed to unfinalize this review.')
         return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
     if utils.http_POST():
@@ -262,6 +262,7 @@ def set_cache(review, call=None):
     from anubis.proposal import get_proposal
     review['cache'] = cache = dict(allow_read=False,
                                    allow_edit=False,
+                                   is_finalizable=False,
                                    is_unfinalizable=False)
     if call is None:
         cache['call'] = call = get_call(review['call'])
@@ -271,13 +272,18 @@ def set_cache(review, call=None):
     if flask.g.is_admin:
         cache['allow_read'] = True
         cache['allow_edit'] = not review.get('finalized')
-        cache['is_unfinalizable'] = True
+        cache['is_finalizable'] = not review.get('errors') and \
+                                  not review.get('finalized')
+        cache['is_unfinalizable'] = bool(review.get('finalized'))
     elif flask.g.current_user:
         if flask.g.current_user['username'] == review['reviewer']:
             cache['allow_read'] = True
             cache['allow_edit'] = not review.get('finalized')
                               
-            cache['is_unfinalizable'] = review.get('finalized')
+            cache['is_finalizable'] = not review.get('errors') and \
+                                      not review.get('finalized')
+            cache['is_unfinalizable'] = bool(review.get('finalized'))
         else:
-            cache['allow_read'] = call['cache']['allow_view_reviews']
+            cache['allow_read'] = review.get('finalized') and \
+                                  call['cache']['allow_view_reviews']
     return review
