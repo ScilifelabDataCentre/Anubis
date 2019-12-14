@@ -45,26 +45,23 @@
           {% if g.current_user %}
 	  {% if g.my_proposals_count %}
           <li class="nav-item">
-	    {% if g.my_unsubmitted_poposals_count %}
             <a href="{{ url_for('proposals.user', username=g.current_user['username']) }}"
-	       title="You have unsubmitted proposals!"
-	       class="nav-link bg-warning active">My proposals</a>
-	    {% else %}
-            <a href="{{ url_for('proposals.user', username=g.current_user['username']) }}"
-	       class="nav-link">My proposals</a>
-	    {% endif %}
+	       class="nav-link">My proposals
+	      {% if g.my_unsubmitted_poposals_count %}
+	      <span class="font-weight-bold px-2 py-1 bg-warning active"
+		    title="You have unsubmitted proposals!">!</span>
+	      {% endif %}
+	    </a>
           </li>
 	  {% endif %}
 	  {% if g.my_reviews_count %}
           <li class="nav-item">
-	    {% if g.my_unfinalized_reviews_count %}
             <a href="{{ url_for('reviews.reviewer', username=g.current_user['username']) }}"
-	       title="You have unfinalized reviews!"
-	       class="nav-link active bg-warning">My reviews</a>
-	    {% else %}
-            <a href="{{ url_for('reviews.reviewer', username=g.current_user['username']) }}"
-	       class="nav-link">My reviews</a>
-	    {% endif %}
+	       class="nav-link">My reviews
+	      {% if g.my_unfinalized_reviews_count %}
+	      <span class="font-weight-bold px-2 py-1 bg-warning active"
+		    title="You have unfinalized reviews!">!</span>
+	      {% endif %}
 	    </a>
           </li>
 	  {% endif %}
@@ -163,7 +160,7 @@
         </div>
         <div class="col-md-2 d-print-none">
           <div>
-            {% block links %}
+            {% block notices %}
             {% endblock %}
           </div>
           <div>

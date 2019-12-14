@@ -245,7 +245,7 @@ def set_cache(proposal, call=None):
     if call is None:
         cache['call'] = anubis.call.get_call(proposal['call'], cache=True)
     else:
-        cache['call'] = anubis.call.set_cache(call)
+        cache['call'] = call
     if flask.g.is_admin:
         cache['allow_read'] = True
         cache['allow_edit'] = True

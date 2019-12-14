@@ -61,9 +61,9 @@ def user_call(username, cid):
                                  user=user,
                                  proposals=proposals)
 
-def get_user_proposals(username):
+def get_user_proposals(username, call=None):
     "Get all proposals created by the user. Cache not set."
-    return [anubis.proposal.set_cache(r.doc)
+    return [anubis.proposal.set_cache(r.doc, call=call)
             for r in flask.g.db.view('proposals', 'user',
                                      key=username,
                                      reduce=False,
@@ -73,7 +73,7 @@ def get_call_user_proposal(call, username):
     """Get the proposal created by the user in the call. Cache not set.
     Excludes no proposals.
     """
-    proposals = [p for p in get_user_proposals(username)
+    proposals = [p for p in get_user_proposals(username, call=call)
                  if p['call'] == call['identifier']]
     if proposals:
         return proposals[0]

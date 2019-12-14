@@ -25,11 +25,11 @@
 </div>
 
 {% if g.current_user %}
-{% if call['cache']['proposal'] %}
+{% if call['cache']['my_proposal'] %}
 <div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">My proposal</div>
   <div class="col-md">
-    {{ macros.proposal_link(call['cache']['proposal']) }}
+    {{ macros.proposal_link(call['cache']['my_proposal']) }}
   </div>
 </div>
 {% elif call['cache']['is_open'] and call['cache']['allow_proposal'] %}
@@ -43,7 +43,7 @@
     </form>
   </div>
 </div>
-{% endif %} {# if call['cache']['proposal'] #}
+{% endif %} {# if call['cache']['my_proposal'] #}
 {% endif %} {# if g.current_user #}
 
 {% if call['cache']['is_reviewer'] or g.is_admin %}
@@ -102,7 +102,7 @@
   <div class="col-md-2 font-weight-bold text-right">Access</div>
   <div class="col-md-5">
     <div class="card mt-2">
-      <div class="card-header">
+      <div class="card-body">
         <table class="table table-sm table-borderless">
           {% for flag in constants.ACCESS %}
           <tr>

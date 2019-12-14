@@ -655,19 +655,23 @@ def set_cache(call):
     # Admin access
     if flask.g.is_admin:
         cache['allow_edit'] = True
-        cache['allow_delete'] = utils.get_count('proposals', 'call',
-                                                call['identifier']) == 0
+        if utils.get_count('proposals', 'call', call['identifier']) == 0:
+            cache['allow_delete'] = True
         cache['all_proposals_count'] = utils.get_count('proposals', 'call',
                                                        call['identifier'])
         cache['allow_view_reviews'] = True
         cache['all_reviews_count'] = utils.get_count('reviews', 'call',
                                                      call['identifier'])
+        cache['my_proposal'] = get_call_user_proposal(
+            call, flask.g.current_user['username'])
         cache['allow_proposal'] = True
 
     # User/reviewer access
     elif flask.g.current_user:
         cache['is_reviewer'] = flask.g.current_user['username'] in call['reviewers']
         cache['allow_proposal'] = not cache['is_reviewer']
+        cache['my_proposal'] = get_call_user_proposal(
+            call, flask.g.current_user['username'])
         cache['all_proposals_count'] = utils.get_count('proposals', 'call',
                                                        call['identifier'])
         # Reviewer access
