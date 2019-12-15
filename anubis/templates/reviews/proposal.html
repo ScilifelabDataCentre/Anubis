@@ -10,6 +10,11 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
 {% endblock %}
 
 {% block supermain %}
+{% if only_finalized %}
+<p class="lead">
+  NOTE: Only finalized reviews are listed.
+</p>
+{% endif %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
   <div class="col-md">

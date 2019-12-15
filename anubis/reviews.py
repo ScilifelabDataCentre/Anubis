@@ -42,6 +42,7 @@ def call(cid):
                    r.get('finalized')]
     else:
         only_finalized = False
+    allow_create = anubis.review.allow_create(proposal)
     reviews_lookup = {f"{r['proposal']} {r['reviewer']}":r for r in reviews}
     scorefields = [f for f in call['review'] if f['type'] == constants.SCORE]
     return flask.render_template('reviews/call.html',
@@ -49,7 +50,7 @@ def call(cid):
                                  proposals=proposals,
                                  reviews_lookup=reviews_lookup,
                                  only_finalized=only_finalized,
-                                 allow_create=anubis.review.allow_create(call),
+                                 allow_create=allow_create,
                                  scorefields=scorefields)
 
 @blueprint.route('/call/<cid>/reviewer/<username>')
@@ -115,16 +116,21 @@ def proposal(pid):
                                         reduce=False,
                                         include_docs=True)]
     if not (flask.g.am_admin or anubis.call.is_chair(call)):
+        only_finalized = True
         reviews = [r for r in reviews
                    if r['reviewer'] != flask.g.current_user['username'] and 
                    r.get('finalized')]
+    else:
+        only_finalized = False
+    allow_create = anubis.review.allow_create(proposal)
     reviews_lookup = {r['reviewer']:r for r in reviews}
     scorefields = [f for f in call['review'] if f['type'] == constants.SCORE]
     return flask.render_template('reviews/proposal.html',
                                  proposal=proposal,
-                                 allow_create=anubis.review.allow_create(call),
+                                 allow_create=allow_create,
                                  reviewers=call['reviewers'],
                                  reviews_lookup=reviews_lookup,
+                                 only_finalized=only_finalized,
                                  scorefields=scorefields)
 
 @blueprint.route('/reviewer/<username>')

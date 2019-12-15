@@ -49,7 +49,7 @@ def create(pid, username):
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
     try:
-        if not allow_create(proposal['cache']['call']):
+        if not allow_create(proposal):
             utils.flash_error('You may not create a review for the proposal.')
             raise ValueError
         user = anubis.user.get_user(username=username)
@@ -264,11 +264,12 @@ def get_my_review(proposal, reviewer):
     except IndexError:
         return None
 
-def allow_create(call):
-    "Admin and chair may create a review in the call."
+def allow_create(proposal):
+    "Admin and chair may create a review for a submitted proposal."
+    if not proposal.get('submitted'): return False
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
-    return anubis.call.is_chair(call)
+    return anubis.call.is_chair(proposal['cache']['call'])
 
 def allow_view(review):
     """Admin may view all reviews.
