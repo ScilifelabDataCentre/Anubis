@@ -43,17 +43,21 @@ Reviews of proposal {{ proposal['identifier'] }}
       {% endfor %}
       {% else %}
       <td>
+	{% if allow_create %}
 	<form action="{{ url_for('review.create', pid=proposal['identifier'], username=reviewer) }}"
 	      method="POST">
 	  {{ csrf_token() }}
 	  <button type="submit" class="btn btn-sm btn-info">
             Create review</button>
 	</form>
+	{% else %}
+	-
+	{% endif %} {# if allow_create #}
       </td>
       {% for scorefield in scorefields %}
       <td>-</td>
       {% endfor %}
-      {% endif %}
+      {% endif %} {# if review #}
     </tr>
     {% endfor %}
   </tbody>

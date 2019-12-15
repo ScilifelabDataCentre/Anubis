@@ -36,12 +36,12 @@ def call(cid):
                                         reduce=False,
                                         include_docs=True)]
     reviews_lookup = {f"{r['proposal']} {r['reviewer']}":r for r in reviews}
-    print(reviews_lookup.keys())
     scorefields = [f for f in call['review'] if f['type'] == constants.SCORE]
     return flask.render_template('reviews/call.html',
                                  call=call,
                                  proposals=proposals,
                                  reviews_lookup=reviews_lookup,
+                                 allow_create=anubis.review.allow_create(call),
                                  scorefields=scorefields)
 
 @blueprint.route('/call/<cid>/reviewer/<username>')
@@ -106,11 +106,15 @@ def proposal(pid):
                                         key=proposal['identifier'],
                                         reduce=False,
                                         include_docs=True)]
-    # XXX remove unfinalized if not admin or chair
+    if not (flask.g.am_admin or anubis.call.is_chair(call)):
+        reviews = [r for r in reviews
+                   if r['reviewer'] != flask.g.current_user['username'] and 
+                   r.get('finalized')]
     reviews_lookup = {r['reviewer']:r for r in reviews}
     scorefields = [f for f in call['review'] if f['type'] == constants.SCORE]
     return flask.render_template('reviews/proposal.html',
                                  proposal=proposal,
+                                 allow_create=anubis.review.allow_create(call),
                                  reviewers=call['reviewers'],
                                  reviews_lookup=reviews_lookup,
                                  scorefields=scorefields)

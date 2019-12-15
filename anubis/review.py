@@ -48,14 +48,17 @@ def create(pid, username):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
-    user = anubis.user.get_user(username=username)
-    if user is None:
-        utils.flash_error('No such user.')
-    elif not allow_create(proposal['cache']['call']):
-        utils.flash_error('You may not create a review for the proposal.')
-    elif user['username'] not in proposal['cache']['call']['reviewers']:
-        utils.flash_error('User is not a reviewer in the call.')
-    else:
+    try:
+        if not allow_create(proposal['cache']['call']):
+            utils.flash_error('You may not create a review for the proposal.')
+            raise ValueError
+        user = anubis.user.get_user(username=username)
+        if user is None:
+            utils.flash_error('No such user.')
+            raise ValueError
+        if user['username'] not in proposal['cache']['call']['reviewers']:
+            utils.flash_error('User is not a reviewer in the call.')
+            raise ValueError
         review = get_my_review(proposal, user)
         if review is not None:
             utils.flash_message('The review already exists.')
@@ -63,6 +66,8 @@ def create(pid, username):
                 flask.url_for('review.display', iuid=review['iuid']))
         with ReviewSaver(proposal=proposal) as saver:
             saver.set_reviewer(user)
+    except ValueError:
+        pass
     return flask.redirect(
         flask.url_for('reviews.proposal', pid=proposal['identifier']))
 
