@@ -119,6 +119,8 @@ Review of proposal {{ review['cache']['proposal']['identifier'] }}
   <a href="{{ url_for('.edit', iuid=review['_id']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
+{% endif %} {# if allow_edit #}
+{% if allow_delete %}
 <div class="mt-2">
   <form action="{{ url_for('.edit', iuid=review['_id']) }}"
 	method="POST">
@@ -129,7 +131,7 @@ Review of proposal {{ review['cache']['proposal']['identifier'] }}
       Delete</button>
   </form>
 </div>
-{% endif %} {# if allow_edit #}
+{% endif %} {# if allow_delete #}
 {% endblock %} {# block actions #}
 
 {% block info %}

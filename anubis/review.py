@@ -82,6 +82,7 @@ def display(iuid):
     return flask.render_template('review/display.html',
                                  review=review,
                                  allow_edit=allow_edit(review),
+                                 allow_delete=allow_delete(review),
                                  allow_finalize=allow_finalize(review),
                                  allow_unfinalize=allow_unfinalize(review))
 
@@ -94,14 +95,17 @@ def edit(iuid):
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
-    if not allow_edit(review):
-        utils.flash_error('You are not allowed to edit this review.')
-        return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
     if utils.http_GET():
+        if not allow_edit(review):
+            utils.flash_error('You are not allowed to edit this review.')
+            return flask.redirect(flask.url_for('.display', iuid=review['_id']))
         return flask.render_template('review/edit.html', review=review)
 
     elif utils.http_POST():
+        if not allow_edit(review):
+            utils.flash_error('You are not allowed to edit this review.')
+            return flask.redirect(flask.url_for('.display', iuid=review['_id']))
         try:
             with ReviewSaver(doc=review) as saver:
                 for field in review['cache']['call']['review']:
@@ -112,6 +116,9 @@ def edit(iuid):
         return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
     elif utils.http_DELETE():
+        if not allow_delete(review):
+            utils.flash_error('You are not allowed to delete this review.')
+            return flask.redirect(flask.url_for('.display', iuid=review['_id']))
         utils.delete(review)
         utils.flash_message('Deleted review.')
         return flask.redirect(
@@ -147,7 +154,7 @@ def unfinalize(iuid):
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
-    if not review['cache']['allow_unfinalize']:
+    if not allow_unfinalize(review):
         utils.flash_error('You are not allowed to unfinalize this review.')
         return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
@@ -266,13 +273,15 @@ def allow_view(review):
     return False
 
 def allow_edit(review):
-    """Admin and reviewer may edit an unfinalized review.
-    This also determines the delete privilege.
-    """
+    "Admin and reviewer may edit an unfinalized review."
     if review.get('finalized'): return False
     if not flask.g.current_user: return False
     return (flask.g.is_admin or
             flask.g.current_user['username'] == review['reviewer'])
+
+def allow_delete(review):
+    "Admin may delete a review."
+    return flask.g.is_admin
 
 def allow_finalize(review):
     "Admin and reviewer may finalize if the review contains no errors."

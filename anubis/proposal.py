@@ -51,6 +51,7 @@ def display(pid):
     return flask.render_template('proposal/display.html',
                                  proposal=proposal,
                                  allow_edit=allow_edit(proposal),
+                                 allow_delete=allow_delete(proposal),
                                  allow_submit=allow_submit(proposal),
                                  my_review=my_review)
 
@@ -62,15 +63,19 @@ def edit(pid):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
-    if not allow_edit(proposal):
-        utils.flash_error('You are not allowed to edit this proposal.')
-        return flask.redirect(
-            flask.url_for('.display', pid=proposal['identifier']))
 
     if utils.http_GET():
+        if not allow_edit(proposal):
+            utils.flash_error('You are not allowed to edit this proposal.')
+            return flask.redirect(
+                flask.url_for('.display', pid=proposal['identifier']))
         return flask.render_template('proposal/edit.html', proposal=proposal)
 
     elif utils.http_POST():
+        if not allow_edit(proposal):
+            utils.flash_error('You are not allowed to edit this proposal.')
+            return flask.redirect(
+                flask.url_for('.display', pid=proposal['identifier']))
         try:
             with ProposalSaver(proposal) as saver:
                 saver['title'] = flask.request.form.get('_title') or None
@@ -84,6 +89,10 @@ def edit(pid):
             flask.url_for('.display', pid=proposal['identifier']))
 
     elif utils.http_DELETE():
+        if not allow_delete(proposal):
+            utils.flash_error('You are not allowed to delete this proposal.')
+            return flask.redirect(
+                flask.url_for('.display', pid=proposal['identifier']))
         utils.delete(proposal)
         utils.flash_message(f"Deleted proposal {pid}.")
         return flask.redirect(flask.url_for('home'))
@@ -245,9 +254,14 @@ def allow_view(proposal):
     return flask.g.current_user['username'] == proposal['user']
 
 def allow_edit(proposal):
-    """Admin may edit the proposal. The user may edit if not submitted.
-    This also determines the delete privilege.
-    """
+    "Admin may edit the proposal. The user may edit if not submitted."
+    if not flask.g.current_user: return False
+    if flask.g.is_admin: return True
+    if proposal.get('submitted'): return False
+    return flask.g.current_user['username'] == proposal['user']
+
+def allow_delete(proposal):
+    "Admin may delete the proposal. The user may delete if not submitted."
     if not flask.g.current_user: return False
     if flask.g.is_admin: return True
     if proposal.get('submitted'): return False
