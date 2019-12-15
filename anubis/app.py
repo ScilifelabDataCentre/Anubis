@@ -48,7 +48,7 @@ def prepare():
     "Open the database connection; get the current user."
     flask.g.db = utils.get_db()
     flask.g.current_user = anubis.user.get_current_user()
-    flask.g.is_admin = anubis.user.is_admin()
+    flask.g.am_admin = anubis.user.am_admin()
     if flask.g.current_user:
         username = flask.g.current_user['username']
         flask.g.my_proposals_count = utils.get_count(

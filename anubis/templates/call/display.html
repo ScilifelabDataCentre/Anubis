@@ -9,12 +9,12 @@
 
 {% block main %}
 
-{% if g.is_admin %}
+{% if g.am_admin %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Opens</div>
   <div class="col-md">{{ call['opens'] or '-' }}</div>
 </div>
-{% endif %} {# if g.is_admin #}
+{% endif %} {# if g.am_admin #}
 
 <div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
@@ -42,12 +42,12 @@
 </div>
 {% endif %} {# if my_proposal #}
 
-{% if g.is_admin or is_reviewer %}
+{% if g.am_admin or is_reviewer %}
 <div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">All proposals</div>
   <div class="col-md">{{ macros.proposals_link(call) }}</div>
 </div>
-{% endif %} {# if g.is_admin or is_reviewer #}
+{% endif %} {# if g.am_admin or is_reviewer #}
 
 <div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">Reviewers</div>
@@ -93,7 +93,7 @@
   </div>
 </div>
 
-{% if g.is_admin or is_reviewer %}
+{% if g.am_admin or is_reviewer %}
 <div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">Access</div>
   <div class="col-md-5">
@@ -113,7 +113,7 @@
     </div>
   </div>
 </div>
-{% endif %} {# if g.is_admin or is_reviewer #}
+{% endif %} {# if g.am_admin or is_reviewer #}
 
 <div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">Documents</div>
@@ -159,7 +159,7 @@
   </div>
 </div>
 
-{% if g.is_admin %}
+{% if g.am_admin %}
 <div class="row mt-2">
   <div class="col-md-2 font-weight-bold text-right">Review inputs</div>
   <div class="col-md">
@@ -176,7 +176,7 @@
     {% endif %}
   </div>
 </div>
-{% endif %} {# if g.is_admin #}
+{% endif %} {# if g.am_admin #}
 
 {% endblock %} {# block main #}
 
@@ -203,7 +203,7 @@
      role="button" class="btn btn-primary btn-block">Edit review fields</a>
 </div>
 {% endif %} {# if allow_edit #}
-{% if g.is_admin %}
+{% if g.am_admin %}
 <div class="mt-2">
   <a href="{{ url_for('.reviewers', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit reviewers</a>
@@ -212,7 +212,7 @@
   <a href="{{ url_for('.clone', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Clone</a>
 </div>
-{% endif %} {# if g.is_admin #}
+{% endif %} {# if g.am_admin #}
 {% if allow_delete %}
 <div class="mt-2">
   <form action="{{ url_for('.edit', cid=call['identifier']) }}"
@@ -228,7 +228,7 @@
 {% endblock %} {# block actions #}
 
 {% block info %}
-{% if g.is_admin %}
+{% if g.am_admin %}
 <div class="small">
   Modified <span class="localtime">{{ call['modified'] }}</span>
   <span class="ml-4">
@@ -238,5 +238,5 @@
     <a href="{{ url_for('.logs', cid=call['identifier']) }}">Logs</a>
   </span>
 </div>
-{% endif %} {# if g.is_admin #}
+{% endif %} {# if g.am_admin #}
 {% endblock %} {# block info #}

@@ -47,13 +47,20 @@ def display(pid):
         return flask.redirect(
             flask.url_for('call.display',
                           cid=proposal['cache']['call']['identifier']))
+    is_user = flask.g.current_user and \
+              flask.g.current_user['username'] == proposal['user']
+    is_reviewer = anubis.call.is_reviewer(proposal['cache']['call'])
     my_review = get_my_review(proposal, flask.g.current_user)
+    allow_view_reviews = anubis.call.allow_view_reviews(proposal['cache']['call'])
     return flask.render_template('proposal/display.html',
                                  proposal=proposal,
                                  allow_edit=allow_edit(proposal),
                                  allow_delete=allow_delete(proposal),
                                  allow_submit=allow_submit(proposal),
-                                 my_review=my_review)
+                                 is_user=is_user,
+                                 is_reviewer=is_reviewer,
+                                 my_review=my_review,
+                                 allow_view_reviews=allow_view_reviews)
 
 @blueprint.route('/<pid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.login_required
@@ -249,21 +256,22 @@ def get_proposal(pid, cache=True):
 def allow_view(proposal):
     "Admin, the user of the proposal, and the reviewers may view it."
     if not flask.g.current_user: return False
-    if flask.g.is_admin: return True
-    if anubis.call.is_reviewer(proposal['cache']['call']): return True
+    if flask.g.am_admin: return True
+    if anubis.call.is_reviewer(proposal['cache']['call']):
+        return bool(proposal.get('submitted'))
     return flask.g.current_user['username'] == proposal['user']
 
 def allow_edit(proposal):
     "Admin may edit the proposal. The user may edit if not submitted."
     if not flask.g.current_user: return False
-    if flask.g.is_admin: return True
+    if flask.g.am_admin: return True
     if proposal.get('submitted'): return False
     return flask.g.current_user['username'] == proposal['user']
 
 def allow_delete(proposal):
     "Admin may delete the proposal. The user may delete if not submitted."
     if not flask.g.current_user: return False
-    if flask.g.is_admin: return True
+    if flask.g.am_admin: return True
     if proposal.get('submitted'): return False
     return flask.g.current_user['username'] == proposal['user']
 
@@ -272,11 +280,11 @@ def allow_submit(proposal):
     The user may submit the proposal if the call is open.
     """
     if not flask.g.current_user: return False
-    if flask.g.is_admin: return True
+    if flask.g.am_admin: return True
     if proposal.get('submitted'): return False
     if proposal['errors']: return False
     return (flask.g.current_user['username'] == proposal['user']
-            and proposal['cache']['call']['is_open'])
+            and proposal['cache']['call']['cache']['is_open'])
     
 def set_cache(proposal, call=None):
     """Set the cached, non-saved fields of the review.
@@ -287,4 +295,7 @@ def set_cache(proposal, call=None):
         cache['call'] = anubis.call.get_call(proposal['call'], cache=True)
     else:
         cache['call'] = call
+    if anubis.call.allow_view_reviews(cache['call']):
+        cache['all_reviews_count'] = utils.get_count('reviews', 'proposal',
+                                                     proposal['identifier'])
     return proposal

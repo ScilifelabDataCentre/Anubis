@@ -169,7 +169,7 @@ def display(username):
     if user is None:
         utils.flash_error('No such user.')
         return flask.redirect(flask.url_for('home'))
-    if not is_admin_or_self(user):
+    if not am_admin_or_self(user):
         utils.flash_error('Access not allowed.')
         return flask.redirect(flask.url_for('home'))
     user = set_cache(user)
@@ -179,7 +179,7 @@ def display(username):
     return flask.render_template('user/display.html',
                                  user=user,
                                  reviewer_calls=reviewer_calls,
-                                 enable_disable=is_admin_and_not_self(user),
+                                 enable_disable=am_admin_and_not_self(user),
                                  deletable=is_deletable(user))
 
 @blueprint.route('/display/<username>/edit',
@@ -191,18 +191,18 @@ def edit(username):
     if user is None:
         utils.flash_error('No such user.')
         return flask.redirect(flask.url_for('home'))
-    if not is_admin_or_self(user):
+    if not am_admin_or_self(user):
         utils.flash_error('Access not allowed.')
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_GET():
         return flask.render_template('user/edit.html',
                                      user=user,
-                                     change_role=is_admin_and_not_self(user))
+                                     change_role=am_admin_and_not_self(user))
 
     elif utils.http_POST():
         with UserSaver(user) as saver:
-            if flask.g.is_admin:
+            if flask.g.am_admin:
                 email = flask.request.form.get('email')
                 if email != user['email']:
                     saver.set_email(email)
@@ -220,7 +220,7 @@ def edit(username):
                 saver['postaladdress'] = flask.request.form.get('postaladdress') or None
             if flask.current_app.config['USER_PHONE']:
                 saver['phone'] = flask.request.form.get('phone') or None
-            if is_admin_and_not_self(user):
+            if am_admin_and_not_self(user):
                 saver.set_role(flask.request.form.get('role'))
         return flask.redirect(
             flask.url_for('.display', username=user['username']))
@@ -231,7 +231,7 @@ def edit(username):
             return flask.redirect(flask.url_for('.display', username=username))
         flask.g.db.delete(user)
         utils.flash_message(f"Deleted user {username}.")
-        if flask.g.is_admin:
+        if flask.g.am_admin:
             return flask.redirect(flask.url_for('.users'))
         else:
             return flask.redirect(flask.url_for('home'))
@@ -244,7 +244,7 @@ def logs(username):
     if user is None:
         utils.flash_error('No such user.')
         return flask.redirect(flask.url_for('home'))
-    if not is_admin_or_self(user):
+    if not am_admin_or_self(user):
         utils.flash_error('Access not allowed.')
         return flask.redirect(flask.url_for('home'))
     return flask.render_template(
@@ -440,7 +440,7 @@ def send_password_code(user, action):
     message.body = f"To set your password, go to {url}"
     utils.mail.send(message)
 
-def is_admin(user=None):
+def am_admin(user=None):
     "Is the user admin? Default user: current_user."
     if user is None:
         user = flask.g.current_user
@@ -456,15 +456,15 @@ def is_deletable(user):
     if utils.get_count('reviews', 'reviewer', user['username']): return False
     return True
 
-def is_admin_or_self(user):
+def am_admin_or_self(user):
     "Is the current user admin, or the same as the given user?"
     if not flask.g.current_user: return False
-    if flask.g.is_admin: return True
+    if flask.g.am_admin: return True
     return flask.g.current_user['username'] == user['username']
 
-def is_admin_and_not_self(user):
+def am_admin_and_not_self(user):
     "Is the current user admin, but not the same as the given user?"
-    if flask.g.is_admin:
+    if flask.g.am_admin:
         return flask.g.current_user['username'] != user['username']
     return False
 

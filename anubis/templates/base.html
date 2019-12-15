@@ -75,13 +75,13 @@
                  href="{{ url_for('calls.open') }}">Open calls</a>
               <a class="dropdown-item"
                  href="{{ url_for('calls.closed') }}">Closed calls</a>
-              {% if g.is_admin %}
+              {% if g.am_admin %}
               <a class="dropdown-item"
                  href="{{ url_for('calls.all') }}">All calls</a>
-              {% endif %} {# if g.is_admin #}
+              {% endif %} {# if g.am_admin #}
             </div>
           </li>
-          {% if g.is_admin %}
+          {% if g.am_admin %}
           <li class="nav-item dropdown">
             <a href="#" id="navbarAdmin" class="nav-link dropdown-toggle pr-4"
                role="button" data-toggle="dropdown"
@@ -93,7 +93,7 @@
                  href="{{ url_for('about.settings') }}">Settings</a>
             </div>
           </li>
-          {% endif %} {# if g.is_admin #}
+          {% endif %} {# if g.am_admin #}
         </ul>
 
         <ul class="navbar-nav justify-content-end">

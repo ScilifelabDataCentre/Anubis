@@ -32,7 +32,7 @@ def user(username):
     if user is None:
         utils.flash_error('No such user.')
         return flask.redirect(flask.url_for('home'))
-    if not anubis.user.is_admin_or_self(user):
+    if not anubis.user.am_admin_or_self(user):
         utils.flash_error("You may not view the user's proposals.")
         return flask.redirect(flask.url_for('home'))
     return flask.render_template(
@@ -48,7 +48,7 @@ def user_call(username, cid):
     if user is None:
         utils.flash_error('No such user.')
         return flask.redirect(flask.url_for('home'))
-    if not anubis.user.is_admin_or_self(user):
+    if not anubis.user.am_admin_or_self(user):
         utils.flash_error("You may not view the user's proposals.")
         return flask.redirect(flask.url_for('home'))
     call = anubis.call.get_call(cid)

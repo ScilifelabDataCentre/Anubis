@@ -39,7 +39,7 @@ Reviews of proposals in call {{ call['identifier'] }}
       </td>
       {% endfor %}
       {% else %}
-      {% if g.is_admin %}
+      {% if g.am_admin %}
       <td>
 	<form action="{{ url_for('review.create', pid=proposal['identifier'], username=reviewer) }}"
 	      method="POST">
@@ -50,7 +50,7 @@ Reviews of proposals in call {{ call['identifier'] }}
       </td>
       {% else %}
       <td>-</td>
-      {% endif %} {# if g.is_admin #}
+      {% endif %} {# if g.am_admin #}
       {% for scorefield in scorefields %}
       <td>-</td>
       {% endfor %}

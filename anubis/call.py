@@ -144,7 +144,7 @@ def document(cid, documentname):
 
     if utils.http_GET():
         state = get_state(call)
-        if not (flask.g.is_admin or state['is_published']):
+        if not (flask.g.am_admin or state['is_published']):
             utils.flash_error(f"Call {call['title']} has not been published.")
             return flask.redirect(flask.url_for('home'))
         try:
@@ -161,7 +161,7 @@ def document(cid, documentname):
         return response
 
     elif utils.http_DELETE():
-        if not flask.g.is_admin:
+        if not flask.g.am_admin:
             utils.flash_error('You may not delete a document in the call.')
             return flask.redirect(
                 flask.url_for('.display', cid=call['identifier']))
@@ -667,16 +667,16 @@ def allow_view(call):
     """Admin may view all calls.
     Others may view a call if it has an opens date.
     """
-    if flask.g.is_admin: return True
+    if flask.g.am_admin: return True
     return bool(call['opens'])
 
 def allow_edit(call):
     "Allow only admin to edit a call."
-    return flask.g.is_admin
+    return flask.g.am_admin
 
 def allow_delete(call):
     "Allow admin to delete a call if it has no proposals."
-    if not flask.g.is_admin: return False
+    if not flask.g.am_admin: return False
     return utils.get_count('proposals', 'call', call['identifier']) == 0
 
 def allow_proposal(call):
@@ -690,7 +690,7 @@ def allow_view_reviews(call):
     Other reviewers may view depending on the access flag for the call.
     """
     if not flask.g.current_user: return False
-    if flask.g.is_admin: return True
+    if flask.g.am_admin: return True
     if is_reviewer(call):
         if is_chair(call): return True
         return bool(call['access'].get('allow_reviewer_view_reviews'))

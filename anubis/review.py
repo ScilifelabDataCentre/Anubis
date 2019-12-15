@@ -41,7 +41,7 @@ DESIGN_DOC = {
 blueprint = flask.Blueprint('review', __name__)
 
 @blueprint.route('/create/<pid>/<username>', methods=['POST'])
-@utils.admin_required
+@utils.login_required
 def create(pid, username):
     "Create a new review for the proposal for the given reviewer."
     proposal = anubis.proposal.get_proposal(pid)
@@ -51,6 +51,8 @@ def create(pid, username):
     user = anubis.user.get_user(username=username)
     if user is None:
         utils.flash_error('No such user.')
+    elif not allow_create(proposal['cache']['call']):
+        utils.flash_error('You may not create a review for the proposal.')
     elif user['username'] not in proposal['cache']['call']['reviewers']:
         utils.flash_error('User is not a reviewer in the call.')
     else:
@@ -61,7 +63,6 @@ def create(pid, username):
                 flask.url_for('review.display', iuid=review['iuid']))
         with ReviewSaver(proposal=proposal) as saver:
             saver.set_reviewer(user)
-        print('created review', saver.doc['_id'])
     return flask.redirect(
         flask.url_for('reviews.proposal', pid=proposal['identifier']))
 
@@ -258,6 +259,12 @@ def get_my_review(proposal, reviewer):
     except IndexError:
         return None
 
+def allow_create(call):
+    "Admin and chair may create a review in the call."
+    if not flask.g.current_user: return False
+    if flask.g.am_admin: return True
+    return anubis.call.is_chair(call)
+
 def allow_view(review):
     """Admin may view all reviews.
     Chair may view all reviews in a call.
@@ -265,7 +272,7 @@ def allow_view(review):
     Reviewer may view all reviews depending on access flag for the call.
     """
     if not flask.g.current_user: return False
-    if flask.g.is_admin: return True
+    if flask.g.am_admin: return True
     if flask.g.current_user['username'] == review['reviewer']: return True
     if anubis.call.is_reviewer(review['cache']['call']): return True
     if anubis.call.allow_view_reviews(review['cache']['call']) and \
@@ -276,25 +283,25 @@ def allow_edit(review):
     "Admin and reviewer may edit an unfinalized review."
     if review.get('finalized'): return False
     if not flask.g.current_user: return False
-    return (flask.g.is_admin or
+    return (flask.g.am_admin or
             flask.g.current_user['username'] == review['reviewer'])
 
 def allow_delete(review):
     "Admin may delete a review."
-    return flask.g.is_admin
+    return flask.g.am_admin
 
 def allow_finalize(review):
     "Admin and reviewer may finalize if the review contains no errors."
     if review.get('finalized'): return False
     if not flask.g.current_user: return False
-    return (flask.g.is_admin or
+    return (flask.g.am_admin or
             flask.g.current_user['username'] == review['reviewer'])
 
 def allow_unfinalize(review):
     "Admin and reviewer may unfinalize the review."
     if not review.get('finalized'): return False
     if not flask.g.current_user: return False
-    return (flask.g.is_admin or
+    return (flask.g.am_admin or
             flask.g.current_user['username'] == review['reviewer'])
 
 def set_cache(review, call=None):

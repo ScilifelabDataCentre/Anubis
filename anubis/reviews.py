@@ -100,11 +100,13 @@ def proposal(pid):
         return flask.redirect(
             flask.url_for('call.display', cid=call['identifier']))
 
+    is_chair = anubis.call.is_chair(call)
     reviews = [anubis.review.set_cache(r.doc)
                for r in flask.g.db.view('reviews', 'proposal',
                                         key=proposal['identifier'],
                                         reduce=False,
                                         include_docs=True)]
+    # XXX remove unfinalized if not admin or chair
     reviews_lookup = {r['reviewer']:r for r in reviews}
     scorefields = [f for f in call['review'] if f['type'] == constants.SCORE]
     return flask.render_template('reviews/proposal.html',
@@ -122,7 +124,7 @@ def reviewer(username):
         utils.flash_error('No such user.')
         return flask.redirect(flask.url_for('home'))
     # Access to view all reviews of a specific call is not sufficient.
-    if not anubis.user.is_admin_or_self(user):
+    if not anubis.user.am_admin_or_self(user):
         utils.flash_error("You may not view the user's reviews.")
         return flask.redirect(
             flask.url_for('call.display', cid=call['identifier']))

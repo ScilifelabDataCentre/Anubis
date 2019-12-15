@@ -14,6 +14,7 @@
     {{ macros.call_link(proposal['cache']['call'], title=True) }}
   </div>
 </div>
+{% if is_user %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call closes</div>
   <div class="col-md">
@@ -21,27 +22,30 @@
     {{ macros.call_closes(proposal['cache']['call']) }}
   </div>
 </div>
+{% endif %} {# if is_user #}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">User</div>
   <div class="col-md">
     {{ macros.user_link(get_user(proposal['user'])) }}
   </div>
 </div>
+{% if not is_reviewer %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Submitted</div>
   <div class="col-md">{{ macros.submitted(proposal) }}</div>
 </div>
-{% if g.is_admin %}
+{% endif %} {# if not is_reviewer #}
+{% if allow_view_reviews %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">All reviews</div>
   <div class="col-md">
     <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
        role="button" class="btn btn-sm btn-info px-3">
-      {{ proposal['cache']['reviews_count'] }}
+      {{ proposal['cache']['all_reviews_count'] }}
     </a>
   </div>
 </div>
-{% endif %} {# if g.is_admin #}
+{% endif %} {# if allow_view_reviews #}
 {% if my_review %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">My review</div>

@@ -19,7 +19,7 @@
       <th>Proposal</th>
       {# XXX Check access to view user #}
       <th>Submitter</th>
-      {% if g.is_admin %}
+      {% if g.am_admin %}
       <th>Reviews</th>
       {% endif %}
     </tr>
@@ -30,14 +30,14 @@
       <td>{{ macros.proposal_link(proposal, title=True) }}</td>
       {# XXX Check access to view user #}
       <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
-      {% if g.is_admin %}
+      {% if g.am_admin %}
       <td>
 	<a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
            role="button" class="btn btn-sm btn-info px-3">
 	  {{ proposal['cache']['reviews_count'] }}
 	</a>
       </td>
-      {% endif %} {# if g.is_admin #}
+      {% endif %} {# if g.am_admin #}
     </tr>
     {% endfor %} {# for proposal in proposals #}
   </tbody>
