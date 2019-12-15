@@ -74,7 +74,7 @@
   <div class="col-md">
     <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=g.current_user['username']) }}"
        role="button" class="btn btn-sm btn-info px-3">
-      {{ g.my_reviews_count }}</a>
+      {{ call['cache']['my_reviews_count'] }}</a>
   </div>
 </div>
 {% endif %} {# if is_reviewer #}

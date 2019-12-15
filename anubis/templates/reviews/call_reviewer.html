@@ -16,7 +16,6 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
   <thead>
     <tr>
       <th>Proposal</th>
-      {# XXX Check access to view submitter #}
       <th>Submitter</th>
       <th>My review</th>
       {% for scorefield in scorefields %}
@@ -26,21 +25,19 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
   </thead>
   <tbody>
     {% for proposal in proposals %}
+    {% set review = reviews_lookup.get(proposal['identifier']) %}
+    {% if review %}
     <tr>
       <td>{{ macros.proposal_link(proposal, title=True) }}</td>
       <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
-      {% set review = reviews_lookup.get(proposal['identifier']) %}
-      {% if review %}
       <td>{{ macros.review_link(review) }}</td>
       {% for scorefield in scorefields %}
       <td>
 	{{ review['values'].get(scorefield['identifier']) | default('-',True) }}
       </td>
       {% endfor %}
-      {% else %}
-      <td>-</td>
-      {% endif %}
     </tr>
+    {% endif %}
     {% endfor %}
   </tbody>
 </table>

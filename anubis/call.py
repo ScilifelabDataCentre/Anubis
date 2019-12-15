@@ -717,6 +717,9 @@ def set_cache(call):
                                                        call['identifier'])
         cache['all_reviews_count'] = utils.get_count('reviews', 'call',
                                                      call['identifier'])
+        cache['my_reviews_count'] = utils.get_count(
+            'reviews', 'call_reviewer', 
+            [call['identifier'], flask.g.current_user['username']])
     # Set the current state of the call, computed from open/close and today.
     if call['opens']:
         if call['opens'] > utils.normalized_local_now():
