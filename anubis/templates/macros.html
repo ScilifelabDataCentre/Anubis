@@ -17,12 +17,8 @@
 
 {% macro call_link(call, title=True) -%}
 <a href="{{ url_for('call.display', cid=call['identifier']) }}"
-   title="{{ call['title'] }}" role="button"
-   class="btn btn-sm btn-outline-primary px-3">
-  {{ call['identifier'] }}
-  {% if title %}
-  {{ call['title'] }}
-  {% endif %}
+   class="font-weight-bold">
+  {{ call['identifier'] }}: {{ call['title'] or '' }}
 </a>
 {%- endmacro %}
 

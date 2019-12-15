@@ -8,35 +8,31 @@
 {% endblock %}
 
 {% block supermain %}
-<p class="lead">
-  NOTE: Only submitted proposals are listed.
-</p>
-
-<table id="proposals" class="table">
+<table id="proposals" class="table table-sm">
   <thead>
     <tr>
       <th>Proposal</th>
-      {# XXX Check access to view user #}
+      <th>Submitted</th>
       <th>Submitter</th>
-      {% if g.am_admin %}
+      {% if allow_view_reviews %}
       <th>Reviews</th>
-      {% endif %}
+      {% endif %} {# if allow_view_reviews #}
     </tr>
   </thead>
   <tbody>
     {% for proposal in proposals %}
     <tr>
       <td>{{ macros.proposal_link(proposal, title=True) }}</td>
-      {# XXX Check access to view user #}
+      <td>{{ macros.submitted(proposal) }}</td>
       <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
-      {% if g.am_admin %}
+      {% if allow_view_reviews %}
       <td>
 	<a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
            role="button" class="btn btn-sm btn-info px-3">
-	  {{ proposal['cache']['reviews_count'] }}
+	  {{ proposal['cache']['all_reviews_count'] }}
 	</a>
       </td>
-      {% endif %} {# if g.am_admin #}
+      {% endif %} {# if allow_view_reviews #}
     </tr>
     {% endfor %} {# for proposal in proposals #}
   </tbody>

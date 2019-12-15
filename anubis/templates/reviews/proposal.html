@@ -1,14 +1,12 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Reviews of proposal {{ proposal['identifier'] }}
+Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
 {% endblock %}
 
 {% block body_title %}
 <small class="text-muted mr-2">Reviews of proposal</small>
-<a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}">
-  {{ proposal['identifier'] }}</a>
-{{ proposal['title'] }}
+{{ macros.proposal_link(proposal) }}
 {% endblock %}
 
 {% block supermain %}

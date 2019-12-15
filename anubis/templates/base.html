@@ -47,7 +47,7 @@
           <li class="nav-item">
             <a href="{{ url_for('proposals.user', username=g.current_user['username']) }}"
 	       class="nav-link">My proposals
-	      {% if g.my_unsubmitted_poposals_count %}
+	      {% if g.my_unsubmitted_proposals_count %}
 	      <span class="font-weight-bold px-2 py-1 bg-warning active"
 		    title="You have unsubmitted proposals!">!</span>
 	      {% endif %}

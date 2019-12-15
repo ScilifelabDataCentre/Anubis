@@ -45,10 +45,9 @@ class Constants:
     DOCUMENT = 'document'
     FIELD_TYPES = (LINE, BOOLEAN, INTEGER, FLOAT, SCORE, TEXT, DOCUMENT)
 
-    # Access flags
-    ACCESS = ('allow_reviewer_view_reviews',
-              # not implemented 'allow_public_view_proposal',
-              # not implemented 'allow_public_view_reviews',
+    # Access flags for each call
+    ACCESS = ('allow_reviewer_view_all_reviews',
+              # not implemented 'allow_public_view_all_reviews',
               # not implemented 'allow_submitter_view_all_decisions',
               # not implemented 'allow_public_view_all_decisions',
     )

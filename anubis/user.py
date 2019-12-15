@@ -473,8 +473,8 @@ def set_cache(user):
     This does NOT de-reference any other entities.
     """
     user['cache'] = cache = {}
-    cache['proposals_count'] = utils.get_count('proposals', 'user',
-                                               user['username'])
-    cache['reviews_count'] = utils.get_count('reviews', 'reviewer',
-                                             user['username'])
+    cache['all_proposals_count'] = utils.get_count('proposals', 'user',
+                                                   user['username'])
+    cache['all_reviews_count'] = utils.get_count('reviews', 'reviewer',
+                                                 user['username'])
     return user

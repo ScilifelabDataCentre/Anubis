@@ -15,14 +15,25 @@ blueprint = flask.Blueprint('proposals', __name__)
 @blueprint.route('/call/<cid>')
 @utils.login_required
 def call(cid):
-    "List proposals in a call. XXX check user access!"
+    "List proposals in a call."
     call = anubis.call.get_call(cid)
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
+    if not anubis.call.allow_view(call):
+        utils.flash_error("You may not view the call.")
+        return flask.redirect(flask.url_for('home'))
+    proposals = [anubis.proposal.set_cache(r.doc)
+                 for r in flask.g.db.view('proposals', 'call',
+                                          key=call['identifier'],
+                                          reduce=False,
+                                          include_docs=True)]
+    proposals = [p for p in proposals if anubis.proposal.allow_view(p)]
+    allow_view_reviews = anubis.call.allow_view_reviews(call)
     return flask.render_template('proposals/call.html', 
                                  call=call,
-                                 proposals=get_call_proposals(call))
+                                 proposals=proposals,
+                                 allow_view_reviews=allow_view_reviews)
 
 @blueprint.route('/user/<username>')
 @utils.login_required
@@ -79,16 +90,6 @@ def get_call_user_proposal(call, username):
         return proposals[0]
     else:
         return None
-
-def get_call_proposals(call):
-    """Get all submitted proposals in the call. Cache not set.
-    NOTE: No check for user access!
-    """
-    return [anubis.proposal.set_cache(r.doc)
-            for r in flask.g.db.view('proposals', 'call',
-                                     key=call['identifier'],
-                                     reduce=False,
-                                     include_docs=True)]
 
 def get_call_submitters(call):
     "Get the set of users who have submitted a proposal in the call."

@@ -19,13 +19,10 @@ def init(app):
 DESIGN_DOC = {
     'views': {
         'identifier': {'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit(doc.identifier, null);}"},
-        # NOTE: excludes unsubmitted proposals
         'call': {'reduce': '_count',
-                 'map': "function (doc) {if (doc.doctype !== 'proposal' || !doc.submitted) return; emit(doc.call, doc.user);}"},
-        # NOTE: includes unsubmitted proposals
+                 'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit(doc.call, doc.user);}"},
         'user': {'reduce': '_count',
                  'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit(doc.user, null);}"},
-        # Unsubmitted proposals by user in any call.
         'unsubmitted': {'reduce': '_count',
                         'map': "function (doc) {if (doc.doctype !== 'proposal' || doc.submitted) return; emit(doc.user, null);}"},
     }
@@ -254,7 +251,7 @@ def get_proposal(pid, cache=True):
         return None
 
 def allow_view(proposal):
-    "Admin, the user of the proposal, and the reviewers may view it."
+    "Admin, the user of the proposal, and the reviewers may view a proposal."
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     if anubis.call.is_reviewer(proposal['cache']['call']):

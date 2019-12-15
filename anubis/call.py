@@ -693,7 +693,7 @@ def allow_view_reviews(call):
     if flask.g.am_admin: return True
     if is_reviewer(call):
         if is_chair(call): return True
-        return bool(call['access'].get('allow_reviewer_view_reviews'))
+        return bool(call['access'].get('allow_reviewer_view_all_reviews'))
     return False
 
 def is_reviewer(call):
