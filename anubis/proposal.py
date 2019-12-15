@@ -42,13 +42,17 @@ def display(pid):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
-    if not proposal['cache']['allow_read']:
-        utils.flash_error('You are not allowed to read this proposal.')
-        return flask.redirect(flask.url_for('home'))
-    review = get_my_review(proposal, flask.g.current_user)
+    if not allow_view(proposal):
+        utils.flash_error('You are not allowed to view this proposal.')
+        return flask.redirect(
+            flask.url_for('call.display',
+                          cid=proposal['cache']['call']['identifier']))
+    my_review = get_my_review(proposal, flask.g.current_user)
     return flask.render_template('proposal/display.html',
                                  proposal=proposal,
-                                 review=review)
+                                 allow_edit=allow_edit(proposal),
+                                 allow_submit=allow_submit(proposal),
+                                 my_review=my_review)
 
 @blueprint.route('/<pid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.login_required
@@ -58,7 +62,7 @@ def edit(pid):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
-    if not proposal['cache']['allow_edit']:
+    if not allow_edit(proposal):
         utils.flash_error('You are not allowed to edit this proposal.')
         return flask.redirect(
             flask.url_for('.display', pid=proposal['identifier']))
@@ -92,7 +96,7 @@ def submit(pid):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
-    if not proposal['cache']['is_submittable']:
+    if not allow_submit(proposal):
         utils.flash_error('Submit disallowed; call closed.')
         return flask.redirect(
             flask.url_for('.display', pid=proposal['identifier']))
@@ -113,7 +117,7 @@ def unsubmit(pid):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
-    if not proposal['cache']['is_submittable']:
+    if not allow_submit(proposal):
         utils.flash_error('Unsubmit disallowed; call closed.')
         return flask.redirect(
             flask.url_for('.display', pid=proposal['identifier']))
@@ -210,12 +214,12 @@ class ProposalSaver(FieldMixin, AttachmentsSaver):
                                    for f in call['proposal']])
 
     def set_submitted(self):
-        if not self.doc['cache']['is_submittable']:
+        if not allow_submit(self.doc):
             raise ValueError('Submit is disallowed.')
         self.doc['submitted'] = utils.get_time()
 
     def set_unsubmitted(self):
-        if not self.doc['cache']['is_submittable']:
+        if not allow_submit(self.doc):
             raise ValueError('Unsubmit is disallowed.')
         self.doc.pop('submitted', None)
 
@@ -233,32 +237,40 @@ def get_proposal(pid, cache=True):
     else:
         return None
 
-def set_cache(proposal, call=None):
-    """Set the 'cache' field of the proposal.
-    This is computed data that will not be stored with the document.
-    Depends on login, access, status, etc.
+def allow_view(proposal):
+    "Admin, the user of the proposal, and the reviewers may view it."
+    if not flask.g.current_user: return False
+    if flask.g.is_admin: return True
+    if anubis.call.is_reviewer(proposal['cache']['call']): return True
+    return flask.g.current_user['username'] == proposal['user']
+
+def allow_edit(proposal):
+    """Admin may edit the proposal. The user may edit if not submitted.
+    This also determines the delete privilege.
     """
-    proposal['cache'] = cache = dict(allow_read=False,
-                                     allow_edit=False,
-                                     is_submittable=False)
-    # Get the call for the proposal.
+    if not flask.g.current_user: return False
+    if flask.g.is_admin: return True
+    if proposal.get('submitted'): return False
+    return flask.g.current_user['username'] == proposal['user']
+
+def allow_submit(proposal):
+    """Admin may submit the proposal if there are no errors.
+    The user may submit the proposal if the call is open.
+    """
+    if not flask.g.current_user: return False
+    if flask.g.is_admin: return True
+    if proposal.get('submitted'): return False
+    if proposal['errors']: return False
+    return (flask.g.current_user['username'] == proposal['user']
+            and proposal['cache']['call']['is_open'])
+    
+def set_cache(proposal, call=None):
+    """Set the cached, non-saved fields of the review.
+    This de-references the call of the proposal.
+    """
+    proposal['cache'] = cache = {}
     if call is None:
         cache['call'] = anubis.call.get_call(proposal['call'], cache=True)
     else:
         cache['call'] = call
-    if flask.g.is_admin:
-        cache['allow_read'] = True
-        cache['allow_edit'] = True
-        cache['is_submittable'] = True
-        cache['reviews_count'] = utils.get_count('reviews', 'proposal',
-                                                 proposal['identifier'])
-    elif flask.g.current_user:
-        if flask.g.current_user['username'] == proposal['user']:
-            cache['allow_read'] = True
-            cache['allow_edit'] = cache['call']['cache']['is_open'] and \
-                                  not proposal.get('submitted')
-            cache['is_submittable'] = cache['call']['cache']['is_open'] and \
-                                      not proposal['errors']
-        elif cache['call']['cache']['is_reviewer']:
-            cache['allow_read'] = True
     return proposal

@@ -6,6 +6,7 @@ import flask
 
 from . import constants
 from . import utils
+from .proposals import get_call_user_proposal
 from .saver import AttachmentsSaver
 
 
@@ -51,7 +52,22 @@ def display(cid):
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
-    return flask.render_template('call/display.html', call=call)
+    if not allow_view(call):
+        utils.flash_error('You are not allowed to view the call.')
+        return flask.redirect(flask.url_for('home'))
+    if flask.g.current_user:
+        my_proposal = get_call_user_proposal(call,
+                                             flask.g.current_user['username'])
+    else:
+        my_proposal = None
+    return flask.render_template('call/display.html',
+                                 call=call,
+                                 my_proposal=my_proposal,
+                                 is_reviewer=is_reviewer(call),
+                                 allow_edit=allow_edit(call),
+                                 allow_delete=allow_delete(call),
+                                 allow_proposal=allow_proposal(call),
+                                 allow_view_reviews=allow_view_reviews(call))
 
 @blueprint.route('/<cid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.admin_required
@@ -63,9 +79,17 @@ def edit(cid):
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_GET():
+        if not allow_edit(call):
+            utils.flash_error('You are not allowed to edit this call.')
+            return flask.redirect(
+                flask.url_for('.display', cid=call['identifier']))
         return flask.render_template('call/edit.html', call=call)
 
     elif utils.http_POST():
+        if not allow_edit(call):
+            utils.flash_error('You are not allowed to edit this call.')
+            return flask.redirect(
+                flask.url_for('.display', cid=call['identifier']))
         try:
             with CallSaver(call) as saver:
                 saver.set_title(flask.request.form.get('title'))
@@ -79,7 +103,7 @@ def edit(cid):
         return flask.redirect(flask.url_for('.display', cid=call['identifier']))
 
     elif utils.http_DELETE():
-        if not allow_edit(call):
+        if not allow_delete(call):
             utils.flash_error('You may not delete the call.')
             return flask.redirect(
                 flask.url_for('.display', cid=call['identifier']))
@@ -370,7 +394,7 @@ def create_proposal(cid):
     if not call['cache']['is_open']:
         utils.flash_error("The call is not open.")
         return flask.redirect(flask.url_for('.display', cid=cid))
-    if not call['cache']['allow_proposal']:
+    if not allow_proposal(call):
         utils.flash_error('You may not create a proposal in this call.')
         return flask.redirect(flask.url_for('.display', cid=cid))
 
@@ -639,53 +663,60 @@ def get_call(cid, cache=True):
     else:
         return None
 
+def allow_view(call):
+    """Admin may view all calls.
+    Others may view a call if it has an opens date.
+    """
+    if flask.g.is_admin: return True
+    return bool(call['opens'])
+
+def allow_edit(call):
+    "Allow only admin to edit a call."
+    return flask.g.is_admin
+
+def allow_delete(call):
+    "Allow admin to delete a call if it has no proposals."
+    if not flask.g.is_admin: return False
+    return utils.get_count('proposals', 'call', call['identifier']) == 0
+
+def allow_proposal(call):
+    "Any logged-in user except designated reviewer may create a proposal. "
+    if not flask.g.current_user: return False
+    return not is_reviewer(call)
+
+def allow_view_reviews(call):
+    """Admin may view all reviews.
+    Review chairs may view all reviews.
+    Other reviewers may view depending on the access flag for the call.
+    """
+    if not flask.g.current_user: return False
+    if flask.g.is_admin: return True
+    if is_reviewer(call):
+        if is_chair(call): return True
+        return bool(call['access'].get('allow_reviewer_view_reviews'))
+    return False
+
+def is_reviewer(call):
+    "Is the current user a reviewer for proposals in the call?"
+    if not flask.g.current_user: return False
+    return flask.g.current_user['username'] in call['reviewers']
+
+def is_chair(call):
+    "Is the current user a chair for proposals in the call?"
+    if not flask.g.current_user: return False
+    return flask.g.current_user['username'] in call['chairs']
+
 def set_cache(call):
     """Set the cached, non-saved values for the call.
     This does NOT de-reference any other entities.
     """
-    from .proposals import get_call_user_proposal
-
-    call['cache'] = cache = dict(allow_edit=False,
-                                 allow_delete=False,
-                                 allow_proposal=False,
-                                 allow_view_reviews=False,
-                                 is_reviewer=False,
-                                 is_chair=False)
-
-    # Admin access
-    if flask.g.is_admin:
-        cache['allow_edit'] = True
-        if utils.get_count('proposals', 'call', call['identifier']) == 0:
-            cache['allow_delete'] = True
+    call['cache'] = cache = {}
+    # Not all users may actually view this, but for simplicity...
+    if flask.g.current_user:
         cache['all_proposals_count'] = utils.get_count('proposals', 'call',
                                                        call['identifier'])
-        cache['allow_view_reviews'] = True
         cache['all_reviews_count'] = utils.get_count('reviews', 'call',
                                                      call['identifier'])
-        cache['my_proposal'] = get_call_user_proposal(
-            call, flask.g.current_user['username'])
-        cache['allow_proposal'] = True
-
-    # User/reviewer access
-    elif flask.g.current_user:
-        cache['is_reviewer'] = flask.g.current_user['username'] in call['reviewers']
-        cache['allow_proposal'] = not cache['is_reviewer']
-        cache['my_proposal'] = get_call_user_proposal(
-            call, flask.g.current_user['username'])
-        cache['all_proposals_count'] = utils.get_count('proposals', 'call',
-                                                       call['identifier'])
-        # Reviewer access
-        if cache['is_reviewer']:
-            cache['is_chair'] = flask.g.current_user['username'] in call['chairs']
-            cache['my_reviews_count'] = utils.get_count(
-                'reviews', 'call_reviewer',
-                [call['identifier'], flask.g.current_user['username']])
-            cache['allow_view_reviews'] = cache['is_chair'] or \
-                                          call['access'].get('allow_reviewer_view_reviews')
-            if cache['allow_view_reviews']:
-                cache['all_reviews_count'] = utils.get_count('reviews', 'call',
-                                                             call['identifier'])
-
     # Set the current state of the call, computed from open/close and today.
     if call['opens']:
         if call['opens'] > utils.normalized_local_now():

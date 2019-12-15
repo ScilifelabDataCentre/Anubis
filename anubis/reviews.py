@@ -20,7 +20,7 @@ def call(cid):
     if call is None:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
-    if not call['cache']['allow_view_reviews']:
+    if not anubis.call.allow_view_reviews(call):
         utils.flash_error('You may not view the reviews of the call.')
         return flask.redirect(
             flask.url_for('call.display', cid=call['identifier']))
@@ -59,8 +59,8 @@ def call_reviewer(cid, username):
     if user['username'] not in call['reviewers']:
         utils.flash_error("The user is not a reviewer in the call.")
         return flask.redirect(flask.url_for('home'))
-    if not (anubis.user.is_admin_or_self(user) or
-            call['cache']['allow_view_reviews']):
+    if not (user['username'] == flask.g.current_user['username']  or
+            anubis.call.allow_view_reviews(call)):
         utils.flash_error("You may not view the user's reviews.")
         return flask.redirect(
             flask.url_for('call.display', cid=call['identifier']))
@@ -95,7 +95,7 @@ def proposal(pid):
         return flask.redirect(flask.url_for('home'))
 
     call = proposal['cache']['call']
-    if not call['cache']['allow_view_reviews']:
+    if not anubis.call.allow_view_reviews(call):
         utils.flash_error('You may not view the reviews of the call.')
         return flask.redirect(
             flask.url_for('call.display', cid=call['identifier']))

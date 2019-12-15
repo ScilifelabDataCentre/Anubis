@@ -1,8 +1,9 @@
-"Review of a proposal. Created from the outline in the call."
+"Review of a proposal. Created from the proposal fields in the call."
 
 import flask
 
 import anubis.user
+import anubis.call
 import anubis.proposal
 
 from . import constants
@@ -73,11 +74,16 @@ def display(iuid):
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
-    if not review['cache']['allow_read']:
-        utils.flash_error('You are not allowed to read this review.')
-        return flask.redirect(flask.url_for('home'))
-
-    return flask.render_template('review/display.html', review=review)
+    if not allow_view(review):
+        utils.flash_error('You are not allowed to view this review.')
+        return flask.redirect(
+            flask.url_for('proposal.display', 
+                          pid=review['cache']['proposal']['identifier']))
+    return flask.render_template('review/display.html',
+                                 review=review,
+                                 allow_edit=allow_edit(review),
+                                 allow_finalize=allow_finalize(review),
+                                 allow_unfinalize=allow_unfinalize(review))
 
 @blueprint.route('/<iuid:iuid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.login_required
@@ -88,7 +94,7 @@ def edit(iuid):
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
-    if not review['cache']['allow_edit']:
+    if not allow_edit(review):
         utils.flash_error('You are not allowed to edit this review.')
         return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
@@ -120,7 +126,7 @@ def finalize(iuid):
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
-    if not review['cache']['is_finalizable']:
+    if not allow_finalize(review):
         utils.flash_error('You are not allowed to finalize this review.')
         return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
@@ -141,7 +147,7 @@ def unfinalize(iuid):
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
-    if not review['cache']['is_unfinalizable']:
+    if not review['cache']['allow_unfinalize']:
         utils.flash_error('You are not allowed to unfinalize this review.')
         return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
@@ -180,7 +186,7 @@ def document(iuid, documentname):
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
-    if not review['cache']['allow_read']:
+    if not allow_view(review):
         utils.flash_error('You are not allowed to read this review.')
         return flask.redirect(flask.url_for('home'))
 
@@ -245,45 +251,51 @@ def get_my_review(proposal, reviewer):
     except IndexError:
         return None
 
-def get_reviews(call):
-    "Get all reviews for proposals in a call."
-    result = [set_cache(r.doc)
-              for r in flask.g.db.view('reviews', 'call',
-                                       key=call['identifier'],
-                                       reduce=False,
-                                       include_docs=True)]
+def allow_view(review):
+    """Admin may view all reviews.
+    Chair may view all reviews in a call.
+    Reviewer may view her own reviews.
+    Reviewer may view all reviews depending on access flag for the call.
+    """
+    if not flask.g.current_user: return False
+    if flask.g.is_admin: return True
+    if flask.g.current_user['username'] == review['reviewer']: return True
+    if anubis.call.is_reviewer(review['cache']['call']): return True
+    if anubis.call.allow_view_reviews(review['cache']['call']) and \
+       review.get('finalized'): return True
+    return False
+
+def allow_edit(review):
+    """Admin and reviewer may edit an unfinalized review.
+    This also determines the delete privilege.
+    """
+    if review.get('finalized'): return False
+    if not flask.g.current_user: return False
+    return (flask.g.is_admin or
+            flask.g.current_user['username'] == review['reviewer'])
+
+def allow_finalize(review):
+    "Admin and reviewer may finalize if the review contains no errors."
+    if review.get('finalized'): return False
+    if not flask.g.current_user: return False
+    return (flask.g.is_admin or
+            flask.g.current_user['username'] == review['reviewer'])
+
+def allow_unfinalize(review):
+    "Admin and reviewer may unfinalize the review."
+    if not review.get('finalized'): return False
+    if not flask.g.current_user: return False
+    return (flask.g.is_admin or
+            flask.g.current_user['username'] == review['reviewer'])
 
 def set_cache(review, call=None):
-    """Set the 'cache' field of the review.
-    This is computed data that will not be stored with the document.
-    Depends on login, access, status, etc.
+    """Set the cached, non-saved fields of the review.
+    This de-references the call and proposal of the review.
     """
-    from anubis.call import get_call
-    from anubis.proposal import get_proposal
-    review['cache'] = cache = dict(allow_read=False,
-                                   allow_edit=False,
-                                   is_finalizable=False,
-                                   is_unfinalizable=False)
+    review['cache'] = cache = {}
     if call is None:
-        cache['call'] = call = get_call(review['call'])
+        cache['call'] = call = anubis.call.get_call(review['call'])
     else:
         cache['call'] = call
-    cache['proposal'] = get_proposal(review['proposal'])
-    if flask.g.is_admin:
-        cache['allow_read'] = True
-        cache['allow_edit'] = not review.get('finalized')
-        cache['is_finalizable'] = not review.get('errors') and \
-                                  not review.get('finalized')
-        cache['is_unfinalizable'] = bool(review.get('finalized'))
-    elif flask.g.current_user:
-        if flask.g.current_user['username'] == review['reviewer']:
-            cache['allow_read'] = True
-            cache['allow_edit'] = not review.get('finalized')
-                              
-            cache['is_finalizable'] = not review.get('errors') and \
-                                      not review.get('finalized')
-            cache['is_unfinalizable'] = bool(review.get('finalized'))
-        else:
-            cache['allow_read'] = review.get('finalized') and \
-                                  call['cache']['allow_view_reviews']
+    cache['proposal'] = anubis.proposal.get_proposal(review['proposal'])
     return review

@@ -94,7 +94,7 @@ Review of proposal {{ review['cache']['proposal']['identifier'] }}
 {% endblock %} {# block main #}
 
 {% block actions %}
-{% if review['cache']['is_unfinalizable'] %}
+{% if allow_unfinalize %}
 <div class="mt-2">
   <form action="{{ url_for('.unfinalize', iuid=review['_id']) }}"
 	method="POST">
@@ -103,8 +103,8 @@ Review of proposal {{ review['cache']['proposal']['identifier'] }}
       Unfinalize</button>
   </form>
 </div>
-{% endif %} {# if review['cache']['is_unfinalizable'] #}
-{% if review['cache']['is_finalizable'] %}
+{% endif %} {# if allow_unfinalize #}
+{% if allow_finalize %}
 <div class="mt-2">
   <form action="{{ url_for('.finalize', iuid=review['_id']) }}"
 	method="POST">
@@ -113,8 +113,8 @@ Review of proposal {{ review['cache']['proposal']['identifier'] }}
       Finalize</button>
   </form>
 </div>
-{% endif %} {# if review['cache']['is_finalizable'] #}
-{% if review['cache']['allow_edit'] %}
+{% endif %} {# if allow_finalize #}
+{% if allow_edit %}
 <div class="mt-2">
   <a href="{{ url_for('.edit', iuid=review['_id']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
@@ -129,7 +129,7 @@ Review of proposal {{ review['cache']['proposal']['identifier'] }}
       Delete</button>
   </form>
 </div>
-{% endif %} {# if review['cache']['allow_edit'] #}
+{% endif %} {# if allow_edit #}
 {% endblock %} {# block actions #}
 
 {% block info %}

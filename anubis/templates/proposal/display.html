@@ -42,12 +42,12 @@
   </div>
 </div>
 {% endif %} {# if g.is_admin #}
-{% if review %}
+{% if my_review %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">My review</div>
-  <div class="col-md">{{ macros.review_link(review) }}</div>
+  <div class="col-md">{{ macros.review_link(my_review) }}</div>
 </div>
-{% endif %} {# if review #}
+{% endif %} {# if my_review #}
 
 <div class="card mt-4">
   <div class="card-body">
@@ -105,7 +105,7 @@
 
 {% block actions %}
 
-{% if proposal['cache']['is_submittable'] %}
+{% if allow_submit %}
 {% if proposal.get('submitted') %}
 <div class="mt-2">
   <form action="{{ url_for('.unsubmit', pid=proposal['identifier']) }}"
@@ -125,9 +125,9 @@
   </form>
 </div>
 {% endif %} {# if proposal.get('submitted') #}
-{% endif %} {# if proposal['cache']['is_submittable'] #}
+{% endif %} {# if allow_submit #}
 
-{% if proposal['cache']['allow_edit'] %}
+{% if allow_edit %}
 <div class="mt-2">
   <a href="{{ url_for('.edit', pid=proposal['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
@@ -142,7 +142,7 @@
       Delete</button>
   </form>
 </div>
-{% endif %} {# if proposal['cache']['allow_edit'] #}
+{% endif %} {# if allow_edit #}
 
 {% endblock %} {# block actions #}
 
