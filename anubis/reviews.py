@@ -35,12 +35,20 @@ def call(cid):
                                         key=call['identifier'],
                                         reduce=False,
                                         include_docs=True)]
+    if not (flask.g.am_admin or anubis.call.is_chair(call)):
+        only_finalized = True
+        reviews = [r for r in reviews
+                   if r['reviewer'] != flask.g.current_user['username'] and 
+                   r.get('finalized')]
+    else:
+        only_finalized = False
     reviews_lookup = {f"{r['proposal']} {r['reviewer']}":r for r in reviews}
     scorefields = [f for f in call['review'] if f['type'] == constants.SCORE]
     return flask.render_template('reviews/call.html',
                                  call=call,
                                  proposals=proposals,
                                  reviews_lookup=reviews_lookup,
+                                 only_finalized=only_finalized,
                                  allow_create=anubis.review.allow_create(call),
                                  scorefields=scorefields)
 

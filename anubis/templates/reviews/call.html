@@ -10,6 +10,11 @@ Reviews of proposals in call {{ call['identifier'] }}
 {% endblock %}
 
 {% block supermain %}
+{% if only_finalized %}
+<p class="lead">
+  NOTE: Only finalized reviews are listed.
+</p>
+{% endif %}
 <table id="reviews" class="table table-sm">
   <thead>
     <tr>
