@@ -30,6 +30,8 @@ def call(cid):
                                           key=call['identifier'],
                                           reduce=False,
                                           include_docs=True)]
+    for proposal in proposals:
+        proposal['cache']['allow_review_create'] = anubis.review.allow_create(proposal)
     reviews = [anubis.review.set_cache(r.doc)
                for r in flask.g.db.view('reviews', 'call',
                                         key=call['identifier'],
@@ -42,7 +44,6 @@ def call(cid):
                    r.get('finalized')]
     else:
         only_finalized = False
-    allow_create = anubis.review.allow_create(proposal)
     reviews_lookup = {f"{r['proposal']} {r['reviewer']}":r for r in reviews}
     scorefields = [f for f in call['review'] if f['type'] == constants.SCORE]
     return flask.render_template('reviews/call.html',
@@ -50,7 +51,6 @@ def call(cid):
                                  proposals=proposals,
                                  reviews_lookup=reviews_lookup,
                                  only_finalized=only_finalized,
-                                 allow_create=allow_create,
                                  scorefields=scorefields)
 
 @blueprint.route('/call/<cid>/reviewer/<username>')

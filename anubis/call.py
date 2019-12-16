@@ -525,9 +525,16 @@ class CallSaver(AttachmentsSaver):
 
     def edit_proposal_field(self, fid, form=dict()):
         "Edit the field for the proposal definition."
-        for field in self.doc['proposal']:
+        for pos, field in enumerate(self.doc['proposal']):
             if field['identifier'] == fid:
                 self.update_field(field, form=form)
+                move = form.get('_move')
+                if move == 'up':
+                    self.doc['proposal'].pop(pos)
+                    if pos == 0:
+                        self.doc['proposal'].append(field)
+                    else:
+                        self.doc['proposal'].insert(pos-1, field)
                 break
         else:
             raise KeyError('No such proposal field.')
@@ -606,9 +613,16 @@ class CallSaver(AttachmentsSaver):
 
     def edit_review_field(self, fid, form=dict()):
         "Edit the review definition field."
-        for field in self.doc['review']:
+        for pos, field in enumerate(self.doc['review']):
             if field['identifier'] == fid:
                 self.update_field(field, form=form)
+                move = form.get('_move')
+                if move == 'up':
+                    self.doc['review'].pop(pos)
+                    if pos == 0:
+                        self.doc['review'].append(field)
+                    else:
+                        self.doc['review'].insert(pos-1, field)
                 break
         else:
             raise KeyError('No such review field.')

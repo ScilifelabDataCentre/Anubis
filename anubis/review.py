@@ -255,8 +255,7 @@ def get_review(iuid, cache=True):
 def get_my_review(proposal, reviewer):
     "Get the review of the proposal by the reviewer."
     result = flask.g.db.view('reviews', 'proposal_reviewer',
-                             key=[proposal['identifier'], 
-                                  reviewer['username']],
+                             key=[proposal['identifier'], reviewer['username']],
                              reduce=False,
                              include_docs=True)
     try:
