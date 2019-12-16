@@ -7,12 +7,22 @@
 {{ macros.call_link(call, title=True) }}
 {% endblock %}
 
+{% block meta %}
+<div>
+  <a href="{{ url_for('.call_xlsx', cid=call['identifier']) }}"
+     title="Excel 2007 file"
+     class="badge badge-pill badge-primary">XLSX</a>
+</div>
+{% endblock %}
+
 {% block supermain %}
 <table id="proposals" class="table table-sm">
   <thead>
     <tr>
       <th>Proposal</th>
+      {% if g.am_admin %}
       <th>Submitted</th>
+      {% endif %}
       <th>Submitter</th>
       {% if allow_view_reviews %}
       <th>Reviews</th>
@@ -23,7 +33,9 @@
     {% for proposal in proposals %}
     <tr>
       <td>{{ macros.proposal_link(proposal, title=True) }}</td>
+      {% if g.am_admin %}
       <td>{{ macros.submitted(proposal) }}</td>
+      {% endif %}
       <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
       {% if allow_view_reviews %}
       <td>
