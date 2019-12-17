@@ -51,9 +51,18 @@ def call_xlsx(cid):
     ws = wb.active
     ws.title = f"Proposals in call {cid}"
     row = ['Proposal', 'Proposal title', 'Submitter']
-    row.extend([f['identifier'] for f in call['proposal']])
+    ws.column_dimensions[get_column_letter(2)].width = 30
+    for field in call['proposal']:
+        row.append(field['identifier'])
+        if field['type'] == constants.LINE:
+            ws.column_dimensions[get_column_letter(len(row))].width = 40
+        elif field['type'] == constants.TEXT:
+            ws.column_dimensions[get_column_letter(len(row))].width = 50
+        elif field['type'] == constants.DOCUMENT:
+            ws.column_dimensions[get_column_letter(len(row))].width = 50
     ws.append(row)
     row_number = 1
+    wrap_alignment = openpyxl.styles.Alignment(wrapText=True)
     for proposal in proposals:
         row_number += 1
         row = [proposal['identifier'], 
@@ -82,9 +91,16 @@ def call_xlsx(cid):
         if wraptext:
             ws.row_dimensions[row_number].height = 40
         while wraptext:
-            ws[wraptext.pop()].alignment = openpyxl.styles.Alignment(wrapText=True)
+            ws[wraptext.pop()].alignment = wrap_alignment
         while hyperlink:
-            ws[hyperlink.pop()].style = 'Hyperlink'
+            colrow = hyperlink.pop()
+            ws[colrow].hyperlink = ws[colrow].value
+            ws[colrow].style = 'Hyperlink'
+        colrow = f"A{row_number}"
+        ws[colrow].hyperlink = flask.url_for('proposal.display',
+                                             pid=ws[colrow].value,
+                                             _external=True)
+        ws[colrow].style = 'Hyperlink'
     with tempfile.NamedTemporaryFile(suffix='.xlsx') as tmp:
         wb.save(tmp.name)
         tmp.seek(0)

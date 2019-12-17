@@ -287,9 +287,8 @@ def get_xlsx(call, proposals, reviews_lookup):
     ws.title = f"Reviews in call {call['identifier']}"
     row = ['Proposal', 'Proposal title', 'Submitter', 
            'Review', 'Finalized', 'Reviewer']
-    title_column = get_column_letter(2)
+    ws.column_dimensions[get_column_letter(2)].width = 30
     review_column = get_column_letter(4)
-    ws.column_dimensions[title_column].width = 20
     ws.column_dimensions[review_column].width = 30
     for field in call['review']:
         row.append(field['identifier'])
