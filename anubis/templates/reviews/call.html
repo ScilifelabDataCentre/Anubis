@@ -9,8 +9,16 @@ Reviews of proposals in call {{ call['identifier'] }}
 {{ macros.call_link(call, title=True) }}
 {% endblock %}
 
+{% block meta %}
+<div>
+  <a href="{{ url_for('.call_xlsx', cid=call['identifier']) }}"
+     title="Excel 2007 file"
+     class="badge badge-pill badge-primary">XLSX</a>
+</div>
+{% endblock %}
+
 {% block supermain %}
-{% if only_finalized %}
+{% if finalized %}
 <p class="lead">
   NOTE: Only finalized reviews are listed.
 </p>
@@ -18,23 +26,21 @@ Reviews of proposals in call {{ call['identifier'] }}
 <table id="reviews" class="table table-sm">
   <thead>
     <tr>
-      {# XXX Check access to view user #}
-      <th>Submitter</th>
       <th>Proposal</th>
-      <th>Reviewer</th>
+      <th>Submitter</th>
       <th>Review</th>
       {% for scorefield in scorefields %}
       <th>{{ scorefield['title'] }}</th>
       {% endfor %}
+      <th>Reviewer</th>
     </tr>
   </thead>
   <tbody>
     {% for proposal in proposals %}
     {% for reviewer in call['reviewers'] %}
     <tr>
-      <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
       <td>{{ macros.proposal_link(proposal, title=True) }}</td>
-      <td>{{ macros.user_link(get_user(reviewer)) }}</td>
+      <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
       {% set review = reviews_lookup.get("{} {}".format(proposal['identifier'], reviewer)) %}
       {% if review %}
       <td>{{ macros.review_link(review) }}</td>
@@ -60,6 +66,7 @@ Reviews of proposals in call {{ call['identifier'] }}
       <td>-</td>
       {% endfor %}
       {% endif %} {# if review #}
+      <td>{{ macros.user_link(get_user(reviewer)) }}</td>
     </tr>
     {% endfor %}
     {% endfor %}

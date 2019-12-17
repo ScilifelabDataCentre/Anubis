@@ -4,6 +4,7 @@ import tempfile
 
 import flask
 import openpyxl
+import openpyxl.styles
 
 import anubis.call
 import anubis.proposal
@@ -36,7 +37,8 @@ def call(cid):
 @blueprint.route('/call/<cid>.xlsx')
 @utils.login_required
 def call_xlsx(cid):
-    "Return an XLSX file of all proposals in a call."
+    "Produce an XLSX file of all proposals in a call."
+    from openpyxl.utils.cell import get_column_letter
     call = anubis.call.get_call(cid)
     if not call:
         utils.flash_error('No such call.')
@@ -51,17 +53,38 @@ def call_xlsx(cid):
     row = ['Proposal', 'Proposal title', 'Submitter']
     row.extend([f['identifier'] for f in call['proposal']])
     ws.append(row)
+    row_number = 1
     for proposal in proposals:
+        row_number += 1
         row = [proposal['identifier'], 
                proposal.get('title') or '',
                proposal['user']]
+        wraptext = []
+        hyperlink = []
         for field in call['proposal']:
             value = proposal['values'].get(field['identifier'])
             if value is None:
                 row.append('')
+            elif field['type'] == constants.TEXT:
+                row.append(value)
+                col = get_column_letter(len(row))
+                wraptext.append(f"{col}{row_number}")
+            elif field['type'] == constants.DOCUMENT:
+                row.append(flask.url_for('review.document',
+                                         iuid=review['_id'],
+                                         document=value,
+                                         _external=True))
+                col = get_column_letter(len(row))
+                hyperlink.append(f"{col}{row_number}")
             else:
                 row.append(value)
         ws.append(row)
+        if wraptext:
+            ws.row_dimensions[row_number].height = 40
+        while wraptext:
+            ws[wraptext.pop()].alignment = openpyxl.styles.Alignment(wrapText=True)
+        while hyperlink:
+            ws[hyperlink.pop()].style = 'Hyperlink'
     with tempfile.NamedTemporaryFile(suffix='.xlsx') as tmp:
         wb.save(tmp.name)
         tmp.seek(0)

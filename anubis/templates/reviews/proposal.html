@@ -9,8 +9,16 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
 {{ macros.proposal_link(proposal) }}
 {% endblock %}
 
+{% block meta %}
+<div>
+  <a href="{{ url_for('.proposal_xlsx', pid=proposal['identifier']) }}"
+     title="Excel 2007 file"
+     class="badge badge-pill badge-primary">XLSX</a>
+</div>
+{% endblock %}
+
 {% block supermain %}
-{% if only_finalized %}
+{% if finalized %}
 <p class="lead">
   NOTE: Only finalized reviews are listed.
 </p>
