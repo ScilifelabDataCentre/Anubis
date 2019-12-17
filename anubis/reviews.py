@@ -298,7 +298,6 @@ def get_xlsx(call, proposals, reviews_lookup):
             ws.column_dimensions[get_column_letter(len(row))].width = 50
         elif field['type'] == constants.DOCUMENT:
             ws.column_dimensions[get_column_letter(len(row))].width = 50
-            
     ws.append(row)
     row_number = 1
     wrap_alignment = openpyxl.styles.Alignment(wrapText=True)
