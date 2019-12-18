@@ -44,9 +44,9 @@ def display(pid):
         return flask.redirect(
             flask.url_for('call.display',
                           cid=proposal['cache']['call']['identifier']))
-    is_user = flask.g.current_user and \
-              flask.g.current_user['username'] == proposal['user']
-    is_reviewer = anubis.call.is_reviewer(proposal['cache']['call'])
+    am_submitter = flask.g.current_user and \
+                   flask.g.current_user['username'] == proposal['user']
+    am_reviewer = anubis.call.am_reviewer(proposal['cache']['call'])
     my_review = get_my_review(proposal, flask.g.current_user)
     allow_view_reviews = anubis.call.allow_view_reviews(proposal['cache']['call'])
     return flask.render_template('proposal/display.html',
@@ -54,8 +54,8 @@ def display(pid):
                                  allow_edit=allow_edit(proposal),
                                  allow_delete=allow_delete(proposal),
                                  allow_submit=allow_submit(proposal),
-                                 is_user=is_user,
-                                 is_reviewer=is_reviewer,
+                                 am_submitter=am_submitter,
+                                 am_reviewer=am_reviewer,
                                  my_review=my_review,
                                  allow_view_reviews=allow_view_reviews)
 
@@ -254,7 +254,7 @@ def allow_view(proposal):
     "Admin, the user of the proposal, and the reviewers may view a proposal."
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
-    if anubis.call.is_reviewer(proposal['cache']['call']):
+    if anubis.call.am_reviewer(proposal['cache']['call']):
         return bool(proposal.get('submitted'))
     return flask.g.current_user['username'] == proposal['user']
 

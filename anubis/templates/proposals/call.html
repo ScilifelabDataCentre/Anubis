@@ -38,13 +38,8 @@
       {% endif %}
       <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
       {% if allow_view_reviews %}
-      <td>
-	<a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
-           role="button" class="btn btn-sm btn-info px-3">
-	  {{ proposal['cache']['all_reviews_count'] }}
-	</a>
-      </td>
-      {% endif %} {# if allow_view_reviews #}
+      <td>{{ macros.proposal_reviews_link(proposal) }}</td>
+      {% endif %}
     </tr>
     {% endfor %} {# for proposal in proposals #}
   </tbody>

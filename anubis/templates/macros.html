@@ -45,15 +45,22 @@
 
 {% macro proposals_link(call) -%}
 <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
-   role="button" class="btn btn-sm btn-primary px-3">
+   role="button" class="btn btn-sm btn-primary px-3 py-0">
   {{ call['cache']['all_proposals_count'] }}</a>
 </a>
 {%- endmacro %}
 
 {% macro reviews_link(call) -%}
 <a href="{{ url_for('reviews.call', cid=call['identifier']) }}"
-   role="button" class="btn btn-sm btn-info px-3">
+   role="button" class="btn btn-sm btn-info px-3 py-0">
   {{ call['cache']['all_reviews_count'] }}</a>
+</a>
+{%- endmacro %}
+
+{% macro proposal_reviews_link(proposal) -%}
+<a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
+   role="button" class="btn btn-sm btn-info px-3 py-0">
+  {{ proposal['cache']['all_reviews_count'] }}</a>
 </a>
 {%- endmacro %}
 

@@ -63,7 +63,7 @@ def display(cid):
     return flask.render_template('call/display.html',
                                  call=call,
                                  my_proposal=my_proposal,
-                                 is_reviewer=is_reviewer(call),
+                                 am_reviewer=am_reviewer(call),
                                  allow_edit=allow_edit(call),
                                  allow_delete=allow_delete(call),
                                  allow_proposal=allow_proposal(call),
@@ -98,6 +98,8 @@ def edit(cid):
                     flask.request.form.get('opens'))
                 saver['closes'] = utils.normalize_datetime(
                     flask.request.form.get('closes'))
+                saver['reviews_due'] = utils.normalize_datetime(
+                    flask.request.form.get('reviews_due'))
         except ValueError as error:
             utils.flash_error(str(error))
         return flask.redirect(flask.url_for('.display', cid=call['identifier']))
@@ -696,7 +698,7 @@ def allow_delete(call):
 def allow_proposal(call):
     "Any logged-in user except designated reviewer may create a proposal. "
     if not flask.g.current_user: return False
-    return not is_reviewer(call)
+    return not am_reviewer(call)
 
 def allow_view_reviews(call):
     """Admin may view all reviews.
@@ -705,17 +707,17 @@ def allow_view_reviews(call):
     """
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
-    if is_reviewer(call):
-        if is_chair(call): return True
+    if am_reviewer(call):
+        if am_chair(call): return True
         return bool(call['access'].get('allow_reviewer_view_all_reviews'))
     return False
 
-def is_reviewer(call):
+def am_reviewer(call):
     "Is the current user a reviewer for proposals in the call?"
     if not flask.g.current_user: return False
     return flask.g.current_user['username'] in call['reviewers']
 
-def is_chair(call):
+def am_chair(call):
     "Is the current user a chair for proposals in the call?"
     if not flask.g.current_user: return False
     return flask.g.current_user['username'] in call['chairs']

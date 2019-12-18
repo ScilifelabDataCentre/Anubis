@@ -268,7 +268,7 @@ def allow_create(proposal):
     if not proposal.get('submitted'): return False
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
-    return anubis.call.is_chair(proposal['cache']['call'])
+    return anubis.call.am_chair(proposal['cache']['call'])
 
 def allow_view(review):
     """Admin may view all reviews.
@@ -279,7 +279,7 @@ def allow_view(review):
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     if flask.g.current_user['username'] == review['reviewer']: return True
-    if anubis.call.is_reviewer(review['cache']['call']): return True
+    if anubis.call.am_reviewer(review['cache']['call']): return True
     if anubis.call.allow_view_reviews(review['cache']['call']) and \
        review.get('finalized'): return True
     return False

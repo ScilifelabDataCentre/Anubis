@@ -85,11 +85,35 @@
 	submitting proposals.
 	<br>
 	<strong>NOTE:</strong> If the call should close at midnight
-	e.g. 2019-01-10, then one must specify <strong>2019-01-11
+	e.g. 2019-01-01, then one must specify <strong>2019-01-02
 	00:00</strong>, that is, at 0:00 in the morning the following day.
 	<br>
 	The system automatically disallows creating proposals for
 	closed calls.
+      </small>
+    </div>
+  </div>
+  <div class="form-group row">
+    <label for="closes"
+	   class="col-md-2 col-form-label text-right font-weight-bold">
+      Reviews due</label>
+    <div class="col-md">
+      <div class="row">
+	<div class="col-md-3">
+	  <input type="text" name="reviews_due" id="reviews_due"
+		 class="form-control"
+		 aria-describedby="reviews_dueHelp"
+		 value="{{ call['reviews_due'] or '' }}">
+	</div>
+      </div>
+      <small id="reviews_dueHelp" class="form-text text-muted">
+	The date (ISO format YYY-MM-DD, all digits) and time (HH:MM,
+	24 hour, system local time) when the reviews of the proposals
+        are due.
+	<br>
+	<strong>NOTE:</strong> If the reviews are due at midnight
+	e.g. 2019-01-01, then one must specify <strong>2019-01-02
+	00:00</strong>, that is, at 0:00 in the morning the following day.
       </small>
     </div>
   </div>

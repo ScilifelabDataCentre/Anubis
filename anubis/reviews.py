@@ -45,7 +45,7 @@ def call(cid):
                                         reduce=False,
                                         include_docs=True)]
     # For ordinary reviewer, list only finalized reviews.
-    if not (flask.g.am_admin or anubis.call.is_chair(call)):
+    if not (flask.g.am_admin or anubis.call.am_chair(call)):
         finalized = True
         reviews = [r for r in reviews
                    if r['reviewer'] != flask.g.current_user['username'] and 
@@ -88,7 +88,7 @@ def call_xlsx(cid):
                                         reduce=False,
                                         include_docs=True)]
     # For ordinary reviewer, list only finalized reviews.
-    if not (flask.g.am_admin or anubis.call.is_chair(call)):
+    if not (flask.g.am_admin or anubis.call.am_chair(call)):
         reviews = [r for r in reviews
                    if r['reviewer'] != flask.g.current_user['username'] and 
                    r.get('finalized')]
@@ -196,13 +196,12 @@ def proposal(pid):
         return flask.redirect(
             flask.url_for('call.display', cid=call['identifier']))
 
-    is_chair = anubis.call.is_chair(call)
     reviews = [anubis.review.set_cache(r.doc)
                for r in flask.g.db.view('reviews', 'proposal',
                                         key=proposal['identifier'],
                                         reduce=False,
                                         include_docs=True)]
-    if not (flask.g.am_admin or anubis.call.is_chair(call)):
+    if not (flask.g.am_admin or anubis.call.am_chair(call)):
         finalized = True
         reviews = [r for r in reviews
                    if r['reviewer'] != flask.g.current_user['username'] and 
@@ -238,13 +237,12 @@ def proposal_xlsx(pid):
         return flask.redirect(
             flask.url_for('call.display', cid=call['identifier']))
 
-    is_chair = anubis.call.is_chair(call)
     reviews = [anubis.review.set_cache(r.doc)
                for r in flask.g.db.view('reviews', 'proposal',
                                         key=proposal['identifier'],
                                         reduce=False,
                                         include_docs=True)]
-    if not (flask.g.am_admin or anubis.call.is_chair(call)):
+    if not (flask.g.am_admin or anubis.call.am_chair(call)):
         reviews = [r for r in reviews
                    if r['reviewer'] != flask.g.current_user['username'] and 
                    r.get('finalized')]
