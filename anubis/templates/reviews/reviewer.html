@@ -47,6 +47,7 @@ Reviews by user {{ user['username'] }}
 <script>
   $(function() {
     $("#reviews").DataTable( {
+      "order": [[4, "desc"]],
       "pagingType": "full_numbers",
       "pageLength": 25
     });
