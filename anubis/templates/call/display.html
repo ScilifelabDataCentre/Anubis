@@ -56,7 +56,18 @@
 {% if g.am_admin or am_reviewer %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Reviews due</div>
-  <div class="col-md">{{ call.get('reviews_due') or '-' }}</div>
+  <div class="col-md">
+    {% set due = call.get('reviews_due') %}
+    {% if due %}
+    {% if utils.days_remaining(due) >= 0 %}
+    {{ due }}
+    {% else %}
+    <span class="text-danger">{{ due }}</span>
+    {% endif %}
+    {% else %}
+    -
+    {% endif %} {# if due #}
+  </div>
 </div>
 {% endif %} {# if g.am_admin or am_reviewer #}
 

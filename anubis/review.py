@@ -288,8 +288,11 @@ def allow_edit(review):
     "Admin and reviewer may edit an unfinalized review."
     if review.get('finalized'): return False
     if not flask.g.current_user: return False
-    return (flask.g.am_admin or
-            flask.g.current_user['username'] == review['reviewer'])
+    if flask.g.am_admin: return True
+    if review['cache']['call'].get('reviews_due') and \
+       utils.days_remaining(review['cache']['call']['reviews_due']) < 0:
+        return False
+    return flask.g.current_user['username'] == review['reviewer']
 
 def allow_delete(review):
     "Admin may delete a review."
@@ -299,15 +302,18 @@ def allow_finalize(review):
     "Admin and reviewer may finalize if the review contains no errors."
     if review.get('finalized'): return False
     if not flask.g.current_user: return False
-    return (flask.g.am_admin or
-            flask.g.current_user['username'] == review['reviewer'])
+    if flask.g.am_admin: return True
+    return flask.g.current_user['username'] == review['reviewer']
 
 def allow_unfinalize(review):
     "Admin and reviewer may unfinalize the review."
     if not review.get('finalized'): return False
     if not flask.g.current_user: return False
-    return (flask.g.am_admin or
-            flask.g.current_user['username'] == review['reviewer'])
+    if flask.g.am_admin: return True
+    if review['cache']['call'].get('reviews_due') and \
+       utils.days_remaining(review['cache']['call']['reviews_due']) < 0:
+        return False
+    return flask.g.current_user['username'] == review['reviewer']
 
 def set_cache(review, call=None):
     """Set the cached, non-saved fields of the review.

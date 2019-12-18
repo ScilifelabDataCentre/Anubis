@@ -37,7 +37,8 @@ app.add_template_filter(utils.do_markdown, name='markdown')
 @app.context_processor
 def setup_template_context():
     "Add useful stuff to the global context of Jinja2 templates."
-    return dict(constants=constants,
+    return dict(utils=utils,
+                constants=constants,
                 csrf_token=utils.csrf_token,
                 enumerate=enumerate,
                 sorted=sorted,

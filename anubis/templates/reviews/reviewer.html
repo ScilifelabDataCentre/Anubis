@@ -15,9 +15,9 @@ Reviews by user {{ user['username'] }}
     <tr>
       <th>Call</th>
       <th>Proposal</th>
-      {# XXX Check access to view submitter #}
       <th>Submitter</th>
       <th>Review</th>
+      <th>Review due</th>
     </tr>
   </thead>
   <tbody>
@@ -25,9 +25,18 @@ Reviews by user {{ user['username'] }}
     <tr>
       <td>{{ macros.call_link(review['cache']['call']) }}</td>
       <td>{{ macros.proposal_link(review['cache']['proposal']) }}</td>
-      {# XXX Check access to view submitter #}
       <td>{{ macros.user_link(get_user(review['cache']['proposal']['user'])) }}</td>
       <td>{{ macros.review_link(review) }}</td>
+      <td>
+        {% set due = review['cache']['call'].get('reviews_due') %}
+        {% if due %}
+        {% if utils.days_remaining(due) >= 0 %}
+        {{ due }}
+        {% else %}
+        <span class="text-danger">{{ due }}</span>
+        {% endif %}
+        {% endif %} {# if due #}
+      </td>
     </tr>
     {% endfor %}
   </tbody>

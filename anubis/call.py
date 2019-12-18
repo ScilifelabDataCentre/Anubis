@@ -746,29 +746,23 @@ def set_cache(call):
             cache['color'] = 'secondary'
         elif call['closes']:
             remaining = utils.days_remaining(call['closes'])
-            if remaining > 7.0:
+            if remaining > 7:
                 cache['is_open'] = True
                 cache['is_closed'] = False
                 cache['is_published'] = True
                 cache['text'] = f"{remaining:.0f} days remaining."
                 cache['color'] = 'success'
-            elif remaining > 2.0:
+            elif remaining >= 2:
                 cache['is_open'] = True
                 cache['is_closed'] = False
                 cache['is_published'] = True
                 cache['text'] = f"{remaining:.0f} days remaining."
-                cache['color'] = 'info'
-            elif remaining >= 1.0:
-                cache['is_open'] = True
-                cache['is_closed'] = False
-                cache['is_published'] = True
-                cache['text'] = "Less than two days remaining."
                 cache['color'] = 'warning'
-            elif remaining >= 0.0:
+            elif remaining >= 0:
                 cache['is_open'] = True
                 cache['is_closed'] = False
                 cache['is_published'] = True
-                cache['text'] = "Less than one day remaining."
+                cache['text'] = f"{remaining:.1f} days remaining."
                 cache['color'] = 'danger'
             else:
                 cache['is_open'] = False
