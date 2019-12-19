@@ -46,14 +46,14 @@ def execute(pargs):
     if pargs.create_admin:
         with anubis.user.UserSaver() as saver:
             saver.set_username(input('username > '))
-            saver.set_email(input('email > '))
+            saver.set_email(input('email > '), require=True)
             saver.set_password(getpass.getpass('password > '))
             saver.set_role(constants.ADMIN)
             saver.set_status(constants.ENABLED)
     elif pargs.create_user:
         with anubis.user.UserSaver() as saver:
             saver.set_username(input('username > '))
-            saver.set_email(input('email > '))
+            saver.set_email(input('email > '), require=False)
             saver.set_password(getpass.getpass('password > '))
             saver.set_role(constants.USER)
             saver.set_status(constants.ENABLED)

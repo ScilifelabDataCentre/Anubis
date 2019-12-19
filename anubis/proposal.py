@@ -83,6 +83,13 @@ def edit(pid):
         try:
             with ProposalSaver(proposal) as saver:
                 saver['title'] = flask.request.form.get('_title') or None
+                value = flask.request.form.get('_user')
+                if value and value != proposal['user']:
+                    user = anubis.user.get_user(username=value, email=value)
+                    if user:
+                        saver.set_user(user)
+                    else:
+                        raise ValueError('No such user.')
                 for field in proposal['cache']['call']['proposal']:
                     saver.set_field_value(field, form=flask.request.form)
         except ValueError as error:
@@ -198,20 +205,23 @@ class ProposalSaver(FieldMixin, AttachmentsSaver):
         elif call:
             super().__init__(doc=None)
             self.set_call(call)
+            self.set_user(flask.g.current_user)
         else:
             raise ValueError('doc or call must be specified')
-        self.set_user(flask.g.current_user)
 
     def initialize(self):
         self.doc['values'] = {}
         self.doc['errors'] = {}
 
     def set_user(self, user):
-        "Set the user for the proposal; must be called at creation."
+        "Set the user for the proposal; must be called when creating proposal."
+        from .proposals import get_call_user_proposal
+        if get_call_user_proposal(self.doc['call'], user['username']):
+            raise ValueError('User already has a proposal in the call.')
         self.doc['user'] = user['username']
 
     def set_call(self, call):
-        "Set the call for the proposal; must be called at creation."
+        "Set the call for the proposal; must be called when creating proposal."
         if self.doc.get('call'):
             raise ValueError('call has already been set')
         self.doc['call'] = call['identifier']

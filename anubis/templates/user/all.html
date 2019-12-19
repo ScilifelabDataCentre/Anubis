@@ -41,7 +41,7 @@
 	    {{ user['cache']['all_reviews_count'] }}</span>
 	</a>
       </td>
-      <td>{{ user['email'] }}</td>
+      <td>{{ user['email'] or '-' }}</td>
       <td>{{ user['givenname'] or '-' }}</td>
       <td>{{ user['familyname'] or '-' }}</td>
       {% if config['USER_GENDERS'] %}

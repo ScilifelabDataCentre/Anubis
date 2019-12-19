@@ -146,12 +146,17 @@ def get_user_proposals(username, call=None):
                                      reduce=False,
                                      include_docs=True)]
 
-def get_call_user_proposal(call, username):
+def get_call_user_proposal(cid, username):
     """Get the proposal created by the user in the call.
     Cache not set. Excludes no proposals.
     """
-    proposals = [p for p in get_user_proposals(username, call=call)
-                 if p['call'] == call['identifier']]
+    proposals = [r.doc
+                 for r in flask.g.db.view('proposals', 'call',
+                                          key=cid,
+                                          reduce=False,
+                                          include_docs=True)
+                 if r.value == username]
+
     if proposals:
         return proposals[0]
     else:

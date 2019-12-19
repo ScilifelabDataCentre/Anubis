@@ -6,7 +6,6 @@ import flask
 
 from . import constants
 from . import utils
-from .proposals import get_call_user_proposal
 from .saver import AttachmentsSaver
 
 
@@ -48,6 +47,7 @@ def create():
 @blueprint.route('/<cid>')
 def display(cid):
     "Display the call."
+    from .proposals import get_call_user_proposal
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
@@ -56,7 +56,7 @@ def display(cid):
         utils.flash_error('You are not allowed to view the call.')
         return flask.redirect(flask.url_for('home'))
     if flask.g.current_user:
-        my_proposal = get_call_user_proposal(call,
+        my_proposal = get_call_user_proposal(cid, 
                                              flask.g.current_user['username'])
     else:
         my_proposal = None
@@ -247,7 +247,7 @@ def reviewers(cid):
             utils.flash_error('No such user.')
             return flask.redirect(
                 flask.url_for('.reviewers', cid=call['identifier']))
-        if get_call_user_proposal(call, user['username']):
+        if get_call_user_proposal(cid, user['username']):
             utils.flash_error('User has a proposal in the call.')
             return flask.redirect(
                 flask.url_for('.reviewers', cid=call['identifier']))
@@ -401,7 +401,7 @@ def create_proposal(cid):
         return flask.redirect(flask.url_for('.display', cid=cid))
 
     if utils.http_POST():
-        proposal = get_call_user_proposal(call,flask.g.current_user['username'])
+        proposal = get_call_user_proposal(cid, flask.g.current_user['username'])
         if proposal:
             utils.flash_message('Proposal already exists for the call.')
             return flask.redirect(

@@ -23,7 +23,7 @@ def init(app):
 DESIGN_DOC = {
     'views': {
         'username': {'map': "function(doc) {if (doc.doctype !== 'user') return; emit(doc.username, null);}"},
-        'email': {'map': "function(doc) {if (doc.doctype !== 'user') return;  emit(doc.email, null);}"},
+        'email': {'map': "function(doc) {if (doc.doctype !== 'user' || !doc.email) return;  emit(doc.email, null);}"},
         'role': {'map': "function(doc) {if (doc.doctype !== 'user') return;  emit(doc.role, null);}"},
     }
 }
@@ -98,7 +98,7 @@ def register():
         # Was set to 'pending'; send email to admins.
         else:
             admins = get_users(constants.ADMIN, status=constants.ENABLED)
-            emails = [u['email'] for u in admins]
+            emails = [u['email'] for u in admins if u['email']]
             site = flask.current_app.config['SITE_NAME']
             message = flask_mail.Message(f"{site} user account pending",
                                          recipients=emails)
@@ -122,12 +122,13 @@ def reset():
             if user is None: raise KeyError
             if user['status'] != constants.ENABLED: raise KeyError
         except KeyError:
-            pass
+            pass                # Silent when no user found.
         else:
             with UserSaver(user) as saver:
                 saver.set_password()
             send_password_code(user, 'password reset')
-        utils.flash_message('An email has been sent if the user account exists.')
+        # Don't advertise whether user exists or not.
+        utils.flash_message('An email has been sent, if the user account exists.')
         return flask.redirect(flask.url_for('home'))
 
 @blueprint.route('/password', methods=['GET', 'POST'])
@@ -186,7 +187,7 @@ def display(username):
                  methods=['GET', 'POST', 'DELETE'])
 @utils.login_required
 def edit(username):
-    "Edit the user display. Or delete the user."
+    "Edit the user. Or delete the user."
     user = get_user(username=username)
     if user is None:
         utils.flash_error('No such user.')
@@ -201,27 +202,30 @@ def edit(username):
                                      change_role=am_admin_and_not_self(user))
 
     elif utils.http_POST():
-        with UserSaver(user) as saver:
-            if flask.g.am_admin:
-                email = flask.request.form.get('email')
-                if email != user['email']:
-                    saver.set_email(email)
-            saver['givenname'] = flask.request.form.get('givenname') or None
-            saver['familyname'] = flask.request.form.get('familyname') or None
-            if flask.current_app.config['USER_GENDERS']:
-                saver.set_gender(flask.request.form.get('gender'))
-            if flask.current_app.config['USER_BIRTHDATE']:
-                saver.set_birthdate(flask.request.form.get('birthdate'))
-            if flask.current_app.config['USER_TITLE']:
-                saver['title'] = flask.request.form.get('title') or None
-            if flask.current_app.config['USER_AFFILIATION']:
-                saver['affiliation'] = flask.request.form.get('affiliation') or None
-            if flask.current_app.config['USER_POSTAL_ADDRESS']:
-                saver['postaladdress'] = flask.request.form.get('postaladdress') or None
-            if flask.current_app.config['USER_PHONE']:
-                saver['phone'] = flask.request.form.get('phone') or None
-            if am_admin_and_not_self(user):
-                saver.set_role(flask.request.form.get('role'))
+        try:
+            with UserSaver(user) as saver:
+                if flask.g.am_admin:
+                    email = flask.request.form.get('email')
+                    if email != user['email']:
+                        saver.set_email(email)
+                saver['givenname'] = flask.request.form.get('givenname') or None
+                saver['familyname'] = flask.request.form.get('familyname') or None
+                if flask.current_app.config['USER_GENDERS']:
+                    saver.set_gender(flask.request.form.get('gender'))
+                if flask.current_app.config['USER_BIRTHDATE']:
+                    saver.set_birthdate(flask.request.form.get('birthdate'))
+                if flask.current_app.config['USER_TITLE']:
+                    saver['title'] = flask.request.form.get('title') or None
+                if flask.current_app.config['USER_AFFILIATION']:
+                    saver['affiliation'] = flask.request.form.get('affiliation') or None
+                if flask.current_app.config['USER_POSTAL_ADDRESS']:
+                    saver['postaladdress'] = flask.request.form.get('postaladdress') or None
+                if flask.current_app.config['USER_PHONE']:
+                    saver['phone'] = flask.request.form.get('phone') or None
+                if am_admin_and_not_self(user):
+                    saver.set_role(flask.request.form.get('role'))
+        except ValueError as error:
+            utils.flash_error(error)
         return flask.redirect(
             flask.url_for('.display', username=user['username']))
 
@@ -304,7 +308,7 @@ class UserSaver(BaseSaver):
 
     def finalize(self):
         "Check that required fields have been set."
-        for key in ['username', 'email', 'role', 'status']:
+        for key in ['username', 'role', 'status']:
             if not self.doc.get(key):
                 raise ValueError("invalid user: %s not set" % key)
 
@@ -317,17 +321,22 @@ class UserSaver(BaseSaver):
             raise ValueError('username already in use')
         self.doc['username'] = username
 
-    def set_email(self, email):
-        if not constants.EMAIL_RX.match(email):
-            raise ValueError('invalid email')
-        if get_user(email=email):
-            raise ValueError('email already in use')
-        self.doc['email'] = email
-        if self.doc.get('status') == constants.PENDING:
-            for rx in flask.current_app.config['USER_ENABLE_EMAIL_WHITELIST']:
-                if re.match(rx, email):
-                    self.set_status(constants.ENABLED)
-                    break
+    def set_email(self, email, require=True):
+        if email:
+            if not constants.EMAIL_RX.match(email):
+                raise ValueError('invalid email')
+            if get_user(email=email):
+                raise ValueError('email already in use')
+            self.doc['email'] = email
+            if self.doc.get('status') == constants.PENDING:
+                for rx in flask.current_app.config['USER_ENABLE_EMAIL_WHITELIST']:
+                    if re.match(rx, email):
+                        self.set_status(constants.ENABLED)
+                        break
+        elif require:
+            raise ValueError('No email address provided.')
+        else:
+            self.doc['email'] = None
 
     def set_status(self, status):
         if status not in constants.USER_STATUSES:
@@ -342,14 +351,13 @@ class UserSaver(BaseSaver):
     def set_password(self, password=None):
         "Set the password; a one-time code if no password provided."
         config = flask.current_app.config
-        if password is None:
-            self.doc['password'] = "code:%s" % utils.get_iuid()
-        else:
+        if password:
             if len(password) < config['MIN_PASSWORD_LENGTH']:
                 raise ValueError('password too short')
             self.doc['password'] = werkzeug.security.generate_password_hash(
                 password, salt_length=config['SALT_LENGTH'])
-
+        else:
+            self.doc['password'] = "code:%s" % utils.get_iuid()
 
     def set_gender(self, gender):
         if gender not in flask.current_app.config['USER_GENDERS']:

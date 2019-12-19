@@ -21,7 +21,7 @@
           <input type="email" readonly
                  class="form-control"
                  aria-describedby="emailHelp"
-	         placeholder="{{ user['email'] }}">
+	         placeholder="{{ user['email'] or '-' }}">
           {% endif %} {# if g.am_admin #}
         </div>
       </div>

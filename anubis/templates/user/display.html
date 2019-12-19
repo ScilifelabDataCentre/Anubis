@@ -45,7 +45,7 @@ User {{ user['username'] }}
   </tr>
   <tr>
     <th class="text-right">Email</th>
-    <td>{{ user['email'] }}</td>
+    <td>{{ user['email'] or '-' }}</td>
   </tr>
   <tr>
     <th class="text-right">Role</th>
@@ -107,6 +107,7 @@ User {{ user['username'] }}
   <a href="{{ url_for('.edit', username=user['username']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
+{% if user['email'] %}
 <div class="mt-2">
   <form action="{{ url_for('.reset') }}"
         method="GET">
@@ -115,6 +116,7 @@ User {{ user['username'] }}
       Reset password</button>
   </form>
 </div>
+{% endif %} {# if user['email'] #}
 {% if enable_disable %}
 <div class="mt-2">
   {% if user['status'] != constants.ENABLED %}
