@@ -5,6 +5,9 @@
 {% block body_title %}Edit call {{ call['identifier'] }}{% endblock %}
 
 {% block main %}
+<p class="lead text-danger">
+  This call is open. Ensure that you know what you are doing.
+</p>
 <form action="{{ url_for('.edit', cid=call['identifier']) }}"
       method="POST">
   {{ csrf_token() }}
