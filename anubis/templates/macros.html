@@ -69,7 +69,7 @@
   {{ call['cache']['text'] }}</span>
 {%- endmacro %}
 
-{% macro submitted(proposal) -%}
+{% macro submitted(proposal, long=True) -%}
 {% if proposal.get('submitted') %}
 <span class="badge badge-success">Submitted</span>
 {% else %}

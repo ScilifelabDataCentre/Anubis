@@ -28,6 +28,7 @@ Reviews of proposals in call {{ call['identifier'] }}
     <tr>
       <th>Proposal</th>
       <th>Submitter</th>
+      <th>Submitted</th>
       <th>Review</th>
       {% for scorefield in scorefields %}
       <th>{{ scorefield['title'] }}</th>
@@ -41,6 +42,7 @@ Reviews of proposals in call {{ call['identifier'] }}
     <tr>
       <td>{{ macros.proposal_link(proposal, title=True) }}</td>
       <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
+      <td>{{ macros.submitted(proposal, long=False) }}</td>
       {% set review = reviews_lookup.get("{} {}".format(proposal['identifier'], reviewer)) %}
       {% if review %}
       <td>{{ macros.review_link(review) }}</td>
@@ -55,7 +57,9 @@ Reviews of proposals in call {{ call['identifier'] }}
 	<form action="{{ url_for('review.create', pid=proposal['identifier'], username=reviewer) }}"
 	      method="POST">
 	  {{ csrf_token() }}
-	  <button type="submit" class="btn btn-sm btn-info">
+          <input type="hidden" name="_next"
+                 value="{{ url_for('reviews.call', cid=call['identifier']) }}">
+	  <button type="submit" class="btn btn-sm btn-info py-0">
             Create review</button>
 	</form>
       </td>

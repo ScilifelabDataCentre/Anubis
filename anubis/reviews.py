@@ -38,7 +38,7 @@ def call(cid):
                                           reduce=False,
                                           include_docs=True)]
     for proposal in proposals:
-        proposal['cache']['allow_review_create'] = anubis.review.allow_create(proposal)
+        proposal['cache']['allow_create_review'] = anubis.review.allow_create(proposal)
     reviews = [anubis.review.set_cache(r.doc)
                for r in flask.g.db.view('reviews', 'call',
                                         key=call['identifier'],

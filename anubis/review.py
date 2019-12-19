@@ -68,8 +68,11 @@ def create(pid, username):
             saver.set_reviewer(user)
     except ValueError:
         pass
-    return flask.redirect(
-        flask.url_for('reviews.proposal', pid=proposal['identifier']))
+    try:
+        return flask.redirect(flask.request.form['_next'])
+    except KeyError:
+        return flask.redirect(
+            flask.url_for('reviews.proposal', pid=proposal['identifier']))
 
 @blueprint.route('/<iuid:iuid>')
 @utils.login_required

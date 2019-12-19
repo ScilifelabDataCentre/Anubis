@@ -58,7 +58,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
 	<form action="{{ url_for('review.create', pid=proposal['identifier'], username=reviewer) }}"
 	      method="POST">
 	  {{ csrf_token() }}
-	  <button type="submit" class="btn btn-sm btn-info">
+	  <button type="submit" class="btn btn-sm btn-info py-0">
             Create review</button>
 	</form>
 	{% else %}

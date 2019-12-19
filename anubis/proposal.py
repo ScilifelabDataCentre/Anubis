@@ -287,9 +287,9 @@ def allow_submit(proposal):
     The user may submit the proposal if the call is open.
     """
     if not flask.g.current_user: return False
+    if proposal['errors']: return False
     if flask.g.am_admin: return True
     if proposal.get('submitted'): return False
-    if proposal['errors']: return False
     return (flask.g.current_user['username'] == proposal['user']
             and proposal['cache']['call']['cache']['is_open'])
     
