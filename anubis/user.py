@@ -51,13 +51,13 @@ def login():
             else:
                 return flask.redirect(next)
         except ValueError:
-            utils.flash_error('Invalid user/password, or account disabled.')
+            utils.flash_error('Invalid user or password, or account disabled.')
             return flask.redirect(flask.url_for('.login'))
 
 @blueprint.route('/logout', methods=['POST'])
 def logout():
     "Logout from the user account."
-    username = flask.session.pop('username', None)
+    flask.session.pop('username', None)
     return flask.redirect(flask.url_for('home'))
 
 @blueprint.route('/register', methods=['GET', 'POST'])
@@ -142,24 +142,28 @@ def password():
 
     elif utils.http_POST():
         try:
-            username = flask.request.form['username']
-            if not username: raise KeyError
+            username = flask.request.form.get('username') or ''
+            code = flask.request.form.get('code') or ''
+            if not username:
+                raise ValueError('No such user or wrong code.')
             user = get_user(username=username)
-            if user is None: raise KeyError
-            if user['password'] != "code:{}".format(flask.request.form['code']):
-                raise KeyError
+            if user is None:
+                raise ValueError('No such user or wrong code.')
+            if user['password'] != f"code:{code}":
+                raise ValueError('No such user or wrong code.')
             password = flask.request.form.get('password') or ''
             if len(password) < flask.current_app.config['MIN_PASSWORD_LENGTH']:
-                raise ValueError
-        except KeyError:
-            utils.flash_error('No such user or wrong code.')
-        except ValueError:
-            utils.flash_error('Too short password.')
+                raise ValueError('Too short password.')
+        except ValueError as error:
+            utils.flash_error(str(error))
+            return flask.redirect(flask.url_for('.password',
+                                                username=username,
+                                                code=code))
         else:
             with UserSaver(user) as saver:
                 saver.set_password(password)
             do_login(username, password)
-        return flask.redirect(flask.url_for('home'))
+        return flask.redirect(utils.referrer_or_home())
 
 @blueprint.route('/display/<username>')
 @utils.login_required
@@ -170,9 +174,9 @@ def display(username):
     if user is None:
         utils.flash_error('No such user.')
         return flask.redirect(flask.url_for('home'))
-    if not am_admin_or_self(user):
-        utils.flash_error('Access not allowed.')
-        return flask.redirect(flask.url_for('home'))
+    if not allow_view(user):
+        utils.flash_error('Access to user display not allowed.')
+        return flask.redirect(utils.referrer_or_home())
     user = set_cache(user)
     reviewer_calls = [get_call(r.value)
                       for r in flask.g.db.view('calls', 'reviewer', 
@@ -180,8 +184,9 @@ def display(username):
     return flask.render_template('user/display.html',
                                  user=user,
                                  reviewer_calls=reviewer_calls,
-                                 enable_disable=am_admin_and_not_self(user),
-                                 deletable=is_deletable(user))
+                                 allow_enable_disable=allow_enable_disable(user),
+                                 allow_edit=allow_edit(user),
+                                 allow_delete=allow_delete(user))
 
 @blueprint.route('/display/<username>/edit',
                  methods=['GET', 'POST', 'DELETE'])
@@ -192,14 +197,15 @@ def edit(username):
     if user is None:
         utils.flash_error('No such user.')
         return flask.redirect(flask.url_for('home'))
-    if not am_admin_or_self(user):
-        utils.flash_error('Access not allowed.')
-        return flask.redirect(flask.url_for('home'))
+    if not allow_edit(user):
+        utils.flash_error('Access to user edit not allowed.')
+        return flask.redirect(utils.referrer_or_home())
 
+    allow_change_role = allow_change_role(user)
     if utils.http_GET():
         return flask.render_template('user/edit.html',
                                      user=user,
-                                     change_role=am_admin_and_not_self(user))
+                                     allow_change_role=allow_change_role)
 
     elif utils.http_POST():
         try:
@@ -222,7 +228,7 @@ def edit(username):
                     saver['postaladdress'] = flask.request.form.get('postaladdress') or None
                 if flask.current_app.config['USER_PHONE']:
                     saver['phone'] = flask.request.form.get('phone') or None
-                if am_admin_and_not_self(user):
+                if allow_change_role:
                     saver.set_role(flask.request.form.get('role'))
         except ValueError as error:
             utils.flash_error(error)
@@ -230,7 +236,7 @@ def edit(username):
             flask.url_for('.display', username=user['username']))
 
     elif utils.http_DELETE():
-        if not is_deletable(user):
+        if not allow_delete(user):
             utils.flash_error('Cannot delete the user account; admin or not empty.')
             return flask.redirect(flask.url_for('.display', username=username))
         flask.g.db.delete(user)
@@ -248,9 +254,9 @@ def logs(username):
     if user is None:
         utils.flash_error('No such user.')
         return flask.redirect(flask.url_for('home'))
-    if not am_admin_or_self(user):
-        utils.flash_error('Access not allowed.')
-        return flask.redirect(flask.url_for('home'))
+    if not allow_view(user):
+        utils.flash_error('Access to user logs not allowed.')
+        return flask.redirect(utils.referrer_or_home())
     return flask.render_template(
         'logs.html',
         title=f"User {user['username']}",
@@ -455,26 +461,46 @@ def am_admin(user=None):
     if user is None: return False
     return user['role'] == constants.ADMIN
 
-def is_deletable(user):
+def allow_view(user):
+    """Is the current user allowed to view the user account?
+    Yes, if current user is admin or self.
+    """
+    if not flask.g.current_user: return False
+    if flask.g.am_admin: return True
+    if flask.g.current_user['username'] == user['username']: return True
+    return False
+
+def allow_edit(user):
+    """Is the current user allowed to edit the user account?
+    Yes, if current user is admin or self.
+    """
+    if not flask.g.current_user: return False
+    if flask.g.am_admin: return True
+    if flask.g.current_user['username'] == user['username']: return True
+    return False
+
+def allow_delete(user):
     """Can the the given user account be deleted? 
-    Only when not admin, no proposals and no reviews.
+    Only when it is not admin, and has no proposals and no reviews.
     """
     if user['role'] == constants.ADMIN: return False
     if utils.get_count('proposals', 'user', user['username']): return False
     if utils.get_count('reviews', 'reviewer', user['username']): return False
     return True
 
-def am_admin_or_self(user):
-    "Is the current user admin, or the same as the given user?"
-    if not flask.g.current_user: return False
-    if flask.g.am_admin: return True
-    return flask.g.current_user['username'] == user['username']
+def allow_enable_disable(user):
+    """Is the current user allowed to enable or disable the user account?
+    Yes, if current user is admin an not self.
+    """
+    return flask.g.am_admin and \
+        flask.g.current_user['username'] != user['username']
 
-def am_admin_and_not_self(user):
-    "Is the current user admin, but not the same as the given user?"
-    if flask.g.am_admin:
-        return flask.g.current_user['username'] != user['username']
-    return False
+def allow_change_role(user):
+    """Is the current user allowed to change the role of the user account?
+    Yes, if current user is admin an not self.
+    """
+    return flask.g.am_admin and \
+        flask.g.current_user['username'] != user['username']
 
 def set_cache(user):
     """Set the cached, non-saved values for the call.

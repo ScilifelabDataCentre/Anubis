@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '0.6.8'
+__version__ = '0.6.10'
 
 class Constants:
     VERSION     = __version__
@@ -22,6 +22,7 @@ class Constants:
     CALL     = 'call'
     PROPOSAL = 'proposal'
     REVIEW   = 'review'
+    DECISION = 'decision'
     LOG      = 'log'
 
     # User roles
@@ -47,15 +48,11 @@ class Constants:
 
     # Access flags for each call
     ACCESS = ('allow_reviewer_view_all_reviews',
-              # not implemented 'allow_public_view_all_reviews',
               # not implemented 'allow_submitter_view_all_decisions',
               # not implemented 'allow_public_view_all_decisions',
     )
 
     # MIME types
-    CSV_MIMETYPE  = 'text/csv'
-    JSON_MIMETYPE = 'application/json'
-    TAR_MIMETYPE  = 'application/x-tar'
     XLSX_MIMETYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
     def __setattr__(self, key, value):

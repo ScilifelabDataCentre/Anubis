@@ -121,7 +121,7 @@ def edit(iuid):
                     saver.set_field_value(field, form=flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
-            return flask.redirect(flask.url_for('.edit', iuid=review['_id']))
+            return flask.redirect(utils.referrer_or_home())
         return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
     elif utils.http_DELETE():

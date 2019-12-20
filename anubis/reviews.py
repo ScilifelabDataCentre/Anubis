@@ -262,8 +262,7 @@ def reviewer(username):
     if user is None:
         utils.flash_error('No such user.')
         return flask.redirect(flask.url_for('home'))
-    # Access to view all reviews of a specific call is not sufficient.
-    if not anubis.user.am_admin_or_self(user):
+    if not anubis.user.allow_view(user):
         utils.flash_error("You may not view the user's reviews.")
         return flask.redirect(
             flask.url_for('call.display', cid=call['identifier']))

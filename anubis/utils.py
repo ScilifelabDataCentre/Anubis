@@ -47,9 +47,10 @@ def get_count(designname, viewname, key):
 # Global instance of mail interface.
 mail = flask_mail.Mail()
 
-# Decorators for endpoints
 def login_required(f):
-    "Decorator for checking if logged in. Send to login page if not."
+    """Resource endpoint decorator for checking if logged in.
+    Send to login page if not.
+    """
     @functools.wraps(f)
     def wrap(*args, **kwargs):
         if not flask.g.current_user:
@@ -59,7 +60,7 @@ def login_required(f):
     return wrap
 
 def admin_required(f):
-    """Decorator for checking if logged in and 'admin' role.
+    """Resource endpoint decorator for checking if logged in and 'admin' role.
     Otherwise return status 401 Unauthorized.
     """
     @functools.wraps(f)
@@ -69,6 +70,9 @@ def admin_required(f):
         return f(*args, **kwargs)
     return wrap
 
+def referrer_or_home():
+    "Return the URL for the referring page 'referer' or the home page."
+    return flask.request.headers.get('referer') or flask.url_for('home')    
 
 class IuidConverter(werkzeug.routing.BaseConverter):
     "URL route converter for a IUID."

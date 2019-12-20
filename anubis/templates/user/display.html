@@ -103,11 +103,13 @@ User {{ user['username'] }}
 {% endblock %} {# block main #}
 
 {% block actions %}
+{% if allow_edit %}
 <div class="mt-2">
   <a href="{{ url_for('.edit', username=user['username']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
-{% if user['email'] %}
+{% endif %} {# if allow_edit #}
+{% if allow_edit and user['email'] %}
 <div class="mt-2">
   <form action="{{ url_for('.reset') }}"
         method="GET">
@@ -116,8 +118,8 @@ User {{ user['username'] }}
       Reset password</button>
   </form>
 </div>
-{% endif %} {# if user['email'] #}
-{% if enable_disable %}
+{% endif %} {# if allow_edit and user['email'] #}
+{% if allow_enable_disable %}
 <div class="mt-2">
   {% if user['status'] != constants.ENABLED %}
   <form action="{{ url_for('.enable', username=user['username']) }}"
@@ -133,7 +135,7 @@ User {{ user['username'] }}
   </form>
   {% endif %}
 </div>
-{% endif %} {# if enable_disable #}
+{% endif %} {# if allow_enable_disable #}
 {% if g.current_user['username'] == user['username'] %}
 <div class="mt-2">
   <form action="{{ url_for('.logout') }}"
@@ -143,7 +145,7 @@ User {{ user['username'] }}
   </form>
 </div>
 {% endif %} {# if g.current_user... #}
-{% if deletable %}
+{% if allow_delete %}
 <div class="mt-2">
   <form action="{{ url_for('.display', username=user['username']) }}"
 	method="POST">
@@ -156,7 +158,7 @@ User {{ user['username'] }}
       Delete</button>
   </form>
 </div>
-{% endif %} {# if deletable #}
+{% endif %} {# if allow_delete #}
 {% endblock %} {# block actions #}
 
 {% block info %}

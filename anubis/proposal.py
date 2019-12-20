@@ -23,6 +23,7 @@ DESIGN_DOC = {
                  'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit(doc.call, doc.user);}"},
         'user': {'reduce': '_count',
                  'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit(doc.user, null);}"},
+        'call_user': {'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit([doc.call, doc.user], null);}"},
         'unsubmitted': {'reduce': '_count',
                         'map': "function (doc) {if (doc.doctype !== 'proposal' || doc.submitted) return; emit(doc.user, null);}"},
     }
@@ -71,8 +72,7 @@ def edit(pid):
     if utils.http_GET():
         if not allow_edit(proposal):
             utils.flash_error('You are not allowed to edit this proposal.')
-            return flask.redirect(
-                flask.url_for('.display', pid=proposal['identifier']))
+            return flask.redirect(utils.referrer_or_home())
         return flask.render_template('proposal/edit.html', proposal=proposal)
 
     elif utils.http_POST():
@@ -94,8 +94,7 @@ def edit(pid):
                     saver.set_field_value(field, form=flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
-            return flask.redirect(
-                flask.url_for('.edit', pid=proposal['identifier']))
+            return flask.redirect(utils.referrer_or_home())
         return flask.redirect(
             flask.url_for('.display', pid=proposal['identifier']))
 
@@ -160,7 +159,7 @@ def logs(pid):
         return flask.redirect(flask.url_for('home'))
     if not proposal['cache']['allow_read']:
         utils.flash_error('You are not allowed to read this proposal.')
-        return flask.redirect(flask.url_for('home'))
+        return flask.redirect(utils.referrer_or_home())
 
     return flask.render_template(
         'logs.html',
@@ -215,7 +214,6 @@ class ProposalSaver(FieldMixin, AttachmentsSaver):
 
     def set_user(self, user):
         "Set the user for the proposal; must be called when creating proposal."
-        from .proposals import get_call_user_proposal
         if get_call_user_proposal(self.doc['call'], user['username']):
             raise ValueError('User already has a proposal in the call.')
         self.doc['user'] = user['username']
@@ -306,3 +304,16 @@ def set_cache(proposal, call=None):
         cache['all_reviews_count'] = utils.get_count('reviews', 'proposal',
                                                      proposal['identifier'])
     return proposal
+
+def get_call_user_proposal(cid, username):
+    """Get the proposal created by the user in the call.
+    Cache not set. Excludes no proposals.
+    """
+    result = [r.doc for r in flask.g.db.view('proposals', 'call_user',
+                                             key=[cid, username],
+                                             reduce=False,
+                                             include_docs=True)]
+    if len(result) == 1:
+        return result[0]
+    else:
+        return None

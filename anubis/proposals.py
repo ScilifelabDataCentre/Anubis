@@ -119,7 +119,7 @@ def user(username):
     if user is None:
         utils.flash_error('No such user.')
         return flask.redirect(flask.url_for('home'))
-    if not anubis.user.am_admin_or_self(user):
+    if not anubis.user.allow_view(user):
         utils.flash_error("You may not view the user's proposals.")
         return flask.redirect(flask.url_for('home'))
     return flask.render_template(
@@ -145,19 +145,3 @@ def get_user_proposals(username, call=None):
                                      key=username,
                                      reduce=False,
                                      include_docs=True)]
-
-def get_call_user_proposal(cid, username):
-    """Get the proposal created by the user in the call.
-    Cache not set. Excludes no proposals.
-    """
-    proposals = [r.doc
-                 for r in flask.g.db.view('proposals', 'call',
-                                          key=cid,
-                                          reduce=False,
-                                          include_docs=True)
-                 if r.value == username]
-
-    if proposals:
-        return proposals[0]
-    else:
-        return None

@@ -30,7 +30,7 @@
       </small>
     </div>
   </div>
-  {% if change_role %}
+  {% if allow_change_role %}
   <div class="form-group row">
     <label for="role" class="col-md-2 col-form-label text-right">Role</label>
     <div class="col-md">
@@ -45,7 +45,7 @@
       {% endfor %}
     </div>
   </div>
-  {% endif %}
+  {% endif %} {# if allow_change_role #}
   <div class="form-group row">
     <label for="givenname" class="col-md-2 col-form-label text-right">
       Given name</label>
