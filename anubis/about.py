@@ -39,8 +39,7 @@ def get_software():
 @utils.admin_required
 def settings():
     config = flask.current_app.config.copy()
-    for key in ['SECRET_KEY', 'MAIL_PASSWORD']:
-        if config.get(key):
-            config[key] = '<hidden>'
+    for key in ['SECRET_KEY', 'COUCHDB_PASSWORD', 'MAIL_PASSWORD']:
+        config[key] = '<hidden>'
     return flask.render_template('about/settings.html',
                                  items=sorted(config.items()))

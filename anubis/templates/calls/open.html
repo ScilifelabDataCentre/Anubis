@@ -22,7 +22,7 @@
     {% for call in calls %}
     <tr>
       <td>{{ macros.call_link(call, title=True) }}</td>
-      <td class="text-nowrap pl-2">{{ call['closes'] or 'No closes date.' }}</td>
+      <td class="text-nowrap pl-2">{{ call['closes'] or '-' }}</td>
       <td>{{ macros.call_closes(call) }}</td>
       {% if g.am_admin %}
       <td>{{ macros.proposals_link(call) }}</td>

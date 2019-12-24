@@ -1,6 +1,6 @@
 # Anubis
 
-Proposal review handling system.
+Proposal submission and review handling system.
 
 ## Entities
 
@@ -13,7 +13,7 @@ Proposal review handling system.
     - Admin: can do everything.
     - User: ordinary users.
     - Reviewer = a user designated as reviewer for a call by admin.
-    - Chair = reviewer with slightly more privileges.
+    - Chair = reviewer with some additional privileges.
   
 - Call
   - = Call for proposals.

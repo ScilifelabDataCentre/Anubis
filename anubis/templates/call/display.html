@@ -28,14 +28,11 @@
   </div>
 </div>
 
-{% if my_proposal %}
-<div class="row">
+<div class="row my-2">
   <div class="col-md-2 font-weight-bold text-right">My proposal</div>
+  {% if my_proposal %}
   <div class="col-md">{{ macros.proposal_link(my_proposal) }}</div>
-</div>
-{% elif allow_proposal and call['cache']['is_open'] %}
-<div class="row">
-  <div class="col-md-2 font-weight-bold text-right">My proposal</div>
+  {% elif allow_proposal and call['cache']['is_open'] %}
   <div class="col-md">
     <form action="{{ url_for('.create_proposal', cid=call['identifier']) }}"
 	  method="POST">
@@ -43,8 +40,14 @@
       <button type="submit" class="btn btn-primary">Create proposal</button>
     </form>
   </div>
+  {% elif not g.current_user and call['cache']['is_open'] %}
+  <div class="col-md text-danger">
+    You need to be logged in to create a proposal.
+  </div>
+  {% else %}
+  <div class="col-md">-</div>
+  {% endif %} {# if my_proposal #}
 </div>
-{% endif %} {# if my_proposal #}
 
 {% if g.am_admin or am_reviewer %}
 <div class="row">
@@ -75,7 +78,7 @@
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Reviewers</div>
   <div class="col-md">
-    {% if call['reviewers'] %}
+    {% if call.get('reviewers') %}
     {% for reviewer in sorted(call['reviewers']) %}
     <span class="mr-3">
       {{ macros.user_link(get_user(reviewer), chair=reviewer in call['chairs']) }}
@@ -139,10 +142,10 @@
 </div>
 {% endif %} {# if g.am_admin or am_reviewer #}
 
+{% if g.am_admin or call.get('documents') %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Documents</div>
   <div class="col-md">
-    {% if call.get('documents') %}
     {% for document in call['documents'] %}
     <div class="card mt-2">
       <div class="card-header">
@@ -160,16 +163,14 @@
       {% endif %}
     </div>
     {% endfor %} {# for document in call['documents'] #}
-    {% else %}
-    -
-    {% endif %}
+    {% if not call.get('documents') %}-{% endif %}
   </div>
 </div>
+{% endif %} {# if call.get('documents') #}
 
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Proposal inputs</div>
   <div class="col-md">
-    {% if call['proposal'] %}
     {% for field in call['proposal'] %}
     <div class="card mt-2">
       <div class="card-body">
@@ -177,9 +178,7 @@
       </div>
     </div>
     {% endfor %}
-    {% else %}
-    -
-    {% endif %}
+    {% if not call.get('proposal') %}-{% endif %}
   </div>
 </div>
 
@@ -187,7 +186,6 @@
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Review inputs</div>
   <div class="col-md">
-    {% if call['review'] %}
     {% for field in call['review'] %}
     <div class="card mt-2">
       <div class="card-body">
@@ -195,9 +193,7 @@
       </div>
     </div>
     {% endfor %}
-    {% else %}
-    -
-    {% endif %}
+    {% if not call.get('review') %}-{% endif %}
   </div>
 </div>
 {% endif %} {# if g.am_admin #}

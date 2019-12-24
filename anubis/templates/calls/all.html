@@ -20,8 +20,8 @@
     {% for call in calls %}
     <tr>
       <td>{{ macros.call_link(call, title=True) }}</td>
-      <td class="text-nowrap pl-2">{{ call['opens'] or 'No open date.' }}</td>
-      <td class="text-nowrap pl-2">{{ call['closes'] or 'No closes date.' }}</td>
+      <td class="text-nowrap pl-2">{{ call['opens'] or '-' }}</td>
+      <td class="text-nowrap pl-2">{{ call['closes'] or '-' }}</td>
       <td>{{ macros.call_closes(call) }}</td>
       <td>{{ macros.proposals_link(call) }}</td>
       <td>{{ macros.reviews_link(call) }}</td>
