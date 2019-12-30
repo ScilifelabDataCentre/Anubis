@@ -4,9 +4,11 @@ import copy
 
 import flask
 
+import anubis.proposal
+
 from . import constants
 from . import utils
-from .saver import AttachmentsSaver
+from .saver import AttachmentSaver
 
 
 def init(app):
@@ -409,7 +411,7 @@ def create_proposal(cid):
                 flask.url_for('proposal.edit', pid=saver.doc['identifier']))
 
 
-class CallSaver(AttachmentsSaver):
+class CallSaver(AttachmentSaver):
     "Call document saver context."
 
     DOCTYPE = constants.CALL
@@ -423,6 +425,7 @@ class CallSaver(AttachmentsSaver):
         self.doc['reviewers'] = []
         self.doc['chairs'] = []
         self.doc['access'] = {k: False for k in constants.ACCESS}
+        self.doc['decision'] = []
 
     def set_identifier(self, identifier):
         "Call identifier."

@@ -4,10 +4,11 @@ import flask
 
 import anubis.call
 import anubis.user
+import anubis.decision
 
 from . import constants
 from . import utils
-from .saver import AttachmentsSaver, FieldMixin
+from .saver import AttachmentSaver, FieldMixin
 
 
 def init(app):
@@ -50,6 +51,9 @@ def display(pid):
     am_reviewer = anubis.call.am_reviewer(proposal['cache']['call'])
     my_review = get_my_review(proposal, flask.g.current_user)
     allow_view_reviews = anubis.call.allow_view_reviews(proposal['cache']['call'])
+    decision = anubis.decision.get_decision(proposal.get('decision'))
+    allow_view_decision = anubis.decision.allow_view(decision)
+    allow_create_decision = anubis.decision.allow_create(proposal)
     return flask.render_template('proposal/display.html',
                                  proposal=proposal,
                                  allow_edit=allow_edit(proposal),
@@ -58,7 +62,10 @@ def display(pid):
                                  am_submitter=am_submitter,
                                  am_reviewer=am_reviewer,
                                  my_review=my_review,
-                                 allow_view_reviews=allow_view_reviews)
+                                 decision=decision,
+                                 allow_view_reviews=allow_view_reviews,
+                                 allow_view_decision=allow_view_decision,
+                                 allow_create_decision=allow_create_decision)
 
 @blueprint.route('/<pid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.login_required
@@ -193,7 +200,7 @@ def document(pid, documentname):
     return response
 
 
-class ProposalSaver(FieldMixin, AttachmentsSaver):
+class ProposalSaver(FieldMixin, AttachmentSaver):
     "Proposal document saver context."
 
     DOCTYPE = constants.PROPOSAL
@@ -213,13 +220,13 @@ class ProposalSaver(FieldMixin, AttachmentsSaver):
         self.doc['errors'] = {}
 
     def set_user(self, user):
-        "Set the user for the proposal; must be called when creating proposal."
+        "Set the user for the proposal; must be called when creating."
         if get_call_user_proposal(self.doc['call'], user['username']):
             raise ValueError('User already has a proposal in the call.')
         self.doc['user'] = user['username']
 
     def set_call(self, call):
-        "Set the call for the proposal; must be called when creating proposal."
+        "Set the call for the proposal; must be called when creating."
         if self.doc.get('call'):
             raise ValueError('call has already been set')
         self.doc['call'] = call['identifier']

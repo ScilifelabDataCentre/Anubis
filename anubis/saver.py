@@ -108,7 +108,7 @@ class BaseSaver:
         flask.g.db.put(entry)
 
 
-class AttachmentsSaver(BaseSaver):
+class AttachmentSaver(BaseSaver):
     "Document saver context handling attachments."
 
     def prepare(self):

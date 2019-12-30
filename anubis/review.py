@@ -62,8 +62,7 @@ def create(pid, username):
         review = get_my_review(proposal, user)
         if review is not None:
             utils.flash_message('The review already exists.')
-            return flask.redirect(
-                flask.url_for('review.display', iuid=review['iuid']))
+            return flask.redirect(flask.url_for('.display', iuid=review['_id']))
         with ReviewSaver(proposal=proposal) as saver:
             saver.set_reviewer(user)
     except ValueError:
@@ -178,7 +177,7 @@ def unfinalize(iuid):
 @blueprint.route('/<iuid:iuid>/logs')
 @utils.login_required
 def logs(iuid):
-    "Display the log records of the call."
+    "Display the log records of the review."
     try:
         review = get_review(iuid)
     except KeyError:

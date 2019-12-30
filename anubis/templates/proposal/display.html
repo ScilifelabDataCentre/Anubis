@@ -14,6 +14,7 @@
     {{ macros.call_link(proposal['cache']['call'], title=True) }}
   </div>
 </div>
+
 {% if am_submitter %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Call closes</div>
@@ -23,30 +24,54 @@
   </div>
 </div>
 {% endif %} {# if am_submitter #}
+
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">User</div>
   <div class="col-md">
     {{ macros.user_link(get_user(proposal['user'])) }}
   </div>
 </div>
+
 {% if not am_reviewer %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Submitted</div>
   <div class="col-md">{{ macros.submitted(proposal) }}</div>
 </div>
 {% endif %} {# if not am_reviewer #}
+
 {% if allow_view_reviews %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">All reviews</div>
   <div class="col-md">{{ macros.proposal_reviews_link(proposal) }}</div>
 </div>
 {% endif %} {# if allow_view_reviews #}
+
 {% if my_review %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">My review</div>
   <div class="col-md">{{ macros.review_link(my_review) }}</div>
 </div>
 {% endif %} {# if my_review #}
+
+{% if allow_view_decision %}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Decision</div>
+  <div class="col-md">
+  {% if decision %}
+  {{ macros.decision_link(decision) }}
+  {% elif allow_create_decision %}
+  <form action="{{ url_for('decision.create', pid=proposal['identifier']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <button type="submit" class="btn btn-sm btn-dark my-1">
+      Create decision</button>
+  </form>
+  {% else %}
+  -
+  {% endif %}
+  </div>
+</div>
+{% endif %} {# if allow_view_decision #}
 
 <div class="card mt-4">
   <div class="card-body">

@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block head_title %}
+Decision for proposal {{ decision['cache']['proposal']['identifier'] }}
+{{ decision['cache']['proposal']['title'] }}
+{% endblock %}
+
+{% block body_title %}
+<small class="text-muted mr-2">Decision for proposal</small>
+{{ macros.proposal_link(decision['cache']['proposal'], title=True) }}
+{% endblock %}
+
+{% block main %}
+{% set proposal = decision['cache']['proposal'] %}
+{# XXX access? #}
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Submitter</div>
+  <div class="col-md">
+    {{ macros.user_link(get_user(proposal['user'])) }}
+  </div>
+</div>
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Call</div>
+  <div class="col-md">
+    {{ macros.call_link(proposal['cache']['call'], title=True) }}
+  </div>
+</div>
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">State</div>
+  <div class="col-md">
+    {% if decision.get('finalized') %}
+    <span class="badge badge-success">Finalized</span>
+    {% else %}
+    <span class="badge badge-warning">Not finalized</span>
+    {% endif %}
+  </div>
+</div>
+
+{% set values = decision['values'] %}
+{% set attachments = decision.get('_attachments', {}) %}
+
+{% for field in decision['cache']['call']['decision'] %}
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">
+    {{ field['title'] }}
+  </div>
+  {% if decision['errors'].get(field['identifier']) %}
+  <div class="col-md-2 text-danger">
+    Error: {{ decision['errors'][field['identifier']] }}
+  </div>
+  {% endif %}
+  <div class="col-md text-break">
+
+    {% if field['type'] == constants.TEXT %}
+    {{ values.get(field['identifier']) | markdown }}
+
+    {% elif field['type'] == constants.LINE %}
+    {{ values.get(field['identifier']) or '-' }}
+
+    {% elif field['type'] in (constants.INTEGER, constants.SCORE) %}
+    {{ values.get(field['identifier']) | integer_value }}
+
+    {% elif field['type'] == constants.BOOLEAN %}
+    {{ values.get(field['identifier']) | boolean_value }}
+
+    {% elif field['type'] == constants.FLOAT %}
+    {{ values.get(field['identifier']) | float_value }}
+
+    {% elif field['type'] == constants.DOCUMENT %}
+    {% set documentname = values.get(field['identifier']) %}
+    {% if documentname %}
+    <span class="font-weight-bold">{{ documentname }}</span>
+    {% if attachments.get(documentname) %}
+    <a href="{{ url_for('.document', pid=proposal['identifier'], documentname=documentname) }}"
+       role="button" class="btn btn-secondary btn-sm ml-4">
+      Download 
+      ({{ attachments[documentname]['length'] | filesizeformat }})
+    </a>
+    {% else %}
+    (?)
+    {% endif %}
+    {% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endfor %} {# for field in ... #}
+
+{% endblock %} {# block main #}
+
+{% block actions %}
+{% if allow_unfinalize %}
+<div class="mt-2">
+  <form action="{{ url_for('.unfinalize', iuid=decision['_id']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <button type="submit" class="btn btn-block btn-warning">
+      Unfinalize</button>
+  </form>
+</div>
+{% endif %} {# if allow_unfinalize #}
+{% if allow_finalize %}
+<div class="mt-2">
+  <form action="{{ url_for('.finalize', iuid=decision['_id']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <button type="submit" class="btn btn-block btn-success">
+      Finalize</button>
+  </form>
+</div>
+{% endif %} {# if allow_finalize #}
+{% if allow_edit %}
+<div class="mt-2">
+  <a href="{{ url_for('.edit', iuid=decision['_id']) }}"
+     role="button" class="btn btn-primary btn-block">Edit</a>
+</div>
+{% endif %} {# if allow_edit #}
+{% if allow_delete %}
+<div class="mt-2">
+  <form action="{{ url_for('.edit', iuid=decision['_id']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <input type="hidden" name="_http_method" value="DELETE">
+    <button type="submit" class="btn btn-block btn-sm btn-danger"
+	    onclick="return confirm('Really delete the decision?')">
+      Delete</button>
+  </form>
+</div>
+{% endif %} {# if allow_delete #}
+{% endblock %} {# block actions #}
+
+{% block info %}
+<div class="small">
+  Modified <span class="localtime">{{ decision['modified'] }}</span>
+  <span class="ml-4">
+    Created <span class="localtime">{{ decision['created'] }}</span>
+  </span>
+  <span class="ml-4">
+    <a href="{{ url_for('.logs', iuid=decision['_id']) }}">Logs</a>
+  </span>
+</div>
+{% endblock %} {# block info #}
