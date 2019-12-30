@@ -178,6 +178,10 @@ def flash_error(msg):
     "Flash error message."
     flask.flash(str(msg), 'error')
 
+def flash_warning(msg):
+    "Flash warning message."
+    flask.flash(str(msg), 'warning')
+
 def flash_message(msg):
     "Flash information message."
     flask.flash(str(msg), 'message')

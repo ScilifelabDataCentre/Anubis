@@ -1,20 +1,14 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Edit proposal fields for {{ call['identifier'] }}
+Edit proposal fields for call {{ call['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-Edit proposal fields for {{ call['identifier'] }}
+Edit proposal fields for call {{ call['identifier'] }}
 {% endblock %}
 
 {% block main %}
-{% if call['cache']['is_open'] %}
-<p class="lead text-danger">
-  This call is open. Changing its proposal fields may invalidate
-  submitted proposals! Ensure that you know what you are doing.
-</p>
-{% endif %}
 
 {% for field in call['proposal'] %}
 {% set post_url = url_for('.proposal_field', cid=call['identifier'], fid=field['identifier']) %}

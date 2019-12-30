@@ -144,8 +144,13 @@
             <strong>Error:</strong> {{ msg }}
           </div>
           {% endfor %}
-          {% for msg in get_flashed_messages(category_filter=['message']) %}
+          {% for msg in get_flashed_messages(category_filter=['warning']) %}
           <div class="alert alert-warning" role="alert">
+            <strong>Warning:</strong> {{ msg }}
+          </div>
+          {% endfor %}
+          {% for msg in get_flashed_messages(category_filter=['message']) %}
+          <div class="alert alert-info" role="alert">
             <strong>Message:</strong> {{ msg }}
           </div>
           {% endfor %}
