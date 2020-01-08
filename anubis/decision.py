@@ -47,7 +47,10 @@ def create(pid):
         with DecisionSaver(proposal=proposal) as saver:
             pass
         decision = saver.doc
-    except ValueError:
+        with anubis.proposal.ProposalSaver(proposal) as saver:
+            saver['decision'] = decision['_id']
+    except ValueError as error:
+        print(error)
         pass
     try:
         return flask.redirect(flask.request.form['_next'])
@@ -245,6 +248,7 @@ def allow_create(proposal):
     "Admin and chair may create a decision for a submitted proposal."
     if not proposal.get('submitted'): return False
     if not flask.g.current_user: return False
+    if proposal.get('decision'): return False
     if flask.g.am_admin: return True
     return anubis.call.am_chair(decision['cache']['call'])
 

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block head_title %}
+Edit decision of {{ decision['cache']['proposal']['identifier'] }}
+{% endblock %}
+
+{% block body_title %}
+Edit decision of {{ decision['cache']['proposal']['identifier'] }}
+{% endblock %}
+
+{% block main %}
+<form action="{{ url_for('.edit', iuid=decision['_id']) }}"
+      enctype="multipart/form-data"
+      method="POST">
+  {{ csrf_token() }}
+
+  {% set fields = decision['cache']['proposal']['cache']['call']['decision'] %}
+  {% set values = decision['values'] %}
+  {% set errors = decision['errors'] %}
+  {% set attachments = decision.get('_attachments', {}) %}
+  {% include 'edit_fields_values.html' %}
+
+  <div class="form-group row">
+    <div class="col-md-3 offset-md-2">
+      <button type="submit" class="btn btn-block btn-primary">Save</button>
+    </div>
+  </div>
+</form>
+{% endblock %} {# block main #}
+
+{% block actions %}
+<div class="mt-2">
+  <form action="{{ url_for('.display', iuid=decision['_id']) }}"
+	method="GET">
+    <button type="submit" class="btn btn-block btn-secondary">Cancel</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+$(".custom-file-input").on("change", function() {
+  var fileName = $(this).val().split("\\").pop();
+  $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+});
+</script>{% endblock %}
