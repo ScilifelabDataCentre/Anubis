@@ -10,23 +10,23 @@ Edit proposal fields for call {{ call['identifier'] }}
 
 {% block main %}
 
-{% for field in call['proposal'] %}
-{% set post_url = url_for('.proposal_field', cid=call['identifier'], fid=field['identifier']) %}
-<div class="card mt-2">
-  <div class="card-body">
+<table class="table table-hover">
+  <tbody>
+    {% for field in call['proposal'] %}
+    {% set post_url = url_for('.proposal_field', cid=call['identifier'], fid=field['identifier']) %}
     {% include 'display_field_definition.html' %}
-  </div>
-</div>
-{% endfor %} {# for field in call['proposal'] #}
-<div class="card mt-2">
-  <div class="card-body">
-    {% for field_type in constants.FIELD_TYPES %}
-    <button type="button" class="btn btn-primary mr-2 mb-2"
-	    data-toggle="modal" data-target="#_{{ field_type }}Modal">
-      Add {{ field_type }} field
-    </button>
-    {% endfor %} {# for field_type in constants.FIELD_TYPES #}
-  </div>
+    {% endfor %} {# for field in call['proposal'] #}
+  </tbody>
+</table>
+
+<hr>
+<div class="m-4">
+  {% for field_type in constants.FIELD_TYPES %}
+  <button type="button" class="btn btn-primary mr-2 mb-2"
+	  data-toggle="modal" data-target="#_{{ field_type }}Modal">
+    Add {{ field_type }} field
+  </button>
+  {% endfor %} {# for field_type in constants.FIELD_TYPES #}
 </div>
 
 {% set post_url = url_for('.proposal', cid=call['identifier']) %}
@@ -45,7 +45,7 @@ Edit proposal fields for call {{ call['identifier'] }}
 <div class="mt-2">
   <form action="{{ url_for('.display', cid=call['identifier']) }}"
 	method="GET">
-    <button type="submit" class="btn btn-block btn-dark">Back</button>
+    <button type="submit" class="btn btn-block btn-secondary">Back</button>
   </form>
 </div>
 {% endblock %}

@@ -5,18 +5,21 @@
 {% block body_title %}Edit documents for {{ call['identifier'] }}{% endblock %}
 
 {% block main %}
-<div class="row my-3">
+<div class="row my-4">
   <div class="col-md-2 font-weight-bold text-right">Documents</div>
   <div class="col-md">
-    {% for document in call.get('documents', []) %}
-    <div class="card mt-2">
-      <div class="card-header">
-        <div class="row">
-          <div class="col-md">
-            <span class="font-weight-bold">{{ document['name'] }}</span>
+    <table class="table table-hover">
+      <tbody>
+        {% for document in call.get('documents', []) %}
+        <tr>
+          <th>
+            {{ document['name'] }}
             ({{ call['_attachments'][document['name']]['length'] | filesizeformat }})
-          </div>
-          <div class="col-md text-right">
+          </th>
+          <td>
+            {{ document.get('description') | markdown }}
+          </td>
+          <td>
             <form action="{{ url_for('.document', cid=call['identifier'], documentname=document['name']) }}"
 	          method="POST">
 	      {{ csrf_token() }}
@@ -25,54 +28,50 @@
 		      onclick="return confirm('Really delete the document {{ document['name'] }}?')">
 	        Delete</button>
             </form>
-          </div>
+          </td>
+        </tr>
+        {% endfor %} {# for document in call.get('documents', []) #}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="row my-4">
+  <div class="col-md-2 font-weight-bold text-right">Add document</div>
+  <div class="col-md">
+    <form action="{{ url_for('.documents', cid=call['identifier']) }}"
+          enctype="multipart/form-data"
+	  method="POST">
+      {{ csrf_token() }}
+      <div class="form-group">
+        <div class="custom-file">
+          <input type="file" id="document" name="document"
+	         class="custom-file-input">
+          <label class="custom-file-label" for="document">
+            Choose document</label>
         </div>
       </div>
-      {% if document.get('description') %}
-      <div class="card-body">
-        {{ document.get('description') | markdown }}
+      <div class="form-group">
+	<textarea id="document_description" name="document_description"
+		  class="form-control"
+		  aria-describedby="document_descriptionHelp"></textarea>
+	<small id="document_descriptionHelp" class="form-text text-muted">
+	  <div class="row">
+	    <div class="col-md">
+	      Short description of the document.
+	    </div>
+	    <div class="col-md-4 text-right">
+	      Formatted using 
+	      <a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
+	    </div>
+	  </div>
+	</small>
       </div>
-      {% endif %}
-    </div>
-    {% endfor %} {# for document in call.get('documents', []) #}
-
-    <div class="card mt-2">
-      <div class="card-body">
-        <form action="{{ url_for('.documents', cid=call['identifier']) }}"
-              enctype="multipart/form-data"
-	      method="POST">
-	  {{ csrf_token() }}
-	  <div class="form-group">
-            <div class="custom-file">
-              <input type="file" id="document" name="document"
-	             class="custom-file-input">
-              <label class="custom-file-label" for="document">
-                Choose document</label>
-            </div>
-          </div>
-	  <div class="form-group">
-	    <textarea id="document_description" name="document_description"
-		      class="form-control"
-		      aria-describedby="document_descriptionHelp"></textarea>
-	    <small id="document_descriptionHelp" class="form-text text-muted">
-	      <div class="row">
-		<div class="col-md">
-		  Short description of the document.
-		</div>
-		<div class="col-md-4 text-right">
-		  Formatted using 
-		  <a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
-		</div>
-	      </div>
-	    </small>
-          </div>
-	  <div class="form-group">
-	    <button type="submit" class="btn btn-btn-sm btn-primary mt-2">
-	      Add document</button>
-          </div>
-        </form>
+      <div class="form-group">
+	<button type="submit" class="btn btn-btn-sm btn-primary mt-2">
+	  Add document</button>
       </div>
-    </div>
+    </form>
   </div>
 </div>
 {% endblock %} {# block main #}
@@ -81,7 +80,7 @@
 <div class="mt-2">
   <form action="{{ url_for('.display', cid=call['identifier']) }}"
 	method="GET">
-    <button type="submit" class="btn btn-block btn-dark">Back</button>
+    <button type="submit" class="btn btn-block btn-secondary">Back</button>
   </form>
 </div>
 {% endblock %}

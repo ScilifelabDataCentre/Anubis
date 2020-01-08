@@ -317,6 +317,57 @@ def review_field(cid, fid):
             utils.flash_error(str(error))
         return flask.redirect(flask.url_for('.review', cid=call['identifier']))
 
+@blueprint.route('/<cid>/decision', methods=['GET', 'POST'])
+@utils.admin_required
+def decision(cid):
+    "Display decision fields for delete, and add field."
+    call = get_call(cid)
+    if not call:
+        utils.flash_error('No such call.')
+        return flask.redirect(flask.url_for('home'))
+
+    if utils.http_GET():
+        if call['cache']['is_closed']:
+            utils.flash_warning('Editing decision fields for a closed call'
+                                ' may invalidate current decisions.')
+        return flask.render_template('call/decision.html', call=call)
+
+    elif utils.http_POST():
+        try:
+            with CallSaver(call) as saver:
+                saver.add_decision_field(form=flask.request.form)
+        except ValueError as error:
+            utils.flash_error(str(error))
+        return flask.redirect(
+            flask.url_for('.decision', cid=call['identifier']))
+
+@blueprint.route('/<cid>/decision/<fid>', methods=['POST', 'DELETE'])
+@utils.admin_required
+def decision_field(cid, fid):
+    "Edit or delete the decision field."
+    call = get_call(cid)
+    if not call:
+        utils.flash_error('No such call.')
+        return flask.redirect(flask.url_for('home'))
+
+    if utils.http_POST():
+        try:
+            with CallSaver(call) as saver:
+                saver.edit_decision_field(fid, form=flask.request.form)
+        except (KeyError, ValueError) as error:
+            utils.flash_error(str(error))
+        return flask.redirect(
+            flask.url_for('.decision', cid=call['identifier']))
+
+    elif utils.http_DELETE():
+        try:
+            with CallSaver(call) as saver:
+                saver.delete_decision_field(fid)
+        except ValueError as error:
+            utils.flash_error(str(error))
+        return flask.redirect(
+            flask.url_for('.decision', cid=call['identifier']))
+
 @blueprint.route('/<cid>/access', methods=['GET', 'POST'])
 @utils.admin_required
 def access(cid):
@@ -361,6 +412,7 @@ def clone(cid):
                 saver.doc['proposal'] = copy.deepcopy(call['proposal'])
                 # Do not copy documents.
                 # Do not copy reviewers or chairs.
+                saver.doc['decision'] = copy.deepcopy(call['decision'])
             new = saver.doc
         except ValueError as error:
             utils.flash_error(str(error))
@@ -636,6 +688,38 @@ class CallSaver(AttachmentSaver):
                 break
         else:
             raise ValueError('No such review field.')
+
+    def add_decision_field(self, form=dict()):
+        "Add a field to the decision definition."
+        field = self.get_new_field(form=form)
+        if field['identifier'] in [f['identifier'] for f in self.doc['decision']]:
+            raise ValueError('Field identifier is already in use.')
+        self.doc['decision'].append(field)
+
+    def edit_decision_field(self, fid, form=dict()):
+        "Edit the decision definition field."
+        for pos, field in enumerate(self.doc['decision']):
+            if field['identifier'] == fid:
+                self.update_field(field, form=form)
+                move = form.get('_move')
+                if move == 'up':
+                    self.doc['decision'].pop(pos)
+                    if pos == 0:
+                        self.doc['decision'].append(field)
+                    else:
+                        self.doc['decision'].insert(pos-1, field)
+                break
+        else:
+            raise KeyError('No such decision field.')
+
+    def delete_decision_field(self, fid):
+        "Delete the field from the decision definition."
+        for pos, field in enumerate(self.doc['decision']):
+            if field['identifier'] == fid:
+                self.doc['decision'].pop(pos)
+                break
+        else:
+            raise ValueError('No such decision field.')
 
     def add_document(self, infile, description):
         "Add a document to the call."

@@ -28,27 +28,6 @@
   </div>
 </div>
 
-<div class="row my-2">
-  <div class="col-md-2 font-weight-bold text-right">My proposal</div>
-  {% if my_proposal %}
-  <div class="col-md">{{ macros.proposal_link(my_proposal) }}</div>
-  {% elif allow_proposal and call['cache']['is_open'] %}
-  <div class="col-md">
-    <form action="{{ url_for('.create_proposal', cid=call['identifier']) }}"
-	  method="POST">
-      {{ csrf_token() }}
-      <button type="submit" class="btn btn-primary">Create proposal</button>
-    </form>
-  </div>
-  {% elif not g.current_user and call['cache']['is_open'] %}
-  <div class="col-md text-danger">
-    You need to be logged in to create a proposal.
-  </div>
-  {% else %}
-  <div class="col-md">-</div>
-  {% endif %} {# if my_proposal #}
-</div>
-
 {% if g.am_admin or am_reviewer %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">All proposals</div>
@@ -109,91 +88,119 @@
 </div>
 {% endif %} {# if allow_view_reviews #}
 
-<div class="row">
+<div class="row my-4">
+  <div class="col-md-2 font-weight-bold text-right">My proposal</div>
+  {% if my_proposal %}
+  <div class="col-md">{{ macros.proposal_link(my_proposal) }}</div>
+  {% elif call['cache']['is_closed'] %}
+  <div class="col-md">Call is closed; a proposal cannot be created.</div>
+  {% elif allow_proposal and call['cache']['is_open'] %}
+  <div class="col-md">
+    <form action="{{ url_for('.create_proposal', cid=call['identifier']) }}"
+	  method="POST">
+      {{ csrf_token() }}
+      <button type="submit" class="btn btn-primary">Create proposal</button>
+    </form>
+  </div>
+  {% elif not g.current_user and call['cache']['is_open'] %}
+  <div class="col-md text-danger">
+    You need to be logged in to create a proposal.
+  </div>
+  {% else %}
+  <div class="col-md">-</div>
+  {% endif %} {# if my_proposal #}
+</div>
+
+<div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Description</div>
   <div class="col-md">
-    <div class="card mt-2">
-      <div class="card-body">
-        {{ call.get('description') | markdown }}
-      </div>
-    </div>
+    {{ call.get('description') | markdown }}    
   </div>
 </div>
 
 {% if g.am_admin or am_reviewer %}
-<div class="row">
+<div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Access</div>
   <div class="col-md-5">
-    <div class="card mt-2">
-      <div class="card-body">
-        <table class="table table-sm table-borderless">
-          {% for flag in constants.ACCESS %}
-          <tr>
-            <td>{{ flag|capitalize|replace('_',' ') }}</td>
-            <td class="font-weight-bold">
-              {{ call.get('access', {}).get(flag) and 'Yes' or 'No' }}
-            </td>
-          </tr>
-          {% endfor %}
-        </table>
-      </div>
-    </div>
+    <table class="table table-sm table-borderless table-hover">
+      <tbody>
+        {% for flag in constants.ACCESS %}
+        <tr>
+          <td>{{ flag|capitalize|replace('_',' ') }}</td>
+          <td class="font-weight-bold">
+            {{ call.get('access', {}).get(flag) and 'Yes' or 'No' }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
 {% endif %} {# if g.am_admin or am_reviewer #}
 
-{% if g.am_admin or call.get('documents') %}
-<div class="row">
+<div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Documents</div>
   <div class="col-md">
-    {% for document in call['documents'] %}
-    <div class="card mt-2">
-      <div class="card-header">
-        <span class="font-weight-bold">{{ document['name'] }}</span>
-        <a href="{{ url_for('call.document', cid=call['identifier'], documentname=document['name']) }}"
-           role="button" class="btn btn-secondary btn-sm ml-4">
-          Download
-          ({{ call['_attachments'][document['name']]['length'] | filesizeformat }})
-        </a>
-      </div>
-      {% if document.get('description') %}
-      <div class="card-body">
-        {{ document.get('description') | markdown }}
-      </div>
-      {% endif %}
-    </div>
-    {% endfor %} {# for document in call['documents'] #}
-    {% if not call.get('documents') %}-{% endif %}
+    <table class="table table-sm table-borderless table-hover">
+      <tbody>
+        {% for document in call['documents'] %}
+        <tr>
+          <td>
+            <a href="{{ url_for('call.document', cid=call['identifier'], documentname=document['name']) }}"
+               role="button" class="btn btn-outline-dark btn-sm">
+              {{ document['name'] }}
+              ({{ call['_attachments'][document['name']]['length'] | filesizeformat }})
+            </a>
+          </td>
+          <td>
+            {{ document.get('description') | markdown }}
+          </td>
+        </tr>
+        {% endfor %} {# for document in call['documents'] #}
+      </tbody>
+    </table>
   </div>
 </div>
-{% endif %} {# if call.get('documents') #}
 
-<div class="row">
+<div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Proposal fields</div>
   <div class="col-md">
-    {% for field in call['proposal'] %}
-    <div class="card mt-2">
-      <div class="card-body">
+    <table class="table table-sm table-borderless table-hover">
+      <tbody>
+        {% for field in call['proposal'] %}
         {% include 'display_field_definition.html' %}
-      </div>
-    </div>
-    {% endfor %}
-    {% if not call.get('proposal') %}-{% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
 
 {% if g.am_admin %}
-<div class="row">
+<div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Review fields</div>
   <div class="col-md">
-    {% for field in call['review'] %}
-    <div class="card mt-2">
-      <div class="card-body">
+    <table class="table table-sm table-borderless table-hover">
+      <tbody>
+        {% for field in call['review'] %}
         {% include 'display_field_definition.html' %}
-      </div>
-    </div>
-    {% endfor %}
-    {% if not call.get('review') %}-{% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %} {# if g.am_admin #}
+
+{% if g.am_admin %}
+<div class="row mt-4">
+  <div class="col-md-2 font-weight-bold text-right">Decision fields</div>
+  <div class="col-md">
+    <table class="table table-sm table-borderless table-hover">
+      <tbody>
+        {% for field in call['decision'] %}
+        {% include 'display_field_definition.html' %}
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
 {% endif %} {# if g.am_admin #}
@@ -222,9 +229,13 @@
   <a href="{{ url_for('.review', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit review fields</a>
 </div>
+<div class="mt-2">
+  <a href="{{ url_for('.decision', cid=call['identifier']) }}"
+     role="button" class="btn btn-primary btn-block">Edit decision fields</a>
+</div>
 {% endif %} {# if allow_edit #}
 {% if g.am_admin %}
-<div class="mt-2">
+<div class="mt-4">
   <a href="{{ url_for('.reviewers', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit reviewers</a>
 </div>

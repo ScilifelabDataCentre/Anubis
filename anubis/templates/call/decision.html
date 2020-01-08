@@ -1,40 +1,41 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Edit review fields for call {{ call['identifier'] }}
+Edit decision fields for call {{ call['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-Edit review fields for call {{ call['identifier'] }}
+Edit decision fields for call {{ call['identifier'] }}
 {% endblock %}
 
 {% block main %}
 
 <table class="table table-hover">
   <tbody>
-    {% for field in call['review'] %}
-    {% set post_url = url_for('.review_field', cid=call['identifier'], fid=field['identifier']) %}
+    {% for field in call['decision'] %}
+    {% set post_url = url_for('.decision_field', cid=call['identifier'], fid=field['identifier']) %}
     {% include 'display_field_definition.html' %}
-    {% endfor %} {# for field in call['review'] #}
+    {% endfor %} {# for field in call['decision'] #}
   </tbody>
 </table>
 
+<hr>
 <div class="m-4">
   {% for field_type in constants.FIELD_TYPES %}
-  <button type="button" class="btn btn-primary mt-2 mr-2"
+  <button type="button" class="btn btn-primary mr-2 mb-2"
 	  data-toggle="modal" data-target="#_{{ field_type }}Modal">
     Add {{ field_type }} field
   </button>
   {% endfor %} {# for field_type in constants.FIELD_TYPES #}
 </div>
 
-{% set post_url = url_for('.review', cid=call['identifier']) %}
+{% set post_url = url_for('.decision', cid=call['identifier']) %}
 {% for field_type in constants.FIELD_TYPES %}
 {% include 'modal_field_create.html' %}
 {% endfor %}
 
-{% for field in call['review'] %}
-{% set post_url = url_for('.review_field', cid=call['identifier'], fid=field['identifier']) %}
+{% for field in call['decision'] %}
+{% set post_url = url_for('.decision_field', cid=call['identifier'], fid=field['identifier']) %}
 {% include 'modal_field_edit.html' %}
 {% endfor %}
 

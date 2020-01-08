@@ -1,26 +1,24 @@
-<div class="row">
+<tr>
   {% if g.am_admin %}
-  <div class="col-md-2 font-weight-bold">{{ field['identifier'] }}</div>
+  <th>{{ field['identifier'] }}</td>
   {% endif %}
-  <div class="col-md-2">
-    {{ field['title'] }}
-  </div>
-  <div class="col-md">
+  <td>{{ field['title'] }}</td>
+  <td>
     {% set br = False %}
     {% if field.get('required') %}
     <strong>Required!</strong>
     {% set br = True %}
     {% endif %}
     {% if field.get('maxlength') %}
-    Maximum {{ field['maxlength'] }} characters.
+    Max {{ field['maxlength'] }} characters.
     {% set br = True %}
     {% endif %}
     {% if field.get('minimum') is not none %}
-    Minimum value {{ field['minimum'] }}.
+    Min value {{ field['minimum'] }}.
     {% set br = True %}
     {% endif %}
     {% if field.get('maximum') is not none %}
-    Maximum value {{ field['maximum'] }}.
+    Max value {{ field['maximum'] }}.
     {% set br = True %}
     {% endif %}
     {% if field.get('slider') is not none %}
@@ -29,9 +27,9 @@
     {% endif %}
     {{ (br and '<br>' or '') | safe }}
     {{ field.get('description') | markdown }}
-  </div>
+  </td>
   {% if post_url %}
-  <div class="col-md-2">
+  <td>
     <div>
       <button type="button" class="btn btn-block btn-sm btn-primary"
 	      data-toggle="modal"
@@ -55,6 +53,6 @@
 	  Delete</button>
       </form>
     </div>
-  </div>
+  </td>
   {% endif %}
-</div>
+</tr>
