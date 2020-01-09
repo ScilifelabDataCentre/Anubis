@@ -499,14 +499,6 @@ class CallSaver(AttachmentSaver):
             raise ValueError('Title must be provided.')
         self.doc['title'] = title
 
-    def add_proposal_field(self, form=dict()):
-        "Add a field to the proposal definition."
-        field = self.get_new_field(form=form)
-        if field['identifier'] in [f['identifier'] 
-                                   for f in self.doc['proposal']]:
-            raise ValueError('Field identifier is already in use.')
-        self.doc['proposal'].append(field)
-
     def get_new_field(self, form=dict()):
         "Get the field definition from the form."
         fid = form.get('identifier')
@@ -521,7 +513,8 @@ class CallSaver(AttachmentSaver):
                  'identifier': fid,
                  'title': title,
                  'description': form.get('description') or None,
-                 'required': bool(form.get('required'))
+                 'required': bool(form.get('required')),
+                 'banner': bool(form.get('banner'))
                  }
         if type in (constants.TEXT, constants.LINE):
             try:
@@ -576,23 +569,7 @@ class CallSaver(AttachmentSaver):
 
         return field
 
-    def edit_proposal_field(self, fid, form=dict()):
-        "Edit the field for the proposal definition."
-        for pos, field in enumerate(self.doc['proposal']):
-            if field['identifier'] == fid:
-                self.update_field(field, form=form)
-                move = form.get('_move')
-                if move == 'up':
-                    self.doc['proposal'].pop(pos)
-                    if pos == 0:
-                        self.doc['proposal'].append(field)
-                    else:
-                        self.doc['proposal'].insert(pos-1, field)
-                break
-        else:
-            raise KeyError('No such proposal field.')
-
-    def update_field(self, field, form=dict()):
+    def edit_field(self, field, form=dict()):
         "Edit the field definition from the form."
         title = form.get('title')
         if not title:
@@ -601,6 +578,8 @@ class CallSaver(AttachmentSaver):
         field['title'] = title
         field['description'] = form.get('description') or None
         field['required'] = bool(form.get('required'))
+        field['banner'] = bool(form.get('banner'))
+
         if field['type'] in (constants.TEXT, constants.LINE):
             try:
                 maxlength = int(form.get('maxlength'))
@@ -648,6 +627,30 @@ class CallSaver(AttachmentSaver):
             field['maximum'] = maximum
             field['slider'] = utils.to_bool(form.get('slider'))
 
+    def add_proposal_field(self, form=dict()):
+        "Add a field to the proposal definition."
+        field = self.get_new_field(form=form)
+        if field['identifier'] in [f['identifier'] 
+                                   for f in self.doc['proposal']]:
+            raise ValueError('Field identifier is already in use.')
+        self.doc['proposal'].append(field)
+
+    def edit_proposal_field(self, fid, form=dict()):
+        "Edit the field for the proposal definition."
+        for pos, field in enumerate(self.doc['proposal']):
+            if field['identifier'] == fid:
+                self.edit_field(field, form=form)
+                move = form.get('_move')
+                if move == 'up':
+                    self.doc['proposal'].pop(pos)
+                    if pos == 0:
+                        self.doc['proposal'].append(field)
+                    else:
+                        self.doc['proposal'].insert(pos-1, field)
+                break
+        else:
+            raise KeyError('No such proposal field.')
+
     def delete_proposal_field(self, fid):
         "Delete the given field from proposal definition."
         for pos, field in enumerate(self.doc['proposal']):
@@ -668,7 +671,7 @@ class CallSaver(AttachmentSaver):
         "Edit the review definition field."
         for pos, field in enumerate(self.doc['review']):
             if field['identifier'] == fid:
-                self.update_field(field, form=form)
+                self.edit_field(field, form=form)
                 move = form.get('_move')
                 if move == 'up':
                     self.doc['review'].pop(pos)
@@ -700,7 +703,7 @@ class CallSaver(AttachmentSaver):
         "Edit the decision definition field."
         for pos, field in enumerate(self.doc['decision']):
             if field['identifier'] == fid:
-                self.update_field(field, form=form)
+                self.edit_field(field, form=form)
                 move = form.get('_move')
                 if move == 'up':
                     self.doc['decision'].pop(pos)

@@ -60,6 +60,22 @@
 	      </small>
 	    </div>
 	  </div>
+	  <div class="form-group row">
+	    <label for="banner" class="col-md-2 col-form-label text-right">
+	      Banner</label>
+	    <div class="col-md">
+	      <div class="form-check">
+		<input type="checkbox" id="banner" name="banner"
+		       class="form-check-input"
+		       aria-describedby="bannerHelp"
+		       value="true">
+		<label class="form-check-label" for="banner">Yes</label>
+	      </div>
+	      <small id="bannerHelp" class="form-text text-muted">
+                Show the field in summaries and lists.
+	      </small>
+	    </div>
+	  </div>
 
 	  {% if field_type in (constants.TEXT, constants.LINE) %}
 	  <div class="form-group row">

@@ -73,6 +73,28 @@
 	      </small>
 	    </div>
 	  </div>
+	  <div class="form-group row">
+	    <label for="{{ field['identifier'] }}-banner"
+		   class="col-md-2 col-form-label text-right">
+	      Banner</label>
+	    <div class="col-md">
+	      <div class="form-check">
+		<input type="checkbox" id="{{ field['identifier'] }}-banner"
+		       name="banner"
+		       class="form-check-input"
+		       aria-describedby="{{ field['identifier'] }}-bannerHelp"
+		       value="true"
+		       {{ field.get('banner') and 'checked' or '' }}>
+		<label class="form-check-label"
+		       for="{{ field['identifier'] }}-banner">
+		  Yes</label>
+	      </div>
+	      <small id="{{ field['identifier'] }}-bannerHelp"
+		     class="form-text text-muted">
+                Show the field in summaries and lists.
+	      </small>
+	    </div>
+	  </div>
 
 	  {% if field['type'] in (constants.TEXT, constants.LINE) %}
 	  <div class="form-group row">
