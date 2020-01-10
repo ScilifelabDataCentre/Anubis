@@ -27,6 +27,9 @@
       {% if allow_view_reviews %}
       <th>Reviews</th>
       {% endif %} {# if allow_view_reviews #}
+      {% if allow_view_decisions %}
+      <th>Decision</th>
+      {% endif %} {# if allow_view_decisions #}
     </tr>
   </thead>
   <tbody>
@@ -39,6 +42,9 @@
       <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
       {% if allow_view_reviews %}
       <td>{{ macros.proposal_reviews_link(proposal) }}</td>
+      {% endif %}
+      {% if allow_view_decisions %}
+      <td>{{ macros.decision_link(proposal['cache'].get('decision')) }}</td>
       {% endif %}
     </tr>
     {% endfor %} {# for proposal in proposals #}

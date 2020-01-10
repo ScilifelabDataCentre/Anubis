@@ -29,10 +29,12 @@ def call(cid):
         return flask.redirect(flask.url_for('home'))
     proposals = get_call_proposals(call)
     allow_view_reviews = anubis.call.allow_view_reviews(call)
+    allow_view_decisions = anubis.call.allow_view_decisions(call)
     return flask.render_template('proposals/call.html', 
                                  call=call,
                                  proposals=proposals,
-                                 allow_view_reviews=allow_view_reviews)
+                                 allow_view_reviews=allow_view_reviews,
+                                 allow_view_decisions=allow_view_decisions)
 
 @blueprint.route('/call/<cid>.xlsx')
 @utils.login_required
@@ -130,10 +132,10 @@ def user(username):
 def get_call_proposals(call):
     "Get the proposals in the call. Only include those allowed to view."
     result = [anubis.proposal.set_cache(r.doc, call=call)
-                 for r in flask.g.db.view('proposals', 'call',
-                                          key=call['identifier'],
-                                          reduce=False,
-                                          include_docs=True)]
+              for r in flask.g.db.view('proposals', 'call',
+                                       key=call['identifier'],
+                                       reduce=False,
+                                       include_docs=True)]
     return [p for p in result if anubis.proposal.allow_view(p)]
 
 def get_user_proposals(username, call=None):

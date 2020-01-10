@@ -45,21 +45,21 @@
 
 {% macro proposals_link(call) -%}
 <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
-   role="button" class="btn btn-primary px-3">
+   role="button" class="btn btn-primary my-1">
   {{ call['cache']['all_proposals_count'] }} proposals</a>
 </a>
 {%- endmacro %}
 
 {% macro reviews_link(call) -%}
 <a href="{{ url_for('reviews.call', cid=call['identifier']) }}"
-   role="button" class="btn btn-info px-3">
+   role="button" class="btn btn-info my-1">
   {{ call['cache']['all_reviews_count'] }} reviews</a>
 </a>
 {%- endmacro %}
 
 {% macro proposal_reviews_link(proposal) -%}
 <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
-   role="button" class="btn btn-info px-3">
+   role="button" class="btn btn-info my-1">
   {{ proposal['cache']['all_reviews_count'] }} reviews</a>
 </a>
 {%- endmacro %}
@@ -78,9 +78,14 @@
 {%- endmacro %}
 
 {% macro decision_link(decision) -%}
+{% if decision %}
 <a href="{{ url_for('decision.display', iuid=decision['_id']) }}"
-   class="font-weight-bold text-dark">Decision</a>
-{% if not decision.get('finalized') %}
-<span class="badge badge-warning">Not finalized</span>
+   role="button" class="btn btn-outline-dark font-weight-bold my-1">Decision
+  {% if not decision.get('finalized') %}
+  <span class="badge badge-warning">Not finalized</span>
+  {% endif %}
+</a>
+{% else %}
+-
 {% endif %}
 {%- endmacro %}

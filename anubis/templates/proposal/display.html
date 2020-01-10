@@ -57,8 +57,8 @@
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Decision</div>
   <div class="col-md">
-  {% if decision %}
-  {{ macros.decision_link(decision) }}
+  {% if proposal['cache'].get('decision') %}
+  {{ macros.decision_link(proposal['cache']['decision']) }}
   {% elif allow_create_decision %}
   <form action="{{ url_for('decision.create', pid=proposal['identifier']) }}"
 	method="POST">

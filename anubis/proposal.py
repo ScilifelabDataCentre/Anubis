@@ -41,6 +41,11 @@ def display(pid):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
+    # Special case for setting decision cache
+    if proposal['cache'].get('decision'):
+        proposal['cache']['decision']['cache'] = {'call':
+                                                  proposal['cache']['call'],
+                                                  'proposal': proposal}
     if not allow_view(proposal):
         utils.flash_error('You are not allowed to view this proposal.')
         return flask.redirect(
@@ -51,8 +56,7 @@ def display(pid):
     am_reviewer = anubis.call.am_reviewer(proposal['cache']['call'])
     my_review = get_my_review(proposal, flask.g.current_user)
     allow_view_reviews = anubis.call.allow_view_reviews(proposal['cache']['call'])
-    decision = anubis.decision.get_decision(proposal.get('decision'))
-    allow_view_decision = anubis.decision.allow_view(decision)
+    allow_view_decision = anubis.decision.allow_view(proposal['cache'].get('decision'))
     allow_create_decision = anubis.decision.allow_create(proposal)
     return flask.render_template('proposal/display.html',
                                  proposal=proposal,
@@ -62,7 +66,6 @@ def display(pid):
                                  am_submitter=am_submitter,
                                  am_reviewer=am_reviewer,
                                  my_review=my_review,
-                                 decision=decision,
                                  allow_view_reviews=allow_view_reviews,
                                  allow_view_decision=allow_view_decision,
                                  allow_create_decision=allow_create_decision)
@@ -310,6 +313,9 @@ def set_cache(proposal, call=None):
     if anubis.call.allow_view_reviews(cache['call']):
         cache['all_reviews_count'] = utils.get_count('reviews', 'proposal',
                                                      proposal['identifier'])
+    if proposal.get('decision'):
+        proposal['cache']['decision'] = anubis.decision.get_decision(
+            proposal['decision'], cache=False)
     return proposal
 
 def get_call_user_proposal(cid, username):

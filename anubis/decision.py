@@ -253,16 +253,15 @@ def allow_create(proposal):
     return anubis.call.am_chair(decision['cache']['call'])
 
 def allow_view(decision):
-    """Admin may view all decisions.
-    Reviewer may view all decisions in a call.
+    """Admin may view any decision.
+    Reviewer may view any decision in a call.
     XXX Allow proposal user.
     XXX Allow anyone?
     """
+    if decision is None: return False
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
-    if decision:
-        if anubis.call.am_reviewer(decision['cache']['call']): return True
-    return False
+    return anubis.call.am_reviewer(decision['cache']['call'])
 
 def allow_edit(decision):
     "Admin and chair may edit an unfinalized decision."

@@ -798,6 +798,15 @@ def allow_view_reviews(call):
         return bool(call['access'].get('allow_reviewer_view_all_reviews'))
     return False
 
+def allow_view_decisions(call):
+    """Admin may view all decisions.
+    Reviewer may view all decisions in a call.
+    XXX Allow anyone?
+    """
+    if not flask.g.current_user: return False
+    if flask.g.am_admin: return True
+    return am_reviewer(call)
+
 def am_reviewer(call):
     "Is the current user a reviewer for proposals in the call?"
     if not flask.g.current_user: return False

@@ -9,6 +9,10 @@
     <strong>Required!</strong>
     {% set br = True %}
     {% endif %}
+    {% if field.get('banner') %}
+    Banner.
+    {% set br = True %}
+    {% endif %}
     {% if field.get('maxlength') %}
     Max {{ field['maxlength'] }} characters.
     {% set br = True %}
