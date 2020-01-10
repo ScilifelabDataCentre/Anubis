@@ -79,12 +79,12 @@
 
 {% macro decision_link(decision) -%}
 {% if decision %}
+{% if decision.get('finalized') %}
 <a href="{{ url_for('decision.display', iuid=decision['_id']) }}"
-   role="button" class="btn btn-outline-dark font-weight-bold my-1">Decision
-  {% if not decision.get('finalized') %}
-  <span class="badge badge-warning">Not finalized</span>
-  {% endif %}
-</a>
+   role="button" class="btn btn-dark font-weight-bold my-1">Decision</a>
+{% endif %}
+<a href="{{ url_for('decision.display', iuid=decision['_id']) }}"
+   role="button" class="btn btn-outline-secondary my-1">Decision</a>
 {% else %}
 -
 {% endif %}
