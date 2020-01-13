@@ -50,7 +50,6 @@ def create(pid):
         with anubis.proposal.ProposalSaver(proposal) as saver:
             saver['decision'] = decision['_id']
     except ValueError as error:
-        print(error)
         pass
     try:
         return flask.redirect(flask.request.form['_next'])
@@ -113,11 +112,13 @@ def edit(iuid):
             utils.flash_error('You are not allowed to delete this decision.')
             return flask.redirect(
                 flask.url_for('.display', iuid=decision['_id']))
+        proposal = decision['cache']['proposal']
+        with anubis.proposal.ProposalSaver(proposal) as saver:
+            saver['decision'] = None
         utils.delete(decision)
         utils.flash_message('Deleted decision.')
         return flask.redirect(
-            flask.url_for('proposal.display',
-                          pid=decision['cache']['proposal']['identifier']))
+            flask.url_for('proposal.display', pid=proposal['identifier']))
 
 @blueprint.route('/<iuid:iuid>/finalize', methods=['POST'])
 @utils.login_required
@@ -230,8 +231,8 @@ class DecisionSaver(FieldMixin, AttachmentSaver):
         self.doc['proposal'] = proposal['identifier']
         call = proposal['cache']['call']
         self.doc['call'] = call['identifier']
-        self.doc['values'] = dict([(f['identifier'], None) 
-                                   for f in call['decision']])
+        for field in call['decision']:
+            self.set_field_value(field, {})
 
 
 def get_decision(iuid, cache=True):
@@ -258,7 +259,6 @@ def allow_view(decision):
     XXX Allow proposal user.
     XXX Allow anyone?
     """
-    if decision is None: return False
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     return anubis.call.am_reviewer(decision['cache']['call'])
@@ -277,6 +277,7 @@ def allow_delete(decision):
 def allow_finalize(decision):
     "Admin and chaie may finalize if the decision contains no errors."
     if decision.get('finalized'): return False
+    if decision.get('errors'): return False
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     return anubis.call.am_chair(decision['cache']['call'])

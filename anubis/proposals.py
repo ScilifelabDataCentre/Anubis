@@ -30,11 +30,13 @@ def call(cid):
     proposals = get_call_proposals(call)
     allow_view_reviews = anubis.call.allow_view_reviews(call)
     allow_view_decisions = anubis.call.allow_view_decisions(call)
+    bannerfields = [f for f in call['decision'] if f.get('banner')]
     return flask.render_template('proposals/call.html', 
                                  call=call,
                                  proposals=proposals,
                                  allow_view_reviews=allow_view_reviews,
-                                 allow_view_decisions=allow_view_decisions)
+                                 allow_view_decisions=allow_view_decisions,
+                                 bannerfields=bannerfields)
 
 @blueprint.route('/call/<cid>.xlsx')
 @utils.login_required

@@ -77,24 +77,15 @@
 {% endif %}
 {%- endmacro %}
 
-{% macro proposal_decision_link(proposal) -%}
-{% set decision = proposal['cache'].get('decision') %}
+{% macro decision_link(decision) -%}
 {% if decision %}
-{% set finalized = decision.get('finalized') and 'btn-dark font-weight-bold' or 'btn-outline-secondary' %}
-{% set call = proposal['cache'].get('call') %}
+{% if decision.get('finalized') %}
 <a href="{{ url_for('decision.display', iuid=decision['_id']) }}"
-   role="button" class="btn my-1 {{ finalized }}">Decision:
-  {% set following = False %}
-  {% for field in call['decision'] %}
-  {% if field['banner'] %}
-  {% if following %}
-  ,
-  {% set following = True %}
-  {% endif %}
-  {{ field['title'] }} {{ decision.get(field['identifier']) | default('-', True) }}
-  {% endif %}
-{% endfor %}
-</a>
+   role="button" class="btn my-1 btn-dark font-weight-bold">Decision</a>
+{% else %}
+<a href="{{ url_for('decision.display', iuid=decision['_id']) }}"
+   role="button" class="btn my-1 btn-outline-secondary">Decision</a>
+{% endif %}
 {% else %}
 -
 {% endif %} {# if decision #}

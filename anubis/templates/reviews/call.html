@@ -30,8 +30,8 @@ Reviews of proposals in call {{ call['identifier'] }}
       <th>Submitter</th>
       <th>Submitted</th>
       <th>Review</th>
-      {% for scorefield in scorefields %}
-      <th>{{ scorefield['title'] }}</th>
+      {% for bannerfield in bannerfields %}
+      <th>{{ bannerfield['title'] }}</th>
       {% endfor %}
       <th>Reviewer</th>
     </tr>
@@ -46,9 +46,9 @@ Reviews of proposals in call {{ call['identifier'] }}
       {% set review = reviews_lookup.get("{} {}".format(proposal['identifier'], reviewer)) %}
       {% if review %}
       <td>{{ macros.review_link(review) }}</td>
-      {% for scorefield in scorefields %}
+      {% for bannerfield in bannerfields %}
       <td>
-	{{ review['values'].get(scorefield['identifier']) | default('-',True) }}
+	{{ review['values'].get(bannerfield['identifier']) | default('-',True) }}
       </td>
       {% endfor %}
       {% else %}
@@ -66,7 +66,7 @@ Reviews of proposals in call {{ call['identifier'] }}
       {% else %}
       <td>-</td>
       {% endif %} {# if proposal['cache']['allow_create_review'] #}
-      {% for scorefield in scorefields %}
+      {% for bannerfield in bannerfields %}
       <td>-</td>
       {% endfor %}
       {% endif %} {# if review #}
