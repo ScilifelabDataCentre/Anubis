@@ -44,7 +44,7 @@
       <td>{{ macros.proposal_reviews_link(proposal) }}</td>
       {% endif %}
       {% if allow_view_decisions %}
-      <td>{{ macros.decision_link(proposal['cache'].get('decision')) }}</td>
+      <td>{{ macros.proposal_decision_link(proposal) }}</td>
       {% endif %}
     </tr>
     {% endfor %} {# for proposal in proposals #}

@@ -19,13 +19,16 @@
 	</div>
 	<div class="modal-body">
 	  <div class="form-group row">
-	    <label for="identifier" class="col-md-2 col-form-label text-right">
+	    <label for="_{{ field_type }}_identifier" 
+                   class="col-md-2 col-form-label text-right">
 	      Identifier</label>
 	    <div class="col-md">
-	      <input type="text" id="identifier" name="identifier"
+	      <input type="text" name="identifier"
+                     id="_{{ field_type }}_identifier"
 		     class="form-control"
-		     aria-describedby="identifierHelp">
-	      <small id="identifierHelp" class="form-text text-muted">
+		     aria-describedby="_{{ field_type }}_identifierHelp">
+	      <small id="_{{ field_type }}_identifierHelp" 
+                     class="form-text text-muted">
 		<strong>Required!</strong>
 		<br>
 		Identifier for the field. It cannot be changed.
@@ -33,45 +36,56 @@
 	    </div>
 	  </div>
 	  <div class="form-group row">
-	    <label for="title" class="col-md-2 col-form-label text-right">
+	    <label for="_{{ field_type }}_title" 
+                   class="col-md-2 col-form-label text-right">
 	      Title</label>
 	    <div class="col-md">
-	      <input type="text" id="title" name="title"
+	      <input type="text" name="title"
+                     id="_{{ field_type }}_title"
 		     class="form-control"
-		     aria-describedby="titleHelp">
-	      <small id="titleHelp" class="form-text text-muted">
+		     aria-describedby="_{{ field_type }}_titleHelp">
+	      <small id="_{{ field_type }}_titleHelp"
+                     class="form-text text-muted">
 		Descriptive title. If not set, the identifier will be used.
 	      </small>
 	    </div>
 	  </div>
 	  <div class="form-group row">
-	    <label for="required" class="col-md-2 col-form-label text-right">
+	    <label for="_{{ field_type }}_required"
+                   class="col-md-2 col-form-label text-right">
 	      Required</label>
 	    <div class="col-md">
 	      <div class="form-check">
-		<input type="checkbox" id="required" name="required"
+		<input type="checkbox" name="required"
+                       id="_{{ field_type }}_required"
 		       class="form-check-input"
-		       aria-describedby="requiredHelp"
+		       aria-describedby="_{{ field_type }}_requiredHelp"
 		       value="true">
-		<label class="form-check-label" for="required">Yes</label>
+		<label class="form-check-label"
+                       for="_{{ field_type }}_required">Yes</label>
 	      </div>
-	      <small id="requiredHelp" class="form-text text-muted">
+	      <small id="_{{ field_type }}_requiredHelp"
+                     class="form-text text-muted">
 		Is a field value required for a valid proposal?
 	      </small>
 	    </div>
 	  </div>
 	  <div class="form-group row">
-	    <label for="banner" class="col-md-2 col-form-label text-right">
+	    <label for="_{{ field_type }}_banner" 
+                   class="col-md-2 col-form-label text-right">
 	      Banner</label>
 	    <div class="col-md">
 	      <div class="form-check">
-		<input type="checkbox" id="banner" name="banner"
+		<input type="checkbox" name="banner"
+                       id="_{{ field_type }}_banner"
 		       class="form-check-input"
-		       aria-describedby="bannerHelp"
+		       aria-describedby="_{{ field_type }}_bannerHelp"
 		       value="true">
-		<label class="form-check-label" for="banner">Yes</label>
+		<label class="form-check-label" 
+                       for="_{{ field_type }}_banner">Yes</label>
 	      </div>
-	      <small id="bannerHelp" class="form-text text-muted">
+	      <small id="_{{ field_type }}_bannerHelp" 
+                     class="form-text text-muted">
                 Show the field in summaries and lists.
 	      </small>
 	    </div>
@@ -79,13 +93,16 @@
 
 	  {% if field_type in (constants.TEXT, constants.LINE) %}
 	  <div class="form-group row">
-	    <label for="maxlength" class="col-md-2 col-form-label text-right">
+	    <label for="_{{ field_type }}_maxlength" 
+                   class="col-md-2 col-form-label text-right">
 	      Maxlength</label>
 	    <div class="col-md">
-	      <input type="text" id="maxlength" name="maxlength"
+	      <input type="text" name="maxlength"
+                     id="_{{ field_type }}_maxlength"
 		     class="form-control"
-		     aria-describedby="maxlengthHelp">
-	      <small id="maxlengthHelp" class="form-text text-muted">
+		     aria-describedby="_{{ field_type }}_maxlengthHelp">
+	      <small id="_{{ field_type }}_maxlengthHelp"
+                     class="form-text text-muted">
 		Max number of characters.
 	      </small>
 	    </div>
@@ -93,31 +110,37 @@
 
 	  {% elif field_type in (constants.INTEGER, constants.FLOAT) %}
 	  <div class="form-group row">
-	    <label for="maxlength" class="col-md-2 col-form-label text-right">
+	    <label for="_{{ field_type }}_maxlength" 
+                   class="col-md-2 col-form-label text-right">
 	      Minimum</label>
 	    <div class="col-md">
-	      <input type="number" id="minimum" name="minimum"
+	      <input type="number" name="minimum"
+                     id="_{{ field_type }}_minimum" 
                      {% if field_type == constants.INTEGER %}
                      step="1"
                      {% endif %}
 		     class="form-control"
-		     aria-describedby="minimumHelp">
-	      <small id="minimumHelp" class="form-text text-muted">
+		     aria-describedby="_{{ field_type }}_minimumHelp">
+	      <small id="_{{ field_type }}_minimumHelp"
+                     class="form-text text-muted">
                 Minimum value allowed, if any.
 	      </small>
 	    </div>
 	  </div>	
 	  <div class="form-group row">
-	    <label for="maxlength" class="col-md-2 col-form-label text-right">
+	    <label for="_{{ field_type }}_maxlength" 
+                   class="col-md-2 col-form-label text-right">
 	      Maximum</label>
 	    <div class="col-md">
-	      <input type="number" id="maximum" name="maximum"
+	      <input type="number" name="maximum"
+                     id="_{{ field_type }}_maximum"
                      {% if field_type == constants.INTEGER %}
                      step="1"
                      {% endif %}
 		     class="form-control"
-		     aria-describedby="maximumHelp">
-	      <small id="maximumHelp" class="form-text text-muted">
+		     aria-describedby="_{{ field_type }}_maximumHelp">
+	      <small id="_{{ field_type }}_maximumHelp"
+                     class="form-text text-muted">
                 Maximum value allowed, if any.
 	      </small>
 	    </div>
@@ -125,15 +148,18 @@
 
 	  {% elif field_type == constants.SCORE %}
 	  <div class="form-group row">
-	    <label for="slider" class="col-md-2 col-form-label text-right">
+	    <label for="_{{ field_type }}_slider"
+                   class="col-md-2 col-form-label text-right">
 	      Slider input</label>
 	    <div class="col-md">
 	      <div class="form-check">
-		<input type="checkbox" id="slider" name="slider"
+		<input type="checkbox" name="slider"
+                       id="_{{ field_type }}_slider"
 		       class="form-check-input"
-		       aria-describedby="sliderHelp"
+		       aria-describedby="_{{ field_type }}_sliderHelp"
 		       value="true">
-		<label class="form-check-label" for="slider">Yes</label>
+		<label class="form-check-label" 
+                       for="_{{ field_type }}_slider">Yes</label>
 	      </div>
 	      <small id="sliderHelp" class="form-text text-muted">
                 Input using a slider, else using radio buttons.
@@ -141,27 +167,35 @@
 	    </div>
 	  </div>
 	  <div class="form-group row">
-	    <label for="maxlength" class="col-md-2 col-form-label text-right">
+	    <label for="_{{ field_type }}_maxlength" 
+                   class="col-md-2 col-form-label text-right">
 	      Minimum</label>
 	    <div class="col-md">
-	      <input type="number" id="minimum" name="minimum" step="1"
+	      <input type="number" name="minimum"
+                     id="_{{ field_type }}_minimum"
+                     step="1"
 		     class="form-control"
-		     aria-describedby="minimumHelp"
+		     aria-describedby="_{{ field_type }}_minimumHelp"
                      value="1">
-	      <small id="minimumHelp" class="form-text text-muted">
+	      <small id="_{{ field_type }}_minimumHelp" 
+                     class="form-text text-muted">
                 Minimum score value.
 	      </small>
 	    </div>
 	  </div>	
 	  <div class="form-group row">
-	    <label for="maxlength" class="col-md-2 col-form-label text-right">
+	    <label for="_{{ field_type }}_maxlength"
+                   class="col-md-2 col-form-label text-right">
 	      Maximum</label>
 	    <div class="col-md">
-	      <input type="number" id="maximum" name="maximum" step="1"
+	      <input type="number" name="maximum"
+                     id="_{{ field_type }}_maximum"
+                     step="1"
 		     class="form-control"
-		     aria-describedby="maximumHelp"
+		     aria-describedby="_{{ field_type }}_maximumHelp"
                      value="5">
-	      <small id="maximumHelp" class="form-text text-muted">
+	      <small id="_{{ field_type }}_maximumHelp"
+                     class="form-text text-muted">
                 Maximum score value.
 	      </small>
 	    </div>
@@ -169,13 +203,16 @@
 	  {% endif %} {# if field_type == ... #}
 
 	  <div class="form-group row">
-	    <label for="description" class="col-md-2 col-form-label text-right">
+	    <label for="_{{ field_type }}_description"
+                   class="col-md-2 col-form-label text-right">
 	      Description</label>
 	    <div class="col-md">
-	      <textarea id="description" name="description"
+	      <textarea name="description"
+                        id="_{{ field_type }}_description"
 			class="form-control"
-			aria-describedby="descriptionHelp"></textarea>
-	      <small id="descriptionHelp" class="form-text text-muted">
+			aria-describedby="_{{ field_type }}_descriptionHelp"></textarea>
+	      <small id="_{{ field_type }}_descriptionHelp"
+                     class="form-text text-muted">
 		<div class="row">
 		  <div class="col-md">
 		    Description of the information to be entered

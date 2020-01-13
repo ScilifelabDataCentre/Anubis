@@ -186,7 +186,7 @@ def proposal(cid):
     elif utils.http_POST():
         try:
             with CallSaver(call) as saver:
-                saver.add_proposal_field(form=flask.request.form)
+                saver.add_proposal_field(flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
         return flask.redirect(
@@ -204,7 +204,7 @@ def proposal_field(cid, fid):
     if utils.http_POST():
         try:
             with CallSaver(call) as saver:
-                saver.edit_proposal_field(fid, form=flask.request.form)
+                saver.edit_proposal_field(fid, flask.request.form)
         except (KeyError, ValueError) as error:
             utils.flash_error(str(error))
         return flask.redirect(
@@ -287,7 +287,7 @@ def review(cid):
     elif utils.http_POST():
         try:
             with CallSaver(call) as saver:
-                saver.add_review_field(form=flask.request.form)
+                saver.add_review_field(flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
         return flask.redirect(flask.url_for('.review', cid=call['identifier']))
@@ -304,7 +304,7 @@ def review_field(cid, fid):
     if utils.http_POST():
         try:
             with CallSaver(call) as saver:
-                saver.edit_review_field(fid, form=flask.request.form)
+                saver.edit_review_field(fid, flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
         return flask.redirect(flask.url_for('.review', cid=call['identifier']))
@@ -335,7 +335,7 @@ def decision(cid):
     elif utils.http_POST():
         try:
             with CallSaver(call) as saver:
-                saver.add_decision_field(form=flask.request.form)
+                saver.add_decision_field(flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
         return flask.redirect(
@@ -353,7 +353,7 @@ def decision_field(cid, fid):
     if utils.http_POST():
         try:
             with CallSaver(call) as saver:
-                saver.edit_decision_field(fid, form=flask.request.form)
+                saver.edit_decision_field(fid, flask.request.form)
         except (KeyError, ValueError) as error:
             utils.flash_error(str(error))
         return flask.redirect(
@@ -386,7 +386,7 @@ def access(cid):
     elif utils.http_POST():
         try:
             with CallSaver(call) as saver:
-                saver.edit_access(form=flask.request.form)
+                saver.edit_access(flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
             return flask.redirect(utils.referrer_or_home())
@@ -499,14 +499,14 @@ class CallSaver(AttachmentSaver):
             raise ValueError('Title must be provided.')
         self.doc['title'] = title
 
-    def get_new_field(self, form=dict()):
+    def add_field(self, form):
         "Get the field definition from the form."
-        fid = form.get('identifier')
-        if not (fid and constants.ID_RX.match(fid)):
-            raise ValueError('Invalid field identifier.')
         type = form.get('type')
         if type not in constants.FIELD_TYPES:
             raise ValueError('Invalid field type.')
+        fid = form.get('identifier')
+        if not (fid and constants.ID_RX.match(fid)):
+            raise ValueError('Invalid field identifier.')
         title = form.get('title') or fid.replace('_', ' ')
         title = ' '.join([w.capitalize() for w in title.split()])
         field = {'type': type,
@@ -569,7 +569,24 @@ class CallSaver(AttachmentSaver):
 
         return field
 
-    def edit_field(self, field, form=dict()):
+    def edit_field(self, fieldlist, fid, form):
+        "Edit or move the field definition using data in the form."
+        for pos, field in enumerate(fieldlist):
+            if field['identifier'] == fid:
+                break
+        else:
+            raise KeyError('No such decision field.')
+        move = form.get('_move')
+        if move == 'up':
+            fieldlist.pop(pos)
+            if pos == 0:
+                fieldist.append(field)
+            else:
+                fieldlist.insert(pos-1, field)
+        else:
+            self.edit_field_definition(field, form)
+
+    def edit_field_definition(self, field, form):
         "Edit the field definition from the form."
         title = form.get('title')
         if not title:
@@ -627,29 +644,17 @@ class CallSaver(AttachmentSaver):
             field['maximum'] = maximum
             field['slider'] = utils.to_bool(form.get('slider'))
 
-    def add_proposal_field(self, form=dict()):
+    def add_proposal_field(self, form):
         "Add a field to the proposal definition."
-        field = self.get_new_field(form=form)
+        field = self.add_field(form)
         if field['identifier'] in [f['identifier'] 
                                    for f in self.doc['proposal']]:
             raise ValueError('Field identifier is already in use.')
         self.doc['proposal'].append(field)
 
-    def edit_proposal_field(self, fid, form=dict()):
+    def edit_proposal_field(self, fid, form):
         "Edit the field for the proposal definition."
-        for pos, field in enumerate(self.doc['proposal']):
-            if field['identifier'] == fid:
-                self.edit_field(field, form=form)
-                move = form.get('_move')
-                if move == 'up':
-                    self.doc['proposal'].pop(pos)
-                    if pos == 0:
-                        self.doc['proposal'].append(field)
-                    else:
-                        self.doc['proposal'].insert(pos-1, field)
-                break
-        else:
-            raise KeyError('No such proposal field.')
+        self.edit_field(self.doc['proposal'], fid, form)
 
     def delete_proposal_field(self, fid):
         "Delete the given field from proposal definition."
@@ -660,28 +665,16 @@ class CallSaver(AttachmentSaver):
         else:
             raise ValueError('No such proposal field.')
 
-    def add_review_field(self, form=dict()):
+    def add_review_field(self, form):
         "Add a field to the review definition."
-        field = self.get_new_field(form=form)
+        field = self.add_field(form)
         if field['identifier'] in [f['identifier'] for f in self.doc['review']]:
             raise ValueError('Field identifier is already in use.')
         self.doc['review'].append(field)
 
-    def edit_review_field(self, fid, form=dict()):
+    def edit_review_field(self, fid, form):
         "Edit the review definition field."
-        for pos, field in enumerate(self.doc['review']):
-            if field['identifier'] == fid:
-                self.edit_field(field, form=form)
-                move = form.get('_move')
-                if move == 'up':
-                    self.doc['review'].pop(pos)
-                    if pos == 0:
-                        self.doc['review'].append(field)
-                    else:
-                        self.doc['review'].insert(pos-1, field)
-                break
-        else:
-            raise KeyError('No such review field.')
+        self.edit_field(self.doc['review'], fid, form)
 
     def delete_review_field(self, fid):
         "Delete the field from the review definition."
@@ -692,28 +685,16 @@ class CallSaver(AttachmentSaver):
         else:
             raise ValueError('No such review field.')
 
-    def add_decision_field(self, form=dict()):
+    def add_decision_field(self, form):
         "Add a field to the decision definition."
-        field = self.get_new_field(form=form)
+        field = self.add_field(form)
         if field['identifier'] in [f['identifier'] for f in self.doc['decision']]:
             raise ValueError('Field identifier is already in use.')
         self.doc['decision'].append(field)
 
-    def edit_decision_field(self, fid, form=dict()):
+    def edit_decision_field(self, fid, form):
         "Edit the decision definition field."
-        for pos, field in enumerate(self.doc['decision']):
-            if field['identifier'] == fid:
-                self.edit_field(field, form=form)
-                move = form.get('_move')
-                if move == 'up':
-                    self.doc['decision'].pop(pos)
-                    if pos == 0:
-                        self.doc['decision'].append(field)
-                    else:
-                        self.doc['decision'].insert(pos-1, field)
-                break
-        else:
-            raise KeyError('No such decision field.')
+        self.edit_field(self.doc['decision'], fid, form)
 
     def delete_decision_field(self, fid):
         "Delete the field from the decision definition."
@@ -745,7 +726,7 @@ class CallSaver(AttachmentSaver):
                 self.doc['documents'].pop(pos)
                 break
 
-    def edit_access(self, form=dict()):
+    def edit_access(self, form):
         "Edit the access flags."
         self.doc['access'] = {}
         for flag in constants.ACCESS:
