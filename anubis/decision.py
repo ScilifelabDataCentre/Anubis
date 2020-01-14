@@ -256,8 +256,6 @@ def allow_create(proposal):
 def allow_view(decision):
     """Admin may view any decision.
     Reviewer may view any decision in a call.
-    XXX Allow proposal user.
-    XXX Allow anyone?
     """
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
