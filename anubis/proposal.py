@@ -58,6 +58,7 @@ def display(pid):
     allow_view_reviews = anubis.call.allow_view_reviews(proposal['cache']['call'])
     allow_view_decision = anubis.decision.allow_view(proposal['cache'].get('decision'))
     allow_create_decision = anubis.decision.allow_create(proposal)
+    bannerfields = [f for f in proposal['cache']['call']['decision'] if f.get('banner')]
     return flask.render_template('proposal/display.html',
                                  proposal=proposal,
                                  allow_edit=allow_edit(proposal),
@@ -68,7 +69,8 @@ def display(pid):
                                  my_review=my_review,
                                  allow_view_reviews=allow_view_reviews,
                                  allow_view_decision=allow_view_decision,
-                                 allow_create_decision=allow_create_decision)
+                                 allow_create_decision=allow_create_decision,
+                                 bannerfields=bannerfields)
 
 @blueprint.route('/<pid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.login_required

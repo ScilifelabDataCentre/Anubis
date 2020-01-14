@@ -55,20 +55,11 @@
 
 {% if allow_view_decision %}
 <div class="row">
+  {% set decision = proposal['cache'].get('decision') %}
   <div class="col-md-2 font-weight-bold text-right">Decision</div>
-  <div class="col-md">
-  {% if proposal['cache'].get('decision') %}
-  {% set decision = proposal['cache']['decision'] %}
+  <div class="col-md-2">
+  {% if decision %}
   {{ macros.decision_link(decision) }}
-  {% for field in bannerfields %}
-  <div class="row">
-    <div class="col-md-2 font-weight-bold text-right">
-      {{ field['identifier'] }}
-    </div>
-    <div class="col-md">
-      {{ macros.formatted_value(field['value']), field['type']) }}
-    </div>
-  {% endfor %}
   {% elif allow_create_decision %}
   <form action="{{ url_for('decision.create', pid=proposal['identifier']) }}"
 	method="POST">
@@ -78,8 +69,23 @@
   </form>
   {% else %}
   -
-  {% endif %}
+  {% endif %} {# if decision #}
   </div>
+  {% if decision %}
+  <div class="col-md">
+    {% set values = proposal['cache']['decision']['values'] %}
+    {% for field in bannerfields %}
+    <div class="row">
+      <div class="col-md-2 font-weight-bold text-right">
+        {{ field['title'] }}
+      </div>
+      <div class="col-md">
+        {{ macros.formatted_value(values.get(field['identifier']), field['type']) }}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %} {# if decision #}
 </div>
 {% endif %} {# if allow_view_decision #}
 
