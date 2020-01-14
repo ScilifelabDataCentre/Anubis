@@ -181,6 +181,9 @@ def display(username):
     reviewer_calls = [get_call(r.value)
                       for r in flask.g.db.view('calls', 'reviewer', 
                                                key=user['username'])]
+    for call in reviewer_calls:
+        call['cache']['my_reviews_count'] = utils.get_count(
+            'reviews', 'call_reviewer', [call['identifier'], user['username']])
     return flask.render_template('user/display.html',
                                  user=user,
                                  reviewer_calls=reviewer_calls,

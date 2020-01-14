@@ -35,8 +35,8 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
     <tr>
       <th>Reviewer</th>
       <th>Review</th>
-      {% for bannerfield in bannerfields %}
-      <th>{{ bannerfield['title'] }}</th>
+      {% for field in bannerfields %}
+      <th>{{ field['title'] }}</th>
       {% endfor %}
     </tr>
   </thead>
@@ -47,9 +47,10 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
       <td>{{ macros.user_link(get_user(reviewer)) }}</td>
       {% if review %}
       <td>{{ macros.review_link(review) }}</td>
-      {% for bannerfield in bannerfields %}
+      {% set values = review['values'] %}
+      {% for field in bannerfields %}
       <td>
-	{{ review['values'].get(bannerfield['identifier']) | default('-',True) }}
+        {{ macros.formatted_value(values.get(field['identifier']), field['type']) }}
       </td>
       {% endfor %}
       {% else %}

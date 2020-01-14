@@ -50,37 +50,7 @@ Decision for proposal {{ decision['cache']['proposal']['identifier'] }}
   </div>
   {% endif %}
   <div class="col-md text-break">
-
-    {% if field['type'] == constants.TEXT %}
-    {{ values.get(field['identifier']) | markdown }}
-
-    {% elif field['type'] == constants.LINE %}
-    {{ values.get(field['identifier']) or '-' }}
-
-    {% elif field['type'] in (constants.INTEGER, constants.SCORE) %}
-    {{ values.get(field['identifier']) | integer_value }}
-
-    {% elif field['type'] == constants.BOOLEAN %}
-    {{ values.get(field['identifier']) | boolean_value }}
-
-    {% elif field['type'] == constants.FLOAT %}
-    {{ values.get(field['identifier']) | float_value }}
-
-    {% elif field['type'] == constants.DOCUMENT %}
-    {% set documentname = values.get(field['identifier']) %}
-    {% if documentname %}
-    <span class="font-weight-bold">{{ documentname }}</span>
-    {% if attachments.get(documentname) %}
-    <a href="{{ url_for('.document', pid=proposal['identifier'], documentname=documentname) }}"
-       role="button" class="btn btn-secondary btn-sm ml-4">
-      Download 
-      ({{ attachments[documentname]['length'] | filesizeformat }})
-    </a>
-    {% else %}
-    (?)
-    {% endif %}
-    {% endif %}
-    {% endif %}
+    {{ macros.formatted_value(values.get(field['identifier']), field['type'], attachments) }}
   </div>
 </div>
 {% endfor %} {# for field in ... #}

@@ -60,13 +60,13 @@
   {% if proposal['cache'].get('decision') %}
   {% set decision = proposal['cache']['decision'] %}
   {{ macros.decision_link(decision) }}
-  {% for bannerfield in bannerfields %}
+  {% for field in bannerfields %}
   <div class="row">
     <div class="col-md-2 font-weight-bold text-right">
-      {{ bannerfield['identifier'] }}
+      {{ field['identifier'] }}
     </div>
     <div class="col-md">
-      {{ bannerfield['value'] }}
+      {{ macros.formatted_value(field['value']), field['type']) }}
     </div>
   {% endfor %}
   {% elif allow_create_decision %}

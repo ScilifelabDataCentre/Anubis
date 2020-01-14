@@ -47,8 +47,8 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
       <th>Proposal</th>
       <th>Submitter</th>
       <th>My review</th>
-      {% for bannerfield in bannerfields %}
-      <th>{{ bannerfield['title'] }}</th>
+      {% for field in bannerfields %}
+      <th>{{ field['title'] }}</th>
       {% endfor %}
     </tr>
   </thead>
@@ -60,9 +60,10 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
       <td>{{ macros.proposal_link(proposal, title=True) }}</td>
       <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
       <td>{{ macros.review_link(review) }}</td>
-      {% for bannerfield in bannerfields %}
+      {% set values = review['values'] %}
+      {% for field in bannerfields %}
       <td>
-	{{ review['values'].get(bannerfield['identifier']) | default('-',True) }}
+        {{ macros.formatted_value(values.get(field['identifier']), field['type']) }}
       </td>
       {% endfor %}
     </tr>

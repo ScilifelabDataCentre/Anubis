@@ -29,8 +29,8 @@
       {% endif %} {# if allow_view_reviews #}
       {% if allow_view_decisions %}
       <th>Decision</th>
-      {% for bannerfield in bannerfields %}
-      <th>{{ bannerfield['title'] }}</th>
+      {% for field in bannerfields %}
+      <th>{{ field['title'] }}</th>
       {% endfor %}
       {% endif %} {# if allow_view_decisions #}
     </tr>
@@ -49,8 +49,10 @@
       {% if allow_view_decisions %}
       <td>{{ macros.decision_link(proposal['cache'].get('decision')) }}</td>
       {% set values = proposal['cache'].get('decision', {}).get('values') or {} %}
-      {% for bannerfield in bannerfields %}
-      <td>{{ values.get(bannerfield['identifier']) | default('-',True) }}</td>
+      {% for field in bannerfields %}
+      <td>
+        {{ macros.formatted_value(values.get(field['identifier']), field['type']) }}
+      </td>
       {% endfor %}
       {% endif %}
     </tr>
