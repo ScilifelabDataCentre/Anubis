@@ -29,6 +29,7 @@ DEFAULT_SETTINGS = dict(
     JSON_SORT_KEYS = False,
     MIN_PASSWORD_LENGTH = 6,
     PERMANENT_SESSION_LIFETIME = 7 * 24 * 60 * 60, # seconds; 1 week
+    DOC_DIRPATH = os.path.join(ROOT_DIRPATH, 'documentation'),
     MAIL_SERVER = 'localhost',
     MAIL_PORT = 25,
     MAIL_USE_TLS = False,

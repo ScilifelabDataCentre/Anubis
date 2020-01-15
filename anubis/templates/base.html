@@ -102,6 +102,19 @@
 
         <ul class="navbar-nav justify-content-end">
           <li class="nav-item dropdown">
+            <a href="#" id="navbarDocumentation" class="nav-link dropdown-toggle"
+               role="button" data-toggle="dropdown"
+               aria-haspopup="true" aria-expanded="false">Documentation</a>
+            <div class="dropdown-menu" aria-labelledby="navbarDocumentation">
+              <a class="nav-link"
+                 href="{{ url_for('documentation', page='Basic-concepts') }}">Basic concepts</a>
+              <a class="nav-link"
+                 href="{{ url_for('documentation', page='How-to-for-admins') }}">How-to for admins</a>
+	    </div>
+          </li>
+
+        <ul class="navbar-nav justify-content-end">
+          <li class="nav-item dropdown">
             <a href="#" id="navbarAbout" class="nav-link dropdown-toggle"
                role="button" data-toggle="dropdown"
                aria-haspopup="true" aria-expanded="false">About</a>

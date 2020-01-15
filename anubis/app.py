@@ -1,5 +1,7 @@
 "Proposal review handling system."
 
+import os.path
+
 import flask
 
 import anubis.about
@@ -69,6 +71,20 @@ def home():
     # The list is already properly sorted.
     return flask.render_template('home.html', 
                                  calls=anubis.calls.get_open_calls())
+
+@app.route('/documentation/<page>')
+def documentation(page):
+    "Documentation page."
+    try:
+        with open(os.path.join(flask.current_app.config['DOC_DIRPATH'],
+                               f"{page}.md")) as infile:
+            text = infile.read()
+    except (OSError, IOError):
+        utils.flash_error('No such documentation page.')
+        return flask.redirect(utils.referrer_or_home())
+    title = page.replace('-', ' ')
+    return flask.render_template('documentation.html', title=title, text=text)
+
 
 # Set up the URL map.
 app.register_blueprint(anubis.user.blueprint, url_prefix='/user')
