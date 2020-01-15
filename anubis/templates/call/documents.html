@@ -19,13 +19,11 @@
       <tbody>
         {% for document in call.get('documents', []) %}
         <tr>
-          <th>
-            {{ document['name'] }}
-            ({{ call['_attachments'][document['name']]['length'] | filesizeformat }})
-          </th>
+          <th>{{ document['name'] }}</th>
           <td>
-            {{ document.get('description') | markdown }}
+            {{ call['_attachments'][document['name']]['length'] | filesizeformat }}
           </td>
+          <td>{{ document.get('description') | markdown }}</td>
           <td>
             <form action="{{ url_for('.document', cid=call['identifier'], documentname=document['name']) }}"
 	          method="POST">

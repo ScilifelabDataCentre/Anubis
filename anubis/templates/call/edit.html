@@ -124,6 +124,27 @@
     </div>
   </div>
   <div class="form-group row">
+    <label for="access"
+	   class="col-md-2 col-form-label text-right font-weight-bold">
+      Access</label>
+    <div class="col-md">
+      {% for flag in constants.ACCESS %}
+      <div class="form-group row">
+        <label for="{{ flag }}" class="col-md-4 col-form-label">
+          {{ flag|capitalize|replace('_',' ') }}</label>
+        <div class="col-md">
+          <div class="form-check form-check-inline pt-1">
+	    <input type="checkbox" id="{{ flag }}" name="{{ flag }}"
+	           class="form-check-input" value="true"
+                   {{ call.get('access', {}).get(flag) and 'checked' or '' }}>
+	    <label class="form-check-label" for="{{ flag }}">Yes</label>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="form-group row">
     <div class="col-md-3 offset-md-2">
       <button type="submit" class="btn btn-block btn-primary">Save</button>
     </div>

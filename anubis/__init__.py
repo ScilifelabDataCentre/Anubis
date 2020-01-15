@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '0.7.8'
+__version__ = '0.7.9'
 
 class Constants:
     VERSION     = __version__
@@ -48,7 +48,7 @@ class Constants:
 
     # Access flags for each call
     ACCESS = ('allow_reviewer_view_all_reviews',
-              # not implemented 'allow_submitter_view_all_decisions',
+              'allow_submitter_view_decision',
               # not implemented 'allow_public_view_all_decisions',
     )
 

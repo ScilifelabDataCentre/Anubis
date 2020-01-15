@@ -94,6 +94,7 @@ def edit(cid):
                     flask.request.form.get('closes'))
                 saver['reviews_due'] = utils.normalize_datetime(
                     flask.request.form.get('reviews_due'))
+                saver.edit_access(flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
         return flask.redirect(flask.url_for('.display', cid=call['identifier']))
@@ -356,27 +357,6 @@ def decision_field(cid, fid):
             utils.flash_error(str(error))
         return flask.redirect(
             flask.url_for('.decision', cid=call['identifier']))
-
-@blueprint.route('/<cid>/access', methods=['GET', 'POST'])
-@utils.admin_required
-def access(cid):
-    "Edit the access flags for the call."
-    call = get_call(cid)
-    if not call:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
-
-    if utils.http_GET():
-        return flask.render_template('call/access.html', call=call)
-
-    elif utils.http_POST():
-        try:
-            with CallSaver(call) as saver:
-                saver.edit_access(flask.request.form)
-        except ValueError as error:
-            utils.flash_error(str(error))
-            return flask.redirect(utils.referrer_or_home())
-        return flask.redirect(flask.url_for('.display', cid=call['identifier']))
 
 @blueprint.route('/<cid>/clone', methods=['GET', 'POST'])
 @utils.admin_required
