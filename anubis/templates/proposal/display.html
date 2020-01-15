@@ -39,6 +39,8 @@
 </div>
 {% endif %} {# if not am_reviewer #}
 
+{% if proposal.get('submitted') %}
+
 {% if allow_view_reviews %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">All reviews</div>
@@ -53,41 +55,49 @@
 </div>
 {% endif %} {# if my_review #}
 
-{% if allow_view_decision %}
-<div class="row">
-  {% set decision = proposal['cache'].get('decision') %}
-  <div class="col-md-2 font-weight-bold text-right">Decision</div>
-  <div class="col-md-2">
-  {% if decision %}
-  {{ macros.decision_link(decision) }}
-  {% elif allow_create_decision %}
-  <form action="{{ url_for('decision.create', pid=proposal['identifier']) }}"
-	method="POST">
-    {{ csrf_token() }}
-    <button type="submit" class="btn btn-sm btn-dark my-1">
-      Create decision</button>
-  </form>
-  {% else %}
-  -
-  {% endif %} {# if decision #}
+<div class="card bg-light mt-4">
+  <div class="card-header">
+    <div class="row">
+      <div class="col-md-2 font-weight-bold text-right">Decision</div>
+      <div class="col-md">
+        {% if allow_link_decision %}
+        {% if decision %}
+        {{ macros.decision_link(decision) }}
+        {% elif allow_create_decision %}
+        <form action="{{ url_for('decision.create', pid=proposal['identifier']) }}"
+	      method="POST">
+          {{ csrf_token() }}
+          <button type="submit" class="btn btn-sm btn-dark my-1">
+            Create decision</button>
+        </form>
+        {% endif %} {# if decision #}
+        {% endif %} {# if allow_link_decision #}
+      </div>
+    </div>
   </div>
-  {% if decision %}
-  <div class="col-md">
-    {% set values = proposal['cache']['decision']['values'] %}
-    {% for field in bannerfields %}
+  <div class="card-body">
+    {% if allow_view_decision %}
+    {% set values = decision['values'] %}
+    {% set attachments = decision.get('_attachments', {}) %}
+    {% for field in decision['cache']['call']['decision'] %}
     <div class="row">
       <div class="col-md-2 font-weight-bold text-right">
         {{ field['title'] }}
       </div>
-      <div class="col-md">
-        {{ macros.formatted_value(values.get(field['identifier']), field['type']) }}
+      <div class="col-md text-break">
+        {{ macros.formatted_value(values.get(field['identifier']), field['type'], attachments) }}
       </div>
     </div>
-    {% endfor %}
+    {% endfor %} {# for field in ... #}
+    {% else %}
+    <div class="row">
+      <div class="col-md-2 text-right"><i>Not yet available.</i></div>
+    </div>
+    {% endif %} {# if allow_view_decision #}
   </div>
-  {% endif %} {# if decision #}
 </div>
-{% endif %} {# if allow_view_decision #}
+
+{% endif %} {# if proposal.get('submitted') #}
 
 <div class="card mt-4">
   <div class="card-body">

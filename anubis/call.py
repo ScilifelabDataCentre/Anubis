@@ -783,7 +783,7 @@ def set_cache(call):
         if call['opens'] > utils.normalized_local_now():
             cache['is_open'] = False
             cache['is_closed'] = False
-            cache['is_published'] = False
+            # cache['is_published'] = False
             cache['text'] = 'Not yet open.'
             cache['color'] = 'secondary'
         elif call['closes']:
@@ -791,44 +791,45 @@ def set_cache(call):
             if remaining > 7:
                 cache['is_open'] = True
                 cache['is_closed'] = False
-                cache['is_published'] = True
+                # cache['is_published'] = True
                 cache['text'] = f"{remaining:.0f} days remaining."
                 cache['color'] = 'success'
             elif remaining >= 2:
                 cache['is_open'] = True
                 cache['is_closed'] = False
-                cache['is_published'] = True
+                # cache['is_published'] = True
                 cache['text'] = f"{remaining:.0f} days remaining."
                 cache['color'] = 'warning'
             elif remaining >= 0:
                 cache['is_open'] = True
                 cache['is_closed'] = False
-                cache['is_published'] = True
+                # cache['is_published'] = True
                 cache['text'] = f"{remaining:.1f} days remaining."
                 cache['color'] = 'danger'
             else:
                 cache['is_open'] = False
                 cache['is_closed'] = True
-                cache['is_published'] = True
+                # cache['is_published'] = True
                 cache['text'] = 'Closed.'
                 cache['color'] = 'dark'
         else:
             cache['is_open'] = True
             cache['is_closed'] = False
-            cache['is_published'] = True
+            # cache['is_published'] = True
             cache['text'] = 'Open with no closing date.'
             cache['color'] = 'success'
     else:
         if call['closes']:
             cache['is_open'] = False
             cache['is_closed'] = False
-            cache['is_published'] = False
+            # cache['is_published'] = False
             cache['text'] = 'No open date set.'
             cache['color'] = 'secondary'
         else:
             cache['is_open'] = False
             cache['is_closed'] = False
-            cache['is_published'] = False
+            # cache['is_published'] = False
             cache['text'] = 'No open or close dates set.'
             cache['color'] = 'secondary'
+    cache['is_published'] = cache['is_open'] or cache['is_closed']
     return call

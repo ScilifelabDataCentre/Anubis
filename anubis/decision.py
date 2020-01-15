@@ -64,7 +64,7 @@ def display(iuid):
     except KeyError:
         utils.flash_error('No such decision.')
         return flask.redirect(flask.url_for('home'))
-    if not allow_view(decision):
+    if not allow_link(decision):
         utils.flash_error('You are not allowed to view this decision.')
         return flask.redirect(
             flask.url_for('proposal.display',
@@ -188,7 +188,7 @@ def document(iuid, documentname):
     except KeyError:
         utils.flash_error('No such decision.')
         return flask.redirect(flask.url_for('home'))
-    if not allow_view(decision):
+    if not allow_link(decision):
         utils.flash_error('You are not allowed to read this decision.')
         return flask.redirect(flask.url_for('home'))
 
@@ -253,9 +253,9 @@ def allow_create(proposal):
     if flask.g.am_admin: return True
     return anubis.call.am_chair(decision['cache']['call'])
 
-def allow_view(decision):
-    """Admin may view any decision.
-    Reviewer may view any decision in a call.
+def allow_link(decision):
+    """Admin may view link to any decision.
+    Reviewer may view link to any decision in a call.
     """
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True

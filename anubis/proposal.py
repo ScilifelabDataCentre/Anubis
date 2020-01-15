@@ -42,10 +42,10 @@ def display(pid):
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
     # Special case for setting decision cache
-    if proposal['cache'].get('decision'):
-        proposal['cache']['decision']['cache'] = {'call':
-                                                  proposal['cache']['call'],
-                                                  'proposal': proposal}
+    decision = proposal['cache'].get('decision')
+    if decision:
+        decision['cache'] = {'call': proposal['cache']['call'],
+                             'proposal': proposal}
     if not allow_view(proposal):
         utils.flash_error('You are not allowed to view this proposal.')
         return flask.redirect(
@@ -56,9 +56,11 @@ def display(pid):
     am_reviewer = anubis.call.am_reviewer(proposal['cache']['call'])
     my_review = get_my_review(proposal, flask.g.current_user)
     allow_view_reviews = anubis.call.allow_view_reviews(proposal['cache']['call'])
-    allow_view_decision = anubis.decision.allow_view(proposal['cache'].get('decision'))
+    allow_link_decision = anubis.decision.allow_link(decision)
     allow_create_decision = anubis.decision.allow_create(proposal)
-    bannerfields = [f for f in proposal['cache']['call']['decision'] if f.get('banner')]
+    allow_view_decision = decision and \
+        decision.get('finalized') and \
+        proposal['cache']['call']['access'].get('allow_submitter_view_decision')
     return flask.render_template('proposal/display.html',
                                  proposal=proposal,
                                  allow_edit=allow_edit(proposal),
@@ -68,9 +70,10 @@ def display(pid):
                                  am_reviewer=am_reviewer,
                                  my_review=my_review,
                                  allow_view_reviews=allow_view_reviews,
-                                 allow_view_decision=allow_view_decision,
+                                 decision=decision,
+                                 allow_link_decision=allow_link_decision,
                                  allow_create_decision=allow_create_decision,
-                                 bannerfields=bannerfields)
+                                 allow_view_decision=allow_view_decision)
 
 @blueprint.route('/<pid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.login_required
