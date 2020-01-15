@@ -81,8 +81,6 @@ def edit(cid):
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_GET():
-        if call['cache']['is_open'] or call['cache']['is_closed']:
-            utils.flash_warning('An opened call must be edited with care.')
         return flask.render_template('call/edit.html', call=call)
 
     elif utils.http_POST():
@@ -118,9 +116,6 @@ def documents(cid):
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_GET():
-        if call['cache']['is_open'] or call['cache']['is_closed']:
-            utils.flash_warning('The documents for an opened call must'
-                                ' be edited with care.')
         return flask.render_template('call/documents.html', call=call)
 
     elif utils.http_POST():
@@ -178,9 +173,6 @@ def proposal(cid):
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_GET():
-        if call['cache']['is_open'] or call['cache']['is_closed']:
-            utils.flash_warning('Editing proposal fields for an opened call'
-                                ' may invalidate current proposals.')
         return flask.render_template('call/proposal.html', call=call)
 
     elif utils.http_POST():
@@ -327,9 +319,6 @@ def decision(cid):
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_GET():
-        if call['cache']['is_closed']:
-            utils.flash_warning('Editing decision fields for a closed call'
-                                ' may invalidate current decisions.')
         return flask.render_template('call/decision.html', call=call)
 
     elif utils.http_POST():
@@ -378,9 +367,6 @@ def access(cid):
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_GET():
-        if call['cache']['is_open'] or call['cache']['is_closed']:
-            utils.flash_warning('The access for an opened call must'
-                                ' be edited with care.')
         return flask.render_template('call/access.html', call=call)
 
     elif utils.http_POST():
