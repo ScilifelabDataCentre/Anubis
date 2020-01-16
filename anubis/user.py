@@ -71,6 +71,8 @@ def register():
             with UserSaver() as saver:
                 saver.set_username(flask.request.form.get('username'))
                 saver.set_email(flask.request.form.get('email'))
+                if flask.g.am_admin and utils.to_bool(flask.request.form.get('enable')):
+                    saver.set_status(constants.ENABLED)
                 saver['givenname'] = flask.request.form.get('givenname') or None
                 saver['familyname'] = flask.request.form.get('familyname') or None
                 if flask.current_app.config['USER_GENDERS']:
@@ -91,10 +93,13 @@ def register():
         except ValueError as error:
             utils.flash_error(error)
             return flask.redirect(flask.url_for('.register'))
-        # Directly enabled; send code to the user.
+        # Directly enabled; send code to the user, if so instructed.
         if user['status'] == constants.ENABLED:
-            send_password_code(user, 'registration')
-            utils.flash_message('User account created; check your email.')
+            if utils.to_bool(flask.request.form.get('send_email')):
+                send_password_code(user, 'registration')
+                utils.flash_message('User account created; check your email.')
+            else:
+                utils.flash_message('User account created.')
         # Was set to 'pending'; send email to admins.
         else:
             admins = get_users(constants.ADMIN, status=constants.ENABLED)

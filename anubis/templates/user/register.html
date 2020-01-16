@@ -23,8 +23,8 @@
         <strong>Required! May be visible to others in some cases.</strong>
         The identifier for the user account. It must start with a
 	letter and continue with letters and/or, digits. It must be
-	unique within the site. Character case is significant. The
-	username cannot be changed.
+	unique within the database of this site. Character case is
+	significant. The username cannot be changed.
       </small>
     </div>
   </div>
@@ -42,7 +42,7 @@
         <strong>Required!</strong>
 	A valid email address for the user. The password setting code
 	will be sent to this address. It must be unique within the
-	site.
+	database of this site.
       </small>
     </div>
   </div>
@@ -184,6 +184,38 @@
       </small>
     </div>
   </div>
+  {% endif %}
+  {% if g.am_admin %}
+  <div class="form-group row">
+    <label for="enable" class="col-md-2 col-form-label text-right">
+      Enable</label>
+    <div class="col-md form-row">
+      <div class="form-check form-check-inline pl-2">
+	<input type="checkbox" name="enable" id="enable"
+               class="form-check-input"
+	       value="true" checked>
+	<label class="form-check-label" for="enable">
+          Enable the account immediately.
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="form-group row">
+    <label for="send_email" class="col-md-2 col-form-label text-right">
+      Send email</label>
+    <div class="col-md form-row">
+      <div class="form-check form-check-inline pl-2">
+	<input type="checkbox" name="send_email" id="send_email"
+               class="form-check-input"
+	       value="true" checked>
+	<label class="form-check-label" for="send_email">
+	  Send email to the user with password-setting code and instructions
+        </label>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <input type="hidden" name="send_email" value="true">
   {% endif %}
   <div class="form-group row">
     <div class="col-md-3 offset-md-2">
