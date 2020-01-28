@@ -209,11 +209,10 @@ def edit(username):
         utils.flash_error('Access to user edit not allowed.')
         return flask.redirect(utils.referrer_or_home())
 
-    allow_change_role = allow_change_role(user)
     if utils.http_GET():
         return flask.render_template('user/edit.html',
                                      user=user,
-                                     allow_change_role=allow_change_role)
+                                     allow_change_role=allow_change_role(user))
 
     elif utils.http_POST():
         try:
@@ -236,7 +235,7 @@ def edit(username):
                     saver['postaladdress'] = flask.request.form.get('postaladdress') or None
                 if flask.current_app.config['USER_PHONE']:
                     saver['phone'] = flask.request.form.get('phone') or None
-                if allow_change_role:
+                if allow_change_role(user):
                     saver.set_role(flask.request.form.get('role'))
         except ValueError as error:
             utils.flash_error(error)
