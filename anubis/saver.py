@@ -158,6 +158,8 @@ class FieldMixin:
         elif field['type'] == constants.SELECT:
             if field.get('multiple'):
                 self.doc['values'][fid] = form.getlist(fid) or []
+                if field['required'] and not self.doc['values'][fid]:
+                    self.doc['errors'][fid] = 'missing value'
             else:
                 self.doc['values'][fid] = form.get(fid) or None
 
@@ -167,7 +169,7 @@ class FieldMixin:
             else:
                 converter = int
             value = form.get(fid)
-            if form.get(f"{fid}_na"):
+            if form.get(f"{fid}_novalue"):
                 value = None
             try:
                 value = converter(value)
@@ -195,7 +197,6 @@ class FieldMixin:
                                     infile.read(),
                                     infile.mimetype)
 
-        # Error message already set; skip
-        if self.doc['errors'].get(fid): return
+        if self.doc['errors'].get(fid): return # Error message already set; skip
         if field['required'] and self.doc['values'][fid] is None:
             self.doc['errors'][fid] = 'missing value'

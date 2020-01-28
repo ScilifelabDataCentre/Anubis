@@ -49,12 +49,13 @@
     </div>
     <div class="custom-control custom-radio custom-control-inline ml-4">
       <input type="radio"
-             id="{{ field['identifier'] }}_no" name="{{ field['identifier'] }}"
+             id="{{ field['identifier'] }}_novalue" 
+             name="{{ field['identifier'] }}"
              class="custom-control-input"
              {{ value is none and 'checked' }}
              value="">
-      <label class="custom-control-label" for="{{ field['identifier'] }}_no">
-        N/A</label>
+      <label class="custom-control-label"
+             for="{{ field['identifier'] }}_novalue">No value</label>
     </div>
 
     {% elif field['type'] == constants.SELECT %}
@@ -133,24 +134,22 @@
 	       aria-describedby="{{ field['identifier'] }}Help">
       </div>
       <div class="col-md-1">{{ field['maximum'] }}</div>
-      {% if not field.get('required') %}
       <div class="col-md-1">
         <div class="custom-control custom-radio custom-control-inline">
           <input type="checkbox"
-                 id="{{ field['identifier'] }}_na"
-                 name="{{ field['identifier'] }}_na"
+                 id="{{ field['identifier'] }}_novalue"
+                 name="{{ field['identifier'] }}_novalue"
                  class="custom-control-input"
                  {{ value is none and 'checked' }}
                  value="true">
-          <label class="custom-control-label" for="{{ field['identifier'] }}_na">
-            N/A</label>
+          <label class="custom-control-label" 
+                 for="{{ field['identifier'] }}_novalue">No value</label>
         </div>
       </div>
-      {% endif %}
     </div>
     {% else %}
     {% for pos in range(field['minimum'], field['maximum']+1) %}
-    <div class="custom-control custom-radio custom-control-inline">
+    <div class="custom-control custom-radio custom-control-inline pt-1">
       <input type="radio"
              id="{{ field['identifier'] }}_{{ pos }}" name="{{ field['identifier'] }}"
              class="custom-control-input"
@@ -160,17 +159,16 @@
         {{ pos }}</label>
     </div>
     {% endfor %}
-    {% if not field.get('required') %}
     <div class="custom-control custom-radio custom-control-inline ml-4">
       <input type="radio"
-             id="{{ field['identifier'] }}_na" name="{{ field['identifier'] }}"
+             id="{{ field['identifier'] }}_novalue"
+             name="{{ field['identifier'] }}"
              class="custom-control-input"
              {{ value is none and 'checked' or ''}}
              value="true">
-      <label class="custom-control-label" for="{{ field['identifier'] }}_na">
-        N/A</label>
+      <label class="custom-control-label"
+             for="{{ field['identifier'] }}_novalue">No value</label>
     </div>
-    {% endif %}
     {% endif %}
 
     {% elif field['type'] == constants.DOCUMENT %}
