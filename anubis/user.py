@@ -167,8 +167,9 @@ def password():
         else:
             with UserSaver(user) as saver:
                 saver.set_password(password)
+            utils.flash_message('Password set.')
             do_login(username, password)
-        return flask.redirect(utils.referrer_or_home())
+        return flask.redirect(flask.url_for('home'))
 
 @blueprint.route('/display/<username>')
 @utils.login_required
@@ -291,6 +292,7 @@ def enable(username):
         saver.set_status(constants.ENABLED)
         saver.set_password()
     send_password_code(user, 'enabled')
+    utils.flash_message('User account enabled; email sent.')
     return flask.redirect(flask.url_for('.display', username=username))
 
 @blueprint.route('/disable/<username>', methods=['POST'])
@@ -489,6 +491,7 @@ def allow_edit(user):
 def allow_delete(user):
     """Can the the given user account be deleted? 
     Only when it is not admin, and has no proposals and no reviews.
+    Note that the user herself may be able to delete the account.
     """
     if user['role'] == constants.ADMIN: return False
     if utils.get_count('proposals', 'user', user['username']): return False
