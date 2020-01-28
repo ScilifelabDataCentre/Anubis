@@ -249,7 +249,7 @@ def edit(username):
         flask.g.db.delete(user)
         utils.flash_message(f"Deleted user {username}.")
         if flask.g.am_admin:
-            return flask.redirect(flask.url_for('.users'))
+            return flask.redirect(flask.url_for('.all'))
         else:
             return flask.redirect(flask.url_for('home'))
 
