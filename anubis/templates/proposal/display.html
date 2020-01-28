@@ -4,7 +4,7 @@
 
 {% block body_title %}
 <small class="text-muted mr-3">Proposal</small>
-{{ proposal['identifier'] }} {{ proposal.get('title') or '' }}
+{{ proposal['identifier'] }} {{ proposal.get('title') or 'No title' }}
 {% endblock %}
 
 {% block main %}
@@ -128,6 +128,9 @@
         {% elif field['type'] == constants.BOOLEAN %}
         {{ values.get(field['identifier']) | boolean_value }}
 
+        {% elif field['type'] == constants.SELECT %}
+        {{ values.get(field['identifier']) | select_value }}
+
         {% elif field['type'] == constants.FLOAT %}
         {{ values.get(field['identifier']) | float_value }}
 
@@ -143,9 +146,11 @@
         </a>
         {% else %}
         (?)
-        {% endif %}
-        {% endif %}
-        {% endif %}
+        {% endif %} {# if attachments.get(documentname) #}
+        {% else %}
+        -
+        {% endif %} {# if documentname #}
+        {% endif %} {# elif field['type'] == ... #}
       </div>
     </div>
     {% endfor %} {# for field in ... #}

@@ -33,11 +33,6 @@ utils.mail.init_app(app)
 
 app.url_map.converters['iuid'] = utils.IuidConverter
 
-app.add_template_filter(utils.boolean_value)
-app.add_template_filter(utils.integer_value)
-app.add_template_filter(utils.float_value)
-app.add_template_filter(utils.do_markdown, name='markdown')
-
 @app.context_processor
 def setup_template_context():
     "Add useful stuff to the global context of Jinja2 templates."
@@ -46,6 +41,8 @@ def setup_template_context():
                 csrf_token=utils.csrf_token,
                 enumerate=enumerate,
                 sorted=sorted,
+                len=len,
+                max=max,
                 get_user=anubis.user.get_user)
 
 @app.before_request

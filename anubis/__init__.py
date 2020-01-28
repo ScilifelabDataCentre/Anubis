@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '0.7.12'
+__version__ = '0.7.13'
 
 class Constants:
     VERSION     = __version__
@@ -39,12 +39,13 @@ class Constants:
     # Input field types
     LINE     = 'line'
     BOOLEAN  = 'boolean'
+    SELECT   = 'select'
     INTEGER  = 'integer'
     FLOAT    = 'float'
     SCORE    = 'score'
     TEXT     = 'text'
     DOCUMENT = 'document'
-    FIELD_TYPES = (LINE, BOOLEAN, INTEGER, FLOAT, SCORE, TEXT, DOCUMENT)
+    FIELD_TYPES = (LINE, BOOLEAN, SELECT, INTEGER, FLOAT, SCORE, TEXT, DOCUMENT)
 
     # Access flags for each call
     ACCESS = ('allow_reviewer_view_all_reviews',

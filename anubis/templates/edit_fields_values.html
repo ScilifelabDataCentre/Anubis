@@ -56,6 +56,38 @@
       <label class="custom-control-label" for="{{ field['identifier'] }}_no">
         N/A</label>
     </div>
+
+    {% elif field['type'] == constants.SELECT %}
+    {% if field.get('multiple') %}
+    {% for select in field['selection'] %}
+    <div class="custom-control custom-checkbox">
+      <input type="checkbox"
+             id="{{ field['identifier'] }}_{{ select }}"
+             name="{{ field['identifier'] }}"
+             class="custom-control-input"
+             {{ value and select in value and 'checked' }}
+             value="{{ select }}">
+      <label class="custom-control-label"
+             for="{{ field['identifier'] }}_{{ select }}">
+        {{ select }}</label>
+    </div>
+    {% endfor %} {# for select in field['selection'] #}
+    {% else %}
+    {% for select in field['selection'] %}
+    <div class="custom-control custom-radio">
+      <input type="radio"
+             id="{{ field['identifier'] }}_{{ select }}"
+             name="{{ field['identifier'] }}"
+             class="custom-control-input"
+             {{ value and select in value and 'checked' }}
+             value="{{ select }}">
+      <label class="custom-control-label"
+             for="{{ field['identifier'] }}_{{ select }}">
+        {{ select }}</label>
+    </div>
+    {% endfor %} {# for select in field['selection'] #}
+    {% endif %} {# if field.get('multiple') #}
+
     {% elif field['type'] in constants.INTEGER %}
     <input type="number" step="1"
            {% if field.get('minimum') %}

@@ -16,7 +16,16 @@ import werkzeug.routing
 from . import constants
 
 def init(app):
-    "Initialize; update CouchDB design documents."
+    """Initialize.
+    - Add template filters.
+    - Update CouchDB design documents.
+    """
+    app.add_template_filter(boolean_value)
+    app.add_template_filter(select_value)
+    app.add_template_filter(integer_value)
+    app.add_template_filter(float_value)
+    app.add_template_filter(do_markdown, name='markdown')
+
     db = get_db(app=app)
     if db.put_design('logs', DESIGN_DOC):
         print(' > Updated logs design document.')
@@ -194,6 +203,15 @@ def boolean_value(value):
         return 'Yes'
     else:
         return 'No'
+
+def select_value(value):
+    "Template filter: Output field value(s) for select."
+    if value is None:
+        return '-'
+    elif isinstance(value, list):
+        return '; '.join(value)
+    else:
+        return value
 
 def integer_value(value):
     "Template filter: Output field value integer."

@@ -28,7 +28,7 @@
    class="font-weight-bold">
   {{ proposal['identifier'] }}
   {% if title %}
-  {{ proposal['title'] }}
+  {{ proposal['title'] or 'No title' }}
   {% endif %}
 </a>
 {%- endmacro %}

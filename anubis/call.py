@@ -533,6 +533,11 @@ class CallSaver(AttachmentSaver):
             field['maximum'] = maximum
             field['slider'] = utils.to_bool(form.get('slider'))
 
+        elif type == constants.SELECT:
+            field['multiple'] = bool(form.get('multiple'))
+            field['selection'] = [s.strip() for s in
+                                  form.get('selection', '').split('\n')]
+
         return field
 
     def edit_field(self, fieldlist, fid, form):
@@ -609,6 +614,11 @@ class CallSaver(AttachmentSaver):
             field['minimum'] = minimum
             field['maximum'] = maximum
             field['slider'] = utils.to_bool(form.get('slider'))
+
+        elif field['type'] == constants.SELECT:
+            field['multiple'] = bool(form.get('multiple'))
+            field['selection'] = [s.strip() for s in
+                                  form.get('selection', '').split('\n')]
 
     def add_proposal_field(self, form):
         "Add a field to the proposal definition."

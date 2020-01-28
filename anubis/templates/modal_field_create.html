@@ -200,6 +200,47 @@
 	      </small>
 	    </div>
 	  </div>	
+
+	  {% elif field_type == constants.SELECT %}
+	  <div class="form-group row">
+	    <label for="_{{ field_type }}_selection"
+                   class="col-md-2 col-form-label text-right">
+	      Selection values</label>
+	    <div class="col-md">
+	      <textarea name="selection"
+                        id="_{{ field_type }}_selection"
+			class="form-control"
+			aria-describedby="_{{ field_type }}_selectionHelp"
+                        ></textarea>
+	      <small id="_{{ field_type }}_selectionHelp"
+                     class="form-text text-muted">
+		<div class="row">
+		  <div class="col-md">
+                    Values to make the selection among; one value per line.
+		  </div>
+		</div>
+	      </small>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="_{{ field_type }}_multiple"
+                   class="col-md-2 col-form-label text-right">
+	      Multiple choice</label>
+	    <div class="col-md">
+	      <div class="form-check">
+		<input type="checkbox" name="multiple"
+                       id="_{{ field_type }}_multiple"
+		       class="form-check-input"
+		       aria-describedby="_{{ field_type }}_multipleHelp"
+		       value="true">
+		<label class="form-check-label" 
+                       for="_{{ field_type }}_multiple">Yes</label>
+	      </div>
+	      <small id="sliderHelp" class="form-text text-muted">
+                Allow selection of multiple values.
+	      </small>
+	    </div>
+	  </div>
 	  {% endif %} {# if field_type == ... #}
 
 	  <div class="form-group row">
@@ -210,7 +251,8 @@
 	      <textarea name="description"
                         id="_{{ field_type }}_description"
 			class="form-control"
-			aria-describedby="_{{ field_type }}_descriptionHelp"></textarea>
+			aria-describedby="_{{ field_type }}_descriptionHelp"
+                        ></textarea>
 	      <small id="_{{ field_type }}_descriptionHelp"
                      class="form-text text-muted">
 		<div class="row">
@@ -227,6 +269,7 @@
 	    </div>
 	  </div>
 	</div>
+
 	<div class="modal-footer">
           <button type="button" class="btn btn-secondary"
 		  data-dismiss="modal">Cancel</button>

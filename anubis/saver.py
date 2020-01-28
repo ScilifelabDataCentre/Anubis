@@ -155,6 +155,12 @@ class FieldMixin:
                 value = utils.to_bool(value)
             self.doc['values'][fid] = value
 
+        elif field['type'] == constants.SELECT:
+            if field.get('multiple'):
+                self.doc['values'][fid] = form.getlist(fid) or []
+            else:
+                self.doc['values'][fid] = form.get(fid) or None
+
         elif field['type'] in (constants.INTEGER, constants.FLOAT, constants.SCORE):
             if field['type'] == constants.FLOAT:
                 converter = float
