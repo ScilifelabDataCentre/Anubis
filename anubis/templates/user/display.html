@@ -152,7 +152,7 @@ User {{ user['username'] }}
 {% endif %} {# if g.current_user... #}
 {% if allow_delete %}
 <div class="mt-2">
-  <form action="{{ url_for('.display', username=user['username']) }}"
+  <form action="{{ url_for('.edit', username=user['username']) }}"
 	method="POST">
     {{ csrf_token() }}
     <input type="hidden" name="_http_method" value="DELETE">
