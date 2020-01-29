@@ -16,7 +16,7 @@
           {% if g.am_admin %}
           <input type="email" id="email" name="email"
                  class="form-control"
-                 value="{{ user['email'] }}">
+                 value="{{ user['email'] or '' }}">
           {% else %}
           <input type="email" readonly
                  class="form-control"

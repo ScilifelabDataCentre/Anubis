@@ -1,12 +1,11 @@
 {# Macros #}
 
-{% macro user_link(user, fullname=True, label=True, chair=False) -%}
+{% macro user_link(user, fullname=True, chair=False) -%}
 <a href="{{ url_for('user.display', username=user['username']) }}"
    class="font-weight-bold text-info">
   {% if fullname and user.get('familyname') %}
   {{ user.get('givenname')|default('', True) }} {{ user['familyname'] }}
   {% else %}
-  {% if label %}User{% endif %}
   {{ user['username'] }}
   {% endif %}
   {% if chair %}

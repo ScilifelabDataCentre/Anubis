@@ -28,7 +28,7 @@
   <tbody>
     {% for user in users %}
     <tr>
-      <td>{{ macros.user_link(user, fullname=False, label=False) }}</td>
+      <td>{{ macros.user_link(user, fullname=False) }}</td>
       <td>
 	<a href="{{ url_for('proposals.user', username=user['username']) }}">
 	  <span class="badge badge-primary px-3">

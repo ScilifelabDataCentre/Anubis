@@ -220,8 +220,7 @@ def edit(username):
             with UserSaver(user) as saver:
                 if flask.g.am_admin:
                     email = flask.request.form.get('email')
-                    if email != user['email']:
-                        saver.set_email(email)
+                    saver.set_email(email, require=bool(email))
                 saver['givenname'] = flask.request.form.get('givenname') or None
                 saver['familyname'] = flask.request.form.get('familyname') or None
                 if flask.current_app.config['USER_GENDERS']:
@@ -338,6 +337,7 @@ class UserSaver(BaseSaver):
 
     def set_email(self, email, require=True):
         if email:
+            if email == self.doc.get('email'): return
             if not constants.EMAIL_RX.match(email):
                 raise ValueError('invalid email')
             if get_user(email=email):
@@ -453,7 +453,10 @@ def do_login(username, password):
     flask.session.permanent = True
 
 def send_password_code(user, action):
-    "Send an email with the one-time code to the user's email address."
+    """Send an email with the one-time code to the user's email address.
+    No action if no email address for user.
+    """
+    if not user['email']: return
     site = flask.current_app.config['SITE_NAME']
     message = flask_mail.Message(f"{site} user account {action}",
                                  recipients=[user['email']])
