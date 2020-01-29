@@ -90,7 +90,7 @@
 {% endif %} {# if decision #}
 {%- endmacro %}
 
-{% macro formatted_value(value, type, attachments={}) -%}
+{% macro formatted_value(value, type, docurl) -%}
 {% if type == 'text' %}
 {{ value | markdown }}
 {% elif type == 'line' %}
@@ -104,20 +104,16 @@
 {% elif type == 'float' %}
 {{ value | float_value }}
 {% elif type == 'document' %}
-{% set documentname = values.get(field['identifier']) %}
-{% if documentname %}
-<span class="font-weight-bold">{{ documentname }}</span>
-{% if attachments.get(documentname) %}
-<a href="{{ url_for('.document', pid=proposal['identifier'], documentname=documentname) }}"
-   role="button" class="btn btn-secondary btn-sm ml-4">
-  Download 
-  ({{ attachments[documentname]['length'] | filesizeformat }})
-</a>
+{% if value %}
+<span class="font-weight-bold">{{ value }}</span>
+{% if docurl %}
+<a href="{{ docurl }}" role="button" class="btn btn-secondary btn-sm ml-4">
+  Download</a>
 {% else %}
 ?
-{% endif %} {# if attachments.get(documentname) #}
+{% endif %} {# if document #}
 {% else %}
 -
-{% endif %} {# if documentname #}
+{% endif %} {# if value #}
 {% endif %} {# if type == ... #}
 {%- endmacro %}

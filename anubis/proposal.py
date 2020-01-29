@@ -172,7 +172,7 @@ def logs(pid):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
-    if not proposal['cache']['allow_read']:
+    if not allow_view(proposal):
         utils.flash_error('You are not allowed to read this proposal.')
         return flask.redirect(utils.referrer_or_home())
 
@@ -190,7 +190,7 @@ def document(pid, documentname):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
-    if not proposal['cache']['allow_read']:
+    if not allow_view(proposal):
         utils.flash_error('You are not allowed to read this proposal.')
         return flask.redirect(flask.url_for('home'))
 

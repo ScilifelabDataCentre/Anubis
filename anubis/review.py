@@ -304,11 +304,12 @@ def allow_finalize(review):
     "Admin and reviewer may finalize if the review contains no errors."
     if review.get('finalized'): return False
     if not flask.g.current_user: return False
+    if review['errors']: return False
     if flask.g.am_admin: return True
     return flask.g.current_user['username'] == review['reviewer']
 
 def allow_unfinalize(review):
-    "Admin and reviewer may unfinalize the review."
+    "Admin and reviewer may unfinalize the review if before reviews due date."
     if not review.get('finalized'): return False
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True

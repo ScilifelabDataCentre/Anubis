@@ -50,7 +50,13 @@ Decision for proposal {{ decision['cache']['proposal']['identifier'] }}
   </div>
   {% endif %}
   <div class="col-md text-break">
-    {{ macros.formatted_value(values.get(field['identifier']), field['type'], attachments) }}
+    {% set value = values.get(field['identifier']) %}
+    {% if value %}
+    {% set docurl = url_for('.document', iuid=decision['_id'], documentname=value) %}
+    {% else %}
+    {% set docurl = None %}
+    {% endif %}
+    {{ macros.formatted_value(value, field['type'], docurl) }}
   </div>
 </div>
 {% endfor %} {# for field in ... #}

@@ -85,7 +85,13 @@
         {{ field['title'] }}
       </div>
       <div class="col-md text-break">
-        {{ macros.formatted_value(values.get(field['identifier']), field['type'], attachments) }}
+        {% set value = values.get(field['identifier']) %}
+        {% if value %}
+        {% set docurl = url_for('.document', pid=proposal['identifier'], documentname=value) %}
+        {% else %}
+        {% set docurl = None %}
+        {% endif %}
+        {{ macros.formatted_value(value, field['type'], docurl) }}
       </div>
     </div>
     {% endfor %} {# for field in ... #}
@@ -114,8 +120,14 @@
         Error: {{ proposal['errors'][field['identifier']] }}
       </div>
       {% endif %}
+        {% set value = values.get(field['identifier']) %}
+        {% if value %}
+        {% set docurl = url_for('.document', pid=proposal['identifier'], documentname=value) %}
+        {% else %}
+        {% set docurl = None %}
+        {% endif %}
       <div class="col-md text-break">
-        {{ macros.formatted_value(values.get(field['identifier']), field['type'], attachments) }}
+        {{ macros.formatted_value(value, field['type'], docurl) }}
       </div>
     </div>
     {% endfor %} {# for field in ... #}
