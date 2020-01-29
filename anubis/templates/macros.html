@@ -99,6 +99,8 @@
 {{ value | integer_value }}
 {% elif type == 'boolean' %}
 {{ value | boolean_value }}
+{% elif type == 'select' %}
+{{ value | select_value }}
 {% elif type == 'float' %}
 {{ value | float_value }}
 {% elif type == 'document' %}
@@ -114,6 +116,8 @@
 {% else %}
 ?
 {% endif %} {# if attachments.get(documentname) #}
+{% else %}
+-
 {% endif %} {# if documentname #}
 {% endif %} {# if type == ... #}
 {%- endmacro %}

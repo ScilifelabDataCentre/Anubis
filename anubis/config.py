@@ -39,23 +39,17 @@ DEFAULT_SETTINGS = dict(
     CALL_IDENTIFIER_MAXLENGTH = 10,
     CALL_REMAINING_DANGER = 1.0,
     CALL_REMAINING_WARNING = 7.0,
+    USER_GENDERS = ['male', 'female', 'other'],
+    USER_BIRTHDATE = True,
     USER_TITLE = True,
     USER_AFFILIATION = True,
     USER_POSTAL_ADDRESS = True,
-    USER_GENDERS = ['male', 'female', 'other'],
     USER_PHONE = True,
-    USER_BIRTHDATE = True,
     USER_ENABLE_IMMEDIATELY = False,
     USER_ENABLE_EMAIL_WHITELIST = [], # List of regexp's
     MARKDOWN_URL = 'https://daringfireball.net/projects/markdown/syntax',
 )
 
-CALL_ACCESS_FLAGS = dict(
-    reviewer_reviews = "May a reviewer read the reviews of other reviewers' in the same call?",
-    reviewer_reviewers = "May a reviewer see the user information of a reviewer in the same call?",
-    reviewer_submitters = "May a reviewer see the user information of a submitter in the call?"
-)
-    
 
 def init(app):
     """Perform the configuration of the Flask app.

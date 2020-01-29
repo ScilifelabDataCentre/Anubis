@@ -473,8 +473,10 @@ class CallSaver(AttachmentSaver):
         fid = form.get('identifier')
         if not (fid and constants.ID_RX.match(fid)):
             raise ValueError('Invalid field identifier.')
-        title = form.get('title') or fid.replace('_', ' ')
-        title = ' '.join([w.capitalize() for w in title.split()])
+        title = form.get('title')
+        if not title:
+            title = ' '.join([w.capitalize()
+                              for w in fid.replace('_', ' ').split()])
         field = {'type': type,
                  'identifier': fid,
                  'title': title,
@@ -562,7 +564,8 @@ class CallSaver(AttachmentSaver):
         title = form.get('title')
         if not title:
             title = ' '.join([w.capitalize() 
-                              for w in field['identifier'].replace('_', ' ').split()])
+                              for w in 
+                              field['identifier'].replace('_', ' ').split()])
         field['title'] = title
         field['description'] = form.get('description') or None
         field['required'] = bool(form.get('required'))
