@@ -35,6 +35,24 @@
 </div>
 {% endif %} {# if g.am_admin or am_reviewer #}
 
+{% if am_reviewer %}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">My reviews</div>
+  <div class="col-md">
+    <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=g.current_user['username']) }}"
+       role="button" class="btn btn-info my-1">
+      {{ call['cache']['my_reviews_count'] }} reviews</a>
+  </div>
+</div>
+{% endif %} {# if am_reviewer #}
+
+{% if allow_view_reviews %}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">All reviews</div>
+  <div class="col-md">{{ macros.reviews_link(call) }}</div>
+</div>
+{% endif %} {# if allow_view_reviews #}
+
 {% if g.am_admin or am_reviewer %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Reviews due</div>
@@ -70,24 +88,7 @@
 </div>
 {% endif %} {# if g.am_admin or am_reviewer #}
 
-{% if am_reviewer %}
-<div class="row">
-  <div class="col-md-2 font-weight-bold text-right">My reviews</div>
-  <div class="col-md">
-    <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=g.current_user['username']) }}"
-       role="button" class="btn btn-sm btn-info px-3 py-0">
-      {{ call['cache']['my_reviews_count'] }}</a>
-  </div>
-</div>
-{% endif %} {# if am_reviewer #}
-
-{% if allow_view_reviews %}
-<div class="row">
-  <div class="col-md-2 font-weight-bold text-right">All reviews</div>
-  <div class="col-md">{{ macros.reviews_link(call) }}</div>
-</div>
-{% endif %} {# if allow_view_reviews #}
-
+{% if not am_reviewer %}
 <div class="row my-4">
   <div class="col-md-2 font-weight-bold text-right">My proposal</div>
   {% if my_proposal %}
@@ -110,11 +111,14 @@
   <div class="col-md">-</div>
   {% endif %} {# if my_proposal #}
 </div>
+{% endif %} {# if not am_reviewer #}
 
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Description</div>
-  <div class="col-md">
-    {{ call.get('description') | markdown }}    
+  <div class="card col-md">
+    <div class="card-body">
+      {{ call.get('description') | markdown }}    
+    </div>
   </div>
 </div>
 
