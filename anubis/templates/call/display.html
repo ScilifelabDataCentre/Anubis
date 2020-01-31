@@ -145,6 +145,7 @@
   </div>
 </div>
 
+{% if g.am_admin %}
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Proposal fields</div>
   <div class="col-md">
@@ -157,6 +158,7 @@
     </table>
   </div>
 </div>
+{% endif %} {# if g.am_admin #}
 
 {% if g.am_admin %}
 <div class="row mt-4">

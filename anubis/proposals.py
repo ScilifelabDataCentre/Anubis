@@ -126,10 +126,15 @@ def user(username):
     if not anubis.user.allow_view(user):
         utils.flash_error("You may not view the user's proposals.")
         return flask.redirect(flask.url_for('home'))
-    return flask.render_template(
-        'proposals/user.html', 
-        user=user,
-        proposals=get_user_proposals(user['username']))
+    proposals = get_user_proposals(user['username'])
+    for proposal in proposals:
+        decision = proposal['cache'].get('decision')
+        if decision:
+            anubis.decision.set_cache(decision, call=proposal['cache']['call'])
+            decision['cache']['allow_view'] = anubis.decision.allow_view(decision)
+    return flask.render_template('proposals/user.html',  
+                                 user=user,
+                                 proposals=proposals)
 
 def get_call_proposals(call):
     "Get the proposals in the call. Only include those allowed to view."

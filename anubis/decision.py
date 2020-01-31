@@ -253,6 +253,13 @@ def allow_create(proposal):
     if flask.g.am_admin: return True
     return anubis.call.am_chair(decision['cache']['call'])
 
+def allow_view(decision):
+    "Submitter may view decision for her proposal."
+    if not flask.g.current_user: return False
+    if flask.g.am_admin: return True
+    return decision.get('finalized') and \
+        decision['cache']['proposal']['user'] == flask.g.current_user['identifier']
+
 def allow_link(decision):
     """Admin may view link to any decision.
     Reviewer may view link to any decision in a call.

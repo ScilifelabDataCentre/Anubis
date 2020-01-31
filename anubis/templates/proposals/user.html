@@ -17,6 +17,7 @@ Proposals by user {{ user['username'] }}
       <th>Submitted</th>
       <th>Call</th>
       <th>Closes</th>
+      <th>Decision</th>
     </tr>
   </thead>
   <tbody>
@@ -26,6 +27,7 @@ Proposals by user {{ user['username'] }}
       <td>{{ macros.submitted(proposal) }}</td>
       <td>{{ macros.call_link(proposal['cache']['call']) }}</td>
       <td>{{ macros.call_closes(proposal['cache']['call']) }}</td>
+      <td>{{ macros.decision_view(proposal['cache'].get('decision')) }}</td>
     </tr>
     {% endfor %}
   </tbody>
@@ -37,6 +39,7 @@ Proposals by user {{ user['username'] }}
   $(function() {
     $("#proposals").DataTable( {
       "pagingType": "full_numbers",
+      "order": [[0, "asc"]],
       "pageLength": 25
     });
   });

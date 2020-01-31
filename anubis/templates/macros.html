@@ -90,6 +90,14 @@
 {% endif %} {# if decision #}
 {%- endmacro %}
 
+{% macro decision_view(decision) -%}
+{% if decision and decision['cache']['allow_view'] %}
+{{ decision['values'] }}
+{% else %}
+-
+{% endif %}
+{%- endmacro %}
+
 {% macro formatted_value(value, type, docurl) -%}
 {% if type == 'text' %}
 {% if value %}
