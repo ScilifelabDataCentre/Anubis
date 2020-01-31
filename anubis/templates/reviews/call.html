@@ -29,11 +29,11 @@ Reviews of proposals in call {{ call['identifier'] }}
       <th>Proposal</th>
       <th>Submitter</th>
       <th>Submitted</th>
+      <th>Reviewer</th>
       <th>Review</th>
       {% for field in bannerfields %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
-      <th>Reviewer</th>
     </tr>
   </thead>
   <tbody>
@@ -43,6 +43,7 @@ Reviews of proposals in call {{ call['identifier'] }}
       <td>{{ macros.proposal_link(proposal, title=True) }}</td>
       <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
       <td>{{ macros.submitted(proposal, long=False) }}</td>
+      <td>{{ macros.user_link(get_user(reviewer)) }}</td>
       {% set review = reviews_lookup.get("{} {}".format(proposal['identifier'], reviewer)) %}
       {% if review %}
       <td>{{ macros.review_link(review) }}</td>
@@ -52,7 +53,7 @@ Reviews of proposals in call {{ call['identifier'] }}
         {{ macros.formatted_value(values.get(field['identifier']), field['type']) }}
       </td>
       {% endfor %}
-      {% else %}
+      {% else %} {# if review #}
       {% if proposal['cache']['allow_create_review'] %}
       <td>
 	<form action="{{ url_for('review.create', pid=proposal['identifier'], username=reviewer) }}"
@@ -71,7 +72,6 @@ Reviews of proposals in call {{ call['identifier'] }}
       <td>-</td>
       {% endfor %}
       {% endif %} {# if review #}
-      <td>{{ macros.user_link(get_user(reviewer)) }}</td>
     </tr>
     {% endfor %}
     {% endfor %}
@@ -84,6 +84,7 @@ Reviews of proposals in call {{ call['identifier'] }}
   $(function() {
     $("#reviews").DataTable( {
       "pagingType": "full_numbers",
+      "order": [[0, "asc"]],
       "pageLength": 25
     });
   });

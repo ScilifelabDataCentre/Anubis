@@ -246,8 +246,8 @@ class ProposalSaver(FieldMixin, AttachmentSaver):
         with anubis.call.CallSaver(call):
             call['counter'] = counter
         self.doc['identifier'] = f"{call['identifier']}:{counter:03d}"
-        self.doc['values'] = dict([(f['identifier'], None) 
-                                   for f in call['proposal']])
+        for field in call['proposal']:
+            self.set_field_value(field)
 
     def set_submitted(self):
         if not allow_submit(self.doc):

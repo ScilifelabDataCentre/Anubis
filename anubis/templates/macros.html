@@ -92,7 +92,11 @@
 
 {% macro formatted_value(value, type, docurl) -%}
 {% if type == 'text' %}
+{% if value %}
 {{ value | markdown }}
+{% else %}
+-
+{% endif %}
 {% elif type == 'line' %}
 {{ value or '-' }}
 {% elif type in ('integer', 'score') %}

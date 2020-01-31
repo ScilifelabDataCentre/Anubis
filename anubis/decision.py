@@ -232,7 +232,7 @@ class DecisionSaver(FieldMixin, AttachmentSaver):
         call = proposal['cache']['call']
         self.doc['call'] = call['identifier']
         for field in call['decision']:
-            self.set_field_value(field, {})
+            self.set_field_value(field)
 
 
 def get_decision(iuid, cache=True):

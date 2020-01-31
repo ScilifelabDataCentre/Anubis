@@ -230,8 +230,7 @@ class ReviewSaver(FieldMixin, BaseSaver):
             self.set_reviewer(flask.g.current_user)
         elif proposal:
             super().__init__(doc=None)
-            self.doc['call'] = proposal['cache']['call']['identifier']
-            self.doc['proposal'] = proposal['identifier']
+            self.set_proposal(proposal)
             self.set_reviewer(flask.g.current_user)
         else:
             raise ValueError('doc or proposal must be specified')
@@ -239,6 +238,15 @@ class ReviewSaver(FieldMixin, BaseSaver):
     def initialize(self):
         self.doc['values'] = {}
         self.doc['errors'] = {}
+
+    def set_proposal(self, proposal):
+        "Set the proposal for the review; must be called when creating."
+        if self.doc.get('proposal'):
+            raise ValueError('proposal has already been set')
+        self.doc['call'] = proposal['cache']['call']['identifier']
+        self.doc['proposal'] = proposal['identifier']
+        for field in proposal['cache']['call']['review']:
+            self.set_field_value(field)
 
     def set_reviewer(self, user):
         "Set the reviewer for the review; must be called at creation."
