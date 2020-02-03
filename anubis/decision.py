@@ -251,7 +251,7 @@ def allow_create(proposal):
     if not flask.g.current_user: return False
     if proposal.get('decision'): return False
     if flask.g.am_admin: return True
-    return anubis.call.am_chair(decision['cache']['call'])
+    return anubis.call.am_chair(proposal['cache']['call'])
 
 def allow_view(decision):
     "Submitter may view decision for her proposal."
