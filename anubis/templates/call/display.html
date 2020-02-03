@@ -145,6 +145,26 @@
   </div>
 </div>
 
+{% if g.am_admin or am_reviewer %}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Access</div>
+  <div class="col-md-5">
+    <table class="table table-sm table-borderless table-hover">
+      <tbody>
+        {% for flag in constants.ACCESS %}
+        <tr>
+          <td>{{ flag|capitalize|replace('_',' ') }}</td>
+          <td class="font-weight-bold">
+            {{ call.get('access', {}).get(flag) and 'Yes' or 'No' }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %} {# if g.am_admin or am_reviewer #}
+
 {% if g.am_admin %}
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Proposal fields</div>
@@ -189,26 +209,6 @@
   </div>
 </div>
 {% endif %} {# if g.am_admin #}
-
-{% if g.am_admin or am_reviewer %}
-<div class="row mt-4">
-  <div class="col-md-2 font-weight-bold text-right">Access</div>
-  <div class="col-md-5">
-    <table class="table table-sm table-borderless table-hover">
-      <tbody>
-        {% for flag in constants.ACCESS %}
-        <tr>
-          <td>{{ flag|capitalize|replace('_',' ') }}</td>
-          <td class="font-weight-bold">
-            {{ call.get('access', {}).get(flag) and 'Yes' or 'No' }}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
-{% endif %} {# if g.am_admin or am_reviewer #}
 
 {% endblock %} {# block main #}
 

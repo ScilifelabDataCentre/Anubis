@@ -31,7 +31,7 @@ Reviews of proposals in call {{ call['identifier'] }}
       <th>Submitted</th>
       <th>Reviewer</th>
       <th>Review</th>
-      {% for field in bannerfields %}
+      {% for field in review_bannerfields %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
     </tr>
@@ -48,7 +48,7 @@ Reviews of proposals in call {{ call['identifier'] }}
       {% if review %}
       <td>{{ macros.review_link(review) }}</td>
       {% set values = review['values'] %}
-      {% for field in bannerfields %}
+      {% for field in review_bannerfields %}
       <td>
         {{ macros.formatted_value(values.get(field['identifier']), field['type']) }}
       </td>
@@ -68,7 +68,7 @@ Reviews of proposals in call {{ call['identifier'] }}
       {% else %}
       <td>-</td>
       {% endif %} {# if proposal['cache']['allow_create_review'] #}
-      {% for field in bannerfields %}
+      {% for field in review_bannerfields %}
       <td>-</td>
       {% endfor %}
       {% endif %} {# if review #}

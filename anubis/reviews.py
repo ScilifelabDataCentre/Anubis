@@ -53,13 +53,13 @@ def call(cid):
     else:
         finalized = False
     reviews_lookup = {f"{r['proposal']} {r['reviewer']}":r for r in reviews}
-    bannerfields = [f for f in call['review'] if f.get('banner')]
+    review_bannerfields = [f for f in call['review'] if f.get('banner')]
     return flask.render_template('reviews/call.html',
                                  call=call,
                                  proposals=proposals,
                                  reviews_lookup=reviews_lookup,
                                  finalized=finalized,
-                                 bannerfields=bannerfields)
+                                 review_bannerfields=review_bannerfields)
 
 @blueprint.route('/call/<cid>.xlsx')
 @utils.login_required

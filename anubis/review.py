@@ -59,12 +59,13 @@ def create(pid, username):
         if user['username'] not in proposal['cache']['call']['reviewers']:
             utils.flash_error('User is not a reviewer in the call.')
             raise ValueError
-        review = get_my_review(proposal, user)
+        review = get_reviewer_review(proposal, user)
         if review is not None:
             utils.flash_message('The review already exists.')
             return flask.redirect(flask.url_for('.display', iuid=review['_id']))
         with ReviewSaver(proposal=proposal) as saver:
             saver.set_reviewer(user)
+        print(saver.doc)
     except ValueError:
         pass
     try:
@@ -227,7 +228,6 @@ class ReviewSaver(FieldMixin, BaseSaver):
     def __init__(self, doc=None, proposal=None):
         if doc:
             super().__init__(doc=doc)
-            self.set_reviewer(flask.g.current_user)
         elif proposal:
             super().__init__(doc=None)
             self.set_proposal(proposal)
@@ -262,7 +262,7 @@ def get_review(iuid, cache=True):
     else:
         return review
 
-def get_my_review(proposal, reviewer):
+def get_reviewer_review(proposal, reviewer):
     "Get the review of the proposal by the reviewer."
     result = flask.g.db.view('reviews', 'proposal_reviewer',
                              key=[proposal['identifier'], reviewer['username']],

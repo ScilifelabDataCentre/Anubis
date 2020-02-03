@@ -55,28 +55,12 @@
 </div>
 {% endif %} {# if my_review #}
 
-<div class="card bg-light mt-4">
-  <div class="card-header">
-    <div class="row">
-      <div class="col-md-2 font-weight-bold text-right">Decision</div>
-      <div class="col-md">
-        {% if allow_link_decision %}
-        {% if decision %}
-        {{ macros.decision_link(decision) }}
-        {% elif allow_create_decision %}
-        <form action="{{ url_for('decision.create', pid=proposal['identifier']) }}"
-	      method="POST">
-          {{ csrf_token() }}
-          <button type="submit" class="btn btn-sm btn-dark my-1">
-            Create decision</button>
-        </form>
-        {% endif %} {# if decision #}
-        {% endif %} {# if allow_link_decision #}
-      </div>
-    </div>
+{% if allow_view_decision %}
+<div class="row mt-4">
+  <div class="col-md-2 font-weight-bold text-right">
+    <span class="text-light bg-dark p-2">Decision</span>
   </div>
-  <div class="card-body">
-    {% if allow_view_decision %}
+  <div class="col-md">
     {% set values = decision['values'] %}
     {% set attachments = decision.get('_attachments', {}) %}
     {% for field in decision['cache']['call']['decision'] %}
@@ -95,13 +79,9 @@
       </div>
     </div>
     {% endfor %} {# for field in ... #}
-    {% else %}
-    <div class="row">
-      <div class="col-md-2 text-right"><i>Not yet available.</i></div>
-    </div>
-    {% endif %} {# if allow_view_decision #}
   </div>
 </div>
+{% endif %} {# if allow_view_decision #}
 
 {% endif %} {# if proposal.get('submitted') #}
 
@@ -165,6 +145,19 @@
 </div>
 {% endif %} {# if proposal.get('submitted') #}
 {% endif %} {# if allow_submit #}
+
+{% if allow_link_decision %}
+{% if decision %}
+{{ macros.decision_link(decision) }}
+{% elif allow_create_decision %}
+<form action="{{ url_for('decision.create', pid=proposal['identifier']) }}"
+      method="POST">
+  {{ csrf_token() }}
+  <button type="submit" class="btn btn-sm btn-dark my-1">
+    Create decision</button>
+</form>
+{% endif %} {# if decision #}
+{% endif %} {# if allow_link_decision #}
 
 {% if allow_delete %}
 <div class="mt-2">

@@ -36,7 +36,7 @@ blueprint = flask.Blueprint('proposal', __name__)
 @utils.login_required
 def display(pid):
     "Display the proposal."
-    from .review import get_my_review
+    from .review import get_reviewer_review
     proposal = get_proposal(pid)
     if proposal is None:
         utils.flash_error('No such proposal.')
@@ -54,7 +54,7 @@ def display(pid):
     am_submitter = flask.g.current_user and \
                    flask.g.current_user['username'] == proposal['user']
     am_reviewer = anubis.call.am_reviewer(proposal['cache']['call'])
-    my_review = get_my_review(proposal, flask.g.current_user)
+    my_review = get_reviewer_review(proposal, flask.g.current_user)
     allow_view_reviews = anubis.call.allow_view_reviews(proposal['cache']['call'])
     allow_link_decision = anubis.decision.allow_link(decision)
     allow_create_decision = anubis.decision.allow_create(proposal)
