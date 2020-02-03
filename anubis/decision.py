@@ -265,6 +265,7 @@ def allow_link(decision):
     """Admin may view link to any decision.
     Reviewer may view link to any decision in a call.
     """
+    if not decision: return False
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     return anubis.call.am_reviewer(decision['cache']['call'])
