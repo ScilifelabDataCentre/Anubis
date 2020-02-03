@@ -28,15 +28,17 @@ def call(cid):
         utils.flash_error("You may not view the call.")
         return flask.redirect(flask.url_for('home'))
     proposals = get_call_proposals(call)
+    proposal_bannerfields = [f for f in call['proposal'] if f.get('banner')]
     allow_view_reviews = anubis.call.allow_view_reviews(call)
     allow_view_decisions = anubis.call.allow_view_decisions(call)
-    bannerfields = [f for f in call['decision'] if f.get('banner')]
+    decision_bannerfields = [f for f in call['decision'] if f.get('banner')]
     return flask.render_template('proposals/call.html', 
                                  call=call,
                                  proposals=proposals,
+                                 proposal_bannerfields=proposal_bannerfields,
                                  allow_view_reviews=allow_view_reviews,
                                  allow_view_decisions=allow_view_decisions,
-                                 bannerfields=bannerfields)
+                                 decision_bannerfields=decision_bannerfields)
 
 @blueprint.route('/call/<cid>.xlsx')
 @utils.login_required
