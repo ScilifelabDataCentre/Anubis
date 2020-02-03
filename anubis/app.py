@@ -47,8 +47,9 @@ def setup_template_context():
 
 @app.before_request
 def prepare():
-    "Open the database connection; get the current user."
+    "Open the database connection, create cache, get the current user."
     flask.g.db = utils.get_db()
+    flask.g.cache = {}          # id -> entity
     flask.g.current_user = anubis.user.get_current_user()
     flask.g.am_admin = anubis.user.am_admin()
     if flask.g.current_user:

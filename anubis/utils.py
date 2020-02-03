@@ -25,6 +25,7 @@ def init(app):
     app.add_template_filter(integer_value)
     app.add_template_filter(float_value)
     app.add_template_filter(do_markdown, name='markdown')
+    app.add_template_filter(decision_value)
 
     db = get_db(app=app)
     if db.put_design('logs', DESIGN_DOC):
@@ -235,6 +236,14 @@ def do_markdown(value):
     "Template filter: Use Markdown to process the value."
     value = value or ''
     return jinja2.utils.Markup(markdown.markdown(value, output_format='html5'))
+
+def decision_value(value):
+    "Template filter: Output decision values."
+    import anubis.decision
+    if value and anubis.decision.allow_view(value):
+        return ', '.join(["%s: %s" % i for i in value['values'].items()])
+    else:
+        return jinja2.utils.Markup('<i>not available</i>')
 
 def get_logs(docid, cleanup=True):
     """Return the list of log entries for the given document identifier,

@@ -257,8 +257,9 @@ def allow_view(decision):
     "Submitter may view decision for her proposal."
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
-    return decision.get('finalized') and \
-        decision['cache']['proposal']['user'] == flask.g.current_user['identifier']
+    if not decision['cache']['call']['access']['allow_submitter_view_decision']: return False
+    if decision['cache']['proposal']['user'] != flask.g.current_user['username']: return False
+    return decision.get('finalized')
 
 def allow_link(decision):
     """Admin may view link to any decision.
