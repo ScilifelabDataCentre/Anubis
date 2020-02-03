@@ -42,10 +42,9 @@
     {% for proposal in proposals %}
     <tr>
       <td>{{ macros.proposal_link(proposal, title=True) }}</td>
-      {% set values = proposal['cache'].get('proposal', {}).get('values') or {} %}
       {% for field in proposal_bannerfields %}
       <td>
-        {{ macros.formatted_value(values.get(field['identifier']), field['type']) }}
+        {{ macros.formatted_value(proposal['values'].get(field['identifier']), field['type']) }}
       </td>
       {% endfor %}
       {% if g.am_admin %}
