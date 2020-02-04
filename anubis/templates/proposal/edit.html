@@ -38,7 +38,7 @@
     </div>
   </div>
 
-  {% set fields = proposal['cache']['call']['proposal'] %}
+  {% set fields = call['proposal'] %}
   {% set values = proposal['values'] %}
   {% set errors = proposal['errors'] %}
   {% set attachments = proposal.get('_attachments', {}) %}

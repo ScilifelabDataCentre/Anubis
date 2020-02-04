@@ -22,13 +22,15 @@ Reviews by user {{ user['username'] }}
   </thead>
   <tbody>
     {% for review in reviews %}
+    {% set call = get_call(review['call']) %}
+    {% set proposal = get_proposal(review['proposal'] %}
     <tr>
-      <td>{{ macros.call_link(review['cache']['call']) }}</td>
-      <td>{{ macros.proposal_link(review['cache']['proposal']) }}</td>
-      <td>{{ macros.user_link(get_user(review['cache']['proposal']['user'])) }}</td>
+      <td>{{ macros.call_link(call) }}</td>
+      <td>{{ macros.proposal_link(proposal) }}</td>
+      <td>{{ macros.user_link(get_user(get_user(proposal['user']))) }}</td>
       <td>{{ macros.review_link(review) }}</td>
       <td>
-        {% set due = review['cache']['call'].get('reviews_due') %}
+        {% set due = call.get('reviews_due') %}
         {% if due %}
         {% if utils.days_remaining(due) >= 0 %}
         {{ due }}

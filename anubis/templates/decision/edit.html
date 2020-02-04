@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Edit decision of {{ decision['cache']['proposal']['identifier'] }}
+Edit decision for {{ proposal['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-Edit decision of {{ decision['cache']['proposal']['identifier'] }}
+Edit decision for {{ proposal['identifier'] }}
 {% endblock %}
 
 {% block main %}
@@ -14,7 +14,7 @@ Edit decision of {{ decision['cache']['proposal']['identifier'] }}
       method="POST">
   {{ csrf_token() }}
 
-  {% set fields = decision['cache']['proposal']['cache']['call']['decision'] %}
+  {% set fields = call['decision'] %}
   {% set values = decision['values'] %}
   {% set errors = decision['errors'] %}
   {% set attachments = decision.get('_attachments', {}) %}

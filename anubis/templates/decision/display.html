@@ -1,29 +1,23 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Decision for proposal {{ decision['cache']['proposal']['identifier'] }}
-{{ decision['cache']['proposal']['title'] }}
+Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {% endblock %}
 
 {% block body_title %}
 <small class="text-muted mr-2">Decision for proposal</small>
-{{ macros.proposal_link(decision['cache']['proposal'], title=True) }}
+{{ macros.proposal_link(proposal) }}
 {% endblock %}
 
 {% block main %}
-{% set proposal = decision['cache']['proposal'] %}
 {# XXX access? #}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Submitter</div>
-  <div class="col-md">
-    {{ macros.user_link(get_user(proposal['user'])) }}
-  </div>
+  <div class="col-md">{{ macros.user_link(get_user(proposal['user'])) }}</div>
 </div>
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
-  <div class="col-md">
-    {{ macros.call_link(proposal['cache']['call'], title=True) }}
-  </div>
+  <div class="col-md">{{ macros.call_link(call) }}</div>
 </div>
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">State</div>
@@ -39,7 +33,7 @@ Decision for proposal {{ decision['cache']['proposal']['identifier'] }}
 {% set values = decision['values'] %}
 {% set attachments = decision.get('_attachments', {}) %}
 
-{% for field in decision['cache']['call']['decision'] %}
+{% for field in call['decision'] %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">
     {{ field['title'] }}
@@ -51,12 +45,19 @@ Decision for proposal {{ decision['cache']['proposal']['identifier'] }}
   {% endif %}
   <div class="col-md text-break">
     {% set value = values.get(field['identifier']) %}
+    {% if field['type'] == constants.DOCUMENT %}
     {% if value %}
-    {% set docurl = url_for('.document', iuid=decision['_id'], documentname=value) %}
+    <span class="font-weight-bold">{{ value }}</span>
+    <a href="{{ url_for('.document', iuid=review['_id'], documentname=value) }}"
+       role="button" class="btn btn-secondary btn-sm ml-4">
+      Download ({{ attachments[value]['length'] | filesizeformat }})
+    </a>
     {% else %}
-    {% set docurl = None %}
+    -
+    {% endif %} {# if value #}
+    {% else %}
+    {{ utils.formatted_value(value, field['type']) }}
     {% endif %}
-    {{ macros.formatted_value(value, field['type'], docurl) }}
   </div>
 </div>
 {% endfor %} {# for field in ... #}

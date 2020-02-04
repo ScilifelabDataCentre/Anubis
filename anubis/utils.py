@@ -10,7 +10,7 @@ import couchdb2
 import flask
 import flask_mail
 import jinja2.utils
-import markdown
+import markdown as markdown_module
 import werkzeug.routing
 
 from . import constants
@@ -20,12 +20,7 @@ def init(app):
     - Add template filters.
     - Update CouchDB design documents.
     """
-    app.add_template_filter(boolean_value)
-    app.add_template_filter(select_value)
-    app.add_template_filter(integer_value)
-    app.add_template_filter(float_value)
-    app.add_template_filter(do_markdown, name='markdown')
-    app.add_template_filter(decision_value)
+    app.add_template_filter(markdown)
 
     db = get_db(app=app)
     if db.put_design('logs', DESIGN_DOC):
@@ -53,6 +48,18 @@ def get_count(designname, viewname, key):
         return result[0].value
     else:
         return 0
+
+def get_call_proposals_count(cid):
+    "Get the count for all proposals in the given call."
+    return get_count('proposals', 'call', cid)
+
+def get_call_reviews_count(cid):
+    "Get the count of all reviews in the given call."
+    return get_count('reviews', 'call', cid)
+
+def get_proposal_reviews_count(pid):
+    "Get the count of all reviews for the given proposal."
+    return get_count('reviews', 'proposal', pid)
 
 # Global instance of mail interface.
 mail = flask_mail.Mail()
@@ -196,8 +203,25 @@ def flash_message(msg):
     "Flash information message."
     flask.flash(str(msg), 'message')
 
+def formatted_value(value, type, docurl=None):
+    "Template filter: Output field value according to its type."
+    if type == constants.LINE:
+        return value or '-'
+    if type == constants.BOOLEAN:
+        return boolean_value(value)
+    elif type == constants.SELECT:
+        return select_value(value)
+    elif type in (constants.INTEGER, constants.SCORE):
+        return integer_value(value)
+    elif type == constants.FLOAT:
+        return float_value(value)
+    elif type == constants.TEXT:
+        return markdown(value)
+    else:
+        return jinja2.utils.Markup(f"<i>invalid type {type}</i>")
+
 def boolean_value(value):
-    "Template filter: Output field value boolean."
+    "Output field value boolean."
     if value is None:
         return '-'
     elif value:
@@ -206,7 +230,7 @@ def boolean_value(value):
         return 'No'
 
 def select_value(value):
-    "Template filter: Output field value(s) for select."
+    "Output field value(s) for select."
     if value is None:
         return '-'
     elif isinstance(value, list):
@@ -215,7 +239,7 @@ def select_value(value):
         return value
 
 def integer_value(value):
-    "Template filter: Output field value integer."
+    "Output field value integer."
     if value is None:
         return '-'
     elif isinstance(value, int):
@@ -224,7 +248,7 @@ def integer_value(value):
         return '?'
 
 def float_value(value):
-    "Template filter: Output field value float."
+    "Output field value float."
     if value is None:
         return '-'
     elif isinstance(value, (int, float)):
@@ -232,18 +256,11 @@ def float_value(value):
     else:
         return '?'
 
-def do_markdown(value):
-    "Template filter: Use Markdown to process the value."
+def markdown(value):
+    "Process the value using Markdown."
     value = value or ''
-    return jinja2.utils.Markup(markdown.markdown(value, output_format='html5'))
-
-def decision_value(value):
-    "Template filter: Output decision values."
-    import anubis.decision
-    if value and anubis.decision.allow_view(value):
-        return ', '.join(["%s: %s" % i for i in value['values'].items()])
-    else:
-        return jinja2.utils.Markup('<i>not available</i>')
+    return jinja2.utils.Markup(markdown_module.markdown(value,
+                                                        output_format='html5'))
 
 def get_logs(docid, cleanup=True):
     """Return the list of log entries for the given document identifier,

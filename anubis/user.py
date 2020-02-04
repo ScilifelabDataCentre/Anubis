@@ -183,16 +183,19 @@ def display(username):
     if not allow_view(user):
         utils.flash_error('Access to user display not allowed.')
         return flask.redirect(utils.referrer_or_home())
-    user = set_cache(user)
     reviewer_calls = [get_call(r.value)
                       for r in flask.g.db.view('calls', 'reviewer', 
                                                key=user['username'])]
+    all_proposals_count = utils.get_count('proposals', 'user', user['username'])
+    all_reviews_count = utils.get_count('reviews', 'reviewer', user['username'])
     for call in reviewer_calls:
-        call['cache']['my_reviews_count'] = utils.get_count(
+        call['my_reviews_count'] = utils.get_count(
             'reviews', 'call_reviewer', [call['identifier'], user['username']])
     return flask.render_template('user/display.html',
                                  user=user,
                                  reviewer_calls=reviewer_calls,
+                                 all_proposals_count=all_proposals_count,
+                                 all_reviews_count=all_reviews_count,
                                  allow_enable_disable=allow_enable_disable(user),
                                  allow_edit=allow_edit(user),
                                  allow_delete=allow_delete(user))
@@ -276,7 +279,10 @@ def all():
     "Display list of all users."
     users = get_users(role=None)
     for user in users:
-        set_cache(user)
+        user['all_proposals_count'] = utils.get_count('proposals', 'user',
+                                                      user['username'])
+        user['all_reviews_count'] = utils.get_count('reviews', 'reviewer',
+                                                    user['username'])
     return flask.render_template('user/all.html', users=users)
 
 @blueprint.route('/enable/<username>', methods=['POST'])
@@ -514,14 +520,3 @@ def allow_change_role(user):
     """
     return flask.g.am_admin and \
         flask.g.current_user['username'] != user['username']
-
-def set_cache(user):
-    """Set the cached, non-saved values for the call.
-    This does NOT de-reference any other entities.
-    """
-    user['cache'] = cache = {}
-    cache['all_proposals_count'] = utils.get_count('proposals', 'user',
-                                                   user['username'])
-    cache['all_reviews_count'] = utils.get_count('reviews', 'reviewer',
-                                                 user['username'])
-    return user

@@ -35,21 +35,25 @@ app.url_map.converters['iuid'] = utils.IuidConverter
 
 @app.context_processor
 def setup_template_context():
-    "Add useful stuff to the global context of Jinja2 templates."
-    return dict(utils=utils,
-                constants=constants,
-                csrf_token=utils.csrf_token,
-                enumerate=enumerate,
+    "Add to the global context of Jinja2 templates."
+    return dict(enumerate=enumerate,
                 sorted=sorted,
                 len=len,
                 max=max,
-                get_user=anubis.user.get_user)
+                utils=utils,
+                constants=constants,
+                csrf_token=utils.csrf_token,
+                get_user=anubis.user.get_user,
+                get_call=anubis.call.get_call,
+                get_proposal=anubis.proposal.get_proposal,
+                get_review=anubis.review.get_review,
+                get_decision=anubis.decision.get_decision)
 
 @app.before_request
 def prepare():
     "Open the database connection, create cache, get the current user."
     flask.g.db = utils.get_db()
-    flask.g.cache = {}          # id -> entity
+    flask.g.cache = {}          # id -> document
     flask.g.current_user = anubis.user.get_current_user()
     flask.g.am_admin = anubis.user.am_admin()
     if flask.g.current_user:

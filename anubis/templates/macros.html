@@ -14,21 +14,18 @@
 </a>
 {%- endmacro %}
 
-{% macro call_link(call, title=True) -%}
+{% macro call_link(call) -%}
 <a href="{{ url_for('call.display', cid=call['identifier']) }}"
    class="font-weight-bold">
   {{ call['identifier'] }}: {{ call['title'] or '' }}
 </a>
 {%- endmacro %}
 
-{% macro proposal_link(proposal, title=True) -%}
+{% macro proposal_link(proposal) -%}
 <a href="{{ url_for('proposal.display', pid=proposal['identifier']) }}"
-   title="{{ proposal['title'] }}"
+   title="{{ proposal['title'] or 'No title' }}"
    class="font-weight-bold">
-  {{ proposal['identifier'] }}
-  {% if title %}
-  {{ proposal['title'] or 'No title' }}
-  {% endif %}
+  {{ proposal['identifier'] }} {{ proposal['title'] or 'No title' }}
 </a>
 {%- endmacro %}
 
@@ -38,29 +35,8 @@
   Review
 </a>
 {% if not review.get('finalized') %}
-<span class="badge badge-warning">Not finalized</span>
+  <span class="badge badge-warning">Not finalized</span>
 {% endif %}
-{%- endmacro %}
-
-{% macro proposals_link(call) -%}
-<a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
-   role="button" class="btn btn-primary my-1">
-  {{ call['cache']['all_proposals_count'] }} proposals</a>
-</a>
-{%- endmacro %}
-
-{% macro reviews_link(call) -%}
-<a href="{{ url_for('reviews.call', cid=call['identifier']) }}"
-   role="button" class="btn btn-info my-1">
-  {{ call['cache']['all_reviews_count'] }} reviews</a>
-</a>
-{%- endmacro %}
-
-{% macro proposal_reviews_link(proposal) -%}
-<a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
-   role="button" class="btn btn-info my-1">
-  {{ proposal['cache']['all_reviews_count'] }} reviews</a>
-</a>
 {%- endmacro %}
 
 {% macro call_closes(call) -%}
@@ -70,54 +46,28 @@
 
 {% macro submitted(proposal, long=True) -%}
 {% if proposal.get('submitted') %}
-<span class="badge badge-success">Submitted</span>
+  <span class="badge badge-success">Submitted</span>
 {% else %}
-<span class="badge badge-warning">Not submitted</span>
+  <span class="badge badge-warning">Not submitted</span>
 {% endif %}
 {%- endmacro %}
 
-{% macro decision_link(decision) -%}
+{% macro decision_link(decision, block=False) -%}
 {% if decision %}
-{% if decision.get('finalized') %}
-<a href="{{ url_for('decision.display', iuid=decision['_id']) }}"
-   role="button" class="btn my-1 btn-dark font-weight-bold">Decision</a>
+  {% if decision.get('finalized') %}
+    <a href="{{ url_for('decision.display', iuid=decision['_id']) }}"
+       role="button"
+       class="btn my-1 btn-dark font-weight-bold {{ block and 'btn-block' }}">
+      Decision
+    </a>
+  {% else %}
+    <a href="{{ url_for('decision.display', iuid=decision['_id']) }}"
+       role="button"
+       class="btn my-1 btn-outline-secondary {{ block and 'btn-block' }}">
+      Decision
+    </a>
+  {% endif %}
 {% else %}
-<a href="{{ url_for('decision.display', iuid=decision['_id']) }}"
-   role="button" class="btn my-1 btn-outline-secondary">Decision</a>
-{% endif %}
-{% else %}
--
+  -
 {% endif %} {# if decision #}
-{%- endmacro %}
-
-{% macro formatted_value(value, type, docurl) -%}
-{% if type == 'text' %}
-{% if value %}
-{{ value | markdown }}
-{% else %}
--
-{% endif %}
-{% elif type == 'line' %}
-{{ value or '-' }}
-{% elif type in ('integer', 'score') %}
-{{ value | integer_value }}
-{% elif type == 'boolean' %}
-{{ value | boolean_value }}
-{% elif type == 'select' %}
-{{ value | select_value }}
-{% elif type == 'float' %}
-{{ value | float_value }}
-{% elif type == 'document' %}
-{% if value %}
-<span class="font-weight-bold">{{ value }}</span>
-{% if docurl %}
-<a href="{{ docurl }}" role="button" class="btn btn-secondary btn-sm ml-4">
-  Download</a>
-{% else %}
-?
-{% endif %} {# if document #}
-{% else %}
--
-{% endif %} {# if value #}
-{% endif %} {# if type == ... #}
 {%- endmacro %}

@@ -10,17 +10,15 @@
 {% block main %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
-  <div class="col-md">
-    {{ macros.call_link(proposal['cache']['call'], title=True) }}
-  </div>
+  <div class="col-md">{{ macros.call_link(call) }}</div>
 </div>
 
 {% if am_submitter %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Call closes</div>
   <div class="col-md">
-    <span class="mr-4">{{ proposal['cache']['call']['closes'] or '-' }}</span>
-    {{ macros.call_closes(proposal['cache']['call']) }}
+    <span class="mr-4">{{ call['closes'] or '-' }}</span>
+    {{ macros.call_closes(call) }}
   </div>
 </div>
 {% endif %} {# if am_submitter #}
@@ -44,7 +42,12 @@
 {% if allow_view_reviews %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">All reviews</div>
-  <div class="col-md">{{ macros.proposal_reviews_link(proposal) }}</div>
+  <div class="col-md">
+    <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
+       role="button" class="btn btn-info my-1">
+      {{ utils.get_proposal_reviews_count(proposal['identifier']) }} reviews
+    </a>
+  </div>
 </div>
 {% endif %} {# if allow_view_reviews #}
 
@@ -56,29 +59,41 @@
 {% endif %} {# if my_review #}
 
 {% if allow_view_decision %}
-<div class="row mt-4">
-  <div class="col-md-2 font-weight-bold text-right">
-    <span class="text-light bg-dark p-2">Decision</span>
-  </div>
-  <div class="col-md">
-    {% set values = decision['values'] %}
-    {% set attachments = decision.get('_attachments', {}) %}
-    {% for field in decision['cache']['call']['decision'] %}
+<div class="card mt-4">
+  <div class="card-body">
     <div class="row">
       <div class="col-md-2 font-weight-bold text-right">
-        {{ field['title'] }}
+        Decision
       </div>
-      <div class="col-md text-break">
-        {% set value = values.get(field['identifier']) %}
-        {% if value %}
-        {% set docurl = url_for('.document', pid=proposal['identifier'], documentname=value) %}
-        {% else %}
-        {% set docurl = None %}
-        {% endif %}
-        {{ macros.formatted_value(value, field['type'], docurl) }}
+      <div class="col-md">
+        {% set values = decision['values'] %}
+        {% set attachments = decision.get('_attachments', {}) %}
+
+        {% for field in call['decision'] %}
+        <div class="row">
+          <div class="col-md-2 font-weight-bold text-right">
+            {{ field['title'] }}
+          </div>
+          <div class="col-md text-break">
+            {% set value = values.get(field['identifier']) %}
+            {% if field['type'] == constants.DOCUMENT %}
+            {% if value %}
+            <span class="font-weight-bold">{{ value }}</span>
+            <a href="{{ url_for('decision.document', iuid=decision['_id'], documentname=value) }}"
+               role="button" class="btn btn-secondary btn-sm ml-4">
+              Download ({{ attachments[value]['length'] | filesizeformat }})
+            </a>
+            {% else %}
+            -
+            {% endif %} {# if value #}
+            {% else %}
+            {{ utils.formatted_value(value, field['type']) }}
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %} {# for field in ... #}
       </div>
     </div>
-    {% endfor %} {# for field in ... #}
   </div>
 </div>
 {% endif %} {# if allow_view_decision #}
@@ -90,7 +105,7 @@
     {% set values = proposal['values'] %}
     {% set attachments = proposal.get('_attachments', {}) %}
 
-    {% for field in proposal['cache']['call']['proposal'] %}
+    {% for field in call['proposal'] %}
     <div class="row">
       <div class="col-md-2 font-weight-bold text-right">
         {{ field['title'] }}
@@ -100,14 +115,21 @@
         Error: {{ proposal['errors'][field['identifier']] }}
       </div>
       {% endif %}
-        {% set value = values.get(field['identifier']) %}
-        {% if value %}
-        {% set docurl = url_for('.document', pid=proposal['identifier'], documentname=value) %}
-        {% else %}
-        {% set docurl = None %}
-        {% endif %}
       <div class="col-md text-break">
-        {{ macros.formatted_value(value, field['type'], docurl) }}
+        {% set value = values.get(field['identifier']) %}
+        {% if field['type'] == constants.DOCUMENT %}
+        {% if value %}
+        <span class="font-weight-bold">{{ value }}</span>
+        <a href="{{ url_for('.document', pid=proposal['identifier'], documentname=value) }}"
+           role="button" class="btn btn-secondary btn-sm ml-4">
+          Download ({{ attachments[value]['length'] | filesizeformat }})
+        </a>
+        {% else %}
+        -
+        {% endif %} {# if value #}
+        {% else %}
+        {{ utils.formatted_value(value, field['type']) }}
+        {% endif %}
       </div>
     </div>
     {% endfor %} {# for field in ... #}
@@ -116,6 +138,19 @@
 {% endblock %} {# block main #}
 
 {% block actions %}
+
+{% if allow_link_decision %}
+{% if decision %}
+{{ macros.decision_link(decision, block=True) }}
+{% elif allow_create_decision %}
+<form action="{{ url_for('decision.create', pid=proposal['identifier']) }}"
+      method="POST">
+  {{ csrf_token() }}
+  <button type="submit" class="btn btn-dark btn-block">
+    Create decision</button>
+</form>
+{% endif %} {# if decision #}
+{% endif %} {# if allow_link_decision #}
 
 {% if allow_edit %}
 <div class="mt-2">
@@ -145,19 +180,6 @@
 </div>
 {% endif %} {# if proposal.get('submitted') #}
 {% endif %} {# if allow_submit #}
-
-{% if allow_link_decision %}
-{% if decision %}
-{{ macros.decision_link(decision) }}
-{% elif allow_create_decision %}
-<form action="{{ url_for('decision.create', pid=proposal['identifier']) }}"
-      method="POST">
-  {{ csrf_token() }}
-  <button type="submit" class="btn btn-sm btn-dark my-1">
-    Create decision</button>
-</form>
-{% endif %} {# if decision #}
-{% endif %} {# if allow_link_decision #}
 
 {% if allow_delete %}
 <div class="mt-2">

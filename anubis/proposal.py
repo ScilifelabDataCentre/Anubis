@@ -41,28 +41,25 @@ def display(pid):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
-    # Special case for setting decision cache
-    decision = proposal['cache'].get('decision')
-    if decision:
-        decision['cache'] = {'call': proposal['cache']['call'],
-                             'proposal': proposal}
+    call = anubis.call.get_call(proposal['call'])
+    decision = anubis.decision.get_decision(proposal['decision'])
     if not allow_view(proposal):
         utils.flash_error('You are not allowed to view this proposal.')
         return flask.redirect(
-            flask.url_for('call.display',
-                          cid=proposal['cache']['call']['identifier']))
+            flask.url_for('call.display', cid=call['identifier']))
     am_submitter = flask.g.current_user and \
                    flask.g.current_user['username'] == proposal['user']
-    am_reviewer = anubis.call.am_reviewer(proposal['cache']['call'])
+    am_reviewer = anubis.call.am_reviewer(call)
     my_review = get_reviewer_review(proposal, flask.g.current_user)
-    allow_view_reviews = anubis.call.allow_view_reviews(proposal['cache']['call'])
+    allow_view_reviews = anubis.call.allow_view_reviews(call)
     allow_link_decision = anubis.decision.allow_link(decision)
     allow_create_decision = anubis.decision.allow_create(proposal)
     allow_view_decision = decision and \
-        decision.get('finalized') and \
-        proposal['cache']['call']['access'].get('allow_submitter_view_decision')
+                          decision.get('finalized') and \
+                          call['access'].get('allow_submitter_view_decision')
     return flask.render_template('proposal/display.html',
                                  proposal=proposal,
+                                 call=call,
                                  allow_edit=allow_edit(proposal),
                                  allow_delete=allow_delete(proposal),
                                  allow_submit=allow_submit(proposal),
@@ -83,12 +80,15 @@ def edit(pid):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
+    call = anubis.call.get_call(proposal['call'])
 
     if utils.http_GET():
         if not allow_edit(proposal):
             utils.flash_error('You are not allowed to edit this proposal.')
             return flask.redirect(utils.referrer_or_home())
-        return flask.render_template('proposal/edit.html', proposal=proposal)
+        return flask.render_template('proposal/edit.html',
+                                     proposal=proposal,
+                                     call=call)
 
     elif utils.http_POST():
         if not allow_edit(proposal):
@@ -105,7 +105,7 @@ def edit(pid):
                         saver.set_user(user)
                     else:
                         raise ValueError('No such user.')
-                for field in proposal['cache']['call']['proposal']:
+                for field in call['proposal']:
                     saver.set_field_value(field, form=flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
@@ -260,24 +260,27 @@ class ProposalSaver(FieldMixin, AttachmentSaver):
         self.doc.pop('submitted', None)
 
 
-def get_proposal(pid, cache=True):
+def get_proposal(pid, refetch=False):
     "Return the proposal with the given identifier."
-    result = [r.doc for r in flask.g.db.view('proposals', 'identifier',
-                                             key=pid,
-                                             include_docs=True)]
-    if len(result) == 1:
-        if cache:
-            return set_cache(result[0])
+    try:
+        if refetch: raise KeyError
+        return flask.g.cache[pid]
+    except KeyError:
+        result = [r.doc for r in flask.g.db.view('proposals', 'identifier',
+                                                 key=pid,
+                                                 include_docs=True)]
+        if len(result) == 1:
+            proposal = result[0]
+            flask.g.cache[pid] = proposal
+            return proposal
         else:
-            return result[0]
-    else:
-        return None
+            return None
 
 def allow_view(proposal):
     "Admin, the user of the proposal, and the reviewers may view a proposal."
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
-    if anubis.call.am_reviewer(proposal['cache']['call']):
+    if anubis.call.am_reviewer(anubis.call.get_call(proposal['call'])):
         return bool(proposal.get('submitted'))
     return flask.g.current_user['username'] == proposal['user']
 
@@ -300,33 +303,15 @@ def allow_submit(proposal):
     The user may submit the proposal if the call is open.
     """
     if not flask.g.current_user: return False
+    if proposal.get('submitted'): return False
     if proposal['errors']: return False
     if flask.g.am_admin: return True
-    if proposal.get('submitted'): return False
+    call = anubis.call.get_call(proposal['call'])
     return (flask.g.current_user['username'] == proposal['user']
-            and proposal['cache']['call']['cache']['is_open'])
+            and call['cache']['is_open'])
     
-def set_cache(proposal, call=None):
-    """Set the cached, non-saved fields of the review.
-    This de-references the call of the proposal.
-    """
-    proposal['cache'] = cache = {}
-    if call is None:
-        cache['call'] = anubis.call.get_call(proposal['call'], cache=True)
-    else:
-        cache['call'] = call
-    if anubis.call.allow_view_reviews(cache['call']):
-        cache['all_reviews_count'] = utils.get_count('reviews', 'proposal',
-                                                     proposal['identifier'])
-    if proposal.get('decision'):
-        proposal['cache']['decision'] = anubis.decision.get_decision(
-            proposal['decision'], cache=False)
-    return proposal
-
 def get_call_user_proposal(cid, username):
-    """Get the proposal created by the user in the call.
-    Cache not set. Excludes no proposals.
-    """
+    "Get the proposal created by the user in the call."
     result = [r.doc for r in flask.g.db.view('proposals', 'call_user',
                                              key=[cid, username],
                                              reduce=False,

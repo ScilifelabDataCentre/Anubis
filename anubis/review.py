@@ -48,6 +48,8 @@ def create(pid, username):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
+    call = anubis.call.get_call(proposal['call'])
+
     try:
         if not allow_create(proposal):
             utils.flash_error('You may not create a review for the proposal.')
@@ -56,7 +58,7 @@ def create(pid, username):
         if user is None:
             utils.flash_error('No such user.')
             raise ValueError
-        if user['username'] not in proposal['cache']['call']['reviewers']:
+        if user['username'] not in call['reviewers']:
             utils.flash_error('User is not a reviewer in the call.')
             raise ValueError
         review = get_reviewer_review(proposal, user)
@@ -83,13 +85,17 @@ def display(iuid):
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
+    proposal = anubis.proposal.get_proposal(review['proposal'])
+    call = anubis.call.get_call(review['call'])
+
     if not allow_view(review):
         utils.flash_error('You are not allowed to view this review.')
         return flask.redirect(
-            flask.url_for('proposal.display', 
-                          pid=review['cache']['proposal']['identifier']))
+            flask.url_for('proposal.display', pid=review['proposal']))
     return flask.render_template('review/display.html',
                                  review=review,
+                                 proposal=proposal,
+                                 call=call,
                                  allow_edit=allow_edit(review),
                                  allow_delete=allow_delete(review),
                                  allow_finalize=allow_finalize(review),
@@ -104,12 +110,17 @@ def edit(iuid):
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
+    proposal = anubis.proposal.get_proposal(review['proposal'])
+    call = anubis.call.get_call(review['call'])
 
     if utils.http_GET():
         if not allow_edit(review):
             utils.flash_error('You are not allowed to edit this review.')
             return flask.redirect(flask.url_for('.display', iuid=review['_id']))
-        return flask.render_template('review/edit.html', review=review)
+        return flask.render_template('review/edit.html',
+                                     review=review,
+                                     proposal=proposal,
+                                     call=call)
 
     elif utils.http_POST():
         if not allow_edit(review):
@@ -117,7 +128,7 @@ def edit(iuid):
             return flask.redirect(flask.url_for('.display', iuid=review['_id']))
         try:
             with ReviewSaver(doc=review) as saver:
-                for field in review['cache']['call']['review']:
+                for field in call['review']:
                     saver.set_field_value(field, form=flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
@@ -130,8 +141,7 @@ def edit(iuid):
             return flask.redirect(flask.url_for('.display', iuid=review['_id']))
         utils.delete(review)
         utils.flash_message('Deleted review.')
-        return flask.redirect(
-            flask.url_for('call.display', cid=review['cache']['call']['identifier']))
+        return flask.redirect(flask.url_for('call.display', cid=review['call']))
 
 @blueprint.route('/<iuid:iuid>/finalize', methods=['POST'])
 @utils.login_required
@@ -187,9 +197,7 @@ def logs(iuid):
 
     return flask.render_template(
         'logs.html',
-        title="Review of" \
-              f" {review['cache']['proposal']['identifier']}" \
-              f" by {review['reviewer']}",
+        title=f"Review of {review['proposal']} by {review['reviewer']}",
         back_url=flask.url_for('.display', iuid=review['_id']),
         logs=utils.get_logs(review['_id']))
 
@@ -243,9 +251,10 @@ class ReviewSaver(FieldMixin, BaseSaver):
         "Set the proposal for the review; must be called when creating."
         if self.doc.get('proposal'):
             raise ValueError('proposal has already been set')
-        self.doc['call'] = proposal['cache']['call']['identifier']
+        self.doc['call'] = proposal['call']
         self.doc['proposal'] = proposal['identifier']
-        for field in proposal['cache']['call']['review']:
+        call = anubis.call.get_call(proposal['call'])
+        for field in call['review']:
             self.set_field_value(field)
 
     def set_reviewer(self, user):
@@ -253,13 +262,16 @@ class ReviewSaver(FieldMixin, BaseSaver):
         self.doc['reviewer'] = user['username']
 
 
-def get_review(iuid, cache=True):
+def get_review(iuid, refetch=False):
     "Get the review by its iuid."
-    review = flask.g.db[iuid]
-    if review['doctype'] != constants.REVIEW: raise KeyError
-    if cache:
-        return set_cache(review)
-    else:
+    if not iuid: return None
+    try:
+        if refetch: raise KeyError
+        return flask.g.cache[iuid]
+    except KeyError:
+        review = flask.g.db[iuid]
+        if review['doctype'] != constants.REVIEW: raise ValueError
+        flask.g.cache[iuid] = review
         return review
 
 def get_reviewer_review(proposal, reviewer):
@@ -269,7 +281,7 @@ def get_reviewer_review(proposal, reviewer):
                              reduce=False,
                              include_docs=True)
     try:
-        return set_cache(result[0].doc)
+        return result[0].doc
     except IndexError:
         return None
 
@@ -278,7 +290,8 @@ def allow_create(proposal):
     if not proposal.get('submitted'): return False
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
-    return anubis.call.am_chair(proposal['cache']['call'])
+    call = anubis.call.get_call(proposal['call'])
+    return anubis.call.am_chair(call)
 
 def allow_view(review):
     """Admin may view all reviews.
@@ -289,18 +302,17 @@ def allow_view(review):
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     if flask.g.current_user['username'] == review['reviewer']: return True
-    if anubis.call.am_reviewer(review['cache']['call']): return True
-    if anubis.call.allow_view_reviews(review['cache']['call']) and \
-       review.get('finalized'): return True
-    return False
+    call = anubis.call.get_call(review['call'])
+    if anubis.call.am_reviewer(call): return True
+    return anubis.call.allow_view_reviews(call) and review.get('finalized')
 
 def allow_edit(review):
     "Admin and reviewer may edit an unfinalized review."
     if review.get('finalized'): return False
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
-    if review['cache']['call'].get('reviews_due') and \
-       utils.days_remaining(review['cache']['call']['reviews_due']) < 0:
+    call = anubis.call.get_call(review['call'])
+    if call.get('reviews_due') and utils.days_remaining(call['reviews_due'])<0:
         return False
     return flask.g.current_user['username'] == review['reviewer']
 
@@ -321,19 +333,7 @@ def allow_unfinalize(review):
     if not review.get('finalized'): return False
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
-    if review['cache']['call'].get('reviews_due') and \
-       utils.days_remaining(review['cache']['call']['reviews_due']) < 0:
+    call = anubis.call.get_call(review['call'])
+    if call.get('reviews_due') and utils.days_remaining(call['reviews_due'])<0:
         return False
     return flask.g.current_user['username'] == review['reviewer']
-
-def set_cache(review, call=None):
-    """Set the cached, non-saved fields of the review.
-    This de-references the call and proposal of the review.
-    """
-    review['cache'] = cache = {}
-    if call is None:
-        cache['call'] = call = anubis.call.get_call(review['call'])
-    else:
-        cache['call'] = call
-    cache['proposal'] = anubis.proposal.get_proposal(review['proposal'])
-    return review

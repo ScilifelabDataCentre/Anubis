@@ -64,13 +64,17 @@ def display(iuid):
     except KeyError:
         utils.flash_error('No such decision.')
         return flask.redirect(flask.url_for('home'))
+    proposal = anubis.proposal.get_proposal(decision['proposal'])
+    call = anubis.call.get_call(decision['call'])
+
     if not allow_link(decision):
         utils.flash_error('You are not allowed to view this decision.')
         return flask.redirect(
-            flask.url_for('proposal.display',
-                          pid=decision['cache']['proposal']['identifier']))
+            flask.url_for('proposal.display', pid=decision['proposal']))
     return flask.render_template('decision/display.html',
                                  decision=decision,
+                                 proposal=proposal,
+                                 call=call,
                                  allow_edit=allow_edit(decision),
                                  allow_delete=allow_delete(decision),
                                  allow_finalize=allow_finalize(decision),
@@ -85,13 +89,18 @@ def edit(iuid):
     except KeyError:
         utils.flash_error('No such decision.')
         return flask.redirect(flask.url_for('home'))
+    proposal = anubis.proposal.get_proposal(decision['proposal'])
+    call = anubis.call.get_call(decision['call'])
 
     if utils.http_GET():
         if not allow_edit(decision):
             utils.flash_error('You are not allowed to edit this decision.')
             return flask.redirect(
                 flask.url_for('.display', iuid=decision['_id']))
-        return flask.render_template('decision/edit.html', decision=decision)
+        return flask.render_template('decision/edit.html',
+                                     decision=decision,
+                                     proposal=proposal,
+                                     call=call)
 
     elif utils.http_POST():
         if not allow_edit(decision):
@@ -100,7 +109,7 @@ def edit(iuid):
                 flask.url_for('.display', iuid=decision['_id']))
         try:
             with DecisionSaver(doc=decision) as saver:
-                for field in decision['cache']['call']['decision']:
+                for field in call['decision']:
                     saver.set_field_value(field, form=flask.request.form)
         except ValueError as error:
             utils.flash_error(str(error))
@@ -112,7 +121,6 @@ def edit(iuid):
             utils.flash_error('You are not allowed to delete this decision.')
             return flask.redirect(
                 flask.url_for('.display', iuid=decision['_id']))
-        proposal = decision['cache']['proposal']
         with anubis.proposal.ProposalSaver(proposal) as saver:
             saver['decision'] = None
         utils.delete(decision)
@@ -174,8 +182,7 @@ def logs(iuid):
 
     return flask.render_template(
         'logs.html',
-        title="Decision for" \
-              f" {decision['cache']['proposal']['identifier']}",
+        title=f"Decision for {decision['proposal']}",
         back_url=flask.url_for('.display', iuid=decision['_id']),
         logs=utils.get_logs(decision['_id']))
 
@@ -229,20 +236,22 @@ class DecisionSaver(FieldMixin, AttachmentSaver):
         if self.doc.get('call'):
             raise ValueError('call has already been set')
         self.doc['proposal'] = proposal['identifier']
-        call = proposal['cache']['call']
+        call = anubis.call.get_call(proposal['call'])
         self.doc['call'] = call['identifier']
         for field in call['decision']:
             self.set_field_value(field)
 
 
-def get_decision(iuid, cache=True):
+def get_decision(iuid, refetch=False):
     "Get the decision by its iuid."
     if not iuid: return None
-    decision = flask.g.db[iuid]
-    if decision['doctype'] != constants.DECISION: raise ValueError
-    if cache:
-        return set_cache(decision)
-    else:
+    try:
+        if refetch: raise KeyError
+        return flask.g.cache[iuid]
+    except KeyError:
+        decision = flask.g.db[iuid]
+        if decision['doctype'] != constants.DECISION: raise ValueError
+        flask.g.cache[iuid] = decision
         return decision
 
 def allow_create(proposal):
@@ -251,14 +260,17 @@ def allow_create(proposal):
     if not flask.g.current_user: return False
     if proposal.get('decision'): return False
     if flask.g.am_admin: return True
-    return anubis.call.am_chair(proposal['cache']['call'])
+    call = anubis.call.get_call(proposal['call'])
+    return anubis.call.am_chair(call)
 
 def allow_view(decision):
     "Submitter may view decision for her proposal."
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
-    if not decision['cache']['call']['access']['allow_submitter_view_decision']: return False
-    if decision['cache']['proposal']['user'] != flask.g.current_user['username']: return False
+    call = anubis.call.get_call(decision['call'])
+    if not call['access']['allow_submitter_view_decision']: return False
+    proposal = anubis.proposal.get_proposal(decision['proposal'])
+    if proposal['user'] != flask.g.current_user['username']: return False
     return decision.get('finalized')
 
 def allow_link(decision):
@@ -268,14 +280,16 @@ def allow_link(decision):
     if not decision: return False
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
-    return anubis.call.am_reviewer(decision['cache']['call'])
+    call = anubis.call.get_call(decision['call'])
+    return anubis.call.am_reviewer(call)
 
 def allow_edit(decision):
     "Admin and chair may edit an unfinalized decision."
     if decision.get('finalized'): return False
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
-    return anubis.call.am_chair(decision['cache']['call'])
+    call = anubis.call.get_call(decision['call'])
+    return anubis.call.am_chair(call)
 
 def allow_delete(decision):
     "Admin may delete a decision."
@@ -287,23 +301,13 @@ def allow_finalize(decision):
     if decision.get('errors'): return False
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
-    return anubis.call.am_chair(decision['cache']['call'])
+    call = anubis.call.get_call(decision['call'])
+    return anubis.call.am_chair(call)
 
 def allow_unfinalize(decision):
     "Admin and decisioner may unfinalize the decision."
     if not decision.get('finalized'): return False
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
-    return anubis.call.am_chair(decision['cache']['call'])
-
-def set_cache(decision, call=None):
-    """Set the cached, non-saved fields of the decision.
-    This de-references the call and proposal of the decision.
-    """
-    decision['cache'] = cache = {}
-    if call is None:
-        cache['call'] = call = anubis.call.get_call(decision['call'])
-    else:
-        cache['call'] = call
-    cache['proposal'] = anubis.proposal.get_proposal(decision['proposal'])
-    return decision
+    call = anubis.call.get_call(decision['call'])
+    return anubis.call.am_chair(call)

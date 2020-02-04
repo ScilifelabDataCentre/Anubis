@@ -1,12 +1,8 @@
 {% extends 'base.html' %}
 
-{% block head_title %}
-Edit review of {{ review['cache']['proposal']['identifier'] }}
-{% endblock %}
+{% block head_title %}Edit review of {{ proposal['identifier'] }}{% endblock %}
 
-{% block body_title %}
-Edit review of {{ review['cache']['proposal']['identifier'] }}
-{% endblock %}
+{% block body_title %}Edit review of {{ proposal['identifier'] }}{% endblock %}
 
 {% block main %}
 <form action="{{ url_for('.edit', iuid=review['_id']) }}"
@@ -14,7 +10,7 @@ Edit review of {{ review['cache']['proposal']['identifier'] }}
       method="POST">
   {{ csrf_token() }}
 
-  {% set fields = review['cache']['proposal']['cache']['call']['review'] %}
+  {% set fields = call['review'] %}
   {% set values = review['values'] %}
   {% set errors = review['errors'] %}
   {% set attachments = review.get('_attachments', {}) %}

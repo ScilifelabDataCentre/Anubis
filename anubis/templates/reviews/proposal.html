@@ -26,7 +26,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
   <div class="col-md">
-    {{ macros.call_link(proposal['cache']['call']) }}
+    {{ macros.call_link(call) }}
   </div>
 </div>
 
@@ -50,7 +50,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
       {% set values = review['values'] %}
       {% for field in bannerfields %}
       <td>
-        {{ macros.formatted_value(values.get(field['identifier']), field['type']) }}
+        {{ utils.formatted_value(values.get(field['identifier']), field['type']) }}
       </td>
       {% endfor %}
       {% else %}

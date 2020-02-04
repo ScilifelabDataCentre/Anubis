@@ -4,7 +4,7 @@
 
 {% block body_title %}
 <small class="text-muted mr-2">Proposals in call</small>
-{{ macros.call_link(call, title=True) }}
+{{ macros.call_link(call) }}
 {% endblock %}
 
 {% block meta %}
@@ -41,10 +41,11 @@
   <tbody>
     {% for proposal in proposals %}
     <tr>
-      <td>{{ macros.proposal_link(proposal, title=True) }}</td>
+      <td>{{ macros.proposal_link(proposal) }}</td>
+      {% set values = proposal['values'] %}
       {% for field in proposal_bannerfields %}
       <td>
-        {{ macros.formatted_value(proposal['values'].get(field['identifier']), field['type']) }}
+        {{ utils.formatted_value(values.get(field['identifier']), field['type']) }}
       </td>
       {% endfor %}
       {% if g.am_admin %}
@@ -52,17 +53,30 @@
       {% endif %}
       <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
       {% if allow_view_reviews %}
-      <td>{{ macros.proposal_reviews_link(proposal) }}</td>
+      <td>
+        <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
+           role="button" class="btn btn-info my-1">
+          {{ utils.get_proposal_reviews_count(proposal['identifier']) }} reviews
+        </a>
+      </td>
       {% endif %}
       {% if allow_view_decisions %}
-      <td>{{ macros.decision_link(proposal['cache'].get('decision')) }}</td>
-      {% set values = proposal['cache'].get('decision', {}).get('values') or {} %}
+      {% set decision = get_decision(proposal['decision']) %}
+      {% if decision %}
+      <td>{{ macros.decision_link(decision) }}</td>
+      {% set values = decision.get('values') or {} %}
       {% for field in decision_bannerfields %}
       <td>
-        {{ macros.formatted_value(values.get(field['identifier']), field['type']) }}
+        {{ utils.formatted_value(values.get(field['identifier']), field['type']) }}
       </td>
       {% endfor %}
-      {% endif %}
+      {% else %}
+      <td>-</td>
+      {% for field in decision_bannerfields %}
+      <td>-</td>
+      {% endfor %}
+      {% endif %} {# if decision #}
+      {% endif %} {# if allow_view_decisions #}
     </tr>
     {% endfor %} {# for proposal in proposals #}
   </tbody>

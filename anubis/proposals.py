@@ -7,6 +7,7 @@ import openpyxl
 import openpyxl.styles
 
 import anubis.call
+import anubis.decision
 import anubis.proposal
 import anubis.user
 
@@ -128,31 +129,21 @@ def user(username):
     if not anubis.user.allow_view(user):
         utils.flash_error("You may not view the user's proposals.")
         return flask.redirect(flask.url_for('home'))
-    proposals = get_user_proposals(user['username'])
-    for proposal in proposals:
-        decision = proposal['cache'].get('decision')
-        if decision:
-            anubis.decision.set_cache(decision, call=proposal['cache']['call'])
-            decision['cache']['allow_view'] = anubis.decision.allow_view(decision)
     return flask.render_template('proposals/user.html',  
                                  user=user,
-                                 proposals=proposals)
+                                 proposals=get_user_proposals(user['username']))
 
 def get_call_proposals(call):
     "Get the proposals in the call. Only include those allowed to view."
-    result = [anubis.proposal.set_cache(r.doc, call=call)
-              for r in flask.g.db.view('proposals', 'call',
-                                       key=call['identifier'],
-                                       reduce=False,
-                                       include_docs=True)]
+    result = [i.doc for i in flask.g.db.view('proposals', 'call',
+                                             key=call['identifier'],
+                                             reduce=False,
+                                             include_docs=True)]
     return [p for p in result if anubis.proposal.allow_view(p)]
 
 def get_user_proposals(username, call=None):
-    """Get all proposals created by the user.
-    Cache not set. Excludes no proposals.
-    """
-    return [anubis.proposal.set_cache(r.doc, call=call)
-            for r in flask.g.db.view('proposals', 'user',
-                                     key=username,
-                                     reduce=False,
-                                     include_docs=True)]
+    "Get all proposals created by the user."
+    return [i.doc for i in flask.g.db.view('proposals', 'user',
+                                           key=username,
+                                           reduce=False,
+                                           include_docs=True)]

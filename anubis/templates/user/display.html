@@ -18,7 +18,7 @@ User {{ user['username'] }}
     <td>
       <a href="{{ url_for('proposals.user', username=user['username']) }}"
          role="button" class="btn btn-sm btn-primary px-3">
-	{{ user['cache']['all_proposals_count'] }} proposals
+	{{ all_proposals_count }} proposals
       </a>
     </td>
   </tr>
@@ -27,7 +27,7 @@ User {{ user['username'] }}
     <td>
       <a href="{{ url_for('reviews.reviewer', username=user['username']) }}"
          role="button" class="btn btn-sm btn-info px-3">
-	{{ user['cache']['all_reviews_count'] }} reviews
+	{{ all_reviews_count }} reviews
       </a>
     </td>
   </tr>
@@ -37,10 +37,10 @@ User {{ user['username'] }}
       {% if reviewer_calls %}
       {% for call in reviewer_calls %}
       <p class="mb-2">
-        {{ macros.call_link(call, title=True) }}
+        {{ macros.call_link(call) }}
         <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=user['username']) }}"
        role="button" class="btn btn-sm btn-info ml-2 px-3 py-0">
-          {{ call['cache']['my_reviews_count'] }} reviews</a>
+          {{ call['my_reviews_count'] }} reviews</a>
       </p>
       {% endfor %}
       {% else %}

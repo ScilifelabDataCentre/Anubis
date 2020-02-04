@@ -62,10 +62,14 @@ def display(cid):
                                              flask.g.current_user['username'])
     else:
         my_proposal = None
+    my_reviews_count = utils.get_count(
+        'reviews', 'call_reviewer', 
+        [call['identifier'], flask.g.current_user['username']])
     return flask.render_template('call/display.html',
                                  call=call,
                                  my_proposal=my_proposal,
                                  am_reviewer=am_reviewer(call),
+                                 my_reviews_count=my_reviews_count,
                                  allow_edit=allow_edit(call),
                                  allow_delete=allow_delete(call),
                                  allow_proposal=allow_proposal(call),
@@ -712,18 +716,23 @@ class CallSaver(AttachmentSaver):
             self.doc['access'][flag] = utils.to_bool(form.get(flag))
 
 
-def get_call(cid, cache=True):
+def get_call(cid, cache=True, refetch=False):
     "Return the call with the given identifier."
-    result = [r.doc for r in flask.g.db.view('calls', 'identifier',
-                                             key=cid,
-                                             include_docs=True)]
-    if len(result) == 1:
-        if cache:
-            return set_cache(result[0])
+    try:
+        if refetch: raise KeyError
+        return flask.g.cache[cid]
+    except KeyError:
+        result = [r.doc for r in flask.g.db.view('calls', 'identifier',
+                                                 key=cid,
+                                                 include_docs=True)]
+        if len(result) == 1:
+            call = result[0]
+            if cache:
+                set_cache(call)
+            flask.g.cache[cid] = call
+            return call
         else:
-            return result[0]
-    else:
-        return None
+            return None
 
 def allow_view(call):
     """Admin may view all calls.
@@ -781,21 +790,11 @@ def set_cache(call):
     This does NOT de-reference any other entities.
     """
     call['cache'] = cache = {}
-    # Not all users may actually view this, but for simplicity...
-    if flask.g.current_user:
-        cache['all_proposals_count'] = utils.get_count('proposals', 'call',
-                                                       call['identifier'])
-        cache['all_reviews_count'] = utils.get_count('reviews', 'call',
-                                                     call['identifier'])
-        cache['my_reviews_count'] = utils.get_count(
-            'reviews', 'call_reviewer', 
-            [call['identifier'], flask.g.current_user['username']])
     # Set the current state of the call, computed from open/close and today.
     if call['opens']:
         if call['opens'] > utils.normalized_local_now():
             cache['is_open'] = False
             cache['is_closed'] = False
-            # cache['is_published'] = False
             cache['text'] = 'Not yet open.'
             cache['color'] = 'secondary'
         elif call['closes']:
@@ -803,44 +802,37 @@ def set_cache(call):
             if remaining > 7:
                 cache['is_open'] = True
                 cache['is_closed'] = False
-                # cache['is_published'] = True
                 cache['text'] = f"{remaining:.0f} days remaining."
                 cache['color'] = 'success'
             elif remaining >= 2:
                 cache['is_open'] = True
                 cache['is_closed'] = False
-                # cache['is_published'] = True
                 cache['text'] = f"{remaining:.0f} days remaining."
                 cache['color'] = 'warning'
             elif remaining >= 0:
                 cache['is_open'] = True
                 cache['is_closed'] = False
-                # cache['is_published'] = True
                 cache['text'] = f"{remaining:.1f} days remaining."
                 cache['color'] = 'danger'
             else:
                 cache['is_open'] = False
                 cache['is_closed'] = True
-                # cache['is_published'] = True
                 cache['text'] = 'Closed.'
                 cache['color'] = 'dark'
         else:
             cache['is_open'] = True
             cache['is_closed'] = False
-            # cache['is_published'] = True
             cache['text'] = 'Open with no closing date.'
             cache['color'] = 'success'
     else:
         if call['closes']:
             cache['is_open'] = False
             cache['is_closed'] = False
-            # cache['is_published'] = False
             cache['text'] = 'No open date set.'
             cache['color'] = 'secondary'
         else:
             cache['is_open'] = False
             cache['is_closed'] = False
-            # cache['is_published'] = False
             cache['text'] = 'No open or close dates set.'
             cache['color'] = 'secondary'
     cache['is_published'] = cache['is_open'] or cache['is_closed']

@@ -19,12 +19,22 @@
   <tbody>
     {% for call in calls %}
     <tr>
-      <td>{{ macros.call_link(call, title=True) }}</td>
+      <td>{{ macros.call_link(call) }}</td>
       <td class="text-nowrap pl-2">{{ call['opens'] or '-' }}</td>
       <td class="text-nowrap pl-2">{{ call['closes'] or '-' }}</td>
       <td>{{ macros.call_closes(call) }}</td>
-      <td>{{ macros.proposals_link(call) }}</td>
-      <td>{{ macros.reviews_link(call) }}</td>
+      <td>
+        <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
+           role="button" class="btn btn-primary my-1">
+          {{ utils.get_call_proposals_count(call['identifier']) }} proposals
+        </a>
+      </td>
+      <td>
+        <a href="{{ url_for('reviews.call', cid=call['identifier']) }}"
+           role="button" class="btn btn-info my-1">
+          {{ utils.get_call_reviews_count(call['identifier']) }} reviews
+        </a>
+      </td>
     </tr>
     {% endfor %}
   </tbody>

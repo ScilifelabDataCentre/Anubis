@@ -31,7 +31,11 @@
 {% if g.am_admin or am_reviewer %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">All proposals</div>
-  <div class="col-md">{{ macros.proposals_link(call) }}</div>
+  <div class="col-md">
+    <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
+       role="button" class="btn btn-primary my-1">
+      {{ utils.get_call_proposals_count(call['identifier']) }} proposals</a>
+  </div>
 </div>
 {% endif %} {# if g.am_admin or am_reviewer #}
 
@@ -41,7 +45,8 @@
   <div class="col-md">
     <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=g.current_user['username']) }}"
        role="button" class="btn btn-info my-1">
-      {{ call['cache']['my_reviews_count'] }} reviews</a>
+      {{ my_reviews_count }} reviews
+    </a>
   </div>
 </div>
 {% endif %} {# if am_reviewer #}
@@ -49,7 +54,12 @@
 {% if allow_view_reviews %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">All reviews</div>
-  <div class="col-md">{{ macros.reviews_link(call) }}</div>
+  <div class="col-md">
+    <a href="{{ url_for('reviews.call', cid=call['identifier']) }}"
+       role="button" class="btn btn-info my-1">
+      {{ utils.get_call_reviews_count(call['identifier']) }} reviews
+    </a>
+  </div>
 </div>
 {% endif %} {# if allow_view_reviews #}
 
@@ -125,6 +135,7 @@
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Documents</div>
   <div class="col-md">
+    {% if call['documents'] %}
     <table class="table table-sm table-borderless table-hover">
       <tbody>
         {% for document in call['documents'] %}
@@ -142,6 +153,9 @@
         {% endfor %} {# for document in call['documents'] #}
       </tbody>
     </table>
+    {% else %}
+    -
+    {% endif %}
   </div>
 </div>
 

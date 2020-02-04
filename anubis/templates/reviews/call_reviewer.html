@@ -8,7 +8,7 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 <small class="text-muted mr-2">Reviews by</small>
 {{ macros.user_link(user) }}
 <small class="text-muted mx-2">in call</small>
-{{ macros.call_link(call, title=True) }}
+{{ macros.call_link(call) }}
 {% endblock %}
 
 {% block meta %}
@@ -57,13 +57,13 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
     {% set review = reviews_lookup.get(proposal['identifier']) %}
     {% if review %}
     <tr>
-      <td>{{ macros.proposal_link(proposal, title=True) }}</td>
+      <td>{{ macros.proposal_link(proposal) }}</td>
       <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
       <td>{{ macros.review_link(review) }}</td>
       {% set values = review['values'] %}
       {% for field in bannerfields %}
       <td>
-        {{ macros.formatted_value(values.get(field['identifier']), field['type']) }}
+        {{ utils.formatted_value(values.get(field['identifier']), field['type']) }}
       </td>
       {% endfor %}
     </tr>
