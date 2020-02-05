@@ -44,9 +44,7 @@
       <td>{{ macros.proposal_link(proposal) }}</td>
       {% set values = proposal['values'] %}
       {% for field in proposal_bannerfields %}
-      <td>
-        {{ utils.formatted_value(values.get(field['identifier']), field['type']) }}
-      </td>
+      <td>{{ typed_value(values.get(field['identifier']), field['type']) }}</td>
       {% endfor %}
       {% if g.am_admin %}
       <td>{{ macros.submitted(proposal) }}</td>
@@ -66,9 +64,7 @@
       <td>{{ macros.decision_link(decision) }}</td>
       {% set values = decision.get('values') or {} %}
       {% for field in decision_bannerfields %}
-      <td>
-        {{ utils.formatted_value(values.get(field['identifier']), field['type']) }}
-      </td>
+      <td>{{ typed_value(values.get(field['identifier']), field['type']) }}</td>
       {% endfor %}
       {% else %}
       <td>-</td>

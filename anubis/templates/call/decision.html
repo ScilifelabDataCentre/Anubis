@@ -9,7 +9,7 @@ Edit decision fields for call {{ call['identifier'] }}
 {% endblock %}
 
 {% block main %}
-{% if call['cache']['is_closed'] %}
+{% if call['tmp']['is_closed'] %}
 <div class="alert alert-warning" role="alert">
   <strong>Warning:</strong> The call has been closed; edit with care!
   Changing decision fields may invalidate current decisions.

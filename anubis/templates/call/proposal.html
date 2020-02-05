@@ -9,7 +9,7 @@ Edit proposal fields for call {{ call['identifier'] }}
 {% endblock %}
 
 {% block main %}
-{% if call['cache']['is_open'] or call['cache']['is_closed'] %}
+{% if call['tmp']['is_open'] or call['tmp']['is_closed'] %}
 <div class="alert alert-warning" role="alert">
   <strong>Warning:</strong> The call has been opened; edit with care!
   Changing proposal fields may invalidate current proposals.

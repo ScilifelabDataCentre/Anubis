@@ -49,9 +49,7 @@ Reviews of proposals in call {{ call['identifier'] }}
       <td>{{ macros.review_link(review) }}</td>
       {% set values = review['values'] %}
       {% for field in review_bannerfields %}
-      <td>
-        {{ utils.formatted_value(values.get(field['identifier']), field['type']) }}
-      </td>
+      <td>{{ typed_value(values.get(field['identifier']), field['type']) }}</td>
       {% endfor %}
       {% else %} {# if review #}
       {% if proposal['allow_create_review'] %}

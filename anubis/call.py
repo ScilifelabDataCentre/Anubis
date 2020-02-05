@@ -413,7 +413,7 @@ def create_proposal(cid):
     if call is None:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
-    if not call['cache']['is_open']:
+    if not call['tmp']['is_open']:
         utils.flash_error("The call is not open.")
         return flask.redirect(flask.url_for('.display', cid=cid))
     if not allow_proposal(call):
@@ -716,7 +716,7 @@ class CallSaver(AttachmentSaver):
             self.doc['access'][flag] = utils.to_bool(form.get(flag))
 
 
-def get_call(cid, cache=True, refetch=False):
+def get_call(cid, refetch=False):
     "Return the call with the given identifier."
     try:
         if refetch: raise KeyError
@@ -727,8 +727,7 @@ def get_call(cid, cache=True, refetch=False):
                                                  include_docs=True)]
         if len(result) == 1:
             call = result[0]
-            if cache:
-                set_cache(call)
+            set_tmp(call)
             flask.g.cache[cid] = call
             return call
         else:
@@ -785,55 +784,56 @@ def am_chair(call):
     if not flask.g.current_user: return False
     return flask.g.current_user['username'] in call['chairs']
 
-def set_cache(call):
-    """Set the cached, non-saved values for the call.
-    This does NOT de-reference any other entities.
+def set_tmp(call):
+    """Set the temporary, non-saved values for the call.
+    Returns the call object.
     """
-    call['cache'] = cache = {}
+    tmp = {}
     # Set the current state of the call, computed from open/close and today.
     if call['opens']:
         if call['opens'] > utils.normalized_local_now():
-            cache['is_open'] = False
-            cache['is_closed'] = False
-            cache['text'] = 'Not yet open.'
-            cache['color'] = 'secondary'
+            tmp['is_open'] = False
+            tmp['is_closed'] = False
+            tmp['text'] = 'Not yet open.'
+            tmp['color'] = 'secondary'
         elif call['closes']:
             remaining = utils.days_remaining(call['closes'])
             if remaining > 7:
-                cache['is_open'] = True
-                cache['is_closed'] = False
-                cache['text'] = f"{remaining:.0f} days remaining."
-                cache['color'] = 'success'
+                tmp['is_open'] = True
+                tmp['is_closed'] = False
+                tmp['text'] = f"{remaining:.0f} days remaining."
+                tmp['color'] = 'success'
             elif remaining >= 2:
-                cache['is_open'] = True
-                cache['is_closed'] = False
-                cache['text'] = f"{remaining:.0f} days remaining."
-                cache['color'] = 'warning'
+                tmp['is_open'] = True
+                tmp['is_closed'] = False
+                tmp['text'] = f"{remaining:.0f} days remaining."
+                tmp['color'] = 'warning'
             elif remaining >= 0:
-                cache['is_open'] = True
-                cache['is_closed'] = False
-                cache['text'] = f"{remaining:.1f} days remaining."
-                cache['color'] = 'danger'
+                tmp['is_open'] = True
+                tmp['is_closed'] = False
+                tmp['text'] = f"{remaining:.1f} days remaining."
+                tmp['color'] = 'danger'
             else:
-                cache['is_open'] = False
-                cache['is_closed'] = True
-                cache['text'] = 'Closed.'
-                cache['color'] = 'dark'
+                tmp['is_open'] = False
+                tmp['is_closed'] = True
+                tmp['text'] = 'Closed.'
+                tmp['color'] = 'dark'
         else:
-            cache['is_open'] = True
-            cache['is_closed'] = False
-            cache['text'] = 'Open with no closing date.'
-            cache['color'] = 'success'
+            tmp['is_open'] = True
+            tmp['is_closed'] = False
+            tmp['text'] = 'Open with no closing date.'
+            tmp['color'] = 'success'
     else:
         if call['closes']:
-            cache['is_open'] = False
-            cache['is_closed'] = False
-            cache['text'] = 'No open date set.'
-            cache['color'] = 'secondary'
+            tmp['is_open'] = False
+            tmp['is_closed'] = False
+            tmp['text'] = 'No open date set.'
+            tmp['color'] = 'secondary'
         else:
-            cache['is_open'] = False
-            cache['is_closed'] = False
-            cache['text'] = 'No open or close dates set.'
-            cache['color'] = 'secondary'
-    cache['is_published'] = cache['is_open'] or cache['is_closed']
+            tmp['is_open'] = False
+            tmp['is_closed'] = False
+            tmp['text'] = 'No open or close dates set.'
+            tmp['color'] = 'secondary'
+    tmp['is_published'] = tmp['is_open'] or tmp['is_closed']
+    call['tmp'] = tmp
     return call

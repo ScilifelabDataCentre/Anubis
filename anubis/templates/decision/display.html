@@ -45,19 +45,8 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   {% endif %}
   <div class="col-md text-break">
     {% set value = values.get(field['identifier']) %}
-    {% if field['type'] == constants.DOCUMENT %}
-    {% if value %}
-    <span class="font-weight-bold">{{ value }}</span>
-    <a href="{{ url_for('.document', iuid=review['_id'], documentname=value) }}"
-       role="button" class="btn btn-secondary btn-sm ml-4">
-      Download ({{ attachments[value]['length'] | filesizeformat }})
-    </a>
-    {% else %}
-    -
-    {% endif %} {# if value #}
-    {% else %}
-    {{ utils.formatted_value(value, field['type']) }}
-    {% endif %}
+    {% set docurl = url_for('.document', iuid=decision['_id'], documentname=value or 'dummy') %}
+    {{ value | typed_value(field['type'], docurl) }}
   </div>
 </div>
 {% endfor %} {# for field in ... #}

@@ -21,6 +21,7 @@ def init(app):
     - Update CouchDB design documents.
     """
     app.add_template_filter(markdown)
+    app.add_template_filter(typed_value)
 
     db = get_db(app=app)
     if db.put_design('logs', DESIGN_DOC):
@@ -203,7 +204,7 @@ def flash_message(msg):
     "Flash information message."
     flask.flash(str(msg), 'message')
 
-def formatted_value(value, type, docurl=None):
+def typed_value(value, type, docurl=None):
     "Template filter: Output field value according to its type."
     if type == constants.LINE:
         return value or '-'
@@ -217,8 +218,14 @@ def formatted_value(value, type, docurl=None):
         return float_value(value)
     elif type == constants.TEXT:
         return markdown(value)
+    elif type == constants.DOCUMENT:
+        if value:
+            return jinja2.utils.Markup(
+                f"""File <i>{value}</i> <a href="{docurl}" role="button" class="btn btn-outline-secondary btn-sm ml-4">Download</a>""")
+        else:
+            return '-'
     else:
-        return jinja2.utils.Markup(f"<i>invalid type {type}</i>")
+        return value
 
 def boolean_value(value):
     "Output field value boolean."

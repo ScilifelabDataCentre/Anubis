@@ -51,7 +51,7 @@ def setup_template_context():
 
 @app.before_request
 def prepare():
-    "Open the database connection, create cache, get the current user."
+    "Open the database connection, create the doc cache, get the current user."
     flask.g.db = utils.get_db()
     flask.g.cache = {}          # id -> document
     flask.g.current_user = anubis.user.get_current_user()

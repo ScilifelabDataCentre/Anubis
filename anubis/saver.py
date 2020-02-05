@@ -30,13 +30,11 @@ class BaseSaver:
 
     def __exit__(self, etyp, einst, etb):
         if etyp is not None: return False
-        self.finalize()
+        self.finish()
         self.doc['doctype'] = self.DOCTYPE
         self.doc['modified'] = utils.get_time()
-        self.original.pop('cache', None)
-        self.doc.pop('cache', None)
         flask.g.db.put(self.doc)
-        self.finish()
+        self.wrapup()
         self.add_log()
 
     def __getitem__(self, key):
@@ -53,12 +51,14 @@ class BaseSaver:
         "Preparations before making any changes."
         pass
 
-    def finalize(self):
-        "Final changes and checks on the document."
-        pass
-
     def finish(self):
-        """Finish the save operation by performing actions that
+        """Final changes and checks on the document before storing it.
+        Remove the temporary data from the document.
+        """
+        self.doc.pop('tmp', None)
+
+    def wrapup(self):
+        """Wrap up the save operation by performing actions that
         must be done after the document has been stored.
         """
         pass
@@ -115,7 +115,7 @@ class AttachmentSaver(BaseSaver):
         self._delete_attachments = set()
         self._add_attachments = []
 
-    def finish(self):
+    def wrapup(self):
         """Delete any specified attachments.
         Store the input files as attachments.
         Must be done after document is saved.

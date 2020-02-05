@@ -62,9 +62,7 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
       <td>{{ macros.review_link(review) }}</td>
       {% set values = review['values'] %}
       {% for field in bannerfields %}
-      <td>
-        {{ utils.formatted_value(values.get(field['identifier']), field['type']) }}
-      </td>
+      <td>{{ typed_value(values.get(field['identifier']), field['type']) }}</td>
       {% endfor %}
     </tr>
     {% endif %}

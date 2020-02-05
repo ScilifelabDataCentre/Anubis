@@ -307,8 +307,8 @@ def allow_submit(proposal):
     if proposal['errors']: return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(proposal['call'])
-    return (flask.g.current_user['username'] == proposal['user']
-            and call['cache']['is_open'])
+    return flask.g.current_user['username'] == proposal['user'] and \
+           call['tmp']['is_open']
     
 def get_call_user_proposal(cid, username):
     "Get the proposal created by the user in the call."

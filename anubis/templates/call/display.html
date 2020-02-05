@@ -103,9 +103,9 @@
   <div class="col-md-2 font-weight-bold text-right">My proposal</div>
   {% if my_proposal %}
   <div class="col-md">{{ macros.proposal_link(my_proposal) }}</div>
-  {% elif call['cache']['is_closed'] %}
+  {% elif call['tmp']['is_closed'] %}
   <div class="col-md">Call is closed; a proposal cannot be created.</div>
-  {% elif allow_proposal and call['cache']['is_open'] %}
+  {% elif allow_proposal and call['tmp']['is_open'] %}
   <div class="col-md">
     <form action="{{ url_for('.create_proposal', cid=call['identifier']) }}"
 	  method="POST">
@@ -113,7 +113,7 @@
       <button type="submit" class="btn btn-primary">Create proposal</button>
     </form>
   </div>
-  {% elif not g.current_user and call['cache']['is_open'] %}
+  {% elif not g.current_user and call['tmp']['is_open'] %}
   <div class="col-md text-danger">
     You need to be logged in to create a proposal.
   </div>
