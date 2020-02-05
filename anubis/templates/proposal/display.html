@@ -76,7 +76,7 @@
           </div>
           <div class="col-md text-break">
             {% set value = values.get(field['identifier']) %}
-            {% set docurl = 'decision.document', iuid=decision['_id'], documentname=value or 'dummy') %}
+            {% set docurl = url_for('decision.document', iuid=decision['_id'], documentname=value or 'dummy') %}
             {{ value | typed_value(field['type'], docurl) }}
           </div>
         </div>

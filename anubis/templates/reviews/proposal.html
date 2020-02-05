@@ -49,7 +49,9 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
       <td>{{ macros.review_link(review) }}</td>
       {% set values = review['values'] %}
       {% for field in bannerfields %}
-      <td>{{ typed_value(values.get(field['identifier']), field['type']) }}</td>
+      <td>
+        {{ values.get(field['identifier']) | typed_value(field['type']) }}
+      </td>
       {% endfor %}
       {% else %}
       <td>
