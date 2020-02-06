@@ -39,9 +39,21 @@
 
 {% if proposal.get('submitted') %}
 
+{% if g.am_admin or am_reviewer %}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">All proposals in call</div>
+  <div class="col-md">
+    <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
+       role="button" class="btn btn-primary my-1">
+      {{ utils.get_call_proposals_count(call['identifier']) }} proposals</a>
+  </div>
+</div>
+{% endif %} {# if g.am_admin or am_reviewer #}
+
 {% if allow_view_reviews %}
 <div class="row">
-  <div class="col-md-2 font-weight-bold text-right">All reviews</div>
+  <div class="col-md-2 font-weight-bold text-right">
+    Reviews of this proposal</div>
   <div class="col-md">
     <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
        role="button" class="btn btn-info my-1">

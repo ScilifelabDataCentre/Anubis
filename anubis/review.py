@@ -85,17 +85,16 @@ def display(iuid):
     except KeyError:
         utils.flash_error('No such review.')
         return flask.redirect(flask.url_for('home'))
-    proposal = anubis.proposal.get_proposal(review['proposal'])
     call = anubis.call.get_call(review['call'])
-
+    proposal = anubis.proposal.get_proposal(review['proposal'])
     if not allow_view(review):
         utils.flash_error('You are not allowed to view this review.')
         return flask.redirect(
             flask.url_for('proposal.display', pid=review['proposal']))
     return flask.render_template('review/display.html',
                                  review=review,
-                                 proposal=proposal,
                                  call=call,
+                                 proposal=proposal,
                                  allow_edit=allow_edit(review),
                                  allow_delete=allow_delete(review),
                                  allow_finalize=allow_finalize(review),
