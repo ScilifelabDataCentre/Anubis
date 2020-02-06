@@ -242,11 +242,10 @@ class DecisionSaver(FieldMixin, AttachmentSaver):
             self.set_field_value(field)
 
 
-def get_decision(iuid, refetch=False):
+def get_decision(iuid):
     "Get the decision by its iuid."
     if not iuid: return None
     try:
-        if refetch: raise KeyError
         return flask.g.cache[iuid]
     except KeyError:
         decision = flask.g.db[iuid]

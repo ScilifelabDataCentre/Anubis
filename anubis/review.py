@@ -262,11 +262,10 @@ class ReviewSaver(FieldMixin, BaseSaver):
         self.doc['reviewer'] = user['username']
 
 
-def get_review(iuid, refetch=False):
+def get_review(iuid):
     "Get the review by its iuid."
     if not iuid: return None
     try:
-        if refetch: raise KeyError
         return flask.g.cache[iuid]
     except KeyError:
         review = flask.g.db[iuid]

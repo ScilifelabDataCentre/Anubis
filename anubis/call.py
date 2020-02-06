@@ -716,18 +716,16 @@ class CallSaver(AttachmentSaver):
             self.doc['access'][flag] = utils.to_bool(form.get(flag))
 
 
-def get_call(cid, refetch=False):
+def get_call(cid):
     "Return the call with the given identifier."
     try:
-        if refetch: raise KeyError
         return flask.g.cache[cid]
     except KeyError:
         result = [r.doc for r in flask.g.db.view('calls', 'identifier',
                                                  key=cid,
                                                  include_docs=True)]
         if len(result) == 1:
-            call = result[0]
-            set_tmp(call)
+            call = set_tmp(result[0])
             flask.g.cache[cid] = call
             return call
         else:

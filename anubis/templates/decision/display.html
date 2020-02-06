@@ -31,8 +31,6 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 </div>
 
 {% set values = decision['values'] %}
-{% set attachments = decision.get('_attachments', {}) %}
-
 {% for field in call['decision'] %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">

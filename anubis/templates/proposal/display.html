@@ -67,8 +67,6 @@
       </div>
       <div class="col-md">
         {% set values = decision['values'] %}
-        {% set attachments = decision.get('_attachments', {}) %}
-
         {% for field in call['decision'] %}
         <div class="row">
           <div class="col-md-2 font-weight-bold text-right">
@@ -92,7 +90,6 @@
 <div class="card mt-4">
   <div class="card-body">
     {% set values = proposal['values'] %}
-    {% set attachments = proposal.get('_attachments', {}) %}
 
     {% for field in call['proposal'] %}
     <div class="row">

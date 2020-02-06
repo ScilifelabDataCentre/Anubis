@@ -42,7 +42,6 @@ def display(pid):
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
     call = anubis.call.get_call(proposal['call'])
-    decision = anubis.decision.get_decision(proposal['decision'])
     if not allow_view(proposal):
         utils.flash_error('You are not allowed to view this proposal.')
         return flask.redirect(
@@ -52,6 +51,7 @@ def display(pid):
     am_reviewer = anubis.call.am_reviewer(call)
     my_review = get_reviewer_review(proposal, flask.g.current_user)
     allow_view_reviews = anubis.call.allow_view_reviews(call)
+    decision = anubis.decision.get_decision(proposal.get('decision'))
     allow_link_decision = anubis.decision.allow_link(decision)
     allow_create_decision = anubis.decision.allow_create(proposal)
     allow_view_decision = decision and \
@@ -260,10 +260,9 @@ class ProposalSaver(FieldMixin, AttachmentSaver):
         self.doc.pop('submitted', None)
 
 
-def get_proposal(pid, refetch=False):
+def get_proposal(pid):
     "Return the proposal with the given identifier."
     try:
-        if refetch: raise KeyError
         return flask.g.cache[pid]
     except KeyError:
         result = [r.doc for r in flask.g.db.view('proposals', 'identifier',

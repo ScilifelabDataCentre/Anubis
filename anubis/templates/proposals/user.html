@@ -28,7 +28,25 @@ Proposals by user {{ user['username'] }}
       <td>{{ macros.submitted(proposal) }}</td>
       <td>{{ macros.call_link(call) }}</td>
       <td>{{ macros.call_closes(call) }}</td>
-      <td>{{ get_decision(proposal.get('decision')) }}</td>
+      <td>
+        {% set decision = get_decision(proposal.get('decision')) %}
+        {% if not decision or not allow_view_decision(decision) %}
+        -
+        {% else %}
+        <table class="table table-sm table-borderless">
+          {% set values = decision['values'] %}
+          {% for field in call['decision'] %}
+          <tr>
+            <th>{{ field['title'] }}</td>
+            <td class="text-break">
+              {% set value = values.get(field['identifier']) %}
+              {% set docurl = url_for('decision.document', iuid=decision['_id'], documentname=value or 'dummy') %}
+              {{ value | typed_value(field['type'], docurl) }}
+            </td>
+          </tr>
+          {% endfor %} {# for field in ... #}
+        </table>
+        {% endif %}
     </tr>
     {% endfor %}
   </tbody>

@@ -131,7 +131,8 @@ def user(username):
         return flask.redirect(flask.url_for('home'))
     return flask.render_template('proposals/user.html',  
                                  user=user,
-                                 proposals=get_user_proposals(user['username']))
+                                 proposals=get_user_proposals(user['username']),
+                                 allow_view_decision=anubis.decision.allow_view)
 
 def get_call_proposals(call):
     "Get the proposals in the call. Only include those allowed to view."
