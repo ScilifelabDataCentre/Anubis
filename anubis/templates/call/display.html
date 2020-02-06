@@ -87,9 +87,8 @@
   <div class="col-md">
     {% if call.get('reviewers') %}
     {% for reviewer in sorted(call['reviewers']) %}
-    <span class="mr-3">
-      {{ macros.user_link(get_user(reviewer), chair=reviewer in call['chairs']) }}
-    </span>
+    {{ macros.user_link(get_user(reviewer), chair=reviewer in call['chairs']) }}
+    <br>
     {% endfor %}
     {% else %}
     -
