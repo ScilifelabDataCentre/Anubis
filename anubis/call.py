@@ -60,11 +60,12 @@ def display(cid):
     if flask.g.current_user:
         my_proposal = get_call_user_proposal(cid, 
                                              flask.g.current_user['username'])
+        my_reviews_count = utils.get_count(
+            'reviews', 'call_reviewer', 
+            [call['identifier'], flask.g.current_user['username']])
     else:
         my_proposal = None
-    my_reviews_count = utils.get_count(
-        'reviews', 'call_reviewer', 
-        [call['identifier'], flask.g.current_user['username']])
+        my_reviews_count = 0
     return flask.render_template('call/display.html',
                                  call=call,
                                  my_proposal=my_proposal,
