@@ -13,11 +13,11 @@ Reviews by user {{ user['username'] }}
 <table id="reviews" class="table">
   <thead>
     <tr>
-      <th>Call</th>
-      <th>Proposal</th>
-      <th>Submitter</th>
       <th>Review</th>
       <th>Review due</th>
+      <th>Proposal</th>
+      <th>Submitter</th>
+      <th>Call</th>
     </tr>
   </thead>
   <tbody>
@@ -25,20 +25,14 @@ Reviews by user {{ user['username'] }}
     {% set call = get_call(review['call']) %}
     {% set proposal = get_proposal(review['proposal']) %}
     <tr>
-      <td>{{ macros.call_link(call) }}</td>
-      <td>{{ macros.proposal_link(proposal) }}</td>
-      <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
       <td>{{ macros.review_link(review) }}</td>
       <td>
-        {% set due = call.get('reviews_due') %}
-        {% if due %}
-        {% if utils.days_remaining(due) >= 0 %}
-        {{ due }}
-        {% else %}
-        <span class="text-danger">{{ due }}</span>
-        {% endif %}
-        {% endif %} {# if due #}
+        {{ call.get('reviews_due') | datetimetz }}
+        {{ call.get('reviews_due') | due }}
       </td>
+      <td>{{ macros.proposal_link(proposal) }}</td>
+      <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
+      <td>{{ macros.call_link(call, title=False) }}</td>
     </tr>
     {% endfor %}
   </tbody>

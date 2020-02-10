@@ -22,8 +22,11 @@
     {% for call in calls %}
     <tr>
       <td>{{ macros.call_link(call) }}</td>
-      <td class="text-nowrap pl-2">{{ call['closes'] or '-' }}</td>
-      <td>{{ macros.call_closes(call) }}</td>
+      <td class="text-nowrap pl-2">{{ call['closes'] | datetimetz }}</td>
+      <td>
+        <span class="badge badge-{{ call['tmp']['color'] }}">
+          {{ call['tmp']['text'] }}</span>
+      </td>
       {% if g.am_admin %}
       <td>
         <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"

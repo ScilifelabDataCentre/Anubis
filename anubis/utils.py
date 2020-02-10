@@ -4,6 +4,7 @@ import datetime
 import functools
 import http.client
 import logging
+import time
 import uuid
 
 import couchdb2
@@ -22,6 +23,8 @@ def init(app):
     """
     app.add_template_filter(markdown)
     app.add_template_filter(typed_value)
+    app.add_template_filter(datetimetz)
+    app.add_template_filter(due)
 
     db = get_db(app=app)
     if db.put_design('logs', DESIGN_DOC):
@@ -226,6 +229,29 @@ def typed_value(value, type, docurl=None):
             return '-'
     else:
         return value
+
+def datetimetz(value):
+    "Template filter: datetime with server local timezone."
+    if value:
+        return f"{value} {time.tzname[0]}"
+    else:
+        return '-'
+
+def due(value):
+    "Template filter: output 'due' text depending on server time."
+    if not value: return ''
+    remaining = days_remaining(value)
+    if remaining > 7:
+        return ''
+    elif remaining >= 2:
+        return jinja2.utils.Markup('<span class="bg-warning px-2">'
+                                   f'{remaining:.1f} days until due.</span>')
+    elif remaining >= 0:
+        return jinja2.utils.Markup('<span class="bg-danger text-white px-2">'
+                                   f'{remaining:.1f} days until due.</span>')
+    else:
+        return jinja2.utils.Markup('<span class="font-weight-bold bg-danger'
+                                   ' text-white px-2">Overdue!</span>')
 
 def boolean_value(value):
     "Output field value boolean."

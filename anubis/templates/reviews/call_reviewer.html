@@ -20,26 +20,7 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 {% endblock %}
 
 {% block supermain %}
-{% if call.get('reviews_due') %}
-<p class="lead">
-  {% set remaining = utils.days_remaining(call['reviews_due']) %}
-  {% if remaining > 7 %}
-  {{ remaining | round | int }} days until reviews are due.
-  {% elif remaining >= 2 %}
-  <span class="text-warning">
-    {{ remaining | round | int }} days until reviews are due.
-  </span>
-  {% elif remaining >= 0 %}
-  <span class="text-danger">
-    {{ remaining | round }} days until reviews are due.
-  </span>
-  {% else %}
-  <span class="text-danger font-weight-bold">
-    Reviews are overdue!
-  </span>
-  {% endif %}
-</p>
-{% endif %} {# if call.get('reviews_due') #}
+<p class="lead">{{ call.get('reviews_due') | due }}</p>
 
 <table id="reviews" class="table table-sm">
   <thead>

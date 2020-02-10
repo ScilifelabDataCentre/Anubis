@@ -16,7 +16,7 @@ Proposals by user {{ user['username'] }}
       <th>Proposal</th>
       <th>Submitted</th>
       <th>Call</th>
-      <th>Closes</th>
+      <th>Call closes</th>
       <th>Decision</th>
     </tr>
   </thead>
@@ -26,8 +26,11 @@ Proposals by user {{ user['username'] }}
     <tr>
       <td>{{ macros.proposal_link(proposal) }}</td>
       <td>{{ macros.submitted(proposal) }}</td>
-      <td>{{ macros.call_link(call) }}</td>
-      <td>{{ macros.call_closes(call) }}</td>
+      <td>{{ macros.call_link(call, title=False) }}</td>
+      <td>
+        <span class="badge badge-{{ call['tmp']['color'] }}">
+          {{ call['tmp']['text'] }}</span>
+      </td>
       <td>
         {% set decision = get_decision(proposal.get('decision')) %}
         {% if not decision or not allow_view_decision(decision) %}

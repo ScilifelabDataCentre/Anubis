@@ -17,8 +17,9 @@
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Call closes</div>
   <div class="col-md">
-    <span class="mr-4">{{ call['closes'] or '-' }}</span>
-    {{ macros.call_closes(call) }}
+    <span class="mr-4">{{ call['closes'] | datetimetz }}</span>
+    <span class="badge badge-{{ call['tmp']['color'] }}">
+      {{ call['tmp']['text'] }}</span>
   </div>
 </div>
 {% endif %} {# if am_submitter #}

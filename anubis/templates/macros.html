@@ -14,10 +14,14 @@
 </a>
 {%- endmacro %}
 
-{% macro call_link(call) -%}
+{% macro call_link(call, title=True) -%}
 <a href="{{ url_for('call.display', cid=call['identifier']) }}"
    class="font-weight-bold">
+  {% if title %}
   {{ call['identifier'] }}: {{ call['title'] or '' }}
+  {% else %}
+  {{ call['identifier'] }}
+  {% endif %}
 </a>
 {%- endmacro %}
 
@@ -31,20 +35,13 @@
 
 {% macro review_link(review) -%}
 <a href="{{ url_for('review.display', iuid=review['_id']) }}"
-   class="font-weight-bold text-info">
-  Review
-</a>
+   class="font-weight-bold text-info">Review</a>
 {% if not review.get('finalized') %}
-  <span class="badge badge-warning">Not finalized</span>
+<span class="badge badge-warning">Not finalized</span>
 {% endif %}
 {%- endmacro %}
 
-{% macro call_closes(call) -%}
-<span class="badge badge-{{ call['tmp']['color'] }}">
-  {{ call['tmp']['text'] }}</span>
-{%- endmacro %}
-
-{% macro submitted(proposal, long=True) -%}
+{% macro submitted(proposal) -%}
 {% if proposal.get('submitted') %}
   <span class="badge badge-success">Submitted</span>
 {% else %}

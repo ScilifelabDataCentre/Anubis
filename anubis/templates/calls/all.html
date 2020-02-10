@@ -20,9 +20,12 @@
     {% for call in calls %}
     <tr>
       <td>{{ macros.call_link(call) }}</td>
-      <td class="text-nowrap pl-2">{{ call['opens'] or '-' }}</td>
-      <td class="text-nowrap pl-2">{{ call['closes'] or '-' }}</td>
-      <td>{{ macros.call_closes(call) }}</td>
+      <td class="text-nowrap pl-2">{{ call['opens'] | datetimetz }}</td>
+      <td class="text-nowrap pl-2">{{ call['closes'] | datetimetz }}</td>
+      <td>
+        <span class="badge badge-{{ call['tmp']['color'] }}">
+          {{ call['tmp']['text'] }}</span>
+      </td>
       <td>
         <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
            role="button" class="btn btn-primary my-1">

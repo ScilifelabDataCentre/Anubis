@@ -65,7 +65,7 @@
       </div>
       <small id="opensHelp" class="form-text text-muted">
 	The date (ISO format YYY-MM-DD, all digits) and time (HH:MM,
-	24 hour, system local time) when the call opens for
+	24 hour, server local time) when the call opens for
 	submitting proposals.
 	<br>
 	The system automatically displays open calls on the home page.
@@ -87,20 +87,20 @@
       </div>
       <small id="closesHelp" class="form-text text-muted">
 	The date (ISO format YYY-MM-DD, all digits) and time (HH:MM,
-	24 hour, system local time) when the call closes for
+	24 hour, server local time) when the call closes for
 	submitting proposals.
+	<br>
+	The system automatically disallows creating proposals for
+	closed calls.
 	<br>
 	<strong>NOTE:</strong> If the call should close at midnight
 	e.g. 2019-01-01, then one must specify <strong>2019-01-02
 	00:00</strong>, that is, at 0:00 in the morning the following day.
-	<br>
-	The system automatically disallows creating proposals for
-	closed calls.
       </small>
     </div>
   </div>
   <div class="form-group row">
-    <label for="closes"
+    <label for="reviews_due"
 	   class="col-md-2 col-form-label text-right font-weight-bold">
       Reviews due</label>
     <div class="col-md">
@@ -114,7 +114,7 @@
       </div>
       <small id="reviews_dueHelp" class="form-text text-muted">
 	The date (ISO format YYY-MM-DD, all digits) and time (HH:MM,
-	24 hour, system local time) when the reviews of the proposals
+	24 hour, server local time) when the reviews of the proposals
         are due.
 	<br>
 	<strong>NOTE:</strong> If the reviews are due at midnight

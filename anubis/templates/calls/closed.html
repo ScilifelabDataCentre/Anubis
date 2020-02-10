@@ -21,7 +21,7 @@
     {% for call in calls %}
     <tr>
       <td>{{ macros.call_link(call) }}</td>
-      <td class="text-nowrap pl-2">{{ call['closes'] or '-' }}</td>
+      <td class="text-nowrap pl-2">{{ call['closes'] | datetimetz }}</td>
       {% if g.am_admin %}
       <td>
         <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"

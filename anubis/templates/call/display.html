@@ -16,15 +16,16 @@
 {% if g.am_admin %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Opens</div>
-  <div class="col-md">{{ call['opens'] or '-' }}</div>
+  <div class="col-md">{{ call['opens'] | datetimetz }}</div>
 </div>
 {% endif %} {# if g.am_admin #}
 
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
   <div class="col-md">
-    <span class="mr-4">{{ call['closes'] or '-' }}</span>
-    {{ macros.call_closes(call) }}
+    <span class="mr-4">{{ call['closes'] | datetimetz }}</span>
+    <span class="badge badge-{{ call['tmp']['color'] }}">
+      {{ call['tmp']['text'] }}</span>
   </div>
 </div>
 
@@ -66,18 +67,7 @@
 {% if g.am_admin or am_reviewer %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Reviews due</div>
-  <div class="col-md">
-    {% set due = call.get('reviews_due') %}
-    {% if due %}
-    {% if utils.days_remaining(due) >= 0 %}
-    {{ due }}
-    {% else %}
-    <span class="text-danger">{{ due }}</span>
-    {% endif %}
-    {% else %}
-    -
-    {% endif %} {# if due #}
-  </div>
+  <div class="col-md">{{ call.get('reviews_due') | datetimetz }}</div>
 </div>
 {% endif %} {# if g.am_admin or am_reviewer #}
 
