@@ -298,11 +298,10 @@ def allow_delete(proposal):
     return flask.g.current_user['username'] == proposal['user']
 
 def allow_submit(proposal):
-    """Admin may submit the proposal if there are no errors.
-    The user may submit the proposal if the call is open.
+    """Admin may submit/unsubmit the proposal if there are no errors.
+    The user may submit/unsubmit the proposal if the call is open.
     """
     if not flask.g.current_user: return False
-    if proposal.get('submitted'): return False
     if proposal['errors']: return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(proposal['call'])

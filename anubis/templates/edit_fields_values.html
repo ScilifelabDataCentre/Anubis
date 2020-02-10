@@ -172,14 +172,30 @@
     {% endif %}
 
     {% elif field['type'] == constants.DOCUMENT %}
-    <div class="custom-file">
-      <input type="file"
-	     id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
-	     class="custom-file-input"
-	     aria-describedby="{{ field['identifier'] }}Help">
-      <label class="custom-file-label" for="{{ field['identifier'] }}">
-        {{ value or 'Choose document' }}
-      </label>
+    <div class="row">
+      <div class="col-md-10">
+        <div class="custom-file">
+          <input type="file"
+	         id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
+	         class="custom-file-input"
+	         aria-describedby="{{ field['identifier'] }}Help">
+          <label class="custom-file-label" for="{{ field['identifier'] }}">
+            {{ value or 'Choose document' }}
+          </label>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="custom-control custom-checkbox mt-2">
+          <input type="checkbox"
+                 id="{{ field['identifier'] }}_remove"
+                 name="{{ field['identifier'] }}_remove"
+                 class="custom-control-input"
+                 value="remove">
+          <label class="custom-control-label"
+                 for="{{ field['identifier'] }}_remove">
+            Remove</label>
+        </div>
+      </div>
     </div>
     {% endif %}
 

@@ -188,15 +188,20 @@ class FieldMixin:
             self.doc['values'][fid] = value
 
         elif field['type'] in constants.DOCUMENT:
-            infile = flask.request.files.get(fid)
-            if infile:
-                if self.doc['values'].get(fid) and \
-                   self.doc['values'][fid] != infile.name:
+            if form.get(f"{fid}_remove"):
+                if self.doc['values'].get(fid):
                     self.delete_attachment(self.doc['values'][fid])
-                self.doc['values'][fid] = infile.filename
-                self.add_attachment(infile.filename,
-                                    infile.read(),
-                                    infile.mimetype)
+                self.doc['values'][fid] = None
+            else:
+                infile = flask.request.files.get(fid)
+                if infile:
+                    if self.doc['values'].get(fid) and \
+                       self.doc['values'][fid] != infile.name:
+                        self.delete_attachment(self.doc['values'][fid])
+                    self.doc['values'][fid] = infile.filename
+                    self.add_attachment(infile.filename,
+                                        infile.read(),
+                                        infile.mimetype)
 
         if self.doc['errors'].get(fid): return # Error message already set; skip
         if field['required'] and self.doc['values'][fid] is None:
