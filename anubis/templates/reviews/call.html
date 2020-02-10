@@ -28,7 +28,6 @@ Reviews of proposals in call {{ call['identifier'] }}
     <tr>
       <th>Proposal</th>
       <th>Submitter</th>
-      <th>Submitted</th>
       <th>Reviewer</th>
       <th>Review</th>
       {% for field in review_bannerfields %}
@@ -42,7 +41,6 @@ Reviews of proposals in call {{ call['identifier'] }}
     <tr>
       <td>{{ macros.proposal_link(proposal) }}</td>
       <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
-      <td>{{ macros.submitted(proposal) }}</td>
       <td>{{ macros.user_link(get_user(reviewer)) }}</td>
       {% set review = reviews_lookup.get("{} {}".format(proposal['identifier'], reviewer)) %}
       {% if review %}
