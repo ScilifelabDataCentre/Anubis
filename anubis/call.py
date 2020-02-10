@@ -143,8 +143,7 @@ def document(cid, documentname):
         return flask.redirect(flask.url_for('home'))
 
     if utils.http_GET():
-        state = get_state(call)
-        if not (flask.g.am_admin or state['is_published']):
+        if not (flask.g.am_admin or call['tmp']['is_published']):
             utils.flash_error(f"Call {call['title']} has not been published.")
             return flask.redirect(utils.referrer_or_home())
         try:
@@ -380,9 +379,10 @@ def clone(cid):
                 saver.set_identifier(flask.request.form.get('identifier'))
                 saver.set_title(flask.request.form.get('title'))
                 saver.doc['proposal'] = copy.deepcopy(call['proposal'])
+                saver.doc['review'] = copy.deepcopy(call['review'])
+                saver.doc['decision'] = copy.deepcopy(call['decision'])
                 # Do not copy documents.
                 # Do not copy reviewers or chairs.
-                saver.doc['decision'] = copy.deepcopy(call['decision'])
             new = saver.doc
         except ValueError as error:
             utils.flash_error(str(error))
