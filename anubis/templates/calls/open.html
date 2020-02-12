@@ -11,11 +11,11 @@
       <th>Call</th>
       <th>Closes</th>
       <th></th>
-      {% if g.am_admin %}
+      {% if allow_create %}
       <th title="Includes only proposals marked by the user as 'submitted'.">
 	Proposals</th>
       <th>Reviews</a>
-      {% endif %} {# if g.am_admin #}
+      {% endif %} {# if allow_create #}
     </tr>
   </thead>
   <tbody>
@@ -27,7 +27,8 @@
         <span class="badge badge-{{ call['tmp']['color'] }}">
           {{ call['tmp']['text'] }}</span>
       </td>
-      {% if g.am_admin %}
+      {% if allow_create %}
+      {% if am_call_admin(call) %}
       <td>
         <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
            role="button" class="btn btn-primary my-1">
@@ -40,7 +41,15 @@
           {{ utils.get_call_reviews_count(call['identifier']) }} reviews
         </a>
       </td>
-      {% endif %} {# if g.am_admin #}
+      {% else %}
+      <td>
+        <i>N/A</i>
+      </td>
+      <td>
+        <i>N/A</i>
+      </td>
+      {% endif %} {# if am_call_admin(call) #}
+      {% endif %} {# if allow_create #}
     </tr>
     {% endfor %} {# for call in calls #}
   </tbody>
@@ -48,12 +57,12 @@
 {% endblock %} {# block main #}
 
 {% block actions %}
-{% if g.am_admin %}
+{% if allow_create %}
 <div class="mt-2">
   <a href="{{ url_for('call.create') }}"
      role="button" class="btn btn-primary btn-block">Create</a>
 </div>
-{% endif %} {# if g.am_admin #}
+{% endif %} {# if allow_create #}
 {% endblock %} {# block actions #}
 
 {% block javascript %}

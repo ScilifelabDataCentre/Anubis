@@ -22,6 +22,8 @@ DESIGN_DOC = {
         'identifier': {'map': "function (doc) {if (doc.doctype !== 'call') return; emit(doc.identifier, null);}"},
         'closes': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.closes || !doc.opens) return; emit(doc.closes, null);}"},
         'open_ended': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.opens || doc.closes) return; emit(doc.opens, null);}"},
+        'owner': {'reduce': '_count',
+                  'map': "function (doc) {if (doc.doctype !== 'call') return; emit(doc.owner, null);}"},
         'reviewer': {'map': "function (doc) {if (doc.doctype !== 'call') return; for (var i=0; i < doc.reviewers.length; i++) {emit(doc.reviewers[i], doc.identifier); }}"},
     }
 }
@@ -29,9 +31,13 @@ DESIGN_DOC = {
 blueprint = flask.Blueprint('call', __name__)
 
 @blueprint.route('/', methods=['GET', 'POST'])
-@utils.admin_required
+@utils.login_required
 def create():
     "Create a new call from scratch."
+    if not allow_create():
+        utils.flash_error('You are not allowed to create a call.')
+        return flask.redirect(utils.referrer_or_home())
+
     if utils.http_GET():
         return flask.render_template('call/create.html')
 
@@ -68,6 +74,7 @@ def display(cid):
         my_reviews_count = 0
     return flask.render_template('call/display.html',
                                  call=call,
+                                 am_call_admin=am_call_admin(call),
                                  my_proposal=my_proposal,
                                  am_reviewer=am_reviewer(call),
                                  my_reviews_count=my_reviews_count,
@@ -440,6 +447,7 @@ class CallSaver(AttachmentSaver):
     DOCTYPE = constants.CALL
 
     def initialize(self):
+        self.doc['owner'] = flask.g.current_user['username']
         self.doc['opens'] = None
         self.doc['closes'] = None
         self.doc['proposal'] = []
@@ -732,24 +740,31 @@ def get_call(cid):
         else:
             return None
 
+def allow_create(user=None):
+    "Allow admin and user's with 'call_creator' flag set to create a call."
+    if user is None:
+        user = flask.g.current_user
+    if not user: return False
+    return user.get('call_creator') or user['role'] == constants.ADMIN
+
 def allow_view(call):
-    """Admin may view all calls.
+    """The call admin may view any call.
     Others may view a call if it has an opens date.
     """
-    if flask.g.am_admin: return True
+    if am_call_admin(call): return True
     return bool(call['opens'])
 
 def allow_edit(call):
-    "Allow only admin to edit a call."
-    return flask.g.am_admin
+    "The call admin may edit a call."
+    return am_call_admin(call)
 
 def allow_delete(call):
-    "Allow admin to delete a call if it has no proposals."
-    if not flask.g.am_admin: return False
+    "Allow call admin to delete a call if it has no proposals."
+    if not am_call_admin(call): return False
     return utils.get_count('proposals', 'call', call['identifier']) == 0
 
 def allow_proposal(call):
-    "Any logged-in user except designated reviewer may create a proposal. "
+    "Any logged-in user, except reviewer, may create a proposal."
     if not flask.g.current_user: return False
     return not am_reviewer(call)
 
@@ -759,7 +774,7 @@ def allow_view_reviews(call):
     Other reviewers may view depending on the access flag for the call.
     """
     if not flask.g.current_user: return False
-    if flask.g.am_admin: return True
+    if am_call_admin(call): return True
     if am_reviewer(call):
         if am_chair(call): return True
         return bool(call['access'].get('allow_reviewer_view_all_reviews'))
@@ -770,18 +785,24 @@ def allow_view_decisions(call):
     Reviewer may view all decisions in a call.
     """
     if not flask.g.current_user: return False
-    if flask.g.am_admin: return True
+    if am_call_admin(call): return True
     return am_reviewer(call)
 
 def am_reviewer(call):
-    "Is the current user a reviewer for proposals in the call?"
+    "Is the current user a reviewer in the call?"
     if not flask.g.current_user: return False
     return flask.g.current_user['username'] in call['reviewers']
 
 def am_chair(call):
-    "Is the current user a chair for proposals in the call?"
+    "Is the current user a chair in the call?"
     if not flask.g.current_user: return False
     return flask.g.current_user['username'] in call['chairs']
+
+def am_call_admin(call):
+    "Is the current user the owner of the call or an administrator?"
+    if not flask.g.current_user: return False
+    if flask.g.am_admin: return True
+    return flask.g.current_user['username'] == call['owner']
 
 def set_tmp(call):
     """Set the temporary, non-saved values for the call.

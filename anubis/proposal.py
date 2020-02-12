@@ -276,35 +276,47 @@ def get_proposal(pid):
             return None
 
 def allow_view(proposal):
-    "Admin, the user of the proposal, and the reviewers may view a proposal."
+    """The call admin may view a proposal.
+    The user of the proposal may view it.
+    The reviewers may view it.
+    """
     if not flask.g.current_user: return False
-    if flask.g.am_admin: return True
-    if anubis.call.am_reviewer(anubis.call.get_call(proposal['call'])):
+    call = anubis.call.get_call(proposal['call'])
+    if anubis.call.am_call_admin(call): return True
+    if anubis.call.am_reviewer(call):
         return bool(proposal.get('submitted'))
     return flask.g.current_user['username'] == proposal['user']
 
 def allow_edit(proposal):
-    "Admin may edit the proposal. The user may edit if not submitted."
+    """The call admin may edit the proposal.
+    The user may edit if not submitted.
+    """
     if not flask.g.current_user: return False
-    if flask.g.am_admin: return True
+    call = anubis.call.get_call(proposal['call'])
+    if anubis.call.am_call_admin(call): return True
     if proposal.get('submitted'): return False
     return flask.g.current_user['username'] == proposal['user']
 
 def allow_delete(proposal):
-    "Admin may delete the proposal. The user may delete if not submitted."
+    """the call admin may delete the proposal.
+    The user may delete if not submitted.
+    """
     if not flask.g.current_user: return False
-    if flask.g.am_admin: return True
+    call = anubis.call.get_call(proposal['call'])
+    if anubis.call.am_call_admin(call): return True
     if proposal.get('submitted'): return False
     return flask.g.current_user['username'] == proposal['user']
 
 def allow_submit(proposal):
-    """Admin may submit/unsubmit the proposal if there are no errors.
+    """Only if there are no errors.
+    Admin may submit/unsubmit the proposal.
+    The owner of the call may submit/unsubmit the proposal.
     The user may submit/unsubmit the proposal if the call is open.
     """
     if not flask.g.current_user: return False
     if proposal['errors']: return False
-    if flask.g.am_admin: return True
     call = anubis.call.get_call(proposal['call'])
+    if anubis.call.am_call_admin(call): return True
     return flask.g.current_user['username'] == proposal['user'] and \
            call['tmp']['is_open']
     

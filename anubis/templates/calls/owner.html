@@ -1,20 +1,21 @@
 {% extends 'base.html' %}
 
-{% block head_title %}Closed calls{% endblock %}
+{% block head_title %}Calls by {{ username }} {% endblock %}
 
-{% block body_title %}Closed calls{% endblock %}
+{% block body_title %}
+Calls by {{ macros.user_link(get_user(username)) }}
+{% endblock %}
 
 {% block main %}
 <table id="calls" class="table table-sm">
   <thead>
     <tr>
       <th>Call</th>
-      <th>Closed</th>
-      {% if allow_create %}
+      <th>Closes</th>
+      <th></th>
       <th title="Includes only proposals marked by the user as 'submitted'.">
 	Proposals</th>
       <th>Reviews</a>
-      {% endif %} {# if allow_create #}
     </tr>
   </thead>
   <tbody>
@@ -22,8 +23,10 @@
     <tr>
       <td>{{ macros.call_link(call) }}</td>
       <td class="text-nowrap pl-2">{{ call['closes'] | datetimetz }}</td>
-      {% if allow_create %}
-      {% if am_call_admin(call) %}
+      <td>
+        <span class="badge badge-{{ call['tmp']['color'] }}">
+          {{ call['tmp']['text'] }}</span>
+      </td>
       <td>
         <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
            role="button" class="btn btn-primary my-1">
@@ -36,15 +39,6 @@
           {{ utils.get_call_reviews_count(call['identifier']) }} reviews
         </a>
       </td>
-      {% else %}
-      <td>
-        <i>N/A</i>
-      </td>
-      <td>
-        <i>N/A</i>
-      </td>
-      {% endif %} {# if am_call_admin(call) #}
-      {% endif %} {# if allow_create #}
     </tr>
     {% endfor %} {# for call in calls #}
   </tbody>

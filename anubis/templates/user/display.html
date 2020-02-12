@@ -13,6 +13,17 @@ User {{ user['username'] }}
 <table class="table table-sm table-borderless">
   <col style="width:20%">
   <col style="width:80%">
+  {% if allow_create_call %}
+  <tr>
+    <th class="text-right">User's calls</th>
+    <td>
+      <a href="{{ url_for('calls.owner', username=user['username']) }}"
+         role="button" class="btn btn-sm btn-primary px-3">
+	{{ all_calls_count }} calls
+      </a>
+    </td>
+  </tr>
+  {% endif %}
   <tr>
     <th class="text-right">User's proposals</th>
     <td>
@@ -50,12 +61,16 @@ User {{ user['username'] }}
     <td>{{ user['email'] or '-' }}</td>
   </tr>
   <tr>
+    <th class="text-right">Status</th>
+    <td>{{ user['status'] }}</td>
+  </tr>
+  <tr>
     <th class="text-right">Role</th>
     <td>{{ user['role'] }}</td>
   </tr>
   <tr>
-    <th class="text-right">Status</th>
-    <td>{{ user['status'] }}</td>
+    <th class="text-right">May create calls</th>
+    <td>{{ (user.get('call_creator', False) or user['role'] == constants.ADMIN) | boolean_value }}</td>
   </tr>
   <tr>
     <th class="text-right">Given name</th>

@@ -25,6 +25,7 @@ def init(app):
     app.add_template_filter(typed_value)
     app.add_template_filter(datetimetz)
     app.add_template_filter(due)
+    app.add_template_filter(boolean_value)
 
     db = get_db(app=app)
     if db.put_design('logs', DESIGN_DOC):

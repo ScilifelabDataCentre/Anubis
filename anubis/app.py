@@ -72,7 +72,8 @@ def home():
     "Home page."
     # The list is already properly sorted.
     return flask.render_template('home.html', 
-                                 calls=anubis.calls.get_open_calls())
+                                 calls=anubis.calls.get_open_calls(),
+                                 allow_create_call=anubis.call.allow_create())
 
 @app.route('/documentation/<page>')
 def documentation(page):

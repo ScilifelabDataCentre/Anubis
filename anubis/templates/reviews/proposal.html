@@ -55,7 +55,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
       {% endfor %}
       {% else %}
       <td>
-	{% if allow_create %}
+	{% if allow_create_review %}
 	<form action="{{ url_for('review.create', pid=proposal['identifier'], username=reviewer) }}"
 	      method="POST">
 	  {{ csrf_token() }}
@@ -64,7 +64,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
 	</form>
 	{% else %}
 	-
-	{% endif %} {# if allow_create #}
+	{% endif %} {# if allow_create_review #}
       </td>
       {% for bannerfield in bannerfields %}
       <td>-</td>

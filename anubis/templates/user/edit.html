@@ -45,6 +45,30 @@
       {% endfor %}
     </div>
   </div>
+
+  <div class="form-group row">
+    <label for="call_creator" 
+           class="col-md-2 col-form-label text-right">May create calls</label>
+    <div class="col-md mt-1">
+      <div class="custom-control custom-radio custom-control-inline">
+        <input type="radio" id="call_creator_yes" name="call_creator"
+               class="custom-control-input"
+               {{ user.get('call_creator') and 'checked' or '' }}
+               value="true">
+        <label class="custom-control-label" for="call_creator_yes">
+          Yes</label>
+      </div>
+      <div class="custom-control custom-radio custom-control-inline">
+        <input type="radio" id="call_creator_no" name="call_creator"
+               class="custom-control-input"
+               {{ not user.get('call_creator') and 'checked' or '' }}
+               value="false">
+        <label class="custom-control-label" for="call_creator_no">
+          No</label>
+      </div>
+    </div>
+  </div>
+
   {% endif %} {# if allow_change_role #}
   <div class="form-group row">
     <label for="givenname" class="col-md-2 col-form-label text-right">
@@ -84,14 +108,14 @@
   <div class="form-group row">
     <label for="gender" class="col-md-2 col-form-label text-right">
       Gender</label>
-    <div class="col-md form-row">
+    <div class="col-md mt-1">
       {% for pos, gender in enumerate(config['USER_GENDERS']) %}
-      <div class="form-check form-check-inline pl-2">
+      <div class="custom-control custom-radio custom-control-inline">
 	<input type="radio" name="gender" id="gender{{ pos }}"
-               class="form-check-input" 
-	       value="{{ gender }}"
-	       {{ user.get('gender') == gender and 'checked' or '' }}>
-	<label class="form-check-label" for="gender{{ pos }}">
+               class="custom-control-input"
+	       {{ user.get('gender') == gender and 'checked' or '' }}
+               value="{{ gender }}">
+	<label class="custom-control-label" for="gender{{ pos }}">
 	  {{ gender.capitalize() }}</label>
       </div>
       {% endfor %}

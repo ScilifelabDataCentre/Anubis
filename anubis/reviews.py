@@ -199,13 +199,13 @@ def proposal(pid):
                    r.get('finalized')]
     else:
         finalized = False
-    allow_create = anubis.review.allow_create(proposal)
+    allow_create_review = anubis.review.allow_create(proposal)
     reviews_lookup = {r['reviewer']:r for r in reviews}
     bannerfields = [f for f in call['review'] if f.get('banner')]
     return flask.render_template('reviews/proposal.html',
                                  proposal=proposal,
                                  call=call,
-                                 allow_create=allow_create,
+                                 allow_create_review=allow_create_review,
                                  reviewers=call['reviewers'],
                                  reviews_lookup=reviews_lookup,
                                  finalized=finalized,

@@ -9,6 +9,7 @@ import flask
 import flask_mail
 import werkzeug.security
 
+import anubis.call
 from . import constants
 from . import utils
 from .saver import BaseSaver
@@ -88,6 +89,7 @@ def register():
                 if flask.current_app.config['USER_PHONE']:
                     saver['phone'] = flask.request.form.get('phone') or None
                 saver.set_role(constants.USER)
+                saver.set_call_creator(False)
                 saver.set_password()
             user = saver.doc
         except ValueError as error:
@@ -186,11 +188,14 @@ def display(username):
     reviewer_calls = [get_call(r.value)
                       for r in flask.g.db.view('calls', 'reviewer', 
                                                key=user['username'])]
+    all_calls_count = utils.get_count('calls', 'owner', user['username'])
     all_proposals_count = utils.get_count('proposals', 'user', user['username'])
     all_reviews_count = utils.get_count('reviews', 'reviewer', user['username'])
     return flask.render_template('user/display.html',
                                  user=user,
                                  reviewer_calls=reviewer_calls,
+                                 allow_create_call=anubis.call.allow_create(user),
+                                 all_calls_count=all_calls_count,
                                  all_proposals_count=all_proposals_count,
                                  all_reviews_count=all_reviews_count,
                                  allow_enable_disable=allow_enable_disable(user),
@@ -237,6 +242,8 @@ def edit(username):
                     saver['phone'] = flask.request.form.get('phone') or None
                 if allow_change_role(user):
                     saver.set_role(flask.request.form.get('role'))
+                    saver.set_call_creator(
+                        utils.to_bool(flask.request.form.get('call_creator')))
         except ValueError as error:
             utils.flash_error(error)
         return flask.redirect(
@@ -365,6 +372,9 @@ class UserSaver(BaseSaver):
         if role not in constants.USER_ROLES:
             raise ValueError('invalid role')
         self.doc['role'] = role
+
+    def set_call_creator(self, yes):
+        self.doc['call_creator'] = bool(yes)
 
     def set_password(self, password=None):
         "Set the password; a one-time code if no password provided."
