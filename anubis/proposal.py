@@ -118,6 +118,15 @@ def edit(pid):
             utils.flash_error('You are not allowed to delete this proposal.')
             return flask.redirect(
                 flask.url_for('.display', pid=proposal['identifier']))
+        decision = anubis.decision.get_decision(proposal.get('decision'))
+        if decision:
+            utils.delete(decision)
+        reviews = [r.doc for r in flask.g.db.view('reviews', 'proposal',
+                                                  key=proposal['identifier'],
+                                                  reduce=False,
+                                                  include_docs=True)]
+        for review in reviews:
+            utils.delete(review)
         utils.delete(proposal)
         utils.flash_message(f"Deleted proposal {pid}.")
         return flask.redirect(flask.url_for('home'))
@@ -298,7 +307,7 @@ def allow_edit(proposal):
     return flask.g.current_user['username'] == proposal['user']
 
 def allow_delete(proposal):
-    """the call admin may delete the proposal.
+    """The call admin may delete the proposal.
     The user may delete if not submitted.
     """
     if not flask.g.current_user: return False
