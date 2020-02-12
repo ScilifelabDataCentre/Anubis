@@ -45,7 +45,7 @@
   <div class="col-md-2 font-weight-bold text-right">My reviews</div>
   <div class="col-md">
     <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=g.current_user['username']) }}"
-       role="button" class="btn btn-info my-1">
+       role="button" class="btn btn-info">
       {{ my_reviews_count }} reviews
     </a>
   </div>
@@ -57,7 +57,7 @@
   <div class="col-md-2 font-weight-bold text-right">All reviews</div>
   <div class="col-md">
     <a href="{{ url_for('reviews.call', cid=call['identifier']) }}"
-       role="button" class="btn btn-info my-1">
+       role="button" class="btn btn-info">
       {{ utils.get_call_reviews_count(call['identifier']) }} reviews
     </a>
   </div>
@@ -65,7 +65,7 @@
 {% endif %} {# if allow_view_reviews #}
 
 {% if g.am_admin or am_reviewer %}
-<div class="row">
+<div class="row mt-1">
   <div class="col-md-2 font-weight-bold text-right">Reviews due</div>
   <div class="col-md">{{ call.get('reviews_due') | datetimetz }}</div>
 </div>

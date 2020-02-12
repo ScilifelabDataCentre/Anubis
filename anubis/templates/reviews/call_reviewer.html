@@ -25,12 +25,12 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 <table id="reviews" class="table table-sm">
   <thead>
     <tr>
-      <th>Proposal</th>
-      <th>Submitter</th>
       <th>My review</th>
       {% for field in bannerfields %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
+      <th>Proposal</th>
+      <th>Submitter</th>
     </tr>
   </thead>
   <tbody>
@@ -38,8 +38,6 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
     {% set review = reviews_lookup.get(proposal['identifier']) %}
     {% if review %}
     <tr>
-      <td>{{ macros.proposal_link(proposal) }}</td>
-      <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
       <td>{{ macros.review_link(review) }}</td>
       {% set values = review['values'] %}
       {% for field in bannerfields %}
@@ -47,6 +45,8 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
         {{ values.get(field['identifier']) | typed_value(field['type']) }}
       </td>
       {% endfor %}
+      <td>{{ macros.proposal_link(proposal) }}</td>
+      <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
     </tr>
     {% endif %}
     {% endfor %}

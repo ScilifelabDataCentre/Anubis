@@ -309,9 +309,6 @@ def allow_edit(review):
     if review.get('finalized'): return False
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
-    call = anubis.call.get_call(review['call'])
-    if call.get('reviews_due') and utils.days_remaining(call['reviews_due'])<0:
-        return False
     return flask.g.current_user['username'] == review['reviewer']
 
 def allow_delete(review):
@@ -321,13 +318,15 @@ def allow_delete(review):
 def allow_finalize(review):
     "Admin and reviewer may finalize if the review contains no errors."
     if review.get('finalized'): return False
-    if not flask.g.current_user: return False
     if review['errors']: return False
+    if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     return flask.g.current_user['username'] == review['reviewer']
 
 def allow_unfinalize(review):
-    "Admin and reviewer may unfinalize the review if before reviews due date."
+    """Admin may always unfinalize.
+    Reviewer may unfinalize the review before reviews due date.
+    """
     if not review.get('finalized'): return False
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True

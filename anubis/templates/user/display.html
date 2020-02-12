@@ -38,9 +38,6 @@ User {{ user['username'] }}
       {% for call in reviewer_calls %}
       <p class="mb-2">
         {{ macros.call_link(call) }}
-        <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=user['username']) }}"
-       role="button" class="btn btn-sm btn-info ml-2 px-3 py-0">
-          {{ call['my_reviews_count'] }} reviews</a>
       </p>
       {% endfor %}
       {% else %}

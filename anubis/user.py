@@ -188,9 +188,6 @@ def display(username):
                                                key=user['username'])]
     all_proposals_count = utils.get_count('proposals', 'user', user['username'])
     all_reviews_count = utils.get_count('reviews', 'reviewer', user['username'])
-    for call in reviewer_calls:
-        call['my_reviews_count'] = utils.get_count(
-            'reviews', 'call_reviewer', [call['identifier'], user['username']])
     return flask.render_template('user/display.html',
                                  user=user,
                                  reviewer_calls=reviewer_calls,
