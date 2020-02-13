@@ -37,18 +37,18 @@
   </div>
 </div>
 
-<div class="row">
+<div class="row my-1">
   <div class="col-md-2 font-weight-bold text-right">All proposals</div>
   <div class="col-md">
     <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
-       role="button" class="btn btn-primary my-1">
+       role="button" class="btn btn-primary">
       {{ utils.get_call_proposals_count(call['identifier']) }} proposals</a>
   </div>
 </div>
 {% endif %} {# if am_call_admin or am_reviewer #}
 
 {% if am_reviewer %}
-<div class="row">
+<div class="row my-1">
   <div class="col-md-2 font-weight-bold text-right">My reviews</div>
   <div class="col-md">
     <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=g.current_user['username']) }}"
@@ -60,7 +60,7 @@
 {% endif %} {# if am_reviewer #}
 
 {% if allow_view_reviews %}
-<div class="row">
+<div class="row my-1">
   <div class="col-md-2 font-weight-bold text-right">All reviews</div>
   <div class="col-md">
     <a href="{{ url_for('reviews.call', cid=call['identifier']) }}"
