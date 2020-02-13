@@ -333,7 +333,7 @@ def allow_unfinalize(review):
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(review['call'])
-    if anubis.call.am_call_adminr(call): return True
+    if anubis.call.am_call_admin(call): return True
     if call.get('reviews_due') and utils.days_remaining(call['reviews_due'])<0:
         return False
     return flask.g.current_user['username'] == review['reviewer']

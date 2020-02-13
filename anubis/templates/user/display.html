@@ -13,49 +13,55 @@ User {{ user['username'] }}
 <table class="table table-sm table-borderless">
   <col style="width:20%">
   <col style="width:80%">
-  {% if allow_create_call %}
+  {% if all_calls_count %}
   <tr>
-    <th class="text-right">User's calls</th>
+    <th class="text-right">My calls</th>
     <td>
       <a href="{{ url_for('calls.owner', username=user['username']) }}"
-         role="button" class="btn btn-sm btn-primary px-3">
+         role="button" class="btn btn-sm btn-primary">
 	{{ all_calls_count }} calls
       </a>
     </td>
   </tr>
-  {% endif %}
+  {% endif %} {# if all_calls_count #}
+  {% if all_proposals_count %}
   <tr>
-    <th class="text-right">User's proposals</th>
+    <th class="text-right">My proposals</th>
     <td>
       <a href="{{ url_for('proposals.user', username=user['username']) }}"
-         role="button" class="btn btn-sm btn-primary px-3">
+         role="button" class="btn btn-sm btn-primary">
 	{{ all_proposals_count }} proposals
       </a>
     </td>
   </tr>
+  {% endif %} {# if all_proposals_count #}
+  {% if reviewer_calls %}
   <tr>
-    <th class="text-right">User's reviews</th>
+    <th class="text-right">My reviews</th>
+    <td>
+      {% for call in reviewer_calls %}
+      <p class="mb-2">
+        <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=user['username']) }}"
+           role="button" class="btn btn-sm btn-info mr-2">
+          {{ utils.get_call_reviewer_reviews_count(call['identifier'], user['username']) }} reviews
+        </a>
+        {{ macros.call_link(call) }}
+      </p>
+      {% endfor %}
+    </td>
+  </tr>
+  {% endif %} {# if reviewer_calls #}
+  {% if len(reviewer_calls) > 1 %}
+  <tr>
+    <th class="text-right">My reviews in all calls</th>
     <td>
       <a href="{{ url_for('reviews.reviewer', username=user['username']) }}"
-         role="button" class="btn btn-sm btn-info px-3">
+         role="button" class="btn btn-sm btn-info">
 	{{ all_reviews_count }} reviews
       </a>
     </td>
   </tr>
-  <tr>
-    <th class="text-right">Reviewer in calls</th>
-    <td>
-      {% if reviewer_calls %}
-      {% for call in reviewer_calls %}
-      <p class="mb-2">
-        {{ macros.call_link(call) }}
-      </p>
-      {% endfor %}
-      {% else %}
-      -
-      {% endif %}
-    </td>
-  </tr>
+  {% endif %} {# if len(reviewer_calls) > 1 #}
   <tr>
     <th class="text-right">Email</th>
     <td>{{ user['email'] or '-' }}</td>

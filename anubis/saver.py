@@ -157,7 +157,10 @@ class FieldMixin:
 
         elif field['type'] == constants.SELECT:
             if field.get('multiple'):
-                self.doc['values'][fid] = form.getlist(fid) or []
+                if fid in form:
+                    self.doc['values'][fid] = form.getlist(fid)
+                else:
+                    self.doc['values'][fid] = []
                 if field['required'] and not self.doc['values'][fid]:
                     self.doc['errors'][fid] = 'missing value'
             else:

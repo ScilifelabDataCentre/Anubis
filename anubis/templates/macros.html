@@ -36,7 +36,9 @@
 {% macro review_link(review) -%}
 <a href="{{ url_for('review.display', iuid=review['_id']) }}"
    class="font-weight-bold text-info">Review</a>
-{% if not review.get('finalized') %}
+{% if review.get('finalized') %}
+<span class="badge badge-success">Finalized</span>
+{% else %}
 <span class="badge badge-warning">Not finalized</span>
 {% endif %}
 {%- endmacro %}

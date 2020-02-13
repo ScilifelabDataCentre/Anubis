@@ -248,7 +248,9 @@ def proposal_xlsx(pid):
 @blueprint.route('/reviewer/<username>')
 @utils.login_required
 def reviewer(username):
-    "List all reviews by the given reviewer (user)."
+    """List all reviews by the given reviewer (user).
+    If the user is reviewer in only one call, redirect to that page.
+    """
     user = anubis.user.get_user(username=username)
     if user is None:
         utils.flash_error('No such user.')
@@ -257,6 +259,12 @@ def reviewer(username):
         utils.flash_error("You may not view the user's reviews.")
         return flask.redirect(
             flask.url_for('call.display', cid=call['identifier']))
+
+    calls = [r.value for r in flask.g.db.view('calls', 'reviewer', username)]
+    if len(calls) == 1:
+        return flask.redirect(flask.url_for('reviews.call_reviewer',
+                                            cid=calls[0],
+                                            username=username))
 
     reviews = [r.doc for r in flask.g.db.view('reviews', 'reviewer',
                                               key=user['username'],

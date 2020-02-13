@@ -79,11 +79,11 @@
                  href="{{ url_for('calls.open') }}">Open calls</a>
               <a class="dropdown-item"
                  href="{{ url_for('calls.closed') }}">Closed calls</a>
-              {% if allow_create %}
+              {% if g.my_calls_count %}
               <a class="dropdown-item"
                  href="{{ url_for('calls.owner', username=g.current_user['username']) }}">
                 My calls</a>
-              {% endif %} {# if allow_create #}
+              {% endif %} {# if g.my_calls_count #}
               {% if g.am_admin %}
               <a class="dropdown-item"
                  href="{{ url_for('calls.all') }}">All calls</a>

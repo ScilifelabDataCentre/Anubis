@@ -66,6 +66,10 @@ def get_proposal_reviews_count(pid):
     "Get the count of all reviews for the given proposal."
     return get_count('reviews', 'proposal', pid)
 
+def get_call_reviewer_reviews_count(cid, username):
+    "Get the count of all reviews for the reviewer in the given call."
+    return get_count('reviews', 'call_reviewer', [cid, username])
+
 # Global instance of mail interface.
 mail = flask_mail.Mail()
 

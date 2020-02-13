@@ -84,13 +84,17 @@ def display(cid):
                                  allow_view_reviews=allow_view_reviews(call))
 
 @blueprint.route('/<cid>/edit', methods=['GET', 'POST', 'DELETE'])
-@utils.admin_required
+@utils.login_required
 def edit(cid):
     "Edit the call, or delete it."
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
+
+    if not allow_edit(call):
+        utils.flash_error('You are not allowed to edit the call.')
+        return flask.redirect(utils.referrer_or_home())
 
     if utils.http_GET():
         return flask.render_template('call/edit.html', call=call)
@@ -113,20 +117,26 @@ def edit(cid):
 
     elif utils.http_DELETE():
         if not allow_delete(call):
-            utils.flash_error('You may not delete the call.')
+            utils.flash_error('You are not allowed to delete the call.')
             return flask.redirect(utils.referrer_or_home())
         utils.delete(call)
         utils.flash_message(f"Deleted call {call['identifier']}:{call['title']}.")
-        return flask.redirect(flask.url_for('calls.all'))
+        return flask.redirect(
+            flask.url_for('calls.owner',
+                          username=flask.g.current_user['username']))
 
 @blueprint.route('/<cid>/documents', methods=['GET', 'POST'])
-@utils.admin_required
+@utils.login_required
 def documents(cid):
     "Display documents for delete, or add document (attachment file)."
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
+
+    if not allow_edit(call):
+        utils.flash_error('You are not allowed to edit the call.')
+        return flask.redirect(utils.referrer_or_home())
 
     if utils.http_GET():
         return flask.render_template('call/documents.html', call=call)
@@ -176,13 +186,17 @@ def document(cid, documentname):
             flask.url_for('.documents', cid=call['identifier']))
 
 @blueprint.route('/<cid>/proposal', methods=['GET', 'POST'])
-@utils.admin_required
+@utils.login_required
 def proposal(cid):
     "Display proposal fields for delete, and add field."
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
+
+    if not allow_edit(call):
+        utils.flash_error('You are not allowed to edit the call.')
+        return flask.redirect(utils.referrer_or_home())
 
     if utils.http_GET():
         return flask.render_template('call/proposal.html', call=call)
@@ -197,13 +211,17 @@ def proposal(cid):
             flask.url_for('.proposal', cid=call['identifier']))
 
 @blueprint.route('/<cid>/proposal/<fid>', methods=['POST', 'DELETE'])
-@utils.admin_required
+@utils.login_required
 def proposal_field(cid, fid):
     "Edit or delete the proposal field."
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
+
+    if not allow_edit(call):
+        utils.flash_error('You are not allowed to edit the call.')
+        return flask.redirect(utils.referrer_or_home())
 
     if utils.http_POST():
         try:
@@ -224,7 +242,7 @@ def proposal_field(cid, fid):
             flask.url_for('.proposal', cid=call['identifier']))
 
 @blueprint.route('/<cid>/reviewers', methods=['GET', 'POST', 'DELETE'])
-@utils.admin_required
+@utils.login_required
 def reviewers(cid):
     "Edit the list of reviewers."
     from .user import get_user
@@ -233,6 +251,10 @@ def reviewers(cid):
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
+
+    if not allow_edit(call):
+        utils.flash_error('You are not allowed to edit the call.')
+        return flask.redirect(utils.referrer_or_home())
 
     if utils.http_GET():
         return flask.render_template('call/reviewers.html', call=call)
@@ -277,13 +299,17 @@ def reviewers(cid):
             flask.url_for('.reviewers', cid=call['identifier']))
 
 @blueprint.route('/<cid>/review', methods=['GET', 'POST'])
-@utils.admin_required
+@utils.login_required
 def review(cid):
     "Display review fields for delete, and add field."
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
+
+    if not allow_edit(call):
+        utils.flash_error('You are not allowed to edit the call.')
+        return flask.redirect(utils.referrer_or_home())
 
     if utils.http_GET():
         return flask.render_template('call/review.html', call=call)
@@ -297,13 +323,17 @@ def review(cid):
         return flask.redirect(flask.url_for('.review', cid=call['identifier']))
 
 @blueprint.route('/<cid>/review/<fid>', methods=['POST', 'DELETE'])
-@utils.admin_required
+@utils.login_required
 def review_field(cid, fid):
     "Edit or delete the review field."
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
+
+    if not allow_edit(call):
+        utils.flash_error('You are not allowed to edit the call.')
+        return flask.redirect(utils.referrer_or_home())
 
     if utils.http_POST():
         try:
@@ -322,13 +352,17 @@ def review_field(cid, fid):
         return flask.redirect(flask.url_for('.review', cid=call['identifier']))
 
 @blueprint.route('/<cid>/decision', methods=['GET', 'POST'])
-@utils.admin_required
+@utils.login_required
 def decision(cid):
     "Display decision fields for delete, and add field."
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
+
+    if not allow_edit(call):
+        utils.flash_error('You are not allowed to edit the call.')
+        return flask.redirect(utils.referrer_or_home())
 
     if utils.http_GET():
         return flask.render_template('call/decision.html', call=call)
@@ -343,13 +377,17 @@ def decision(cid):
             flask.url_for('.decision', cid=call['identifier']))
 
 @blueprint.route('/<cid>/decision/<fid>', methods=['POST', 'DELETE'])
-@utils.admin_required
+@utils.login_required
 def decision_field(cid, fid):
     "Edit or delete the decision field."
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
+
+    if not allow_edit(call):
+        utils.flash_error('You are not allowed to edit the call.')
+        return flask.redirect(utils.referrer_or_home())
 
     if utils.http_POST():
         try:
@@ -370,13 +408,17 @@ def decision_field(cid, fid):
             flask.url_for('.decision', cid=call['identifier']))
 
 @blueprint.route('/<cid>/clone', methods=['GET', 'POST'])
-@utils.admin_required
+@utils.login_required
 def clone(cid):
     "Clone the call."
     call = get_call(cid)
     if not call:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
+
+    if not allow_create():
+        utils.flash_error('You are not allowed to create a call.')
+        return flask.redirect(utils.referrer_or_home())
 
     if utils.http_GET():
         return flask.render_template('call/clone.html', call=call)
@@ -398,13 +440,17 @@ def clone(cid):
         return flask.redirect(flask.url_for('.edit', cid=new['identifier']))
 
 @blueprint.route('/<cid>/logs')
-@utils.admin_required
+@utils.login_required
 def logs(cid):
     "Display the log records of the call."
     call = get_call(cid)
     if call is None:
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
+
+    if not am_call_admin(call):
+        utils.flash_error('You are not admin for the call.')
+        return flask.redirect(utils.referrer_or_home())
 
     return flask.render_template(
         'logs.html',
