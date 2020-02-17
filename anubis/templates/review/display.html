@@ -21,6 +21,17 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   <div class="col-md-2 font-weight-bold text-right">Call</div>
   <div class="col-md">{{ macros.call_link(call) }}</div>
 </div>
+{% if allow_view_reviews %}
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">All reviews of proposal</div>
+  <div class="col-md">
+    <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
+       role="button" class="btn btn-info">
+      {{ utils.get_proposal_reviews_count(proposal['identifier']) }} reviews
+    </a>
+  </div>
+</div>
+{% endif %} {# if allow_view_reviews #}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Reviewer</div>
   <div class="col-md">{{ macros.user_link(get_user(review['reviewer'])) }}</div>

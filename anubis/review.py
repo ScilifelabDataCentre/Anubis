@@ -91,6 +91,7 @@ def display(iuid):
         utils.flash_error('You are not allowed to view this review.')
         return flask.redirect(
             flask.url_for('proposal.display', pid=review['proposal']))
+    allow_view_reviews = anubis.call.allow_view_reviews(call)
     return flask.render_template('review/display.html',
                                  review=review,
                                  call=call,
@@ -98,7 +99,8 @@ def display(iuid):
                                  allow_edit=allow_edit(review),
                                  allow_delete=allow_delete(review),
                                  allow_finalize=allow_finalize(review),
-                                 allow_unfinalize=allow_unfinalize(review))
+                                 allow_unfinalize=allow_unfinalize(review),
+                                 allow_view_reviews=allow_view_reviews)
 
 @blueprint.route('/<iuid:iuid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.login_required

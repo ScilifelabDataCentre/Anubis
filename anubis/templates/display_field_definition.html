@@ -1,35 +1,29 @@
 <tr>
   {% if g.am_admin %}
-  <th>{{ field['identifier'] }}</td>
+  <th>{{ field['identifier'] }}</th>
   {% endif %}
   <td>{{ field['title'] }}</td>
   <td>
-    {% set br = False %}
+    {{ field['type'] | capitalize }} field.
     {% if field.get('required') %}
     <strong>Required!</strong>
-    {% set br = True %}
     {% endif %}
     {% if field.get('banner') %}
     Banner.
-    {% set br = True %}
     {% endif %}
     {% if field.get('maxlength') %}
     Max {{ field['maxlength'] }} characters.
-    {% set br = True %}
     {% endif %}
     {% if field.get('minimum') is not none %}
     Min value {{ field['minimum'] }}.
-    {% set br = True %}
     {% endif %}
     {% if field.get('maximum') is not none %}
     Max value {{ field['maximum'] }}.
-    {% set br = True %}
     {% endif %}
     {% if field.get('slider') is not none %}
     {{ field['slider'] and 'Input using slider.' or 'Input using radio buttons.' }}
-    {% set br = True %}
     {% endif %}
-    {{ (br and '<br>' or '') | safe }}
+    <br>
     {{ field.get('description') | markdown }}
   </td>
   {% if post_url %}

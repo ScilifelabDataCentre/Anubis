@@ -29,9 +29,22 @@
 		     value="{{ field['identifier'] }}">
 	      <small id="{{ field['identifier'] }}-identifierHelp"
 		     class="form-text text-muted">
-		<strong>Required!</strong>
-		<br>
 		Identifier for the field. It cannot be changed.
+	      </small>
+	    </div>
+	  </div>
+	  <div class="form-group row">
+	    <label for="{{ field['identifier'] }}-type" 
+		   class="col-md-2 col-form-label text-right">
+	      Type</label>
+	    <div class="col-md">
+	      <input type="text" id="{{ field['identifier'] }}-type"
+		     class="form-control" readonly
+		     aria-describedby="{{ field['identifier'] }}-typeHelp"
+		     value="{{ field['type'] }}">
+	      <small id="{{ field['identifier'] }}-typeHelp"
+		     class="form-text text-muted">
+		Type of the field. It cannot be changed.
 	      </small>
 	    </div>
 	  </div>
