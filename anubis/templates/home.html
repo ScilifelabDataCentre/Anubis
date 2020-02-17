@@ -29,10 +29,7 @@
 	Open-ended
 	{% endif %}
       </div>
-      <div class="col-md-3">
-        <span class="badge badge-{{ call['tmp']['color'] }}">
-          {{ call['tmp']['text'] }}</span>
-        </div>
+      <div class="col-md-3">{{ macros.closed(call) }}</div>
     </div>
   </div>
 </div>

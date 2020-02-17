@@ -24,8 +24,7 @@
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
   <div class="col-md">
     <span class="mr-4">{{ call['closes'] | datetimetz }}</span>
-    <span class="badge badge-{{ call['tmp']['color'] }}">
-      {{ call['tmp']['text'] }}</span>
+    {{ macros.closed(call) }}
   </div>
 </div>
 

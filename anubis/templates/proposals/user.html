@@ -10,7 +10,7 @@ Proposals by user {{ user['username'] }}
 {% endblock %}
 
 {% block supermain %}
-<table id="proposals" class="table table-sm">
+<table id="proposals" class="table table-sm table-hover">
   <thead>
     <tr>
       <th>Proposal</th>
@@ -20,17 +20,14 @@ Proposals by user {{ user['username'] }}
       <th>Decision</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody class="table-borderless">
     {% for proposal in proposals %}
     {% set call = get_call(proposal['call']) %}
     <tr>
       <td>{{ macros.proposal_link(proposal) }}</td>
       <td>{{ macros.submitted(proposal) }}</td>
       <td>{{ macros.call_link(call, title=False) }}</td>
-      <td>
-        <span class="badge badge-{{ call['tmp']['color'] }}">
-          {{ call['tmp']['text'] }}</span>
-      </td>
+      <td>{{ macros.closed(call) }}</td>
       <td>
         {% set decision = get_decision(proposal.get('decision')) %}
         {% if not decision or not allow_view_decision(decision) %}

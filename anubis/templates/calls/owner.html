@@ -7,7 +7,7 @@ Calls by {{ macros.user_link(get_user(username)) }}
 {% endblock %}
 
 {% block main %}
-<table id="calls" class="table table-sm">
+<table id="calls" class="table table-sm table-hover">
   <thead>
     <tr>
       <th>Call</th>
@@ -18,24 +18,21 @@ Calls by {{ macros.user_link(get_user(username)) }}
       <th>Reviews</a>
     </tr>
   </thead>
-  <tbody>
+  <tbody class="table-borderless">
     {% for call in calls %}
     <tr>
       <td>{{ macros.call_link(call) }}</td>
       <td class="text-nowrap pl-2">{{ call['closes'] | datetimetz }}</td>
-      <td>
-        <span class="badge badge-{{ call['tmp']['color'] }}">
-          {{ call['tmp']['text'] }}</span>
-      </td>
+      <td>{{ macros.closed(call) }}</td>
       <td>
         <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
-           role="button" class="btn btn-primary my-1">
+           role="button" class="btn btn-primary">
           {{ utils.get_call_proposals_count(call['identifier']) }} proposals
         </a>
       </td>
       <td>
         <a href="{{ url_for('reviews.call', cid=call['identifier']) }}"
-           role="button" class="btn btn-info my-1">
+           role="button" class="btn btn-info">
           {{ utils.get_call_reviews_count(call['identifier']) }} reviews
         </a>
       </td>
