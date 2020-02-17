@@ -1,5 +1,6 @@
 "About info HTMl endpoints."
 
+import os.path
 import sys
 
 import couchdb2
@@ -11,6 +12,34 @@ from . import utils
 
 
 blueprint = flask.Blueprint('about', __name__)
+
+@blueprint.route('/documentation/<page>')
+def documentation(page):
+    "Documentation page."
+    try:
+        with open(os.path.join(flask.current_app.config['DOC_DIRPATH'],
+                               f"{page}.md")) as infile:
+            text = infile.read()
+    except (OSError, IOError):
+        utils.flash_error('No such documentation page.')
+        return flask.redirect(utils.referrer_or_home())
+    title = page.replace('-', ' ')
+    return flask.render_template('about/documentation.html',
+                                 title=title, text=text)
+
+@blueprint.route('/contact')
+def contact():
+    "Contact information page."
+    try:
+        filepath = os.path.normpath(
+            os.path.join(flask.current_app.config['ROOT_DIRPATH'], 
+                         '../site/contact.md'))
+        with open(filepath) as infile:
+            text = infile.read()
+    except (OSError, IOError):
+        utils.flash_error('No contact information available.')
+        return flask.redirect(utils.referrer_or_home())
+    return flask.render_template('about/contact.html', text=text)
 
 @blueprint.route('/software')
 def software():

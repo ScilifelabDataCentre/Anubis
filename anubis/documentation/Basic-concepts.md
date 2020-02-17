@@ -9,8 +9,7 @@ Call
 
 A call in the Anubis system is a call for proposals. It contains a
 description of the call, optionally with documents such as PDFs. It
-functions as the container for the proposals, the reviews and the
-decisions in it.
+functions as a container for proposals, reviews and decisions.
 
 The admin creates a call, and sets up the input fields for the
 proposal, the reviews and the decision for each proposal.

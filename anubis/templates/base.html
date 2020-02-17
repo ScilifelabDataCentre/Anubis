@@ -108,32 +108,25 @@
         </ul>
 
         <ul class="navbar-nav justify-content-end">
-          <li class="nav-item dropdown">
-            <a href="#" id="navbarDocumentation" class="nav-link dropdown-toggle"
-               role="button" data-toggle="dropdown"
-               aria-haspopup="true" aria-expanded="false">Documentation</a>
-            <div class="dropdown-menu" aria-labelledby="navbarDocumentation">
-              <a class="nav-link"
-                 href="{{ url_for('documentation', page='Basic-concepts') }}">Basic concepts</a>
-              <a class="nav-link"
-                 href="{{ url_for('documentation', page='Instructions-for-admins') }}">Instructions for admins</a>
-              <a class="nav-link"
-                 href="{{ url_for('documentation', page='Instructions-for-reviewers') }}">Instructions for reviewers</a>
-	    </div>
-          </li>
-
-        <ul class="navbar-nav justify-content-end">
-          <li class="nav-item dropdown">
+          <li class="nav-item dropdown mr-3">
             <a href="#" id="navbarAbout" class="nav-link dropdown-toggle"
                role="button" data-toggle="dropdown"
                aria-haspopup="true" aria-expanded="false">About</a>
             <div class="dropdown-menu" aria-labelledby="navbarAbout">
               <a class="nav-link"
+                 href="{{ url_for('about.contact') }}">Contact</a>
+              <a class="nav-link"
                  href="{{ url_for('about.software') }}">Software</a>
+              <div class="dropdown-divider"></div>
+              <a class="nav-link"
+                 href="{{ url_for('about.documentation', page='Basic-concepts') }}">Basic concepts</a>
+              <a class="nav-link"
+                 href="{{ url_for('about.documentation', page='Instructions-for-admins') }}">Instructions for admins</a>
+              <a class="nav-link"
+                 href="{{ url_for('about.documentation', page='Instructions-for-reviewers') }}">Instructions for reviewers</a>
 	    </div>
           </li>
-
-          <li class="mx-1">
+          <li>
             {% if g.current_user %}
             <a href="{{ url_for('user.display', username=g.current_user['username']) }}"
 	       role="button" class="btn btn-outline-secondary my-2 my-sm-0">

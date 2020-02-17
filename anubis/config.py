@@ -10,6 +10,7 @@ ROOT_DIRPATH = os.path.dirname(os.path.abspath(__file__))
 
 # Default configurable values; modified by reading a JSON file in 'init'.
 DEFAULT_SETTINGS = dict(
+    ROOT_DIRPATH = ROOT_DIRPATH,
     SERVER_NAME = '127.0.0.1:5003',
     SITE_NAME = 'Anubis',
     SITE_STATIC_DIRPATH = None,
