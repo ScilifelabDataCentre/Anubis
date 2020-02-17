@@ -260,18 +260,21 @@ def reviewer(username):
         return flask.redirect(
             flask.url_for('call.display', cid=call['identifier']))
 
-    calls = [r.value for r in flask.g.db.view('calls', 'reviewer', username)]
-    if len(calls) == 1:
+    reviewer_calls = [anubis.call.get_call(r.value)
+                      for r in flask.g.db.view('calls', 'reviewer', 
+                                               key=user['username'])]
+    if len(reviewer_calls) == 1:
         return flask.redirect(flask.url_for('reviews.call_reviewer',
-                                            cid=calls[0],
+                                            cid=calls[0]['identifier'],
                                             username=username))
 
     reviews = [r.doc for r in flask.g.db.view('reviews', 'reviewer',
                                               key=user['username'],
                                               reduce=False,
                                               include_docs=True)]
-    return flask.render_template('reviews/reviewer.html', 
+    return flask.render_template('reviews/reviewer.html',
                                  user=user,
+                                 reviewer_calls=reviewer_calls,
                                  reviews=reviews)
 
 def get_xlsx(call, proposals, reviews_lookup):
