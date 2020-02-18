@@ -31,30 +31,7 @@ def call(cid):
         return flask.redirect(flask.url_for('home'))
     proposals = get_call_proposals(call)
     proposal_bannerfields = [f for f in call['proposal'] if f.get('banner')]
-    score_field_ids = [f['identifier'] for f in call['review'] 
-                       if f.get('banner') and 
-                       f['type'] in constants.NUMERICAL_FIELD_TYPES]
-    for proposal in proposals:
-        reviews = [r.doc for r in flask.g.db.view('reviews', 'proposal',
-                                                  key=proposal['identifier'],
-                                                  reduce=False,
-                                                  include_docs=True)]
-        scores = dict([(id, list()) for id in score_field_ids])
-        for review in reviews:
-            for id in score_field_ids:
-                value = review['values'].get(id)
-                if value is not None: scores[id].append(float(value))
-        proposal['scores'] = dict()
-        for id in score_field_ids:
-            proposal['scores'][id] = d = dict()
-            try:
-                d['mean'] = statistics.mean(scores[id])
-            except statistics.StatisticsError:
-                d['mean'] = None
-            try:
-                d['stdev'] = statistics.stdev(scores[id])
-            except statistics.StatisticsError:
-                d['stdev'] = None
+    mean_field_ids = compute_mean_fields(call, proposals)
     allow_view_reviews = anubis.call.allow_view_reviews(call)
     allow_view_decisions = anubis.call.allow_view_decisions(call)
     decision_bannerfields = [f for f in call['decision'] if f.get('banner')]
@@ -62,7 +39,7 @@ def call(cid):
                                  call=call,
                                  proposals=proposals,
                                  proposal_bannerfields=proposal_bannerfields,
-                                 score_field_ids=score_field_ids,
+                                 mean_field_ids=mean_field_ids,
                                  allow_view_reviews=allow_view_reviews,
                                  allow_view_decisions=allow_view_decisions,
                                  decision_bannerfields=decision_bannerfields)
@@ -80,6 +57,7 @@ def call_xlsx(cid):
         utils.flash_error("You may not view the call.")
         return flask.redirect(flask.url_for('home'))
     proposals = get_call_proposals(call)
+    mean_field_ids = compute_mean_fields(call, proposals)
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = f"Proposals in call {cid}"
@@ -93,6 +71,9 @@ def call_xlsx(cid):
             ws.column_dimensions[get_column_letter(len(row))].width = 50
         elif field['type'] == constants.DOCUMENT:
             ws.column_dimensions[get_column_letter(len(row))].width = 50
+    for id in mean_field_ids:
+        row.append(f"Reviews {id} mean")
+        row.append(f"Reviews {id} stdev")
     ws.append(row)
     row_number = 1
     wrap_alignment = openpyxl.styles.Alignment(wrapText=True)
@@ -112,12 +93,23 @@ def call_xlsx(cid):
                 col = get_column_letter(len(row))
                 wraptext.append(f"{col}{row_number}")
             elif field['type'] == constants.DOCUMENT:
-                row.append(flask.url_for('review.document',
-                                         iuid=review['_id'],
+                row.append(flask.url_for('proposal.document',
+                                         iuid=proposal['_id'],
                                          document=value,
                                          _external=True))
                 col = get_column_letter(len(row))
                 hyperlink.append(f"{col}{row_number}")
+            else:
+                row.append(value)
+        for id in mean_field_ids:
+            value = proposal['scores'][id]['mean']
+            if value is None:
+                row.append('')
+            else:
+                row.append(value)
+            value = proposal['scores'][id]['stdev']
+            if value is None:
+                row.append('')
             else:
                 row.append(value)
         ws.append(row)
@@ -174,3 +166,50 @@ def get_user_proposals(username, call=None):
                                            key=username,
                                            reduce=False,
                                            include_docs=True)]
+
+def compute_mean_fields(call, proposals):
+    """Compute the mean and stdev of numerical banner fields
+    for each proposal. 
+    Return the identifiers if the fields.
+    """
+    field_ids = [f['identifier'] for f in call['review'] 
+                 if f.get('banner') and
+                 f['type'] in constants.NUMERICAL_FIELD_TYPES]
+    for proposal in proposals:
+        reviews = [r.doc for r in flask.g.db.view('reviews', 'proposal',
+                                                  key=proposal['identifier'],
+                                                  reduce=False,
+                                                  include_docs=True)]
+        scores = dict([(id, list()) for id in field_ids])
+        for review in reviews:
+            for id in field_ids:
+                value = review['values'].get(id)
+                if value is not None: scores[id].append(float(value))
+        proposal['scores'] = dict()
+        for id in field_ids:
+            proposal['scores'][id] = d = dict()
+            try:
+                d['mean'] = statistics.mean(scores[id])
+            except statistics.StatisticsError:
+                d['mean'] = None
+            try:
+                d['stdev'] = statistics.stdev(scores[id])
+            except statistics.StatisticsError:
+                d['stdev'] = None
+    return field_ids
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

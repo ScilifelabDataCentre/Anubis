@@ -30,7 +30,7 @@
       {% if allow_view_reviews %}
       <th>Reviews</th>
       {% endif %} {# if allow_view_reviews #}
-      {% for id in score_field_ids %}
+      {% for id in mean_field_ids %}
       <th>Reviews {{ id }} mean</th>
       <th>Reviews {{ id }} stdev</th>
       {% endfor %}
@@ -64,7 +64,7 @@
         </a>
       </td>
       {% endif %} {# if allow_view_reviews #}
-      {% for id in score_field_ids %}
+      {% for id in mean_field_ids %}
       <td>
         {% if proposal['scores'][id]['mean'] is none %}
         -
