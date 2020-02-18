@@ -11,6 +11,7 @@ Calls by {{ macros.user_link(get_user(username)) }}
   <thead>
     <tr>
       <th>Call</th>
+      <th>Opens</th>
       <th>Closes</th>
       <th></th>
       <th title="Includes only proposals marked by the user as 'submitted'.">
@@ -22,6 +23,7 @@ Calls by {{ macros.user_link(get_user(username)) }}
     {% for call in calls %}
     <tr>
       <td>{{ macros.call_link(call) }}</td>
+      <td class="text-nowrap pl-2">{{ call['opens'] | datetimetz }}</td>
       <td class="text-nowrap pl-2">{{ call['closes'] | datetimetz }}</td>
       <td>{{ macros.closed(call) }}</td>
       <td>

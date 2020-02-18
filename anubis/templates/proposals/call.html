@@ -30,6 +30,10 @@
       {% if allow_view_reviews %}
       <th>Reviews</th>
       {% endif %} {# if allow_view_reviews #}
+      {% for id in score_field_ids %}
+      <th>Reviews {{ id }} mean</th>
+      <th>Reviews {{ id }} stdev</th>
+      {% endfor %}
       {% if allow_view_decisions %}
       <th>Decision</th>
       {% for field in decision_bannerfields %}
@@ -59,7 +63,23 @@
           {{ utils.get_proposal_reviews_count(proposal['identifier']) }} reviews
         </a>
       </td>
-      {% endif %}
+      {% endif %} {# if allow_view_reviews #}
+      {% for id in score_field_ids %}
+      <td>
+        {% if proposal['scores'][id]['mean'] is none %}
+        -
+        {% else %}
+        {{ "%.1f" % proposal['scores'][id]['mean'] }}
+        {% endif %}
+      </td>
+      <td>
+        {% if proposal['scores'][id]['stdev'] is none %}
+        -
+        {% else %}
+        {{ "%.1f" % proposal['scores'][id]['stdev'] }}
+        {% endif %}
+      </td>
+      {% endfor %}
       {% if allow_view_decisions %}
       {% set decision = get_decision(proposal['decision']) %}
       {% if decision %}

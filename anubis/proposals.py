@@ -1,5 +1,6 @@
 "Lists of proposals."
 
+import statistics
 import tempfile
 
 import flask
@@ -30,6 +31,30 @@ def call(cid):
         return flask.redirect(flask.url_for('home'))
     proposals = get_call_proposals(call)
     proposal_bannerfields = [f for f in call['proposal'] if f.get('banner')]
+    score_field_ids = [f['identifier'] for f in call['review'] 
+                       if f.get('banner') and 
+                       f['type'] in constants.NUMERICAL_FIELD_TYPES]
+    for proposal in proposals:
+        reviews = [r.doc for r in flask.g.db.view('reviews', 'proposal',
+                                                  key=proposal['identifier'],
+                                                  reduce=False,
+                                                  include_docs=True)]
+        scores = dict([(id, list()) for id in score_field_ids])
+        for review in reviews:
+            for id in score_field_ids:
+                value = review['values'].get(id)
+                if value is not None: scores[id].append(float(value))
+        proposal['scores'] = dict()
+        for id in score_field_ids:
+            proposal['scores'][id] = d = dict()
+            try:
+                d['mean'] = statistics.mean(scores[id])
+            except statistics.StatisticsError:
+                d['mean'] = None
+            try:
+                d['stdev'] = statistics.stdev(scores[id])
+            except statistics.StatisticsError:
+                d['stdev'] = None
     allow_view_reviews = anubis.call.allow_view_reviews(call)
     allow_view_decisions = anubis.call.allow_view_decisions(call)
     decision_bannerfields = [f for f in call['decision'] if f.get('banner')]
@@ -37,6 +62,7 @@ def call(cid):
                                  call=call,
                                  proposals=proposals,
                                  proposal_bannerfields=proposal_bannerfields,
+                                 score_field_ids=score_field_ids,
                                  allow_view_reviews=allow_view_reviews,
                                  allow_view_decisions=allow_view_decisions,
                                  decision_bannerfields=decision_bannerfields)

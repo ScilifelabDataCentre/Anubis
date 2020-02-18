@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '0.8.7'
+__version__ = '0.8.8'
 
 class Constants:
     VERSION     = __version__
@@ -46,6 +46,7 @@ class Constants:
     TEXT     = 'text'
     DOCUMENT = 'document'
     FIELD_TYPES = (LINE, BOOLEAN, SELECT, INTEGER, FLOAT, SCORE, TEXT, DOCUMENT)
+    NUMERICAL_FIELD_TYPES = (INTEGER, FLOAT, SCORE)
 
     # Access flags for each call
     ACCESS = ('allow_reviewer_view_all_reviews',
