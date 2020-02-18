@@ -265,7 +265,7 @@ def reviewer(username):
                                                key=user['username'])]
     if len(reviewer_calls) == 1:
         return flask.redirect(flask.url_for('reviews.call_reviewer',
-                                            cid=calls[0]['identifier'],
+                                            cid=reviewer_calls[0]['identifier'],
                                             username=username))
 
     reviews = [r.doc for r in flask.g.db.view('reviews', 'reviewer',
