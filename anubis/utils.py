@@ -29,7 +29,7 @@ def init(app):
 
     db = get_db(app=app)
     if db.put_design('logs', DESIGN_DOC):
-        print(' > Updated logs design document.')
+        app.logger.info('Updated logs design document.')
 
 DESIGN_DOC = {
     'views': {

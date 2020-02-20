@@ -164,7 +164,6 @@ class FieldMixin:
                 if field['required'] and not self.doc['values'][fid]:
                     self.doc['errors'][fid] = 'missing value'
             else:
-                print(fid, form.get(fid))
                 self.doc['values'][fid] = form.get(fid) or None
 
         elif field['type'] in (constants.INTEGER, constants.FLOAT, constants.SCORE):

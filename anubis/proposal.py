@@ -15,7 +15,7 @@ def init(app):
     "Initialize; update CouchDB design documents."
     db = utils.get_db(app=app)
     if db.put_design('proposals', DESIGN_DOC):
-        print(' > Updated proposals design document.')
+        app.logger.info('Updated proposals design document.')
 
 DESIGN_DOC = {
     'views': {

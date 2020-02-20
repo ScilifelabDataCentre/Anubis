@@ -15,7 +15,7 @@ def init(app):
     "Initialize; update CouchDB design documents."
     db = utils.get_db(app=app)
     if db.put_design('reviews', DESIGN_DOC):
-        print(' > Updated reviews design document.')
+        app.logger.info('Updated reviews design document.')
 
 DESIGN_DOC = {
     'views': {
@@ -67,7 +67,6 @@ def create(pid, username):
             return flask.redirect(flask.url_for('.display', iuid=review['_id']))
         with ReviewSaver(proposal=proposal) as saver:
             saver.set_reviewer(user)
-        print(saver.doc)
     except ValueError:
         pass
     try:
