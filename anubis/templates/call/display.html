@@ -131,15 +131,15 @@
   <div class="col-md-2 font-weight-bold text-right">Documents</div>
   <div class="col-md">
     {% if call['documents'] %}
-    <table class="table table-sm table-borderless table-hover">
+    <table class="table table-sm table-borderless">
       <tbody>
         {% for document in call['documents'] %}
         <tr>
           <td>
+            <span class="border border-success p-2 text-monospace">{{ document['name'] }}</span>
             <a href="{{ url_for('call.document', cid=call['identifier'], documentname=document['name']) }}" title="Download" role="button"
                class="btn btn-success btn-sm font-weight-bold my-1">
-              {{ document['name'] }}
-            </a>
+              Download</a>
           </td>
           <td>
             {{ document.get('description') | markdown }}
