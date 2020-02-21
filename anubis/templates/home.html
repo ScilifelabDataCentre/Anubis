@@ -9,7 +9,6 @@
 
 {% block main %}
 {# The list is already properly sorted. #}
-{% if calls %}
 {% for call in calls %}
 <div class="card border-dark mt-3">
   <div class="card-header">
@@ -34,16 +33,15 @@
     </div>
   </div>
 </div>
+{% endfor %} {# for call in calls #}
+{% if not calls %}
+<p class="lead mt-3">
+  There are currently no open calls.
+</p>
+{% endif %} {# if not calls #}
 <p class="lead mt-3">
   Check <a href="{{ url_for('calls.closed') }}">here</a> for closed calls.
 </p>
-{% endfor %} {# for call in calls #}
-{% else %}
-<p class="lead mt-3">
-  There are currently no open calls. Check
-  <a href="{{ url_for('calls.closed') }}">here</a> for closed calls.
-</p>
-{% endif %} {# if calls #}
 {% endblock %} {# block main #}
 
 {% block actions %}
