@@ -480,7 +480,7 @@ def send_password_code(user, action):
                         username=user['username'],
                         code=user['password'][len('code:'):])
     message.body = f"Your account in the {site} system has been created.\n\n" \
-                   "To set your password, go to {url}\n\n" \
+                   f"To set your password, go to {url}\n\n" \
                    "For more information, see the top menu item 'About'" \
                    " in the pages of the site."
     utils.mail.send(message)
