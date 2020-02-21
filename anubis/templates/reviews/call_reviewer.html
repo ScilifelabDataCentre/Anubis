@@ -20,8 +20,17 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 {% endblock %}
 
 {% block supermain %}
-<p class="lead">{{ call.get('reviews_due') | due }}</p>
-
+<div class="row mb-2">
+  <div class="col-md-2 text-right font-weight-bold">Due</div>
+  <div class="col-md-8">
+    <p class="lead">{{ call.get('reviews_due') | due }}</p>
+  </div>
+  <div class="col-md-2">
+    <a href="{{ url_for('about.documentation', page='Instructions-for-reviewers') }}"
+       role="button" class="btn btn-block btn-outline-dark">
+      Instructions for reviewers</a>
+  </div>
+</div>
 <table id="reviews" class="table table-sm">
   <thead>
     <tr>

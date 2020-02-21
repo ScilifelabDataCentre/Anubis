@@ -114,16 +114,16 @@
                aria-haspopup="true" aria-expanded="false">About</a>
             <div class="dropdown-menu" aria-labelledby="navbarAbout">
               <a class="nav-link"
-                 href="{{ url_for('about.contact') }}">Contact</a>
-              <a class="nav-link"
-                 href="{{ url_for('about.software') }}">Software</a>
-              <div class="dropdown-divider"></div>
-              <a class="nav-link"
                  href="{{ url_for('about.documentation', page='Basic-concepts') }}">Basic concepts</a>
               <a class="nav-link"
                  href="{{ url_for('about.documentation', page='Instructions-for-admins') }}">Instructions for admins</a>
               <a class="nav-link"
                  href="{{ url_for('about.documentation', page='Instructions-for-reviewers') }}">Instructions for reviewers</a>
+              <div class="dropdown-divider"></div>
+              <a class="nav-link"
+                 href="{{ url_for('about.contact') }}">Contact</a>
+              <a class="nav-link"
+                 href="{{ url_for('about.software') }}">Software</a>
 	    </div>
           </li>
           <li>

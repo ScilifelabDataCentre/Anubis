@@ -99,8 +99,8 @@ def register():
         if user['status'] == constants.ENABLED:
             if utils.to_bool(flask.request.form.get('send_email')):
                 send_password_code(user, 'registration')
-                utils.flash_message('User account created; an email message'
-                                    ' containing instructions has been sent.')
+                utils.flash_message('User account created; an email with a link'
+                                    ' to set password has been sent.')
             else:
                 utils.flash_message('User account created.')
         # Was set to 'pending'; send email to admins.
@@ -136,7 +136,8 @@ def reset():
                 saver.set_password()
             send_password_code(user, 'password reset')
         # Don't advertise whether user exists or not.
-        utils.flash_message('An email has been sent, if the user account exists.')
+        utils.flash_message('An email has been sent,'
+                            ' if the user account exists.')
         return flask.redirect(flask.url_for('home'))
 
 @blueprint.route('/password', methods=['GET', 'POST'])
@@ -478,7 +479,10 @@ def send_password_code(user, action):
     url = utils.url_for('.password',
                         username=user['username'],
                         code=user['password'][len('code:'):])
-    message.body = f"Your account in the {site} system has been created.\n\nTo set your password, go to {url}"
+    message.body = f"Your account in the {site} system has been created.\n\n" \
+                   "To set your password, go to {url}\n\n" \
+                   "For more information, see the top menu item 'About'" \
+                   " in the pages of the site."
     utils.mail.send(message)
 
 def am_admin(user=None):
