@@ -9,6 +9,7 @@
 
 {% block main %}
 {# The list is already properly sorted. #}
+{% if calls %}
 {% for call in calls %}
 <div class="card border-dark mt-3">
   <div class="card-header">
@@ -18,22 +19,31 @@
   </div>
   <div class="card-body">
     <div class="row">
-      <div class="col-md-3">
+      <div class="col-md-2">
 	<a href="{{ url_for('call.display', cid=call['identifier']) }}"
            role="button" class="btn btn-primary btn-sm">More infomation</a>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">{{ macros.closed(call) }}</div>
+      <div class="col-md-8">
 	{% if call['closes'] %}
 	Closes {{ call['closes'] | datetimetz}}
 	{% else %}
 	Open-ended
 	{% endif %}
       </div>
-      <div class="col-md-3">{{ macros.closed(call) }}</div>
     </div>
   </div>
 </div>
-{% endfor %}
+<p class="lead mt-3">
+  Check <a href="{{ url_for('calls.closed') }}">here</a> for closed calls.
+</p>
+{% endfor %} {# for call in calls #}
+{% else %}
+<p class="lead mt-3">
+  There are currently no open calls. Check
+  <a href="{{ url_for('calls.closed') }}">here</a> for closed calls.
+</p>
+{% endif %} {# if calls #}
 {% endblock %} {# block main #}
 
 {% block actions %}
