@@ -11,37 +11,29 @@
 {# The list is already properly sorted. #}
 {% for call in calls %}
 <div class="card border-dark mt-3">
-  <div class="card-header">
-    <h5>{{ call['title'] }}
-      <small class="text-muted ml-3">Call for proposals</small>
-    </h5>
-  </div>
   <div class="card-body">
-    <div class="row">
-      <div class="col-md-2">
-	<a href="{{ url_for('call.display', cid=call['identifier']) }}"
-           role="button" class="btn btn-primary btn-sm">More infomation</a>
-      </div>
-      <div class="col-md-2">{{ macros.closed(call) }}</div>
-      <div class="col-md-8">
-	{% if call['closes'] %}
-	Closes {{ call['closes'] | datetimetz}}
-	{% else %}
-	Open-ended
-	{% endif %}
-      </div>
-    </div>
+    <h4>
+      <a href="{{ url_for('call.display', cid=call['identifier']) }}"
+         class=" mx-4 font-weight-bold">
+        {{ call['identifier'] }}: {{ call['title'] }}</a>
+      Call for proposals.
+      {{ macros.closed(call) }}
+    </h4>
   </div>
 </div>
 {% endfor %} {# for call in calls #}
 {% if not calls %}
-<p class="lead mt-3">
-  There are currently no open calls.
-</p>
+<div class="card border-dark mt-3">
+  <div class="card-body lead">
+    There are currently no open calls.
+  </div>
+</div>
 {% endif %} {# if not calls #}
-<p class="lead mt-3">
-  Check <a href="{{ url_for('calls.closed') }}">here</a> for closed calls.
-</p>
+<div class="card border-dark mt-3">
+  <div class="card-body lead">
+    Check <a href="{{ url_for('calls.closed') }}">here</a> for closed calls.
+  </div>
+</div>
 {% endblock %} {# block main #}
 
 {% block actions %}
