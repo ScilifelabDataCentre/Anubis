@@ -99,7 +99,8 @@ def register():
         if user['status'] == constants.ENABLED:
             if utils.to_bool(flask.request.form.get('send_email')):
                 send_password_code(user, 'registration')
-                utils.flash_message('User account created; check your email.')
+                utils.flash_message('User account created; an email message'
+                                    ' containing instructions has been sent.')
             else:
                 utils.flash_message('User account created.')
         # Was set to 'pending'; send email to admins.
@@ -477,7 +478,7 @@ def send_password_code(user, action):
     url = utils.url_for('.password',
                         username=user['username'],
                         code=user['password'][len('code:'):])
-    message.body = f"To set your password, go to {url}"
+    message.body = f"Your account in the {site} system has been created.\n\nTo set your password, go to {url}"
     utils.mail.send(message)
 
 def am_admin(user=None):
