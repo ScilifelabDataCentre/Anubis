@@ -24,7 +24,8 @@ DESIGN_DOC = {
         'open_ended': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.opens || doc.closes) return; emit(doc.opens, null);}"},
         'owner': {'reduce': '_count',
                   'map': "function (doc) {if (doc.doctype !== 'call') return; emit(doc.owner, null);}"},
-        'reviewer': {'map': "function (doc) {if (doc.doctype !== 'call') return; for (var i=0; i < doc.reviewers.length; i++) {emit(doc.reviewers[i], doc.identifier); }}"},
+        'reviewer': {'reduce': '_count',
+                     'map': "function (doc) {if (doc.doctype !== 'call') return; for (var i=0; i < doc.reviewers.length; i++) {emit(doc.reviewers[i], doc.identifier); }}"},
     }
 }
 
