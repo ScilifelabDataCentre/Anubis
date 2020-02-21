@@ -15,7 +15,7 @@ User {{ user['username'] }}
   <col style="width:80%">
   {% if all_calls_count %}
   <tr>
-    <th class="text-right">My calls</th>
+    <th class="text-right">User's calls</th>
     <td>
       <a href="{{ url_for('calls.owner', username=user['username']) }}"
          role="button" class="btn btn-sm btn-primary">
@@ -26,7 +26,7 @@ User {{ user['username'] }}
   {% endif %} {# if all_calls_count #}
   {% if all_proposals_count %}
   <tr>
-    <th class="text-right">My proposals</th>
+    <th class="text-right">User's proposals</th>
     <td>
       <a href="{{ url_for('proposals.user', username=user['username']) }}"
          role="button" class="btn btn-sm btn-primary">
@@ -37,7 +37,7 @@ User {{ user['username'] }}
   {% endif %} {# if all_proposals_count #}
   {% if reviewer_calls %}
   <tr>
-    <th class="text-right">My reviews</th>
+    <th class="text-right">User's reviews</th>
     <td>
       {% for call in reviewer_calls %}
       <p class="mb-2">
@@ -45,7 +45,7 @@ User {{ user['username'] }}
            role="button" class="btn btn-sm btn-info mr-2">
           {{ utils.get_call_reviewer_reviews_count(call['identifier'], user['username']) }} reviews
         </a>
-        {{ macros.call_link(call) }}
+        of proposals in call {{ macros.call_link(call) }}
       </p>
       {% endfor %}
     </td>
@@ -53,7 +53,7 @@ User {{ user['username'] }}
   {% endif %} {# if reviewer_calls #}
   {% if len(reviewer_calls) > 1 %}
   <tr>
-    <th class="text-right">My reviews in all calls</th>
+    <th class="text-right">User's reviews in all calls</th>
     <td>
       <a href="{{ url_for('reviews.reviewer', username=user['username']) }}"
          role="button" class="btn btn-sm btn-info">

@@ -11,7 +11,7 @@ Reviews by user {{ user['username'] }}
 
 {% block supermain %}
 <div class="row mb-2">
-  <div class="col-md-2 text-right font-weight-bold">Reviews in calls</div>
+  <div class="col-md-2 text-right font-weight-bold">User's reviews</div>
   <div class="col-md">
     {% for call in reviewer_calls %}
     <p class="mb-2">
@@ -19,7 +19,7 @@ Reviews by user {{ user['username'] }}
          role="button" class="btn btn-sm btn-info mr-2">
         {{ utils.get_call_reviewer_reviews_count(call['identifier'], user['username']) }} reviews
       </a>
-      {{ macros.call_link(call) }}
+      of proposals in call {{ macros.call_link(call) }}
     </p>
     {% endfor %}
   </div>

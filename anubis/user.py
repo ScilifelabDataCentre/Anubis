@@ -506,12 +506,14 @@ def allow_edit(user):
 
 def allow_delete(user):
     """Can the the given user account be deleted? 
-    Only when it is not admin, and has no proposals and no reviews.
+    Only when user is not admin, and has no proposals and no reviews,
+    and is not reviewer in any call.
     Note that the user herself may be able to delete the account.
     """
     if user['role'] == constants.ADMIN: return False
     if utils.get_count('proposals', 'user', user['username']): return False
     if utils.get_count('reviews', 'reviewer', user['username']): return False
+    if utils.get_count('call', 'reviewer', user['username']): return False
     return True
 
 def allow_enable_disable(user):
