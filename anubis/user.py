@@ -187,7 +187,8 @@ def display(username):
         return flask.redirect(utils.referrer_or_home())
     reviewer_calls = [get_call(r.value)
                       for r in flask.g.db.view('calls', 'reviewer', 
-                                               key=user['username'])]
+                                               key=user['username'],
+                                               reduce=False)]
     all_calls_count = utils.get_count('calls', 'owner', user['username'])
     all_proposals_count = utils.get_count('proposals', 'user', user['username'])
     all_reviews_count = utils.get_count('reviews', 'reviewer', user['username'])

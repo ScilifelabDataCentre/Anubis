@@ -48,6 +48,7 @@ def get_db(app=None):
 
 def get_count(designname, viewname, key):
     "Get the count for the given view and key."
+    print('get_count >>>', designname, viewname, key)
     result = flask.g.db.view(designname, viewname, key=key, reduce=True)
     if result:
         return result[0].value
@@ -68,6 +69,7 @@ def get_proposal_reviews_count(pid):
 
 def get_call_reviewer_reviews_count(cid, username):
     "Get the count of all reviews for the reviewer in the given call."
+    print('get_call_reviewer_reviews_count >>>', cid, username)
     return get_count('reviews', 'call_reviewer', [cid, username])
 
 # Global instance of mail interface.
