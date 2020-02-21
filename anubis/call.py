@@ -24,7 +24,7 @@ DESIGN_DOC = {
         'open_ended': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.opens || doc.closes) return; emit(doc.opens, null);}"},
         'owner': {'reduce': '_count',
                   'map': "function (doc) {if (doc.doctype !== 'call') return; emit(doc.owner, null);}"},
-        'reviewer': {#'reduce': '_count',
+        'reviewer': {'reduce': '_count',
                      'map': "function (doc) {if (doc.doctype !== 'call') return; for (var i=0; i < doc.reviewers.length; i++) {emit(doc.reviewers[i], doc.identifier); }}"},
     }
 }
@@ -67,9 +67,9 @@ def display(cid):
     if flask.g.current_user:
         my_proposal = get_call_user_proposal(cid, 
                                              flask.g.current_user['username'])
-        my_reviews_count = utils.get_count(
-            'reviews', 'call_reviewer', 
-            [call['identifier'], flask.g.current_user['username']])
+        my_reviews_count = utils.get_count('reviews', 'call_reviewer', 
+                                           [call['identifier'],
+                                            flask.g.current_user['username']])
     else:
         my_proposal = None
         my_reviews_count = 0

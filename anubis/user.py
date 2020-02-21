@@ -513,7 +513,7 @@ def allow_delete(user):
     if user['role'] == constants.ADMIN: return False
     if utils.get_count('proposals', 'user', user['username']): return False
     if utils.get_count('reviews', 'reviewer', user['username']): return False
-    # if utils.get_count('calls', 'reviewer', user['username']): return False
+    if utils.get_count('calls', 'reviewer', user['username']): return False
     return True
 
 def allow_enable_disable(user):

@@ -262,7 +262,8 @@ def reviewer(username):
 
     reviewer_calls = [anubis.call.get_call(r.value)
                       for r in flask.g.db.view('calls', 'reviewer', 
-                                               key=user['username'])]
+                                               key=user['username'],
+                                               reduce=False)]
     if len(reviewer_calls) == 1:
         return flask.redirect(flask.url_for('reviews.call_reviewer',
                                             cid=reviewer_calls[0]['identifier'],
