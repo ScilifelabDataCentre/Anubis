@@ -81,14 +81,12 @@
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Reviewers</div>
   <div class="col-md">
-    {% if call.get('reviewers') %}
-    {% for reviewer in sorted(call['reviewers']) %}
+    {% for pos, reviewer in enumerate(sorted(call['reviewers'])) %}
     {{ macros.user_link(get_user(reviewer), chair=reviewer in call['chairs']) }}
-    <br>
-    {% endfor %}
-    {% else %}
-    -
+    {% if pos+1 < len(call['reviewers']) %}
+    ,
     {% endif %}
+    {% endfor %}
   </div>
 </div>
 {% endif %} {# if am_call_admin or am_reviewer #}
