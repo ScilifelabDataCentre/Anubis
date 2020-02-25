@@ -1,8 +1,13 @@
 {% extends 'base.html' %}
 
 {% block head_title %}Contact information{% endblock %}
-{% block body_title %}Contact information{% endblock %}
+{% block body_title %}{% endblock %}
 
 {% block main %}
-{{ text | markdown }}
+<div class="row">
+  <div class="col-md-6 offset-md-1">
+    <h2>Contact information</h2>
+    {{ text | markdown }}
+  </div>
+</div>
 {% endblock %} {# block main #}
