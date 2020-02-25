@@ -73,7 +73,7 @@
 {% if am_call_admin or am_reviewer %}
 <div class="row mt-1">
   <div class="col-md-2 font-weight-bold text-right">Reviews due</div>
-  <div class="col-md">{{ call.get('reviews_due') | datetimetz }}</div>
+  <div class="col-md">{{ call.get('reviews_due') | datetimetz(due=True) }}</div>
 </div>
 {% endif %} {# if am_call_admin or am_reviewer #}
 

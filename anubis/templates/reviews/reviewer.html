@@ -45,10 +45,7 @@ Reviews by user {{ user['username'] }}
     {% set proposal = get_proposal(review['proposal']) %}
     <tr>
       <td>{{ macros.review_link(review) }}</td>
-      <td>
-        {{ call.get('reviews_due') | datetimetz }}
-        {{ call.get('reviews_due') | due }}
-      </td>
+      <td>{{ call.get('reviews_due') | datetimetz(due=True) }}</td>
       <td>{{ macros.proposal_link(proposal) }}</td>
       <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
       <td>{{ macros.call_link(call, title=False) }}</td>

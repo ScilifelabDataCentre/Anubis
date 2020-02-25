@@ -24,7 +24,6 @@ def init(app):
     app.add_template_filter(markdown)
     app.add_template_filter(typed_value)
     app.add_template_filter(datetimetz)
-    app.add_template_filter(due)
     app.add_template_filter(boolean_value)
 
     db = get_db(app=app)
@@ -235,28 +234,32 @@ def typed_value(value, type, docurl=None):
     else:
         return value
 
-def datetimetz(value):
-    "Template filter: datetime with server local timezone."
+def datetimetz(value, due=False):
+    """Template filter: datetime with server local timezone.
+    Optionally output warning for approaching due date.
+    """
     if value:
-        return f"{value} {time.tzname[0]}"
+        dtz = f"{value} {time.tzname[0]}"
+        if due:
+            remaining = days_remaining(value)
+            if remaining > 7:
+                return dtz
+            elif remaining >= 2:
+                return jinja2.utils.Markup(
+                    f'{dtz} <span class="bg-warning px-2">'
+                    f'{remaining:.1f} days until due.</span>')
+            elif remaining >= 0:
+                return jinja2.utils.Markup(
+                    f'{dtz} <span class="bg-danger text-white px-2">'
+                    f'{remaining:.1f} days until due.</span>')
+            else:
+                return jinja2.utils.Markup(
+                    f'{dtz} <span class="font-weight-bold bg-danger'
+                    ' text-white px-2">Overdue!</span>')
+        else:
+            return dtz
     else:
         return '-'
-
-def due(value):
-    "Template filter: output 'due' text depending on server time."
-    if not value: return ''
-    remaining = days_remaining(value)
-    if remaining > 7:
-        return ''
-    elif remaining >= 2:
-        return jinja2.utils.Markup('<span class="bg-warning px-2">'
-                                   f'{remaining:.1f} days until due.</span>')
-    elif remaining >= 0:
-        return jinja2.utils.Markup('<span class="bg-danger text-white px-2">'
-                                   f'{remaining:.1f} days until due.</span>')
-    else:
-        return jinja2.utils.Markup('<span class="font-weight-bold bg-danger'
-                                   ' text-white px-2">Overdue!</span>')
 
 def boolean_value(value):
     "Output field value boolean."
