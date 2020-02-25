@@ -13,9 +13,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {# XXX access? #}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Submitter</div>
-  <div class="col-md">
-    {{ macros.user_link(get_user(proposal['user'])) }}
-  </div>
+  <div class="col-md">{{ get_user(proposal['user']) | user_link }}</div>
 </div>
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
@@ -34,7 +32,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {% endif %} {# if allow_view_reviews #}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Reviewer</div>
-  <div class="col-md">{{ macros.user_link(get_user(review['reviewer'])) }}</div>
+  <div class="col-md">{{ get_user(review['reviewer']) | user_link }}</div>
 </div>
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">State</div>

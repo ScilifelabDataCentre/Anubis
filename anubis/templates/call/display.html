@@ -31,9 +31,7 @@
 {% if am_call_admin or am_reviewer %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Owner</div>
-  <div class="col-md">
-    {{ macros.user_link(get_user(call['owner'])) }}
-  </div>
+  <div class="col-md">{{ get_user(call['owner']) | user_link }}</div>
 </div>
 
 <div class="row my-1">
@@ -82,7 +80,7 @@
   <div class="col-md-2 font-weight-bold text-right">Reviewers</div>
   <div class="col-md">
     {% for pos, reviewer in enumerate(sorted(call['reviewers'])) %}
-    {{ macros.user_link(get_user(reviewer), chair=reviewer in call['chairs']) }}
+    {{get_user(reviewer) | user_link(chair=reviewer in call['chairs']) }}
     {% if pos+1 < len(call['reviewers']) %}
     ,
     {% endif %}

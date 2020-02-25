@@ -13,7 +13,7 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {# XXX access? #}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Submitter</div>
-  <div class="col-md">{{ macros.user_link(get_user(proposal['user'])) }}</div>
+  <div class="col-md">{{ get_user(proposal['user']) | user_link }}</div>
 </div>
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>

@@ -1,18 +1,5 @@
 {# Macros #}
 
-{% macro user_link(user, fullname=True, chair=False, link=True) -%}
-<a href="{{ url_for('user.display', username=user['username']) }}">
-  {% if fullname and user.get('familyname') %}
-  {{ user.get('givenname')|default('', True) }} {{ user['familyname'] }}
-  {% else %}
-  {{ user['username'] }}
-  {% endif %}
-  {% if chair %}
-  (chair)
-  {% endif %}
-</a>
-{%- endmacro %}
-
 {% macro call_link(call, title=True) -%}
 <a href="{{ url_for('call.display', cid=call['identifier']) }}"
    class="font-weight-bold">

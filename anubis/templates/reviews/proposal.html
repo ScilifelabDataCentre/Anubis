@@ -44,7 +44,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
     {% for reviewer in reviewers %}
     {% set review = reviews_lookup.get(reviewer) %}
     <tr>
-      <td>{{ macros.user_link(get_user(reviewer)) }}</td>
+      <td>{{ get_user(reviewer) | user_link }}</td>
       {% if review %}
       <td>{{ macros.review_link(review) }}</td>
       {% set values = review['values'] %}

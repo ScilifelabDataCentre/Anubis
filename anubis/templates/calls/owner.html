@@ -3,7 +3,7 @@
 {% block head_title %}Calls by {{ username }} {% endblock %}
 
 {% block body_title %}
-Calls by {{ macros.user_link(get_user(username)) }}
+Calls by {{ get_user(username) | user_link }}
 {% endblock %}
 
 {% block main %}

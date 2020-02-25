@@ -6,7 +6,7 @@ Reviews by user {{ user['username'] }}
 
 {% block body_title %}
 <small class="text-muted mr-2">Reviews by</small>
-{{ macros.user_link(user) }}
+{{ user | user_link }}
 {% endblock %}
 
 {% block supermain %}
@@ -47,7 +47,7 @@ Reviews by user {{ user['username'] }}
       <td>{{ macros.review_link(review) }}</td>
       <td>{{ call.get('reviews_due') | datetimetz(due=True) }}</td>
       <td>{{ macros.proposal_link(proposal) }}</td>
-      <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
+      <td>{{ get_user(proposal['user']) | user_link }}</td>
       <td>{{ macros.call_link(call, title=False) }}</td>
     </tr>
     {% endfor %}

@@ -25,9 +25,7 @@
 
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">User</div>
-  <div class="col-md">
-    {{ macros.user_link(get_user(proposal['user'])) }}
-  </div>
+  <div class="col-md">{{ get_user(proposal['user']) | user_link }}</div>
 </div>
 
 {% if not am_reviewer %}

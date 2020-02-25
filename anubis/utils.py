@@ -25,6 +25,7 @@ def init(app):
     app.add_template_filter(typed_value)
     app.add_template_filter(datetimetz)
     app.add_template_filter(boolean_value)
+    app.add_template_filter(user_link)
 
     db = get_db(app=app)
     if db.put_design('logs', DESIGN_DOC):
@@ -260,6 +261,26 @@ def datetimetz(value, due=False):
             return dtz
     else:
         return '-'
+
+def user_link(user, fullname=True, chair=False):
+    """Template filter: user by name, with link if allowed to view.
+    Optionally output chair flag.
+    """
+    import anubis.user
+    if fullname and user.get('familyname'):
+        if user.get('givenname'):
+            name = f"{user['givenname']} {user['familyname']}"
+        else:
+            name = user['familyname']
+    else:
+        name = user['username']
+    if chair:
+        name += " (chair)"
+    if anubis.user.allow_view(user):
+        url = flask.url_for('user.display', username=user['username'])
+        return jinja2.utils.Markup(f'<a href="{url}">{name}</a>')
+    else:
+        return name
 
 def boolean_value(value):
     "Output field value boolean."

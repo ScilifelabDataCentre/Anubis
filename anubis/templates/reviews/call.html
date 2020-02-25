@@ -40,8 +40,8 @@ Reviews of proposals in call {{ call['identifier'] }}
     {% for reviewer in call['reviewers'] %}
     <tr>
       <td>{{ macros.proposal_link(proposal) }}</td>
-      <td>{{ macros.user_link(get_user(proposal['user'])) }}</td>
-      <td>{{ macros.user_link(get_user(reviewer)) }}</td>
+      <td>{{ get_user(proposal['user']) | user_link }}</td>
+      <td>{{ get_user(reviewer) | user_link }}</td>
       {% set review = reviews_lookup.get("{} {}".format(proposal['identifier'], reviewer)) %}
       {% if review %}
       <td>{{ macros.review_link(review) }}</td>
