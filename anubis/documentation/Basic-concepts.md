@@ -14,28 +14,30 @@ functions as a container for proposals, reviews and decisions.
 The admin creates a call, and sets up the input fields for the
 proposal, the reviews and the decision for each proposal.
 
-A call has an **opens** date, which defines when the call becomes
-publicly available so that proposals can be created by users.
+The **opens** date of a call defines when the call becomes publicly
+available so that proposals can be created by users. The call cannot
+be open unless this has been set.
 
-The call has a **closes** date, after which is not possible for a user
-to create a proposal or to submit it.
+After the **closes** date of a call, if defined, a user can no longer
+create or submit a proposal in it.
 
 Proposal
 --------
 
 A proposal is created within an open call by a user. Only one proposal
-in each call can be created by a user. The user fills in the proposal
-input fields, which are defined by the call.
+in each call can be created by any given user. The user fills in the
+proposal input fields, which are defined by the call.
 
 When all required input fields have been filled in, the user may
-submit the proposal. Note that the call must still be open for a
-proposal within in to be submitted!
+submit the proposal. Note that the call of the proposal must still be
+open!
 
 Review
 ------
 
 A review is an evaluation by a reviewer of a specific proposal. Review
-instance are created by the admin for the reviewers in a call.
+instance are created by the admin. The reviewers can only edit their
+review, not create or delete it.
 
 The admin may create reviews of all proposals for all reviewers, or of
 only some proposals for each reviewer, according to the policy of the
