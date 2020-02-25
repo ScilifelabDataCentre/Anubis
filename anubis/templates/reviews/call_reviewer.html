@@ -65,8 +65,13 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 <script>
   $(function() {
     $("#reviews").DataTable( {
-      "pagingType": "full_numbers",
-      "pageLength": 25
+      columnDefs: [
+        { targets: [0], orderData: [0, {{ 1 + len(bannerfields) }}] },
+        { targets: [1], orderData: [1, {{ 1 + len(bannerfields) }}] }
+      ],
+      order: [[1, "asc"]],
+      pagingType: "full_numbers",
+      pageLength: 25
     });
   });
 </script>
