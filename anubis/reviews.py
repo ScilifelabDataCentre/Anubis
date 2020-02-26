@@ -32,16 +32,18 @@ def call(cid):
         return flask.redirect(
             flask.url_for('call.display', cid=call['identifier']))
 
-    proposals = [r.doc for r in flask.g.db.view('proposals', 'call',
-                                                key=call['identifier'],
-                                                reduce=False,
-                                                include_docs=True)]
+    proposals = utils.get_docs_view('proposals', 'call', call['identifier'])
+    # proposals = [r.doc for r in flask.g.db.view('proposals', 'call',
+    #                                             key=call['identifier'],
+    #                                             reduce=False,
+    #                                             include_docs=True)]
     for proposal in proposals:
         proposal['allow_create_review'] = anubis.review.allow_create(proposal)
-    reviews = [r.doc for r in flask.g.db.view('reviews', 'call',
-                                              key=call['identifier'],
-                                              reduce=False,
-                                              include_docs=True)]
+    reviews = utils.get_docs_view('reviews', 'call', call['identifier'])
+    # reviews = [r.doc for r in flask.g.db.view('reviews', 'call',
+    #                                           key=call['identifier'],
+    #                                           reduce=False,
+    #                                           include_docs=True)]
     # For ordinary reviewer, list only finalized reviews.
     if not (flask.g.am_admin or anubis.call.am_chair(call)):
         finalized = True
@@ -75,14 +77,16 @@ def call_xlsx(cid):
         return flask.redirect(
             flask.url_for('call.display', cid=call['identifier']))
 
-    proposals = [r.doc for r in flask.g.db.view('proposals', 'call',
-                                                key=call['identifier'],
-                                                reduce=False,
-                                                include_docs=True)]
-    reviews = [r.doc for r in flask.g.db.view('reviews', 'call',
-                                              key=call['identifier'],
-                                              reduce=False,
-                                              include_docs=True)]
+    proposals = utils.get_docs_view('proposals', 'call', call['identifier'])
+    # proposals = [r.doc for r in flask.g.db.view('proposals', 'call',
+    #                                             key=call['identifier'],
+    #                                             reduce=False,
+    #                                             include_docs=True)]
+    reviews = utils.get_docs_view('reviews', 'call', call['identifier'])
+    # reviews = [r.doc for r in flask.g.db.view('reviews', 'call',
+    #                                           key=call['identifier'],
+    #                                           reduce=False,
+    #                                           include_docs=True)]
     # For ordinary reviewer, list only finalized reviews.
     if not (flask.g.am_admin or anubis.call.am_chair(call)):
         reviews = [r for r in reviews
@@ -117,15 +121,18 @@ def call_reviewer(cid, username):
         return flask.redirect(
             flask.url_for('call.display', cid=call['identifier']))
 
-    proposals = [r.doc for r in flask.g.db.view('proposals', 'call',
-                                                key=call['identifier'],
-                                                reduce=False,
-                                                include_docs=True)]
-    reviews = [r.doc for r in flask.g.db.view('reviews', 'call_reviewer',
-                                              key=[call['identifier'],
-                                                   user['username']],
-                                              reduce=False,
-                                              include_docs=True)]
+    proposals = utils.get_docs_view('proposals', 'call', call['identifier'])
+    # proposals = [r.doc for r in flask.g.db.view('proposals', 'call',
+    #                                             key=call['identifier'],
+    #                                             reduce=False,
+    #                                             include_docs=True)]
+    reviews = utils.get_docs_view('reviews', 'call_reviewer',
+                                  [call['identifier'], user['username']])
+    # reviews = [r.doc for r in flask.g.db.view('reviews', 'call_reviewer',
+    #                                           key=[call['identifier'],
+    #                                                user['username']],
+    #                                           reduce=False,
+    #                                           include_docs=True)]
     reviews_lookup = {r['proposal']:r for r in reviews}
     bannerfields = [f for f in call['review'] if f.get('banner')]
     return flask.render_template('reviews/call_reviewer.html', 
@@ -156,15 +163,18 @@ def call_reviewer_xlsx(cid, username):
         return flask.redirect(
             flask.url_for('call.display', cid=call['identifier']))
 
-    proposals = [r.doc for r in flask.g.db.view('proposals', 'call',
-                                                key=call['identifier'],
-                                                reduce=False,
-                                                include_docs=True)]
-    reviews = [r.doc for r in flask.g.db.view('reviews', 'call_reviewer',
-                                              key=[call['identifier'],
-                                                   user['username']],
-                                              reduce=False,
-                                              include_docs=True)]
+    proposals = utils.get_docs_view('proposals', 'call', call['identifier'])
+    # proposals = [r.doc for r in flask.g.db.view('proposals', 'call',
+    #                                             key=call['identifier'],
+    #                                             reduce=False,
+    #                                             include_docs=True)]
+    reviews = utils.get_docs_view('reviews', 'call_reviewer',
+                                  [call['identifier'], user['username']])
+    # reviews = [r.doc for r in flask.g.db.view('reviews', 'call_reviewer',
+    #                                           key=[call['identifier'],
+    #                                                user['username']],
+    #                                           reduce=False,
+    #                                           include_docs=True)]
     reviews_lookup = {f"{r['proposal']} {username}":r for r in reviews}
     content = get_xlsx(call, proposals, reviews_lookup)
     response = flask.make_response(content)
@@ -188,10 +198,11 @@ def proposal(pid):
         return flask.redirect(
             flask.url_for('call.display', cid=call['identifier']))
 
-    reviews = [r.doc for r in flask.g.db.view('reviews', 'proposal',
-                                              key=proposal['identifier'],
-                                              reduce=False,
-                                              include_docs=True)]
+    reviews = utils.get_docs_view('reviews', 'proposal', proposal['identifier'])
+    # reviews = [r.doc for r in flask.g.db.view('reviews', 'proposal',
+    #                                           key=proposal['identifier'],
+    #                                           reduce=False,
+    #                                           include_docs=True)]
     if not (flask.g.am_admin or anubis.call.am_chair(call)):
         finalized = True
         reviews = [r for r in reviews
@@ -229,10 +240,11 @@ def proposal_xlsx(pid):
         return flask.redirect(
             flask.url_for('call.display', cid=call['identifier']))
 
-    reviews = [r.doc for r in flask.g.db.view('reviews', 'proposal',
-                                              key=proposal['identifier'],
-                                              reduce=False,
-                                              include_docs=True)]
+    reviews = utils.get_docs_view('reviews', 'proposal', proposal['identifier'])
+    # reviews = [r.doc for r in flask.g.db.view('reviews', 'proposal',
+    #                                           key=proposal['identifier'],
+    #                                           reduce=False,
+    #                                           include_docs=True)]
     if not (flask.g.am_admin or anubis.call.am_chair(call)):
         reviews = [r for r in reviews
                    if r['reviewer'] != flask.g.current_user['username'] and 
@@ -269,10 +281,11 @@ def reviewer(username):
                                             cid=reviewer_calls[0]['identifier'],
                                             username=username))
 
-    reviews = [r.doc for r in flask.g.db.view('reviews', 'reviewer',
-                                              key=user['username'],
-                                              reduce=False,
-                                              include_docs=True)]
+    reviews = utils.get_docs_view('reviews', 'reviewer', user['username'])
+    # reviews = [r.doc for r in flask.g.db.view('reviews', 'reviewer',
+    #                                           key=user['username'],
+    #                                           reduce=False,
+    #                                           include_docs=True)]
     return flask.render_template('reviews/reviewer.html',
                                  user=user,
                                  reviewer_calls=reviewer_calls,

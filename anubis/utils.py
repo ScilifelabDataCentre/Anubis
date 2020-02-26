@@ -16,6 +16,9 @@ import werkzeug.routing
 
 from . import constants
 
+# Global instance of mail interface.
+mail = flask_mail.Mail()
+
 def init(app):
     """Initialize.
     - Add template filters.
@@ -70,8 +73,19 @@ def get_call_reviewer_reviews_count(cid, username):
     "Get the count of all reviews for the reviewer in the given call."
     return get_count('reviews', 'call_reviewer', [cid, username])
 
-# Global instance of mail interface.
-mail = flask_mail.Mail()
+def get_docs_view(designname, viewname, key):
+    "Get the documents from the view; also put them into the cache."
+    result = [r.doc for r in flask.g.db.view(designname, viewname,
+                                             key=key,
+                                             reduce=False,
+                                             include_docs=True)]
+    for doc in result:
+        if doc.get('doctype') in (constants.CALL, constants.PROPOSAL):
+            flask.g.cache[doc["identifier"]] = doc
+        elif doc.get('doctype') == constants.USER:
+            flask.g.cache[doc["username"]] = doc
+        flask.g.cache[doc["_id"]] = doc
+    return result
 
 def login_required(f):
     """Resource endpoint decorator for checking if logged in.
