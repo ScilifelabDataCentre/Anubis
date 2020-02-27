@@ -6,7 +6,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 
 {% block body_title %}
 <small class="text-muted mr-2">Review of proposal</small>
-{{ macros.proposal_link(proposal) }}
+{{ proposal | proposal_link }}
 {% endblock %}
 
 {% block main %}
@@ -17,7 +17,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 </div>
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
-  <div class="col-md">{{ macros.call_link(call) }}</div>
+  <div class="col-md">{{ call | call_link }}</div>
 </div>
 {% if allow_view_reviews %}
 <div class="row mb-2">

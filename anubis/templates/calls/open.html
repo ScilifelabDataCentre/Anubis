@@ -21,21 +21,24 @@
   <tbody class="table-borderless">
     {% for call in calls %}
     <tr>
-      <td>{{ macros.call_link(call) }}</td>
+      <td>{{ call | call_link }}</td>
       <td class="text-nowrap pl-2">{{ call['closes'] | datetimetz }}</td>
-      <td>{{ macros.closed(call) }}</td>
+      <td>
+        <span class="badge badge-pill badge-{{ call['tmp']['color'] }}">
+          {{ call['tmp']['text'] }}</span>
+      </td>
       {% if allow_create %}
       {% if am_call_admin(call) %}
       <td>
         <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
-           role="button" class="btn btn-primary">
-          {{ utils.get_call_proposals_count(call['identifier']) }} proposals
+           role="button" class="btn btn-sm btn-primary px-3">
+          {{ utils.get_call_proposals_count(call['identifier']) }}
         </a>
       </td>
       <td>
         <a href="{{ url_for('reviews.call', cid=call['identifier']) }}"
-           role="button" class="btn btn-info">
-          {{ utils.get_call_reviews_count(call['identifier']) }} reviews
+           role="button" class="btn btn-sm btn-info px-3">
+          {{ utils.get_call_reviews_count(call['identifier']) }}
         </a>
       </td>
       {% else %}

@@ -6,7 +6,7 @@ Reviews of proposals in call {{ call['identifier'] }}
 
 {% block body_title %}
 <small class="text-muted mr-2">Reviews of proposals in call</small>
-{{ macros.call_link(call) }}
+{{ call | call_link }}
 {% endblock %}
 
 {% block meta %}
@@ -39,12 +39,12 @@ Reviews of proposals in call {{ call['identifier'] }}
     {% for proposal in proposals %}
     {% for reviewer in call['reviewers'] %}
     <tr>
-      <td>{{ macros.proposal_link(proposal) }}</td>
+      <td>{{ proposal | proposal_link }}</td>
       <td>{{ get_user(proposal['user']) | user_link }}</td>
       <td>{{ get_user(reviewer) | user_link }}</td>
       {% set review = reviews_lookup.get("{} {}".format(proposal['identifier'], reviewer)) %}
       {% if review %}
-      <td>{{ macros.review_link(review) }}</td>
+      <td>{{ review | review_link }}</td>
       {% set values = review['values'] %}
       {% for field in review_bannerfields %}
       <td>

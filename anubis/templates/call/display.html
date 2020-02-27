@@ -24,7 +24,8 @@
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
   <div class="col-md">
     <span class="mr-4">{{ call['closes'] | datetimetz }}</span>
-    {{ macros.closed(call) }}
+    <span class="badge badge-pill badge-{{ call['tmp']['color'] }}">
+      {{ call['tmp']['text'] }}</span>
   </div>
 </div>
 
@@ -93,7 +94,7 @@
 <div class="row my-4">
   <div class="col-md-2 font-weight-bold text-right">My proposal</div>
   {% if my_proposal %}
-  <div class="col-md">{{ macros.proposal_link(my_proposal) }}</div>
+  <div class="col-md">{{ my_proposal | proposal_link }}</div>
   {% elif call['tmp']['is_closed'] %}
   <div class="col-md">Call is closed; a proposal cannot be created.</div>
   {% elif allow_proposal and call['tmp']['is_open'] %}

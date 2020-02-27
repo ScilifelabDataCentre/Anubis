@@ -17,7 +17,8 @@
          class=" mx-4 font-weight-bold">
         {{ call['identifier'] }}: {{ call['title'] }}</a>
       Call for proposals.
-      {{ macros.closed(call) }}
+      <span class="badge badge-pill badge-{{ call['tmp']['color'] }}">
+        {{ call['tmp']['text'] }}</span>
     </h4>
   </div>
 </div>

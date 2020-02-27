@@ -10,7 +10,7 @@
 {% block main %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
-  <div class="col-md">{{ macros.call_link(call) }}</div>
+  <div class="col-md">{{ call | call_link }}</div>
 </div>
 
 {% if am_submitter %}
@@ -18,7 +18,8 @@
   <div class="col-md-2 font-weight-bold text-right">Call closes</div>
   <div class="col-md">
     <span class="mr-4">{{ call['closes'] | datetimetz }}</span>
-    {{ macros.closed(call) }}
+    <span class="badge badge-pill badge-{{ call['tmp']['color'] }}">
+      {{ call['tmp']['text'] }}</span>
   </div>
 </div>
 {% endif %} {# if am_submitter #}
@@ -31,7 +32,13 @@
 {% if not am_reviewer %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Submitted</div>
-  <div class="col-md">{{ macros.submitted(proposal) }}</div>
+  <div class="col-md">
+    {% if proposal.get('submitted') %}
+    <span class="badge badge-pill badge-success">Submitted</span>
+    {% else %}
+    <span class="badge badge-pill badge-warning">Not submitted</span>
+    {% endif %}
+  </div>
 </div>
 {% endif %} {# if not am_reviewer #}
 
@@ -53,7 +60,7 @@
 {% if my_review %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">My review</div>
-  <div class="col-md">{{ macros.review_link(my_review) }}</div>
+  <div class="col-md">{{ my_review | review_link }}</div>
 </div>
 {% endif %} {# if my_review #}
 
@@ -126,7 +133,7 @@
 
 {% if allow_link_decision %}
 {% if decision %}
-{{ macros.decision_link(decision, block=True) }}
+{{ decision | decision_link(block=True) }}
 {% elif allow_create_decision %}
 <form action="{{ url_for('decision.create', pid=proposal['identifier']) }}"
       method="POST">

@@ -4,7 +4,7 @@
 
 {% block body_title %}
 <small class="text-muted mr-2">Proposals in call</small>
-{{ macros.call_link(call) }}
+{{ call | call_link }}
 {% endblock %}
 
 {% block meta %}
@@ -45,7 +45,7 @@
   <tbody class="table-borderless">
     {% for proposal in proposals %}
     <tr>
-      <td>{{ macros.proposal_link(proposal) }}</td>
+      <td>{{ proposal | proposal_link }}</td>
       {% set values = proposal['values'] %}
       {% for field in proposal_bannerfields %}
       <td>
@@ -53,14 +53,20 @@
       </td>
       {% endfor %}
       {% if g.am_admin %}
-      <td>{{ macros.submitted(proposal) }}</td>
+      <td>
+        {% if proposal.get('submitted') %}
+        <span class="badge badge-pill badge-success">Submitted</span>
+        {% else %}
+        <span class="badge badge-pill badge-warning">Not submitted</span>
+        {% endif %}
+      </td>
       {% endif %}
       <td>{{ get_user(proposal['user']) | user_link }}</td>
       {% if allow_view_reviews %}
       <td>
         <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
-           role="button" class="btn btn-info">
-          {{ utils.get_proposal_reviews_count(proposal['identifier']) }} reviews
+           role="button" class="btn btn-sm btn-info px-3">
+          {{ utils.get_proposal_reviews_count(proposal['identifier']) }}
         </a>
       </td>
       {% endif %} {# if allow_view_reviews #}
@@ -83,7 +89,7 @@
       {% if allow_view_decisions %}
       {% set decision = get_decision(proposal['decision']) %}
       {% if decision %}
-      <td>{{ macros.decision_link(decision) }}</td>
+      <td>{{ decision | decision_link }}</td>
       {% set values = decision.get('values') or {} %}
       {% for field in decision_bannerfields %}
       <td>

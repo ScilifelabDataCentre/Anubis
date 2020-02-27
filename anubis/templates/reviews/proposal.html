@@ -6,7 +6,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
 
 {% block body_title %}
 <small class="text-muted mr-2">Reviews of proposal</small>
-{{ macros.proposal_link(proposal) }}
+{{ proposal | proposal_link }}
 {% endblock %}
 
 {% block meta %}
@@ -25,9 +25,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
 {% endif %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
-  <div class="col-md">
-    {{ macros.call_link(call) }}
-  </div>
+  <div class="col-md">{{ call | call_link }}</div>
 </div>
 
 <table id="reviews" class="table table-sm">
@@ -46,7 +44,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
     <tr>
       <td>{{ get_user(reviewer) | user_link }}</td>
       {% if review %}
-      <td>{{ macros.review_link(review) }}</td>
+      <td>{{ review | review_link }}</td>
       {% set values = review['values'] %}
       {% for field in bannerfields %}
       <td>

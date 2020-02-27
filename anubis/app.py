@@ -51,7 +51,7 @@ def setup_template_context():
 def prepare():
     "Open the database connection, create the doc cache, get the current user."
     flask.g.db = utils.get_db()
-    flask.g.cache = {}          # id -> document
+    flask.g.cache = {}          # id or key -> document
     flask.g.current_user = anubis.user.get_current_user()
     flask.g.am_admin = anubis.user.am_admin()
     if flask.g.current_user:

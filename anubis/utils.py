@@ -29,6 +29,10 @@ def init(app):
     app.add_template_filter(datetimetz)
     app.add_template_filter(boolean_value)
     app.add_template_filter(user_link)
+    app.add_template_filter(call_link)
+    app.add_template_filter(proposal_link)
+    app.add_template_filter(review_link)
+    app.add_template_filter(decision_link)
 
     db = get_db(app=app)
     if db.put_design('logs', DESIGN_DOC):
@@ -77,13 +81,14 @@ def get_docs_view(designname, viewname, key):
     "Get the documents from the view; also put them into the cache."
     result = [r.doc for r in flask.g.db.view(designname, viewname,
                                              key=key,
-                                             reduce=False,
                                              include_docs=True)]
     for doc in result:
-        if doc.get('doctype') in (constants.CALL, constants.PROPOSAL):
-            flask.g.cache[doc["identifier"]] = doc
+        if doc.get('doctype') == constants.CALL:
+            flask.g.cache[f"call {doc['identifier']}"] = doc
+        elif doc.get('doctype') == constants.PROPOSAL:
+            flask.g.cache[f" proposal {doc['identifier']}"] = doc
         elif doc.get('doctype') == constants.USER:
-            flask.g.cache[doc["username"]] = doc
+            flask.g.cache[f"username {doc['username']}"] = doc
         flask.g.cache[doc["_id"]] = doc
     return result
 
@@ -296,6 +301,50 @@ def user_link(user, fullname=True, chair=False):
     else:
         return name
 
+def call_link(call, title=True):
+    "Template filter: link to call, by title or identifier."
+    if title:
+        title = f"{call['identifier']}: {call['title'] or ''}"
+    else:
+        title = call['identifier']
+    url = flask.url_for('call.display', cid=call['identifier'])
+    return jinja2.utils.Markup(
+        f'<a href="{url}" class="font-weight-bold">{title}</a>')
+
+def proposal_link(proposal):
+    "Template filter: link to proposal."
+    url = flask.url_for('proposal.display', pid=proposal['identifier'])
+    return jinja2.utils.Markup(
+        f'''<a href="{url}" title="{proposal['title'] or 'No title'}"'''
+        '   class="font-weight-bold">'
+        f"{proposal['identifier']} {proposal['title'] or 'No title'}</a>")
+
+def review_link(review):
+    "Template filter: link to review."
+    url = flask.url_for("review.display", iuid=review["_id"])
+    html = f'''<a href="{url}" class="font-weight-bold text-info">Review '''
+    if review.get('finalized'):
+        html += '<span class="badge badge-pill badge-success">Finalized</span>'
+    else:
+        html += '<span class="badge badge-pill badge-warning">Not finalized</span>'
+    html += "</a>"
+    return jinja2.utils.Markup(html)
+
+def decision_link(decision, block=False):
+    "Template filter: link to decision."
+    if decision is None:
+        return "-"
+    url = flask.url_for("decision.display", iuid=decision["_id"])
+    if decision.get('finalized'):
+        color = "btn-dark font-weight-bold"
+    else:
+        color = "btn-outline-secondary"
+    if block:
+        color += " btn-block"
+    return jinja2.utils.Markup(
+        f'''<a href="{url}" role="button" class="btn {color} my-1">'''
+        "Decision</a>")
+
 def boolean_value(value):
     "Output field value boolean."
     if value is None:
@@ -360,3 +409,22 @@ def delete(doc):
     if logs:
         flask.g.db.purge(logs)
     flask.g.db.purge([doc])
+
+class Timer:
+    "CPU timer."
+
+    def __init__(self):
+        self.start = time.process_time()
+
+    def __call__(self):
+        "Return CPU time (in seconds) since start of this timer."
+        return time.process_time() - self.start
+
+    def __str__(self):
+        "Return formatted CPU time in milliseconds."
+        return f"{self.milliseconds} ms"
+
+    @property
+    def milliseconds(self):
+        "Return CPU time (in milliseconds) since start of this timer."
+        return round(1000 * self())

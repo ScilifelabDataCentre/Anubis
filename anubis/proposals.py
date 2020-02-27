@@ -176,10 +176,8 @@ def compute_mean_fields(call, proposals):
                  if f.get('banner') and
                  f['type'] in constants.NUMERICAL_FIELD_TYPES]
     for proposal in proposals:
-        reviews = [r.doc for r in flask.g.db.view('reviews', 'proposal',
-                                                  key=proposal['identifier'],
-                                                  reduce=False,
-                                                  include_docs=True)]
+        reviews = utils.get_docs_view('reviews', 'proposal',
+                                      proposal['identifier'])
         scores = dict([(id, list()) for id in field_ids])
         for review in reviews:
             for id in field_ids:

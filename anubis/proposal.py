@@ -121,10 +121,8 @@ def edit(pid):
         decision = anubis.decision.get_decision(proposal.get('decision'))
         if decision:
             utils.delete(decision)
-        reviews = [r.doc for r in flask.g.db.view('reviews', 'proposal',
-                                                  key=proposal['identifier'],
-                                                  reduce=False,
-                                                  include_docs=True)]
+        reviews = utils.get_docs_view('reviews', 'proposal',
+                                      proposal['identifier'])
         for review in reviews:
             utils.delete(review)
         utils.delete(proposal)
@@ -274,12 +272,13 @@ def get_proposal(pid):
     try:
         return flask.g.cache[pid]
     except KeyError:
-        result = [r.doc for r in flask.g.db.view('proposals', 'identifier',
-                                                 key=pid,
-                                                 include_docs=True)]
-        if len(result) == 1:
-            proposal = result[0]
+        docs = [r.doc for r in flask.g.db.view('proposals', 'identifier',
+                                               key=pid,
+                                               include_docs=True)]
+        if len(docs) == 1:
+            proposal = docs[0]
             flask.g.cache[pid] = proposal
+            flask.g.cache[proposal["_id"]] = proposal
             return proposal
         else:
             return None
@@ -333,7 +332,6 @@ def get_call_user_proposal(cid, username):
     "Get the proposal created by the user in the call."
     result = [r.doc for r in flask.g.db.view('proposals', 'call_user',
                                              key=[cid, username],
-                                             reduce=False,
                                              include_docs=True)]
     if len(result) == 1:
         return result[0]

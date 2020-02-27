@@ -782,6 +782,7 @@ def get_call(cid):
         if len(result) == 1:
             call = set_tmp(result[0])
             flask.g.cache[cid] = call
+            flask.g.cache[call["_id"]] = call
             return call
         else:
             return None

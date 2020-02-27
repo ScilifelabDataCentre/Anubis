@@ -19,7 +19,7 @@ Reviews by user {{ user['username'] }}
          role="button" class="btn btn-sm btn-info mr-2">
         {{ utils.get_call_reviewer_reviews_count(call['identifier'], user['username']) }} reviews
       </a>
-      of proposals in call {{ macros.call_link(call) }}
+      of proposals in call {{ call | call_link }}
     </p>
     {% endfor %}
   </div>
@@ -44,11 +44,11 @@ Reviews by user {{ user['username'] }}
     {% set call = get_call(review['call']) %}
     {% set proposal = get_proposal(review['proposal']) %}
     <tr>
-      <td>{{ macros.review_link(review) }}</td>
+      <td>{{ review | review_link }}</td>
       <td>{{ call.get('reviews_due') | datetimetz(due=True) }}</td>
-      <td>{{ macros.proposal_link(proposal) }}</td>
+      <td>{{ proposal | proposal_link }}</td>
       <td>{{ get_user(proposal['user']) | user_link }}</td>
-      <td>{{ macros.call_link(call, title=False) }}</td>
+      <td>{{ call | call_link(title=False) }}</td>
     </tr>
     {% endfor %}
   </tbody>

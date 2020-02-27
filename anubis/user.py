@@ -404,26 +404,38 @@ class UserSaver(BaseSaver):
         self.doc['birthdate'] = birthdate
 
 
-def get_user(username=None, email=None, safe=False):
+def get_user(username=None, email=None):
     """Return the user for the given username or email.
     Return None if no such user.
     """
-    user = None
     if username:
-        rows = flask.g.db.view('users', 'username', 
-                               key=username, include_docs=True)
-        if len(rows) == 1:
-            user = rows[0].doc
-    if user is None and email:
-        rows = flask.g.db.view('users', 'email',
-                               key=email, include_docs=True)
-        if len(rows) == 1:
-            user = rows[0].doc
-    if user:
-        if safe:
-            user['iuid'] = user.pop('_id')
-            user.pop('_rev')
-            user.pop('password', None)
+        try:
+            return flask.g.cache[f"username {username}"]
+        except KeyError:
+            docs = [r.doc for r in flask.g.db.view('users', 'username', 
+                                                   key=username,
+                                                   include_docs=True)]
+            if len(docs) == 1:
+                user = docs[0]
+            else:
+                return None
+    elif email:
+        try:
+            return flask.g.cache[f"email {email}"]
+        except KeyError:
+            docs = [r.doc for r in flask.g.db.view('users', 'email',
+                                                   key=email,
+                                                   include_docs=True)]
+            if len(docs) == 1:
+                user = docs[0]
+            else:
+                return None
+    else:
+        return None
+    flask.g.cache[user["_id"]] = user
+    flask.g.cache[f"username {user['username']}"] = user
+    if user['email']:
+        flask.g.cache[f"email {user['email']}"] = user
     return user
 
 def get_users(role, status=None, safe=False):
