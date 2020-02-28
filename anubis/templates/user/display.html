@@ -74,6 +74,18 @@ User {{ user['username'] }}
     <th class="text-right">Role</th>
     <td>{{ user['role'] }}</td>
   </tr>
+  {% if g.am_admin %}
+  <tr>
+    <th class="text-right">Code</th>
+    <td>
+      {% if user['password'].startswith('code:') %}
+      {{ user['password'][5:] }}
+      {% else %}
+      <i>password set</i>
+      {% endif %}
+    </td>
+  </tr>
+  {% endif %}
   <tr>
     <th class="text-right">May create calls</th>
     <td>{{ (user.get('call_creator', False) or user['role'] == constants.ADMIN) | boolean_value }}</td>

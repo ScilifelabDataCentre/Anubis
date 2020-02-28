@@ -121,8 +121,9 @@ def register():
 def reset():
     "Reset the password for a user account and send email."
     if utils.http_GET():
-        return flask.render_template('user/reset.html',
-                                     email=flask.request.args.get('email') or '')
+        email = flask.request.args.get('email') or ''
+        email = email.lower()
+        return flask.render_template('user/reset.html', email=email)
 
     elif utils.http_POST():
         try:
@@ -136,8 +137,8 @@ def reset():
                 saver.set_password()
             send_password_code(user, 'password reset')
         # Don't advertise whether user exists or not.
-        utils.flash_message('An email has been sent,'
-                            ' if the user account exists.')
+        utils.flash_message(
+            'An email has been sent, if the user account exists.')
         return flask.redirect(flask.url_for('home'))
 
 @blueprint.route('/password', methods=['GET', 'POST'])
@@ -351,6 +352,7 @@ class UserSaver(BaseSaver):
     def set_email(self, email, require=True):
         if email:
             if email == self.doc.get('email'): return
+            email = email.lower()
             if not constants.EMAIL_RX.match(email):
                 raise ValueError('invalid email')
             if get_user(email=email):
@@ -420,6 +422,7 @@ def get_user(username=None, email=None):
             else:
                 return None
     elif email:
+        email = email.lower()
         try:
             return flask.g.cache[f"email {email}"]
         except KeyError:
