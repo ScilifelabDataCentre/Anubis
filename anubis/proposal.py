@@ -284,47 +284,50 @@ def get_proposal(pid):
             return None
 
 def allow_view(proposal):
-    """The call admin may view a proposal.
+    """The admin, staff and call owner may view a proposal.
     The user of the proposal may view it.
     The reviewers may view it.
     """
     if not flask.g.current_user: return False
+    if flask.g.am_admin: return True
+    if flask.g.am_staff: return True
     call = anubis.call.get_call(proposal['call'])
-    if anubis.call.am_call_admin(call): return True
-    if anubis.call.am_reviewer(call):
-        return bool(proposal.get('submitted'))
+    if anubis.call.am_call_owner(call): return True
+    if anubis.call.am_reviewer(call): return bool(proposal.get('submitted'))
     return flask.g.current_user['username'] == proposal['user']
 
 def allow_edit(proposal):
-    """The call admin may edit the proposal.
+    """The admin and call owner may edit the proposal.
     The user may edit if not submitted.
     """
     if not flask.g.current_user: return False
+    if flask.g.am_admin: return True
     call = anubis.call.get_call(proposal['call'])
-    if anubis.call.am_call_admin(call): return True
+    if anubis.call.am_call_owner(call): return True
     if proposal.get('submitted'): return False
     return flask.g.current_user['username'] == proposal['user']
 
 def allow_delete(proposal):
-    """The call admin may delete the proposal.
+    """The admin, and call owner may delete the proposal.
     The user may delete if not submitted.
     """
     if not flask.g.current_user: return False
+    if flask.g.am_admin: return True
     call = anubis.call.get_call(proposal['call'])
-    if anubis.call.am_call_admin(call): return True
+    if anubis.call.am_call_owner(call): return True
     if proposal.get('submitted'): return False
     return flask.g.current_user['username'] == proposal['user']
 
 def allow_submit(proposal):
     """Only if there are no errors.
-    Admin may submit/unsubmit the proposal.
-    The owner of the call may submit/unsubmit the proposal.
+    The admin and owner of the call may submit/unsubmit the proposal.
     The user may submit/unsubmit the proposal if the call is open.
     """
     if not flask.g.current_user: return False
     if proposal['errors']: return False
+    if flask.g.am_admin: return True
     call = anubis.call.get_call(proposal['call'])
-    if anubis.call.am_call_admin(call): return True
+    if anubis.call.am_call_owner(call): return True
     return flask.g.current_user['username'] == proposal['user'] and \
            call['tmp']['is_open']
     

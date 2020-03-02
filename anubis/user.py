@@ -507,6 +507,13 @@ def am_admin(user=None):
     if user is None: return False
     return user['role'] == constants.ADMIN
 
+def am_staff(user=None):
+    "Is the user staff? Default user: current_user."
+    if user is None:
+        user = flask.g.current_user
+    if user is None: return False
+    return user['role'] == constants.STAFF
+
 def allow_view(user):
     """Is the current user allowed to view the user account?
     Yes, if current user is admin or self.

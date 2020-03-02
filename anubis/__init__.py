@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '0.9.2'
+__version__ = '0.9.3'
 
 class Constants:
     VERSION     = __version__
@@ -27,8 +27,9 @@ class Constants:
 
     # User roles
     ADMIN = 'admin'
+    STAFF = 'staff'
     # USER  = 'user' # Defined above
-    USER_ROLES = (ADMIN, USER)
+    USER_ROLES = (ADMIN, STAFF, USER)
 
     # User statuses
     PENDING  = 'pending'

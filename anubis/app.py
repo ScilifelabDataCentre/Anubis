@@ -54,6 +54,7 @@ def prepare():
     flask.g.cache = {}          # id or key -> document
     flask.g.current_user = anubis.user.get_current_user()
     flask.g.am_admin = anubis.user.am_admin()
+    flask.g.am_staff = anubis.user.am_staff()
     if flask.g.current_user:
         username = flask.g.current_user['username']
         flask.g.my_calls_count = utils.get_count(

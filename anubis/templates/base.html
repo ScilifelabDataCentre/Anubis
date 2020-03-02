@@ -82,10 +82,10 @@
                  href="{{ url_for('calls.owner', username=g.current_user['username']) }}">
                 My calls</a>
               {% endif %} {# if g.my_calls_count #}
-              {% if g.am_admin %}
+              {% if g.am_admin or g.am_staff %}
               <a class="dropdown-item"
                  href="{{ url_for('calls.all') }}">All calls</a>
-              {% endif %} {# if g.am_admin #}
+              {% endif %} {# if g.am_admin or g.am_staff #}
             </div>
           </li>
           {% if g.am_admin %}

@@ -11,12 +11,15 @@ from . import utils
 blueprint = flask.Blueprint('calls', __name__)
 
 @blueprint.route('')
-@utils.admin_required
+@utils.login_required
 def all():
     """All calls.
     Includes calls that have not been opened,
     and those with neither opens nor closes dates set.
     """
+    if not (flask.g.am_admin or flask.g.am_staff):
+        utils.flash_error('You are not allowed to view all calls.')
+        return flask.redirect(utils.referrer_or_home())
     calls = [anubis.call.set_tmp(r.doc) for r in 
              flask.g.db.view('calls', 'identifier', include_docs=True)]
     return flask.render_template('calls/all.html', calls=calls)
@@ -24,7 +27,7 @@ def all():
 @blueprint.route('/owner/<username>')
 @utils.login_required
 def owner(username):
-    """Calls owner by the given user.
+    """Calls owned by the given user.
     Includes calls that have not been opened,
     and those with neither opens nor closes dates set.
     """
@@ -48,7 +51,7 @@ def closed():
                                       include_docs=True)]
     return flask.render_template('calls/closed.html',
                                  calls=calls,
-                                 am_call_admin=anubis.call.am_call_admin,
+                                 am_call_owner=anubis.call.am_call_owner,
                                  allow_create=anubis.call.allow_create())
 
 @blueprint.route('/open')
@@ -56,7 +59,7 @@ def open():
     "Open calls."
     return flask.render_template('calls/open.html',
                                  calls=get_open_calls(),
-                                 am_call_admin=anubis.call.am_call_admin,
+                                 am_call_owner=anubis.call.am_call_owner,
                                  allow_create=anubis.call.allow_create())
 
 def get_open_calls():

@@ -75,13 +75,14 @@ def display(cid):
         my_reviews_count = 0
     return flask.render_template('call/display.html',
                                  call=call,
-                                 am_call_admin=am_call_admin(call),
+                                 am_call_owner=am_call_owner(call),
                                  my_proposal=my_proposal,
                                  am_reviewer=am_reviewer(call),
                                  my_reviews_count=my_reviews_count,
                                  allow_edit=allow_edit(call),
                                  allow_delete=allow_delete(call),
                                  allow_proposal=allow_proposal(call),
+                                 allow_view_proposals=allow_view_proposals(call),
                                  allow_view_reviews=allow_view_reviews(call))
 
 @blueprint.route('/<cid>/edit', methods=['GET', 'POST', 'DELETE'])
@@ -448,8 +449,8 @@ def logs(cid):
         utils.flash_error('No such call.')
         return flask.redirect(flask.url_for('home'))
 
-    if not am_call_admin(call):
-        utils.flash_error('You are not admin for the call.')
+    if not (flask.g.am_admin or am_call_owner(call)):
+        utils.flash_error('You are not admin or owner of the call.')
         return flask.redirect(utils.referrer_or_home())
 
     return flask.render_template(
@@ -795,19 +796,21 @@ def allow_create(user=None):
     return user.get('call_creator') or user['role'] == constants.ADMIN
 
 def allow_view(call):
-    """The call admin may view any call.
+    """The admin, staff and call owner may view any call.
     Others may view a call if it has an opens date.
     """
-    if am_call_admin(call): return True
+    if flask.g.am_admin: return True
+    if flask.g.am_staff: return True
+    if am_call_owner(call): return True
     return bool(call['opens'])
 
 def allow_edit(call):
-    "The call admin may edit a call."
-    return am_call_admin(call)
+    "The admin and call owner may edit a call."
+    return flask.g.am_admin or am_call_owner(call)
 
 def allow_delete(call):
-    "Allow call admin to delete a call if it has no proposals."
-    if not am_call_admin(call): return False
+    "Allow the admin or call owner to delete a call if it has no proposals."
+    if not (flask.g.am_admin or am_call_owner(call)): return False
     return utils.get_count('proposals', 'call', call['identifier']) == 0
 
 def allow_proposal(call):
@@ -815,24 +818,35 @@ def allow_proposal(call):
     if not flask.g.current_user: return False
     return not am_reviewer(call)
 
+def allow_view_proposals(call):
+    "The admin, staff, call owner and reviewers may view all proposals."
+    if not flask.g.current_user: return False
+    if flask.g.am_admin: return True
+    if flask.g.am_staff: return True
+    return am_call_owner(call) or am_reviewer(call)
+
 def allow_view_reviews(call):
-    """Admin may view all reviews.
+    """The admin, staff and call owner may view all reviews.
     Review chairs may view all reviews.
     Other reviewers may view depending on the access flag for the call.
     """
     if not flask.g.current_user: return False
-    if am_call_admin(call): return True
+    if flask.g.am_admin: return True
+    if flask.g.am_staff: return True
+    if am_call_owner(call): return True
     if am_reviewer(call):
         if am_chair(call): return True
         return bool(call['access'].get('allow_reviewer_view_all_reviews'))
     return False
 
 def allow_view_decisions(call):
-    """Admin may view all decisions.
+    """The admin, staff and call owner may view all decisions.
     Reviewer may view all decisions in a call.
     """
     if not flask.g.current_user: return False
-    if am_call_admin(call): return True
+    if flask.g.am_admin: return True
+    if flask.g.am_staff: return True
+    if am_call_owner(call): return True
     return am_reviewer(call)
 
 def am_reviewer(call):
@@ -845,10 +859,9 @@ def am_chair(call):
     if not flask.g.current_user: return False
     return flask.g.current_user['username'] in call['chairs']
 
-def am_call_admin(call):
-    "Is the current user the owner of the call or an administrator?"
+def am_call_owner(call):
+    "Is the current user the owner of the call?"
     if not flask.g.current_user: return False
-    if flask.g.am_admin: return True
     return flask.g.current_user['username'] == call['owner']
 
 def set_tmp(call):

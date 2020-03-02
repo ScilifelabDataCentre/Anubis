@@ -28,7 +28,7 @@
           {{ call['tmp']['text'] }}</span>
       </td>
       {% if allow_create %}
-      {% if am_call_admin(call) %}
+      {% if g.am_admin or am_call_owner(call) %}
       <td>
         <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
            role="button" class="btn btn-sm btn-primary px-3">
@@ -48,7 +48,7 @@
       <td>
         <i>N/A</i>
       </td>
-      {% endif %} {# if am_call_admin(call) #}
+      {% endif %} {# if g.am_admin or am_call_owner(call) #}
       {% endif %} {# if allow_create #}
     </tr>
     {% endfor %} {# for call in calls #}

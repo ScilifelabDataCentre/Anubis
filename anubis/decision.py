@@ -266,6 +266,7 @@ def allow_view(decision):
     "Submitter may view decision for her proposal."
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
+    if flask.g.am_staff: return True
     call = anubis.call.get_call(decision['call'])
     if not call['access']['allow_submitter_view_decision']: return False
     proposal = anubis.proposal.get_proposal(decision['proposal'])
