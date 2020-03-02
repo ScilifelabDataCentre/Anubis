@@ -66,6 +66,7 @@ def main():
         parser.print_usage()
     with anubis.app.app.app_context():
         flask.g.db = utils.get_db()
+        flask.g.cache = {}          # id or key -> document
         execute(pargs)
 
 if __name__ == '__main__':
