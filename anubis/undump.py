@@ -38,8 +38,7 @@ def undump(db, filepath):
         itemfile.close()
         if item.name in attachments:
             # This relies on an attachment being after its item in the tarfile.
-            rev = db.put_attachment(doc, itemdata, **attachments.pop(item.name))
-            doc["_rev"] = rev
+            db.put_attachment(doc, itemdata, **attachments.pop(item.name))
             count_files += 1
         else:
             doc = json.loads(itemdata)

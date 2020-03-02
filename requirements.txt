@@ -3,7 +3,7 @@ blinker==1.4
 certifi==2019.9.11
 chardet==3.0.4
 Click==7.0
-CouchDB2==1.8.5
+CouchDB2==1.9.0
 et-xmlfile==1.0.1
 Flask==1.1.1
 Flask-Mail==0.9.1
