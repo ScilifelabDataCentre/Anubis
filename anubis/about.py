@@ -65,8 +65,12 @@ def get_software():
     ]
 
 @blueprint.route('/settings')
-@utils.admin_required
+@utils.login_required
 def settings():
+    "Display all configuration settings."
+    if not (flask.g.am_admin or flask.g.am_staff):
+        utils.flash_error('You are not allowed to view configuration settings.')
+        return flask.redirect(flask.url_for('home'))
     config = flask.current_app.config.copy()
     for key in ['SECRET_KEY', 'COUCHDB_PASSWORD', 'MAIL_PASSWORD']:
         if config[key]:

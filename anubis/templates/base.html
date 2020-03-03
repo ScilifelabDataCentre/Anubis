@@ -88,7 +88,7 @@
               {% endif %} {# if g.am_admin or g.am_staff #}
             </div>
           </li>
-          {% if g.am_admin %}
+          {% if g.am_admin or g.am_staff %}
           <li class="nav-item dropdown">
             <a href="#" id="navbarAdmin" class="nav-link dropdown-toggle pr-4"
                role="button" data-toggle="dropdown"
@@ -96,13 +96,15 @@
             <div class="dropdown-menu" aria-labelledby="navbarAdmin">
               <a class="dropdown-item"
                  href="{{ url_for('user.all') }}">All users</a>
+              {% if g.am_admin %}
               <a class="dropdown-item"
                  href="{{ url_for('user.register') }}">Register user</a>
+              {% endif %} {# if g.am_admin #}
               <a class="dropdown-item"
                  href="{{ url_for('about.settings') }}">Settings</a>
             </div>
           </li>
-          {% endif %} {# if g.am_admin #}
+          {% endif %} {# if g.am_admin or g.am_staff #}
         </ul>
 
         <ul class="navbar-nav justify-content-end">

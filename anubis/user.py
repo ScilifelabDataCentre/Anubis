@@ -282,9 +282,12 @@ def logs(username):
         logs=utils.get_logs(user['_id']))
 
 @blueprint.route('/all')
-@utils.admin_required
+@utils.login_required
 def all():
     "Display list of all users."
+    if not (flask.g.am_admin or flask.g.am_staff):
+        utils.flash_error('You are not allowed to view all users.')
+        return flask.redirect(flask.url_for('home'))
     users = get_users(role=None)
     for user in users:
         user['all_proposals_count'] = utils.get_count('proposals', 'user',
@@ -516,10 +519,11 @@ def am_staff(user=None):
 
 def allow_view(user):
     """Is the current user allowed to view the user account?
-    Yes, if current user is admin or self.
+    Yes, if current user is admin, staff or self.
     """
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
+    if flask.g.am_staff: return True
     if flask.g.current_user['username'] == user['username']: return True
     return False
 
