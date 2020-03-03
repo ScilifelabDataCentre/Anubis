@@ -8,7 +8,8 @@ need to be adapted to your site.
 
 ### Software
 
-The source code is available the [Anubis GitHub repo](https://github.com/pekrau/Anubis).
+The source code is available the
+[Anubis GitHub repo](https://github.com/pekrau/Anubis).
 
 Anubis requires Python 3.6 and [CouchDB 2.3.1](https://couchdb.apache.org/);
 their installation is not documented here.
@@ -44,9 +45,10 @@ $ pip install -r requirements.txt
 
 ### Configuration
 
-The Anubis server needs to be configured. This is done in a JSON file
-called `settings.json` located in the `site` directory. An example file
-can be found in the `install` directory.
+The Anubis server `flask` server runs as a `uwsgi` web server. It
+needs to be configured. This is done in a JSON file called
+`settings.json` located in the `site` directory. An example file can
+be found in the `install` directory.
 
 ```
 $ cd Anubis

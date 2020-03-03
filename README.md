@@ -11,7 +11,8 @@ Proposal submission and review handling system.
   - Login required, password and reset code sent by email.
   - Roles:
     - Admin: can do everything.
-    - User: ordinary users.
+    - Staff: may view everything, but change very little.
+    - User: ordinary users; a user may be allowed to create calls.
     - Reviewer = a user designated as reviewer for a call by admin.
     - Chair = reviewer with some additional privileges.
   
@@ -20,12 +21,12 @@ Proposal submission and review handling system.
   - Unique prefix (identifier) letters, digits, underscore
   - With info, documents, instructions, etc, for the user (applicant).
   - Defines proposal fields, review fields, and access configuration.
-  - Handled by admin.
+  - Handled by admin, or by a user that has been allowed to create calls.
   - Admin sets the reviewers and chairs of a call.
   - Date opens.
   - Date closes (time, local).
   - Date reviews due.
-  - Status determined by dates.
+  - Status is determined by dates.
   
 - Proposal
   - = Application = submission; the proposal to be reviewed.
@@ -36,18 +37,13 @@ Proposal submission and review handling system.
   - Attached documents (project description, CV,...)
   - Made by user, ownership may be transferred to another user.
   - Submitted or not submitted.
-  - Reviewer relation: TODO
-    - Interest
-    - Conflict-of-interest
-    - Assignment
-    - Responsibility
   
 - Review
   - A reviewer's comments and scores for a proposal.
   - A review is created by the admin (or chair) for a given
     submitted proposal and a given reviewer.
-  - Fields; defined in call.
-  - Finalized or not finalized.  
+  - Fields; defined in the call.
+  - Finalized or unfinalized.  
 
 - Lists
   - All proposals in a call (also Excel)
@@ -71,12 +67,5 @@ in the system design.
 Python3, Flask, CouchDB server, CouchDB2 (Python module),
 Bootstrap, jQuery, DataTables.
 
-## Commercial systems
-
-- Evalato
-- Apply Surveymonkey
-- OpenWater
-- AwardForce
-
 The icon "Feather of Ma'at" made by
-[freepik from flaticon.com](https://www.flaticon.com/authors/freepik).
+[freepik at flaticon.com](https://www.flaticon.com/authors/freepik).
