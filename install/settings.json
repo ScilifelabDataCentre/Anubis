@@ -1,7 +1,8 @@
 {
   "DEBUG": true,
   "SECRET_KEY": "lewmkcjdfiwer7234978bh3",
-  "LOG_DEBUG": true,
+  "COUCHDB_URL": "http://127.0.0.1:5984/",
+  "COUCHDB_DBNAME": "anubis",
   "COUCHDB_USERNAME": "admin",
   "COUCHDB_PASSWORD": "secret",
   "SITE_STATIC_DIRPATH": "~/Anubis/site/static",
