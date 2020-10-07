@@ -2,6 +2,9 @@
 
 Proposal submission and review handling system.
 
+See [install/README.md](install/README.md) for information on how to install
+this system.
+
 ## Entities
 
 - User
