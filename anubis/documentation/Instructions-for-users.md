@@ -30,5 +30,5 @@ proposals, if any, have all been submitted.
 - As long as the call is open, you may un-submit your proposal if you
   wish to edit it further, or even delete it.
 - Once the call's deadline for submission has been passed, the user
-  may not submit a proposal. **Be sure to submit your proposal before
-  the deadline!**
+  may no longer submit a proposal. **Be sure to submit your proposal
+  before the deadline!**
