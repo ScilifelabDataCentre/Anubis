@@ -9,7 +9,7 @@ proposals, if any, have all been submitted.
 - In order to create a proposal in a call, a user must have an account
   in the system.
 - To create an account in the Anubis system, go to the page
-  [/user/register](Register a user account) and follow the
+  [Register a user account](/user/register) and follow the
   instructions.
 - When a new user account has been enabled, you will recieve an email
   describing how to set your password.
