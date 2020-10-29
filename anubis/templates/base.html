@@ -25,11 +25,7 @@
          style="background-color: #e8e8e8;">
       <a class="navbar-brand" href="{{ url_for('home') }}">
         <img width="32" height="32" class="d-inline-block align-top"
-	     {% if config['SITE_LOGO'] %}
-	     src="{{ url_for('site.static', filename=config['SITE_LOGO']) }}"
-	     {% else %}
 	     src="{{ url_for('static', filename='feather-of-maat.png') }}"
-             {% endif %}
 	     title="{{ config['SITE_NAME'] }}" alt="{{ config['SITE_NAME'] }}">
         {{ config['SITE_NAME'] }}</a>
       <button type="button" class="navbar-toggler navbar-toggler-right"

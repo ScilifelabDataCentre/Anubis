@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 
 {% block body_title %}
+{% if config['SITE_LOGO'] %}
+<img src="{{ url_for('site.static', filename=config['SITE_LOGO']) }}"
+     class="align-middle mr-1" title="config['SITE_NAME']">
+{% endif %}
 {{ config['SITE_NAME'] }}
 <small class="ml-4 text-muted">
   Proposal submission and review handling system.
