@@ -5,20 +5,20 @@ background in the top menu. If there is no such yellow marker, your
 reviews are done.
 
 1. Click on the item "My reviews" in the top menu.
-2. The list of all reviews for your user account are shown in a table,
-   which can be sorted by any column.
-3. **Note** that the table may have more than one page, depending on
-   the number of proposals. Use the page selector at the bottom right of
-   the table.
-4. Click on the link "Review" to view the review of the proposal on
+   - The list of all reviews for your user account are shown in a table,
+     which can be sorted by any column.
+   - **Note** that the table may have more than one page, depending on
+     the number of proposals. Use the page selector at the bottom right of
+     the table.
+2. Click on the link "Review" to view the review of the proposal on
    that line in the table.
-5. Edit the review.
-6. Click **Finalize** to indicate that you are done with the review.
-7. Until the **due** date for reviews in the call, you may
-   **Unfinalize** a review if you wish to resume editing it.
-8. To view the proposal of the review, click the link to the proposal
+3. Edit the review.
+4. Click **Finalize** to indicate that you are done with the review.
+   - Until the **due** date for reviews in the call, you may
+     **Unfinalize** a review if you wish to resume editing it.
+5. To view the proposal of the review, click the link to the proposal
    in the title. (Tip: do right-hand click and "Open in new tab".)
-9. Before the **due** date, ensure that all your reviews have been
+6. Before the **due** date, ensure that all your reviews have been
    finalized.
 
 ### Basic reviewer information

@@ -11,7 +11,7 @@ import couchdb2
 import flask
 import flask_mail
 import jinja2.utils
-import markdown as markdown_module
+import marko
 import werkzeug.routing
 
 from . import constants
@@ -382,10 +382,8 @@ def float_value(value):
         return '?'
 
 def markdown(value):
-    "Process the value using Markdown."
-    value = value or ''
-    return jinja2.utils.Markup(markdown_module.markdown(value,
-                                                        output_format='html5'))
+    "Process the value using Marko markdown."
+    return jinja2.utils.Markup(marko.convert(value or ''))
 
 def get_logs(docid, cleanup=True):
     """Return the list of log entries for the given document identifier,
