@@ -204,6 +204,8 @@ class FieldMixin:
                     self.add_attachment(infile.filename,
                                         infile.read(),
                                         infile.mimetype)
+                else:
+                    self.doc['values'][fid] = None
 
         if self.doc['errors'].get(fid): return # Error message already set; skip
         if field['required'] and self.doc['values'][fid] is None:

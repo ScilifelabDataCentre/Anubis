@@ -315,9 +315,9 @@ def proposal_link(proposal):
     "Template filter: link to proposal."
     url = flask.url_for('proposal.display', pid=proposal['identifier'])
     return jinja2.utils.Markup(
-        f'''<a href="{url}" title="{proposal['title'] or 'No title'}"'''
+        f'''<a href="{url}" title="{proposal.get('title') or '[No title]'}"'''
         '   class="font-weight-bold">'
-        f"{proposal['identifier']} {proposal['title'] or 'No title'}</a>")
+        f"{proposal['identifier']} {proposal.get('title') or '[No title]'}</a>")
 
 def review_link(review):
     "Template filter: link to review."
