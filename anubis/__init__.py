@@ -2,16 +2,16 @@
 
 import re
 
-__version__ = '0.9.9'
+__version__ = '0.9.10'
 
 class Constants:
     VERSION     = __version__
     SOURCE_NAME = 'Anubis'
     SOURCE_URL  = 'https://github.com/pekrau/Anubis'
 
-    BOOTSTRAP_VERSION  = '4.3.1'
-    JQUERY_VERSION     = '3.3.1'
-    DATATABLES_VERSION = '1.10.18'
+    BOOTSTRAP_VERSION  = '4.5.3'
+    JQUERY_VERSION     = '3.5.1'
+    DATATABLES_VERSION = '1.10.22'
 
     ID_RX    = re.compile(r'^[a-z][a-z0-9_]*$', re.I)
     IUID_RX  = re.compile(r'^[a-f0-9]{32,32}$', re.I)
