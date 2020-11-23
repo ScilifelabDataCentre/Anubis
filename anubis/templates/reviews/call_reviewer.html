@@ -52,7 +52,7 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
         {{ values.get(field['identifier']) | typed_value(field['type']) }}
       </td>
       {% endfor %}
-      <td>{{ proposal | proposal_link }}</td>
+      <td>{{ proposal | proposal_link(bold=False) }}</td>
       <td>{{ get_user(proposal['user']) | user_link }}</td>
     </tr>
     {% endif %}

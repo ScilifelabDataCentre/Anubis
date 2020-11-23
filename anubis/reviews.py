@@ -235,6 +235,7 @@ def reviewer(username):
                       for r in flask.g.db.view('calls', 'reviewer', 
                                                key=user['username'],
                                                reduce=False)]
+    # Reviews in only one call; redirect to its reviews page for the reviewer.
     if len(reviewer_calls) == 1:
         return flask.redirect(flask.url_for('reviews.call_reviewer',
                                             cid=reviewer_calls[0]['identifier'],

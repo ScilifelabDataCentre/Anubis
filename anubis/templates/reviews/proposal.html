@@ -31,18 +31,17 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
 <table id="reviews" class="table table-sm">
   <thead>
     <tr>
-      <th>Reviewer</th>
       <th>Review</th>
       {% for field in bannerfields %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
+      <th>Reviewer</th>
     </tr>
   </thead>
   <tbody>
     {% for reviewer in reviewers %}
     {% set review = reviews_lookup.get(reviewer) %}
     <tr>
-      <td>{{ get_user(reviewer) | user_link }}</td>
       {% if review %}
       <td>{{ review | review_link }}</td>
       {% set values = review['values'] %}
@@ -68,6 +67,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
       <td>-</td>
       {% endfor %}
       {% endif %} {# if review #}
+      <td>{{ get_user(reviewer) | user_link }}</td>
     </tr>
     {% endfor %}
   </tbody>

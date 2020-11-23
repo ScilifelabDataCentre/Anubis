@@ -311,13 +311,15 @@ def call_link(call, title=True):
     return jinja2.utils.Markup(
         f'<a href="{url}" class="font-weight-bold">{title}</a>')
 
-def proposal_link(proposal):
+def proposal_link(proposal, bold=True):
     "Template filter: link to proposal."
-    url = flask.url_for('proposal.display', pid=proposal['identifier'])
-    return jinja2.utils.Markup(
-        f'''<a href="{url}" title="{proposal.get('title') or '[No title]'}"'''
-        '   class="font-weight-bold">'
-        f"{proposal['identifier']} {proposal.get('title') or '[No title]'}</a>")
+    url = flask.url_for("proposal.display", pid=proposal["identifier"])
+    title = proposal.get("title") or "[No title]"
+    html = f'''<a href="{url}" title="{title}"'''
+    if bold:
+        html += ' class="font-weight-bold"'
+    html += f">{proposal['identifier']} {title}</a>"
+    return jinja2.utils.Markup(html)
 
 def review_link(review):
     "Template filter: link to review."

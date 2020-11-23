@@ -12,7 +12,8 @@
     <label for="username" class="col-md-2 col-form-label text-right">
       User name</label>
     <div class="col-md-6">
-      <input type="text" id="username" name="username" class="form-control">
+      <input type="text" id="username" name="username"
+             class="form-control" autofocus>
     </div>
   </div>
   <div class="form-group row">
@@ -32,16 +33,16 @@
   </div>
 </form>
 <div class="row pt-5">
-  <div class="col-md-4 offset-md-2">
+  <div class="col-md-6 offset-md-2">
     <a href="{{ url_for('.register') }}"
-       class="btn btn-block btn-outline-primary">
+       class="btn btn-block btn-success">
       Register a new user account</a>
   </div>
 </div>
 <div class="row pt-4">
-  <div class="col-md-4 offset-md-2">
+  <div class="col-md-6 offset-md-2">
     <a href="{{ url_for('.reset') }}"
-       class="btn btn-block btn-outline-primary">
+       class="btn btn-block btn-info">
       Reset password for an existing user account</a>
   </div>
 </div>

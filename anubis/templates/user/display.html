@@ -81,7 +81,7 @@ User {{ user['username'] }}
       {% if user['password'].startswith('code:') %}
       {{ user['password'][5:] }}
       {% else %}
-      <i>password set</i>
+      <i>Password has been set.</i>
       {% endif %}
     </td>
   </tr>
@@ -149,7 +149,7 @@ User {{ user['username'] }}
   <form action="{{ url_for('.reset') }}"
         method="GET">
     <input type="hidden" name="email" value="{{ user['email'] }}">
-    <button type="submit" class="btn btn-block btn-primary">
+    <button type="submit" class="btn btn-block btn-info">
       Reset password</button>
   </form>
 </div>
