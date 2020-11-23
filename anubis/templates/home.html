@@ -15,15 +15,19 @@
 {# The list is already properly sorted. #}
 {% for call in calls %}
 <div class="card border-dark mt-3">
-  <div class="card-body">
-    <h4>
+  <div class="card-header">
+    <h4 class="card-title">
       <a href="{{ url_for('call.display', cid=call['identifier']) }}"
          class=" mx-4 font-weight-bold">
         {{ call['identifier'] }}: {{ call['title'] }}</a>
-      Call for proposals.
+      {#      Call for proposals.#}
+      
       <span class="badge badge-pill badge-{{ call['tmp']['color'] }}">
         {{ call['tmp']['text'] }}</span>
     </h4>
+  </div>
+  <div class="card-body">
+    {{ call.get('description') | markdown }}
   </div>
 </div>
 {% endfor %} {# for call in calls #}
@@ -34,9 +38,11 @@
   </div>
 </div>
 {% endif %} {# if not calls #}
-<div class="card border-dark mt-3">
-  <div class="card-body lead">
-    Check <a href="{{ url_for('calls.closed') }}">here</a> for closed calls.
+<div class="card mt-3">
+  <div class="card-body">
+    <h4 class="mx-4">
+      Check <a href="{{ url_for('calls.closed') }}">here</a> for closed calls.
+    </h4>
   </div>
 </div>
 {% endblock %} {# block main #}
