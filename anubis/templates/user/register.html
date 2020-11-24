@@ -8,6 +8,7 @@
 <form action="{{ url_for('.register') }}"
       method="POST">
   {{ csrf_token() }}
+
   <div class="form-group row">
     <label for="username" class="col-md-2 col-form-label text-right">
       User name</label>
@@ -21,13 +22,16 @@
       </div>
       <small id="usernameHelp" class="form-text text-muted">
         <strong>Required! May be visible to others in some cases.</strong>
-        The identifier for the user account. It must start with a
-	letter and continue with letters and/or, digits. It must be
-	unique within the database of this site. Character case is
-	significant. The username cannot be changed.
+        <p>
+          The identifier for the user account. It must start with a
+	  letter and continue with letters and/or, digits. It must be
+	  unique within the database of this site. Character case is
+	  significant.
+        </p>
       </small>
     </div>
   </div>
+
   <div class="form-group row">
     <label for="email" class="col-md-2 col-form-label text-right">Email</label>
     <div class="col-md">
@@ -40,12 +44,23 @@
       </div>
       <small id="emailHelp" class="form-text text-muted">
         <strong>Required!</strong>
-	A valid email address for the user. The password setting code
-	will be sent to this address. It must be unique within the
-	database of this site.
+        <p>
+	  A valid email address for the user. The password setting
+	  code will be sent to this address. It must be unique within
+	  the database of this site.
+        </p>
+        {% if config["USER_ENABLE_EMAIL_WHITELIST"] %}
+        <p>
+          Some email addresses require an administrator of the site to
+          enable your account, while other addresses are immediately
+          enabled.  When you account has been enabled, an email with
+          instructions on how to set your password will be sent.
+        </p>
+        {% endif %}
       </small>
     </div>
   </div>
+
   <div class="form-group row">
     <label for="givenname" class="col-md-2 col-form-label text-right">
       Given name</label>
@@ -62,6 +77,7 @@
       </small>
     </div>
   </div>
+
   <div class="form-group row">
     <label for="familyname" class="col-md-2 col-form-label text-right">
       Family name</label>
@@ -78,6 +94,7 @@
       </small>
     </div>
   </div>
+
   {% if config['USER_GENDERS'] %}
   <div class="form-group row">
     <label for="gender" class="col-md-2 col-form-label text-right">
@@ -95,6 +112,7 @@
     </div>
   </div>
   {% endif %}
+
   {% if config['USER_BIRTHDATE'] %}
   <div class="form-group row">
     <label for="birthdate" class="col-md-2 col-form-label text-right">
@@ -113,6 +131,7 @@
     </div>
   </div>
   {% endif %}
+
   {% if config['USER_TITLE'] %}
   <div class="form-group row">
     <label for="title" class="col-md-2 col-form-label text-right">
@@ -131,6 +150,7 @@
     </div>
   </div>
   {% endif %}
+
   {% if config['USER_AFFILIATION'] %}
   <div class="form-group row">
     <label for="affiliation" class="col-md-2 col-form-label text-right">
@@ -149,6 +169,7 @@
     </div>
   </div>
   {% endif %}
+
   {% if config['USER_POSTAL_ADDRESS'] %}
   <div class="form-group row">
     <label for="postaladdress" class="col-md-2 col-form-label text-right">
@@ -167,6 +188,7 @@
     </div>
   </div>
   {% endif %}
+
   {% if config['USER_PHONE'] %}
   <div class="form-group row">
     <label for="phone" class="col-md-2 col-form-label text-right">
@@ -185,6 +207,7 @@
     </div>
   </div>
   {% endif %}
+
   {% if g.am_admin %}
   <div class="form-group row">
     <label for="enable" class="col-md-2 col-form-label text-right">
@@ -200,6 +223,7 @@
       </div>
     </div>
   </div>
+
   <div class="form-group row">
     <label for="send_email" class="col-md-2 col-form-label text-right">
       Send email</label>
@@ -214,9 +238,11 @@
       </div>
     </div>
   </div>
+
   {% else %}
   <input type="hidden" name="send_email" value="true">
   {% endif %}
+
   <div class="form-group row">
     <div class="col-md-4 offset-md-2">
       <button type="submit" class="btn btn-block btn-success">Register</button>

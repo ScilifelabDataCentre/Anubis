@@ -27,7 +27,7 @@ Proposals by user {{ user['username'] }}
       <td>{{ proposal | proposal_link }}</td>
       <td>
         {% if proposal.get('submitted') %}
-        <span class="badge badge-pill badge-secondary">Submitted</span>
+        <span class="badge badge-pill badge-success">Submitted</span>
         {% else %}
         <span class="badge badge-pill badge-warning">Not submitted</span>
         {% endif %}

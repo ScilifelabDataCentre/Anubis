@@ -34,7 +34,7 @@
   <div class="col-md-2 font-weight-bold text-right">Submitted</div>
   <div class="col-md">
     {% if proposal.get('submitted') %}
-    <span class="badge badge-pill badge-secondary">Submitted</span>
+    <span class="badge badge-pill badge-success">Submitted</span>
     {% else %}
     <span class="badge badge-pill badge-warning">Not submitted</span>
     {% endif %}
@@ -166,7 +166,7 @@
   <form action="{{ url_for('.submit', pid=proposal['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
-    <button type="submit" class="btn btn-block btn-secondary">
+    <button type="submit" class="btn btn-block btn-success">
       Submit</button>
   </form>
 </div>

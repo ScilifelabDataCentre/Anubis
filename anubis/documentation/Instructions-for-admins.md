@@ -20,11 +20,14 @@ web interface.
 - The contents of a call (the input fields for proposals, reviews and
   decisions) can be edited whenever by the admin, but when a call has
   been published it should be kept intact, or users will be confused.
-- The admin may set a user account as a reviewer in a call.
-- The admin may also set a user account as a chair for a call. This is
-  a special type of reviewer who has slightly higher privileges than
-  ordinary reviewers.
-- The admin must create the review instances for each reviewer and
+
+## Reviewers and reviews
+
+- The admin may set a user account as a **reviewer** in a call.
+- The admin may also set a user account as a **chair** for a
+  call. This is a special type of reviewer who has slightly higher
+  privileges than ordinary reviewers.
+- The admin must create the **review** instances for each reviewer and
   proposal in a call. It is up to the admin to decide which proposals
   a reviewer must review.
 
