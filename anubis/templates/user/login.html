@@ -27,23 +27,21 @@
   <input type="hidden" name="next" value="{{ next }}">
   {% endif %}
   <div class="form-group row">
-    <div class="col-md-3 offset-md-2">
+    <div class="col-md-5 offset-md-2">
       <button type="submit" class="btn btn-block btn-primary">Login</button>
     </div>
   </div>
 </form>
 <div class="row pt-5">
-  <div class="col-md-6 offset-md-2">
-    <a href="{{ url_for('.register') }}"
-       class="btn btn-block btn-success">
+  <div class="col-md-5 offset-md-2">
+    <a href="{{ url_for('.register') }}" class="btn btn-block btn-success">
       Register a new user account</a>
   </div>
 </div>
 <div class="row pt-4">
-  <div class="col-md-6 offset-md-2">
-    <a href="{{ url_for('.reset') }}"
-       class="btn btn-block btn-info">
-      Reset password for an existing user account</a>
+  <div class="col-md-5 offset-md-2">
+    <a href="{{ url_for('.reset') }}" class="btn btn-block btn-info">
+      Forgot your password? Reset it</a>
   </div>
 </div>
 {% endblock %}

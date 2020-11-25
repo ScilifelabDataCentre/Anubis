@@ -7,7 +7,7 @@
 {% endif %}
 {{ config['SITE_NAME'] }}
 <small class="ml-4 text-muted">
-  Proposal submission and review handling system.
+  {{ config['SITE_DESCRIPTION'] }}
 </small>
 {% endblock %}
 
@@ -48,10 +48,18 @@
 {% endblock %} {# block main #}
 
 {% block actions %}
-{% if allow_create_call %}
-<div class="mt-2">
-  <a href="{{ url_for('call.create') }}"
-     role="button" class="btn btn-primary btn-block">Create</a>
-</div>
-{% endif %} {# if allow_create #}
+{% if not g.current_user %}
+<p>
+  <a href="{{ url_for('user.login') }}" class="btn btn-block btn-primary">
+    Login</a>
+</p>
+<p>
+  <a href="{{ url_for('user.register') }}" class="btn btn-block btn-success">
+    Register a new user account</a>
+</p>
+<p>
+  <a href="{{ url_for('user.reset') }}" class="btn btn-block btn-info">
+    Forgot your password? Reset it</a>
+</p>
+{% endif %}
 {% endblock %} {# block actions #}

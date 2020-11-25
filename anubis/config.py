@@ -16,6 +16,7 @@ DEFAULT_SETTINGS = dict(
     SITE_STATIC_DIRPATH = None, # Must NOT be same as 'Anubis/site'! Security!
     SITE_ICON = None,           # Filename, must be in 'SITE_STATIC_DIRPATH'
     SITE_LOGO = None,           # Filename, must be in 'SITE_STATIC_DIRPATH'
+    SITE_DESCRIPTION = "Proposal submission and review handling system.",
     DEBUG = False,
     HOST_LOGO = None,           # Filename, must be in 'SITE_STATIC_DIRPATH'
     HOST_NAME = None,

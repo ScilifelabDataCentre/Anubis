@@ -82,7 +82,7 @@ def display(cid):
                                  allow_edit=allow_edit(call),
                                  allow_delete=allow_delete(call),
                                  allow_proposal=allow_proposal(call),
-                                 allow_view_proposals=allow_view_proposals(call),
+                                 allow_view_details=allow_view_details(call),
                                  allow_view_reviews=allow_view_reviews(call))
 
 @blueprint.route('/<cid>/edit', methods=['GET', 'POST', 'DELETE'])
@@ -818,12 +818,15 @@ def allow_proposal(call):
     if not flask.g.current_user: return False
     return not am_reviewer(call)
 
-def allow_view_proposals(call):
-    "The admin, staff, call owner and reviewers may view all proposals."
+def allow_view_details(call):
+    """The admin, staff, call owner and reviewers may view the details
+    of the call, including all proposals.
+    """
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     if flask.g.am_staff: return True
-    return am_call_owner(call) or am_reviewer(call)
+    if am_call_owner(call): return True
+    return am_reviewer(call)
 
 def allow_view_reviews(call):
     """The admin, staff and call owner may view all reviews.

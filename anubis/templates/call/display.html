@@ -13,12 +13,10 @@
 
 {% block main %}
 
-{% if g.am_admin or am_call_owner %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Opens</div>
   <div class="col-md">{{ call['opens'] | datetimetz }}</div>
 </div>
-{% endif %} {# if g.am_admin or am_call_owner #}
 
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
@@ -29,7 +27,7 @@
   </div>
 </div>
 
-{% if allow_view_proposals %}
+{% if allow_view_details %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Owner</div>
   <div class="col-md">{{ get_user(call['owner']) | user_link }}</div>
@@ -43,7 +41,7 @@
       {{ utils.get_call_proposals_count(call['identifier']) }} proposals</a>
   </div>
 </div>
-{% endif %} {# if allow_view_proposals #}
+{% endif %} {# if allow_view_details #}
 
 {% if am_reviewer %}
 <div class="row my-1">
@@ -69,14 +67,14 @@
 </div>
 {% endif %} {# if allow_view_reviews #}
 
-{% if g.am_admin or am_call_owner or am_reviewer %}
+{% if allow_view_details %}
 <div class="row mt-1">
   <div class="col-md-2 font-weight-bold text-right">Reviews due</div>
   <div class="col-md">{{ call.get('reviews_due') | datetimetz(due=True) }}</div>
 </div>
-{% endif %} {# if g.am_admin or am_call_owner or am_reviewer #}
+{% endif %} {# if allow_view_details #}
 
-{% if g.am_admin or am_call_owner or am_reviewer %}
+{% if allow_view_details %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Reviewers</div>
   <div class="col-md">
@@ -88,7 +86,7 @@
     {% endfor %}
   </div>
 </div>
-{% endif %} {# if g.am_admin or am_call_owner or am_reviewer #}
+{% endif %} {# if allow_view_details #}
 
 {% if not am_reviewer %}
 <div class="row my-4">
@@ -110,11 +108,8 @@
     You need to be logged in to create a proposal.
   </div>
   <div class="col-md">
-    <form action="{{ url_for('user.login') }}"
-          method="GET">
-      <input type="hidden" name="next" value="{{ request.url }}">
-      <button class="btn btn-sm btn-secondary">Login</button>
-    </form>
+    <a href="{{ url_for('user.login') }}" class="btn btn-primary px-3">
+      Login</a>
   </div>
   {% else %}
   <div class="col-md">-</div>
@@ -158,7 +153,7 @@
   </div>
 </div>
 
-{% if g.am_admin or am_call_owner or am_reviewer %}
+{% if allow_view_details %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Access</div>
   <div class="col-md-5">
@@ -176,9 +171,10 @@
     </table>
   </div>
 </div>
-{% endif %} {# if g.am_admin or am_call_owner or am_reviewer #}
+{% endif %} {# if allow_view_details #}
 
-{% if g.am_admin or am_call_owner %}
+{% if allow_view_details %}
+
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Proposal fields</div>
   <div class="col-md">
@@ -191,9 +187,7 @@
     </table>
   </div>
 </div>
-{% endif %} {# if g.am_admin or am_call_owner #}
 
-{% if g.am_admin or am_call_owner %}
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Review fields</div>
   <div class="col-md">
@@ -206,9 +200,7 @@
     </table>
   </div>
 </div>
-{% endif %} {# if g.am_admin or am_call_owner #}
 
-{% if g.am_admin or am_call_owner %}
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Decision fields</div>
   <div class="col-md">
@@ -221,7 +213,8 @@
     </table>
   </div>
 </div>
-{% endif %} {# if g.am_admin or am_call_owner #}
+
+{% endif %} {# if allow_view_details #}
 
 {% endblock %} {# block main #}
 
@@ -273,7 +266,7 @@
 {% endblock %} {# block actions #}
 
 {% block info %}
-{% if g.am_admin or am_call_owner %}
+{% if allow_view_details %}
 <div class="small">
   Modified <span class="localtime">{{ call['modified'] }}</span>
   <span class="ml-4">
@@ -283,5 +276,5 @@
     <a href="{{ url_for('.logs', cid=call['identifier']) }}">Logs</a>
   </span>
 </div>
-{% endif %} {# if g.am_admin or am_call_owner #}
+{% endif %} {# if allow_view_details #}
 {% endblock %} {# block info #}
