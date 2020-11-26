@@ -31,16 +31,14 @@ def documentation(page):
 @blueprint.route('/contact')
 def contact():
     "Contact information page."
-    try:
-        filepath = os.path.normpath(
-            os.path.join(flask.current_app.config['ROOT_DIRPATH'], 
-                         '../site/contact.md'))
-        with open(filepath) as infile:
-            text = infile.read()
-    except (OSError, IOError):
-        utils.flash_error('No contact information available.')
-        return flask.redirect(utils.referrer_or_home())
-    return flask.render_template('about/contact.html', text=text)
+    return flask.render_template('about/contact.html',
+                                 text=utils.get_site_text("contact.md"))
+
+@blueprint.route('/gdpr')
+def gdpr():
+    "Personal data policy page."
+    return flask.render_template('about/gdpr.html',
+                                 text=utils.get_site_text("gdpr.md"))
 
 @blueprint.route('/software')
 def software():

@@ -4,6 +4,7 @@ import datetime
 import functools
 import http.client
 import logging
+import os.path
 import time
 import uuid
 
@@ -386,6 +387,17 @@ def float_value(value):
 def markdown(value):
     "Process the value using Marko markdown."
     return jinja2.utils.Markup(marko.convert(value or ''))
+
+def get_site_text(filename):
+    "Get the Markdown-formatted text from a file in the site directory."
+    try:
+        filepath = os.path.normpath(
+            os.path.join(flask.current_app.config["ROOT_DIRPATH"],
+                         "../site", filename))
+        with open(filepath) as infile:
+            return infile.read()
+    except (OSError, IOError):
+        return None
 
 def get_logs(docid, cleanup=True):
     """Return the list of log entries for the given document identifier,

@@ -65,7 +65,8 @@ def logout():
 def register():
     "Register a new user account."
     if utils.http_GET():
-        return flask.render_template('user/register.html')
+        return flask.render_template("user/register.html",
+                                     gdpr=utils.get_site_text("gdpr.md"))
 
     elif utils.http_POST():
         try:
@@ -204,7 +205,8 @@ def display(username):
                                  all_reviews_count=all_reviews_count,
                                  allow_enable_disable=allow_enable_disable(user),
                                  allow_edit=allow_edit(user),
-                                 allow_delete=allow_delete(user))
+                                 allow_delete=allow_delete(user),
+                                 gdpr=utils.get_site_text("gdpr.md"))
 
 @blueprint.route('/display/<username>/edit',
                  methods=['GET', 'POST', 'DELETE'])

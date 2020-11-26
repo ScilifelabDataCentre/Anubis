@@ -1,16 +1,16 @@
 {% extends 'base.html' %}
 
-{% block head_title %}Contact information{% endblock %}
+{% block head_title %}Personal data policy{% endblock %}
 {% block body_title %}{% endblock %}
 
 {% block main %}
 <div class="row">
   <div class="col-md offset-md-1">
-    <h2>Contact information</h2>
+    <h2>Personal data policy</h2>
     {% if text %}
     {{ text | markdown }}
     {% else %}
-    <i>No contact information has been defined.</i>
+    <i>No personal data policy has been defined.</i>
     {% endif %}
   </div>
 </div>

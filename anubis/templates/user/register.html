@@ -23,10 +23,13 @@
       <small id="usernameHelp" class="form-text text-muted">
         <strong>Required! May be visible to others in some cases.</strong>
         <p>
-          The identifier for the user account. It must start with a
-	  letter and continue with letters and/or, digits. It must be
-	  unique within the database of this site. Character case is
-	  significant.
+          The identifier for the user account.  It must start with a
+          letter and continue with letters and/or digits. Underscore
+          "_" or dash "-" is <strong>not</strong> allowed.
+        </p>
+        <p>
+          The identifier must be unique within the database of this
+	  site. Character case is significant.
         </p>
       </small>
     </div>
@@ -45,18 +48,25 @@
       <small id="emailHelp" class="form-text text-muted">
         <strong>Required!</strong>
         <p>
-	  A valid email address for the user. The password setting
-	  code will be sent to this address. It must be unique within
+	  A valid email address for the user. It must be unique within
 	  the database of this site.
         </p>
-        {% if config["USER_ENABLE_EMAIL_WHITELIST"] %}
         <p>
-          Some email addresses require an administrator of the site to
-          enable your account, while other addresses are immediately
-          enabled.  When you account has been enabled, an email with
-          instructions on how to set your password will be sent.
+          When you account has been enabled, an email with
+          instructions on how to set your password will be sent to this
+          email address.
         </p>
-        {% endif %}
+        <p>
+          {% if config["USER_ENABLE_EMAIL_WHITELIST"] %}
+          Some email addresses allow the account to be immediately enabled,
+          depending on the configuration of this particular site.
+          Most email address require an administrator of the site to
+          enable your account after inspection.
+          {% else %}
+          The administrator of the site will inspect your account
+          and enable it.
+          {% endif %}
+        </p>
       </small>
     </div>
   </div>
@@ -249,4 +259,17 @@
     </div>
   </div>
 </form>
+
+{% if gdpr %}
+<div class="row mt-4">
+  <div class=" col-md-10 offset-md-2">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Personal data policy</h4>
+      </div>
+      <div class="card-body">{{ gdpr | markdown }}</div>
+    </div>
+  </div>
+</div>
+{% endif %}
 {% endblock %}
