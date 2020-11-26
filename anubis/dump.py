@@ -36,9 +36,9 @@ def dump(db, filepath):
         if doc.get('doctype') is None: continue
         rev = doc.pop('_rev')   # Don't save revision.
         info = tarfile.TarInfo(doc['_id'])
-        data = json.dumps(doc)
+        data = json.dumps(doc).encode('utf-8')
         info.size = len(data)
-        outfile.addfile(info, io.BytesIO(data.encode('utf-8')))
+        outfile.addfile(info, io.BytesIO(data))
         count_items += 1
         doc['_rev'] = rev       # Revision required to get attachments.
         for attname in doc.get('_attachments', dict()):
