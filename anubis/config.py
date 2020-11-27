@@ -48,7 +48,7 @@ DEFAULT_SETTINGS = dict(
     USER_POSTAL_ADDRESS = True,
     USER_PHONE = True,
     USER_ENABLE_IMMEDIATELY = False,
-    USER_ENABLE_EMAIL_WHITELIST = [], # List of regexp's
+    USER_ENABLE_EMAIL_WHITELIST = [], # List of fnmatch patterns, not regexp's!
     MARKDOWN_URL = 'https://daringfireball.net/projects/markdown/syntax',
 )
 

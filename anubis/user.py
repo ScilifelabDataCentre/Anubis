@@ -367,7 +367,7 @@ class UserSaver(BaseSaver):
             if self.doc.get('status') == constants.PENDING:
                 # Filename matching instead of regexp; easier to specify.
                 for ep in flask.current_app.config['USER_ENABLE_EMAIL_WHITELIST']:
-                    if fnmatch.fnmatch(ep, email):
+                    if fnmatch.fnmatch(email, ep):
                         self.set_status(constants.ENABLED)
                         break
         elif require:
