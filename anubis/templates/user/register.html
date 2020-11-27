@@ -23,13 +23,16 @@
       <small id="usernameHelp" class="form-text text-muted">
         <strong>Required! May be visible to others in some cases.</strong>
         <p>
-          The identifier for the user account.  It must start with a
+          The identifier for the user account. It must start with a
           letter and continue with letters and/or digits. Underscore
-          "_" or dash "-" is <strong>not</strong> allowed.
+          "_" is allowed, but <strong>not</strong> dash "-".
         </p>
         <p>
           The identifier must be unique within the database of this
-	  site. Character case is significant.
+	  site. Upper or lower case is significant.
+        </p>
+        <p>
+          Examples: PerKraulis, per59, nobelprize2030
         </p>
       </small>
     </div>
@@ -167,14 +170,14 @@
       Affiliation</label>
     <div class="col-md">
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-8">
           <input type="text" id="affiliation" name="affiliation"
                  class="form-control" 
                  aria-describedby="affiliationHelp">
         </div>
       </div>
       <small id="affiliationHelp" class="form-text text-muted">
-        Name of the university, company or organisation of the user.
+        Name of department and university, company or organisation.
       </small>
     </div>
   </div>
