@@ -1,6 +1,7 @@
 "User display and login/logout HTMl endpoints."
 
 import datetime
+import fnmatch
 import http.client
 import json
 import re
@@ -364,8 +365,9 @@ class UserSaver(BaseSaver):
                 raise ValueError('email already in use')
             self.doc['email'] = email
             if self.doc.get('status') == constants.PENDING:
-                for rx in flask.current_app.config['USER_ENABLE_EMAIL_WHITELIST']:
-                    if re.match(rx, email):
+                # Filename matching instead of regexp; easier to specify.
+                for ep in flask.current_app.config['USER_ENABLE_EMAIL_WHITELIST']:
+                    if fnmatch.fnmatch(ep, email):
                         self.set_status(constants.ENABLED)
                         break
         elif require:
