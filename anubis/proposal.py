@@ -109,6 +109,8 @@ def edit(pid):
                         raise ValueError('No such user.')
                 for field in call['proposal']:
                     saver.set_field_value(field, form=flask.request.form)
+            # Change to the newly saved proposal document.
+            proposal = saver.doc
         except ValueError as error:
             utils.flash_error(str(error))
             return flask.redirect(utils.referrer_or_home())
