@@ -137,12 +137,14 @@
           <td>
             <table>
               <tr>
+                <td class="border border-success text-monospace">
+                  {{ document['name'] }}
+                </td>
                 <td>
                   <a href="{{ url_for('call.document', cid=call['identifier'], documentname=document['name']) }}" title="Download" role="button"
                      class="btn btn-success btn-sm font-weight-bold my-1">
                     Download</a>
                 </td>
-                <td class="border border-success text-monospace">{{ document['name'] }}</td>
               </tr>
             </table>
           </td>
