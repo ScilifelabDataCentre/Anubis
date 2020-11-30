@@ -384,9 +384,30 @@ def float_value(value):
     else:
         return '?'
 
+class HtmlRenderer(marko.html_renderer.HTMLRenderer):
+    """Extension of HTML renderer to allow setting <a> attribute '_target'
+    to '_blank', when the title begins with an exclamation point '!'.
+    """
+
+    def render_link(self, element):
+        if element.title and element.title.startswith('!'):
+            template = '<a target="_blank" href="{}"{}>{}</a>'
+            element.title = element.title[1:]
+        else:
+            template = '<a href="{}"{}>{}</a>'
+        title = (
+            ' title="{}"'.format(self.escape_html(element.title))
+            if element.title
+            else ""
+        )
+        url = self.escape_url(element.dest)
+        body = self.render_children(element)
+        return template.format(url, title, body)
+
 def markdown(value):
     "Process the value using Marko markdown."
-    return jinja2.utils.Markup(marko.convert(value or ''))
+    processor = marko.Markdown(renderer=HtmlRenderer)
+    return jinja2.utils.Markup(processor.convert(value or ''))
 
 def get_site_text(filename):
     "Get the Markdown-formatted text from a file in the site directory."
