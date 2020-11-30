@@ -186,10 +186,10 @@ def logs(iuid):
         back_url=flask.url_for('.display', iuid=decision['_id']),
         logs=utils.get_logs(decision['_id']))
 
-@blueprint.route('/<iuid:iuid>/document/<documentname>')
+@blueprint.route('/<iuid:iuid>/document/<fid>')
 @utils.login_required
-def document(iuid, documentname):
-    "Download the given decision document (attachment file)."
+def document(iuid, fid):
+    "Download the decision document (attachment file) for the given field id."
     try:
         decision = get_decision(iuid)
     except KeyError:
@@ -200,16 +200,22 @@ def document(iuid, documentname):
         return flask.redirect(flask.url_for('home'))
 
     try:
+        documentname = decision['values'][fid]
         stub = decision['_attachments'][documentname]
     except KeyError:
         utils.flash_error('No such document in decision.')
         return flask.redirect(
             flask.url_for('.display', iuid=decision['identifier']))
+    # Colon ':' is a problematic character in filenames.
+    # Replace it by dash '-'; used as general glue character here.
+    pid = decision['proposal'].replace(':', '-')
+    ext = os.path.splitext(documentname)[1]
+    # Include 'decision' in filename to indicate decision document.
+    filename = f"{pid}-decision-{fid}{ext}"
     outfile = flask.g.db.get_attachment(decision, documentname)
     response = flask.make_response(outfile.read())
     response.headers.set('Content-Type', stub['content_type'])
-    response.headers.set('Content-Disposition', 'attachment', 
-                         filename=documentname)
+    response.headers.set('Content-Disposition', 'attachment', filename=filename)
     return response
 
 

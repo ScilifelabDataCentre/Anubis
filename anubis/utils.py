@@ -249,7 +249,7 @@ def typed_value(value, type, docurl=None):
     elif type == constants.DOCUMENT:
         if value:
             return jinja2.utils.Markup(
-                f"""File <i>{value}</i> <a href="{docurl}" role="button" class="btn btn-outline-secondary btn-sm ml-4">Download</a>""")
+                f"""<i title="File">{value}</i> <a href="{docurl}" role="button" title="Download file" class="btn btn-secondary btn-sm ml-4">Download</a>""")
         else:
             return '-'
     else:

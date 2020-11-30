@@ -1,5 +1,7 @@
 "Review of a proposal. Created from the proposal fields in the call."
 
+import os.path
+
 import flask
 
 import anubis.user
@@ -8,7 +10,7 @@ import anubis.proposal
 
 from . import constants
 from . import utils
-from .saver import BaseSaver, FieldMixin
+from .saver import AttachmentSaver, FieldMixin
 
 
 def init(app):
@@ -201,10 +203,10 @@ def logs(iuid):
         back_url=flask.url_for('.display', iuid=review['_id']),
         logs=utils.get_logs(review['_id']))
 
-@blueprint.route('/<iuid:iuid>/document/<documentname>')
+@blueprint.route('/<iuid:iuid>/document/<fid>')
 @utils.login_required
-def document(iuid, documentname):
-    "Download the given review document (attachment file)."
+def document(iuid, fid):
+    "Download the review document (attachment file) for the given field id."
     try:
         review = get_review(iuid)
     except KeyError:
@@ -215,20 +217,26 @@ def document(iuid, documentname):
         return flask.redirect(flask.url_for('home'))
 
     try:
+        documentname = review['values'][fid]
         stub = review['_attachments'][documentname]
     except KeyError:
         utils.flash_error('No such document in review.')
         return flask.redirect(
             flask.url_for('.display', iuid=review['identifier']))
+    # Colon ':' is a problematic character in filenames.
+    # Replace it by dash '-'; used as general glue character here.
+    pid = review['proposal'].replace(':', '-')
+    ext = os.path.splitext(documentname)[1]
+    # Include reviewer id in filename to indicate review document.
+    filename = f"{pid}-{review['reviewer']}-{fid}{ext}"
     outfile = flask.g.db.get_attachment(review, documentname)
     response = flask.make_response(outfile.read())
     response.headers.set('Content-Type', stub['content_type'])
-    response.headers.set('Content-Disposition', 'attachment', 
-                         filename=documentname)
+    response.headers.set('Content-Disposition', 'attachment', filename=filename)
     return response
 
 
-class ReviewSaver(FieldMixin, BaseSaver):
+class ReviewSaver(FieldMixin, AttachmentSaver):
     "Review document saver context."
 
     DOCTYPE = constants.REVIEW

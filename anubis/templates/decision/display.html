@@ -43,8 +43,11 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   {% endif %}
   <div class="col-md text-break">
     {% set value = values.get(field['identifier']) %}
-    {% set docurl = url_for('.document', iuid=decision['_id'], documentname=value or 'dummy') %}
-    {{ value | typed_value(field['type'], docurl) }}
+    {% if value and field['type'] == 'document' %}
+      {{ value | typed_value(field['type'], url_for('.document', iuid=decision['_id'], fid=field['identifier'])) }}
+    {% else %}
+      {{ value | typed_value(field['type']) }}
+    {% endif %}
   </div>
 </div>
 {% endfor %} {# for field in ... #}

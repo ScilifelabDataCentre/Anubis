@@ -1,5 +1,7 @@
 "Proposals."
 
+import os.path
+
 import flask
 
 import anubis.call
@@ -189,10 +191,10 @@ def logs(pid):
         back_url=flask.url_for('.display', pid=proposal['identifier']),
         logs=utils.get_logs(proposal['_id']))
 
-@blueprint.route('/<pid>/document/<documentname>')
+@blueprint.route('/<pid>/document/<fid>')
 @utils.login_required
-def document(pid, documentname):
-    "Download the given proposal document (attachment file)."
+def document(pid, fid):
+    "Download the proposal document (attachment file) for the given field id."
     proposal = get_proposal(pid)
     if proposal is None:
         utils.flash_error('No such proposal.')
@@ -202,16 +204,21 @@ def document(pid, documentname):
         return flask.redirect(flask.url_for('home'))
 
     try:
+        documentname = proposal['values'][fid]
         stub = proposal['_attachments'][documentname]
     except KeyError:
         utils.flash_error('No such document in proposal.')
         return flask.redirect(
             flask.url_for('.display', pid=proposal['identifier']))
+    # Colon ':' is a problematic character in filenames.
+    # Replace it by dash '-'; used as general glue character here.
+    pid = pid.replace(':', '-')
+    ext = os.path.splitext(documentname)[1]
+    filename = f"{pid}-{fid}{ext}"
     outfile = flask.g.db.get_attachment(proposal, documentname)
     response = flask.make_response(outfile.read())
     response.headers.set('Content-Type', stub['content_type'])
-    response.headers.set('Content-Disposition', 'attachment', 
-                         filename=documentname)
+    response.headers.set('Content-Disposition', 'attachment', filename=filename)
     return response
 
 

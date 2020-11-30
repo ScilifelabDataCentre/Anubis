@@ -130,31 +130,17 @@
   <div class="col-md-2 font-weight-bold text-right">Documents</div>
   <div class="col-md">
     {% if call['documents'] %}
-    <table class="table table-sm table-borderless">
-      <tbody>
-        {% for document in call['documents'] %}
-        <tr>
-          <td>
-            <table>
-              <tr>
-                <td class="border border-success text-monospace">
-                  {{ document['name'] }}
-                </td>
-                <td>
-                  <a href="{{ url_for('call.document', cid=call['identifier'], documentname=document['name']) }}" title="Download" role="button"
-                     class="btn btn-success btn-sm font-weight-bold my-1">
-                    Download</a>
-                </td>
-              </tr>
-            </table>
-          </td>
-          <td>
-            {{ document.get('description') | markdown }}
-          </td>
-        </tr>
-        {% endfor %} {# for document in call['documents'] #}
-      </tbody>
-    </table>
+    {% for document in call['documents'] %}
+    <div class="card mb-2">
+      <div class="card-body">
+        <i title="File">{{ document['name'] }}</i>
+        <a href="{{ url_for('call.document', cid=call['identifier'], documentname=document['name']) }}" title="Download file" role="button"
+           class="btn btn-secondary btn-sm ml-4">
+          Download</a>
+        {{ document.get('description') | markdown }}
+      </div>
+    </div>
+    {% endfor %} {# for document in call['documents'] #}
     {% else %}
     -
     {% endif %}
