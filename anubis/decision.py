@@ -1,5 +1,7 @@
 "Decision regarding a proposal."
 
+import os.path
+
 import flask
 
 import anubis.proposal
