@@ -112,6 +112,17 @@ def edit(pid):
         except ValueError as error:
             utils.flash_error(str(error))
             return flask.redirect(utils.referrer_or_home())
+        if flask.request.form.get('_save') == 'submit':
+            try:
+                with ProposalSaver(proposal) as saver:
+                    saver.set_submitted()  # Tests whether allowed or not.
+            except ValueError as error:
+                utils.flash_error(str(error))
+            else:
+                utils.flash_message('Proposal saved and submitted.')
+        elif allow_submit(proposal) and not proposal.get('submitted'):
+            utils.flash_warning('Proposal was saved but not submitted.'
+                                ' You must explicitly submit it!')
         return flask.redirect(
             flask.url_for('.display', pid=proposal['identifier']))
 
@@ -139,17 +150,15 @@ def submit(pid):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
-    if not allow_submit(proposal):
-        utils.flash_error('Submit disallowed; call closed.')
-        return flask.redirect(
-            flask.url_for('.display', pid=proposal['identifier']))
 
     if utils.http_POST():
         try:
             with ProposalSaver(proposal) as saver:
-                saver.set_submitted()
+                saver.set_submitted()  # Tests whether allowed or not.
         except ValueError as error:
             utils.flash_error(str(error))
+        else:
+            utils.flash_message('Proposal was submitted.')
         return flask.redirect(flask.url_for('.display', pid=pid))
 
 @blueprint.route('/<pid>/unsubmit', methods=['POST'])
@@ -160,17 +169,15 @@ def unsubmit(pid):
     if proposal is None:
         utils.flash_error('No such proposal.')
         return flask.redirect(flask.url_for('home'))
-    if not allow_submit(proposal):
-        utils.flash_error('Unsubmit disallowed; call closed.')
-        return flask.redirect(
-            flask.url_for('.display', pid=proposal['identifier']))
 
     if utils.http_POST():
         try:
             with ProposalSaver(proposal) as saver:
-                saver.set_unsubmitted()
+                saver.set_unsubmitted()  # Tests whether allowed or not.
         except ValueError as error:
             utils.flash_error(str(error))
+        else:
+            utils.flash_warning('Proposal was unsubmitted.')
         return flask.redirect(flask.url_for('.display', pid=pid))
 
 @blueprint.route('/<pid>/logs')
