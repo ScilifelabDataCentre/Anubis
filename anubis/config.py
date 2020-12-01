@@ -6,11 +6,11 @@ import os.path
 from . import constants
 from . import utils
 
-ROOT_DIRPATH = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # Default configurable values; modified by reading a JSON file in 'init'.
 DEFAULT_SETTINGS = dict(
-    ROOT_DIRPATH = ROOT_DIRPATH,
+    ROOT = ROOT,
     SERVER_NAME = '127.0.0.1:5003',
     SITE_NAME = 'Anubis',
     SITE_STATIC_DIRPATH = None, # Must NOT be same as 'Anubis/site'! Security!
@@ -31,7 +31,7 @@ DEFAULT_SETTINGS = dict(
     JSON_SORT_KEYS = False,
     MIN_PASSWORD_LENGTH = 6,
     PERMANENT_SESSION_LIFETIME = 7 * 24 * 60 * 60, # seconds; 1 week
-    DOC_DIRPATH = os.path.join(ROOT_DIRPATH, 'documentation'),
+    DOC_DIRPATH = os.path.join(ROOT, 'documentation'),
     MAIL_SERVER = 'localhost',
     MAIL_PORT = 25,
     MAIL_USE_TLS = False,
@@ -53,20 +53,30 @@ DEFAULT_SETTINGS = dict(
 )
 
 
-def init(app):
+def init(app, filepath=None):
     """Perform the configuration of the Flask app.
-    Set the defaults, and then read JSON settings file.
+    Set the defaults, and then read the first JSON settings file found:
+    1) the argument to this procedure.
+    2) The environment variable ANUBIS_SETTINGS.
+    3) The file 'settings.json' in this directory.
+    4) The file '../site/settings.json' relative to this directory.
     Check the environment for a specific set of variables and use if defined.
+    Raise IOError if settings file could not be read.
+    Raise KeyError if a settings variable is missing.
+    Raise ValueError if a settings variable value is invalid.
     """
     # Set the defaults specified above.
     app.config.from_mapping(DEFAULT_SETTINGS)
     # Modify the configuration from a JSON settings file.
+    filepaths = []
+    if filepath:
+        filepaths.append(filepath)
     try:
-        filepaths = [os.environ['SETTINGS_FILEPATH']]
+        filepaths.append(os.environ['ANUBIS_SETTINGS'])
     except KeyError:
-        filepaths = []
+        pass
     for filepath in ['settings.json', '../site/settings.json']:
-        filepaths.append(os.path.normpath(os.path.join(ROOT_DIRPATH, filepath)))
+        filepaths.append(os.path.normpath(os.path.join(ROOT, filepath)))
     for filepath in filepaths:
         try:
             app.config.from_json(filepath)

@@ -413,8 +413,7 @@ def get_site_text(filename):
     "Get the Markdown-formatted text from a file in the site directory."
     try:
         filepath = os.path.normpath(
-            os.path.join(flask.current_app.config["ROOT_DIRPATH"],
-                         "../site", filename))
+            os.path.join(flask.current_app.config["ROOT"], "../site", filename))
         with open(filepath) as infile:
             return infile.read()
     except (OSError, IOError):
