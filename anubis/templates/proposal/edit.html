@@ -18,7 +18,7 @@
              class="form-control" autofocus
              aria-describedby="_titleHelp"
 	     value="{{ proposal.get('title') or '' }}">
-      <small id="_titleHelp" class="form-text text-muted">
+      <small id="_titleHelp" class="form-text">
         Single-line descriptive title for the proposal.
       </small>
     </div>
@@ -31,7 +31,7 @@
       <input type="text" id="_user" name="_user" class="form-control"
 	     aria-describedby="_userHelp"
 	     value="{{ proposal['user'] }}">
-      <small id="_userHelp" class="form-text text-muted">
+      <small id="_userHelp" class="form-text">
         Transfer ownership of the proposal to another user.
         Provide the username or email address.
       </small>
