@@ -63,14 +63,20 @@ def open():
                                  allow_create=anubis.call.allow_create())
 
 def get_open_calls():
+    "Return sorted list of open calls."
+    # Sort lexically by (closes, title).
     result = [anubis.call.set_tmp(r.doc)
               for r in flask.g.db.view('calls', 'closes', 
                                        startkey=utils.normalized_local_now(),
                                        endkey='ZZZZZZ',
                                        include_docs=True)]
-    result.extend([anubis.call.set_tmp(r.doc)
-                  for r in flask.g.db.view('calls', 'open_ended', 
-                                           startkey='',
-                                           endkey=utils.normalized_local_now(),
-                                           include_docs=True)])
-    return result
+    result.sort(key=lambda k: (k['closes'], k['title']))
+
+    # Sort open-ended by title.
+    result2 = [anubis.call.set_tmp(r.doc)
+               for r in flask.g.db.view('calls', 'open_ended', 
+                                        startkey='',
+                                        endkey=utils.normalized_local_now(),
+                                        include_docs=True)]
+    result2.sort(key=lambda k: k['title'])
+    return result + result2
