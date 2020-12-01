@@ -121,8 +121,7 @@ class AttachmentSaver(BaseSaver):
         Must be done after document is saved.
         """
         for filename in self._delete_attachments:
-            rev = flask.g.db.delete_attachment(self.doc, filename)
-            self.doc['_rev'] = rev
+            flask.g.db.delete_attachment(self.doc, filename)
         for attachment in self._add_attachments:
             flask.g.db.put_attachment(self.doc,
                                       attachment['content'],
@@ -204,8 +203,6 @@ class FieldMixin:
                     self.add_attachment(infile.filename,
                                         infile.read(),
                                         infile.mimetype)
-                else:
-                    self.doc['values'][fid] = None
 
         if self.doc['errors'].get(fid): return # Error message already set; skip
         if field['required'] and self.doc['values'][fid] is None:
