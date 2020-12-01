@@ -113,6 +113,7 @@ def edit(pid):
             utils.flash_error(str(error))
             return flask.redirect(utils.referrer_or_home())
         if flask.request.form.get('_save') == 'submit':
+            proposal = get_proposal(pid, refresh=True)
             try:
                 with ProposalSaver(proposal) as saver:
                     saver.set_submitted()  # Tests whether allowed or not.
@@ -281,9 +282,10 @@ class ProposalSaver(FieldMixin, AttachmentSaver):
         self.doc.pop('submitted', None)
 
 
-def get_proposal(pid):
+def get_proposal(pid, refresh=False):
     "Return the proposal with the given identifier."
     try:
+        if refresh: raise KeyError
         return flask.g.cache[pid]
     except KeyError:
         docs = [r.doc for r in flask.g.db.view('proposals', 'identifier',
