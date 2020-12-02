@@ -133,11 +133,23 @@
     {% for document in call['documents'] %}
     <div class="card mb-2">
       <div class="card-body pb-0">
-        <i title="File">{{ document['name'] }}</i>
-        <a href="{{ url_for('call.document', cid=call['identifier'], documentname=document['name']) }}" title="Download file" role="button"
-           class="btn btn-secondary btn-sm ml-4">
-          Download</a>
-        {{ document.get('description') | markdown }}
+        <table>
+          <tr>
+            <td title="File" class="font-italic font-weight-bold">
+              {{ document['name'] }}
+            </td>
+            <td>
+              <a href="{{ url_for('call.document', cid=call['identifier'], documentname=document['name']) }}" title="Download file" role="button"
+                 class="btn btn-secondary btn-sm ml-4">
+                Download</a>
+            <td>
+          </tr>
+          <tr>
+            <td class="pt-1" colspan="2">
+              {{ document.get('description') | markdown }}
+            </td>
+          </tr>
+        </table>
       </div>
     </div>
     {% endfor %} {# for document in call['documents'] #}
