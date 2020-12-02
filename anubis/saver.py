@@ -205,5 +205,5 @@ class FieldMixin:
                                         infile.mimetype)
 
         if self.doc['errors'].get(fid): return # Error message already set; skip
-        if field['required'] and self.doc['values'][fid] is None:
+        if field['required'] and self.doc['values'].get(fid) is None:
             self.doc['errors'][fid] = 'missing value'
