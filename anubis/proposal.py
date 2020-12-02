@@ -65,6 +65,7 @@ def display(pid):
                                  allow_edit=allow_edit(proposal),
                                  allow_delete=allow_delete(proposal),
                                  allow_submit=allow_submit(proposal),
+                                 allow_transfer=allow_transfer(proposal),
                                  am_submitter=am_submitter,
                                  am_reviewer=am_reviewer,
                                  my_review=my_review,
@@ -100,13 +101,6 @@ def edit(pid):
         try:
             with ProposalSaver(proposal) as saver:
                 saver['title'] = flask.request.form.get('_title') or None
-                # value = flask.request.form.get('_user')
-                # if value and value != proposal['user']:
-                #     user = anubis.user.get_user(username=value, email=value)
-                #     if user:
-                #         saver.set_user(user)
-                #     else:
-                #         raise ValueError('No such user.')
                 for field in call['proposal']:
                     saver.set_field_value(field, form=flask.request.form)
         except ValueError as error:
@@ -142,6 +136,37 @@ def edit(pid):
         utils.delete(proposal)
         utils.flash_message(f"Deleted proposal {pid}.")
         return flask.redirect(flask.url_for('home'))
+
+@blueprint.route('/<pid>/transfer', methods=['GET', 'POST'])
+@utils.login_required
+def transfer(pid):
+    "Transfer ownership of he proposal."
+    proposal = get_proposal(pid)
+    if proposal is None:
+        utils.flash_error('No such proposal.')
+        return flask.redirect(flask.url_for('home'))
+    if not allow_transfer(proposal):
+        utils.flash_error('You are not allowed to transfer ownership of'
+                          ' this proposal.')
+
+    if utils.http_GET():
+        return flask.render_template('proposal/transfer.html',proposal=proposal)
+
+    elif utils.http_POST():
+        try:
+            with ProposalSaver(proposal) as saver:
+                value = flask.request.form.get('user')
+                if value:
+                    user = anubis.user.get_user(username=value, email=value)
+                    if user:
+                        saver.set_user(user)
+                    else:
+                        raise ValueError('No such user.')
+        except ValueError as error:
+            utils.flash_error(str(error))
+            return flask.redirect(utils.referrer_or_home())
+        return flask.redirect(
+            flask.url_for('.display', pid=proposal['identifier']))
 
 @blueprint.route('/<pid>/submit', methods=['POST'])
 @utils.login_required
@@ -273,13 +298,13 @@ class ProposalSaver(FieldMixin, AttachmentSaver):
 
     def set_submitted(self):
         if not allow_submit(self.doc):
-            raise ValueError('Submit cannot be done; incomplete proposal,'
-                             ' or call closed.')
+            raise ValueError('Submit cannot be done; proposal is incomplete,'
+                             ' or call is closed.')
         self.doc['submitted'] = utils.get_time()
 
     def set_unsubmitted(self):
         if not allow_submit(self.doc):
-            raise ValueError('Unsubmit is disallowed.')
+            raise ValueError('Unsubmit cannot be done; call is closed.')
         self.doc.pop('submitted', None)
 
 
@@ -348,6 +373,12 @@ def allow_submit(proposal):
     return flask.g.current_user['username'] == proposal['user'] and \
            call['tmp']['is_open']
     
+def allow_transfer(proposal):
+    """The admin and staff may transfer ownership of a proposal.
+    """
+    if not flask.g.current_user: return False
+    return flask.g.am_admin or flask.g.am_staff
+
 def get_call_user_proposal(cid, username):
     "Get the proposal created by the user in the call."
     result = [r.doc for r in flask.g.db.view('proposals', 'call_user',

@@ -23,22 +23,6 @@
       </small>
     </div>
   </div>
-  {# 
-  <div class="form-group row">
-    <label for="_user"
-           class="col-md-2 col-form-label text-right font-weight-bold">
-      User</label>
-    <div class="col-md">
-      <input type="text" id="_user" name="_user" class="form-control"
-	     aria-describedby="_userHelp"
-	     value="{{ proposal['user'] }}">
-      <small id="_userHelp" class="form-text">
-        Transfer ownership of the proposal to another user.
-        Provide the username or email address.
-      </small>
-    </div>
-  </div>
-  #}
 
   {% set fields = call['proposal'] %}
   {% set values = proposal['values'] %}
