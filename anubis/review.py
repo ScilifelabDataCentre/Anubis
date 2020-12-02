@@ -67,8 +67,8 @@ def create(pid, username):
         if review is not None:
             utils.flash_message('The review already exists.')
             return flask.redirect(flask.url_for('.display', iuid=review['_id']))
-        with ReviewSaver(proposal=proposal) as saver:
-            saver.set_reviewer(user)
+        with ReviewSaver(proposal=proposal, user=user) as saver:
+            pass
     except ValueError:
         pass
     try:
@@ -241,15 +241,15 @@ class ReviewSaver(FieldMixin, AttachmentSaver):
 
     DOCTYPE = constants.REVIEW
 
-    def __init__(self, doc=None, proposal=None):
+    def __init__(self, doc=None, proposal=None, user=None):
         if doc:
             super().__init__(doc=doc)
-        elif proposal:
+        elif proposal and user:
             super().__init__(doc=None)
             self.set_proposal(proposal)
-            self.set_reviewer(flask.g.current_user)
+            self.set_reviewer(user)
         else:
-            raise ValueError('doc or proposal must be specified')
+            raise ValueError('doc or proposal+user must be specified')
 
     def initialize(self):
         self.doc['values'] = {}

@@ -1,4 +1,4 @@
-"Proposals."
+"Proposal in a call."
 
 import os.path
 
@@ -100,13 +100,13 @@ def edit(pid):
         try:
             with ProposalSaver(proposal) as saver:
                 saver['title'] = flask.request.form.get('_title') or None
-                value = flask.request.form.get('_user')
-                if value and value != proposal['user']:
-                    user = anubis.user.get_user(username=value, email=value)
-                    if user:
-                        saver.set_user(user)
-                    else:
-                        raise ValueError('No such user.')
+                # value = flask.request.form.get('_user')
+                # if value and value != proposal['user']:
+                #     user = anubis.user.get_user(username=value, email=value)
+                #     if user:
+                #         saver.set_user(user)
+                #     else:
+                #         raise ValueError('No such user.')
                 for field in call['proposal']:
                     saver.set_field_value(field, form=flask.request.form)
         except ValueError as error:
@@ -235,22 +235,22 @@ class ProposalSaver(FieldMixin, AttachmentSaver):
 
     DOCTYPE = constants.PROPOSAL
 
-    def __init__(self, doc=None, call=None):
+    def __init__(self, doc=None, call=None, user=None):
         if doc:
             super().__init__(doc=doc)
-        elif call:
+        elif call and user:
             super().__init__(doc=None)
             self.set_call(call)
-            self.set_user(flask.g.current_user)
+            self.set_user(user)
         else:
-            raise ValueError('doc or call must be specified')
+            raise ValueError('doc or call+user must be specified')
 
     def initialize(self):
         self.doc['values'] = {}
         self.doc['errors'] = {}
 
     def set_user(self, user):
-        "Set the user for the proposal; must be called when creating."
+        "Set the user (owner) for the proposal; must be called when creating."
         if get_call_user_proposal(self.doc['call'], user['username']):
             raise ValueError('User already has a proposal in the call.')
         self.doc['user'] = user['username']
@@ -273,7 +273,8 @@ class ProposalSaver(FieldMixin, AttachmentSaver):
 
     def set_submitted(self):
         if not allow_submit(self.doc):
-            raise ValueError('Submit is disallowed.')
+            raise ValueError('Submit cannot be done; incomplete proposal,'
+                             ' or call closed.')
         self.doc['submitted'] = utils.get_time()
 
     def set_unsubmitted(self):

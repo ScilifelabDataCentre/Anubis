@@ -482,7 +482,7 @@ def create_proposal(cid):
             return flask.redirect(
                 flask.url_for('proposal.display', pid=proposal['identifier']))
         else:
-            with ProposalSaver(call=call) as saver:
+            with ProposalSaver(call=call, user=flask.g.current_user) as saver:
                 pass
             return flask.redirect(
                 flask.url_for('proposal.edit', pid=saver.doc['identifier']))
