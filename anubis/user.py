@@ -53,8 +53,8 @@ def login():
             else:
                 return flask.redirect(next)
         except ValueError:
-            utils.flash_error('Invalid user or password, or account disabled.')
-            return flask.redirect(flask.url_for('.login'))
+            return utils.error('Invalid user or password, or account disabled.',
+                               flask.url_for('.login'))
 
 @blueprint.route('/logout', methods=['POST'])
 def logout():
@@ -95,8 +95,7 @@ def register():
                 saver.set_password()
             user = saver.doc
         except ValueError as error:
-            utils.flash_error(error)
-            return flask.redirect(flask.url_for('.register'))
+            return utils.error(error, flask.url_for('.register'))
         # Directly enabled; send code to the user, if so instructed.
         if user['status'] == constants.ENABLED:
             if utils.to_bool(flask.request.form.get('send_email')):
@@ -167,10 +166,9 @@ def password():
             if len(password) < flask.current_app.config['MIN_PASSWORD_LENGTH']:
                 raise ValueError('Too short password.')
         except ValueError as error:
-            utils.flash_error(str(error))
-            return flask.redirect(flask.url_for('.password',
-                                                username=username,
-                                                code=code))
+            return utils.error(error, flask.url_for('.password',
+                                                    username=username,
+                                                    code=code))
         else:
             with UserSaver(user) as saver:
                 saver.set_password(password)
@@ -185,11 +183,9 @@ def display(username):
     from .call import get_call
     user = get_user(username=username)
     if user is None:
-        utils.flash_error('No such user.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such user.', flask.url_for('home'))
     if not allow_view(user):
-        utils.flash_error('Access to user display not allowed.')
-        return flask.redirect(utils.referrer_or_home())
+        return utils.error('Access to user display not allowed.')
     reviewer_calls = [get_call(r.value)
                       for r in flask.g.db.view('calls', 'reviewer', 
                                                key=user['username'],
@@ -216,11 +212,9 @@ def edit(username):
     "Edit the user. Or delete the user."
     user = get_user(username=username)
     if user is None:
-        utils.flash_error('No such user.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such user.', flask.url_for('home'))
     if not allow_edit(user):
-        utils.flash_error('Access to user edit not allowed.')
-        return flask.redirect(utils.referrer_or_home())
+        return utils.error('Access to user edit not allowed.')
 
     if utils.http_GET():
         return flask.render_template('user/edit.html',
@@ -258,8 +252,8 @@ def edit(username):
 
     elif utils.http_DELETE():
         if not allow_delete(user):
-            utils.flash_error('Cannot delete the user account; admin or not empty.')
-            return flask.redirect(flask.url_for('.display', username=username))
+            return utils.error('Cannot delete the user account; admin or not empty.',
+                               flask.url_for('.display', username=username))
         flask.g.db.delete(user)
         utils.flash_message(f"Deleted user {username}.")
         if flask.g.am_admin:
@@ -273,11 +267,9 @@ def logs(username):
     "Display the log records of the given user."
     user = get_user(username=username)
     if user is None:
-        utils.flash_error('No such user.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such user.', flask.url_for('home'))
     if not allow_view(user):
-        utils.flash_error('Access to user logs not allowed.')
-        return flask.redirect(utils.referrer_or_home())
+        return utils.error('Access to user logs not allowed.')
     return flask.render_template(
         'logs.html',
         title=f"User {user['username']}",
@@ -289,8 +281,8 @@ def logs(username):
 def all():
     "Display list of all users."
     if not (flask.g.am_admin or flask.g.am_staff):
-        utils.flash_error('You are not allowed to view all users.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('You are not allowed to view all users.',
+                           flask.url_for('home'))
     users = get_users(role=None)
     for user in users:
         user['all_proposals_count'] = utils.get_count('proposals', 'user',
@@ -305,8 +297,7 @@ def enable(username):
     "Enable the given user account."
     user = get_user(username=username)
     if user is None:
-        utils.flash_error('No such user.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such user.', flask.url_for('home'))
     with UserSaver(user) as saver:
         saver.set_status(constants.ENABLED)
         saver.set_password()
@@ -320,8 +311,7 @@ def disable(username):
     "Disable the given user account."
     user = get_user(username=username)
     if user is None:
-        utils.flash_error('No such user.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such user.', flask.url_for('home'))
     with UserSaver(user) as saver:
         saver.set_status(constants.DISABLED)
     return flask.redirect(flask.url_for('.display', username=username))

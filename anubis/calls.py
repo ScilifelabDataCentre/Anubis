@@ -18,8 +18,7 @@ def all():
     and those with neither opens nor closes dates set.
     """
     if not (flask.g.am_admin or flask.g.am_staff):
-        utils.flash_error('You are not allowed to view all calls.')
-        return flask.redirect(utils.referrer_or_home())
+        return utils.error('You are not allowed to view all calls.')
     calls = [anubis.call.set_tmp(r.doc) for r in 
              flask.g.db.view('calls', 'identifier', include_docs=True)]
     return flask.render_template('calls/all.html', calls=calls)
@@ -63,20 +62,29 @@ def open():
                                  allow_create=anubis.call.allow_create())
 
 def get_open_calls():
-    "Return sorted list of open calls."
-    # Sort lexically by (closes, title).
-    result = [anubis.call.set_tmp(r.doc)
-              for r in flask.g.db.view('calls', 'closes', 
-                                       startkey=utils.normalized_local_now(),
-                                       endkey='ZZZZZZ',
-                                       include_docs=True)]
-    result.sort(key=lambda k: (k['closes'], k['title']))
-
-    # Sort open-ended by title.
-    result2 = [anubis.call.set_tmp(r.doc)
-               for r in flask.g.db.view('calls', 'open_ended', 
-                                        startkey='',
-                                        endkey=utils.normalized_local_now(),
+    "Return list of open calls, sorted according to configuration."
+    limited = [anubis.call.set_tmp(r.doc)
+               for r in flask.g.db.view('calls', 'closes', 
+                                        startkey=utils.normalized_local_now(),
+                                        endkey='ZZZZZZ',
                                         include_docs=True)]
-    result2.sort(key=lambda k: k['title'])
-    return result + result2
+    open_ended = [anubis.call.set_tmp(r.doc)
+                  for r in flask.g.db.view('calls', 'open_ended', 
+                                           startkey='',
+                                           endkey=utils.normalized_local_now(),
+                                           include_docs=True)]
+    order_key = flask.current_app.config['CALLS_OPEN_ORDER_KEY']
+    if order_key == 'closes':
+        limited.sort(key=lambda k: (k['closes'], k['title']))
+        open_ended.sort(key=lambda k: k['title'])
+        result = limited + open_ended
+    elif order_key == 'title':
+        result = limited + open_ended
+        result.sort(key=lambda k: k['title'])
+    elif order_key == 'identifier':
+        result = limited + open_ended
+        result.sort(key=lambda k: k['identifier'])
+    else:
+        result = limited + open_ended
+        result.sort(key=lambda k: k['identifier'])
+    return result

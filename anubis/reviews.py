@@ -22,15 +22,12 @@ def call(cid):
     "List all reviews for a call."
     call = anubis.call.get_call(cid)
     if call is None:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
     if not anubis.call.allow_view(call):
-        utils.flash_error("You may not view the call.")
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('You may not view the call.', flask.url_for('home'))
     if not anubis.call.allow_view_reviews(call):
-        utils.flash_error('You may not view the reviews of the call.')
-        return flask.redirect(
-            flask.url_for('call.display', cid=call['identifier']))
+        return utils.error('You may not view the reviews of the call.',
+                           flask.url_for('call.display',cid=call['identifier']))
 
     proposals = utils.get_docs_view('proposals', 'call', call['identifier'])
     for proposal in proposals:
@@ -60,15 +57,12 @@ def call_xlsx(cid):
     "Produce an XLSX file of all reviews for a call."
     call = anubis.call.get_call(cid)
     if call is None:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
     if not anubis.call.allow_view(call):
-        utils.flash_error("You may not view the call.")
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('You may not view the call.', flask.url_for('home'))
     if not anubis.call.allow_view_reviews(call):
-        utils.flash_error('You may not view the reviews of the call.')
-        return flask.redirect(
-            flask.url_for('call.display', cid=call['identifier']))
+        return utils.error('You may not view the reviews of the call.',
+                           flask.url_for('call.display',cid=call['identifier']))
 
     proposals = utils.get_docs_view('proposals', 'call', call['identifier'])
     reviews = utils.get_docs_view('reviews', 'call', call['identifier'])
@@ -91,20 +85,17 @@ def call_reviewer(cid, username):
     "List all reviews in the call by the reviewer (user)."
     call = anubis.call.get_call(cid)
     if call is None:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
     user = anubis.user.get_user(username=username)
     if user is None:
-        utils.flash_error('No such user.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such user.', flask.url_for('home'))
     if user['username'] not in call['reviewers']:
-        utils.flash_error("The user is not a reviewer in the call.")
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('The user is not a reviewer in the call.',
+                           flask.url_for('home'))
     if not (user['username'] == flask.g.current_user['username']  or
             anubis.call.allow_view_reviews(call)):
-        utils.flash_error("You may not view the user's reviews.")
-        return flask.redirect(
-            flask.url_for('call.display', cid=call['identifier']))
+        return utils.error("You may not view the user's reviews.",
+                           flask.url_for('call.display',cid=call['identifier']))
 
     proposals = utils.get_docs_view('proposals', 'call', call['identifier'])
     reviews = utils.get_docs_view('reviews', 'call_reviewer',
@@ -124,20 +115,17 @@ def call_reviewer_xlsx(cid, username):
     "Produce an XLSX file of all reviews in the call by the reviewer (user)."
     call = anubis.call.get_call(cid)
     if call is None:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
     user = anubis.user.get_user(username=username)
     if user is None:
-        utils.flash_error('No such user.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such user.', flask.url_for('home'))
     if user['username'] not in call['reviewers']:
-        utils.flash_error("The user is not a reviewer in the call.")
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('The user is not a reviewer in the call.',
+                           flask.url_for('home'))
     if not (user['username'] == flask.g.current_user['username']  or
             anubis.call.allow_view_reviews(call)):
-        utils.flash_error("You may not view the user's reviews.")
-        return flask.redirect(
-            flask.url_for('call.display', cid=call['identifier']))
+        return utils.error("You may not view the user's reviews.",
+                           flask.url_for('call.display',cid=call['identifier']))
 
     proposals = utils.get_docs_view('proposals', 'call', call['identifier'])
     reviews = utils.get_docs_view('reviews', 'call_reviewer',
@@ -156,14 +144,12 @@ def proposal(pid):
     "List all reviewers and reviews for a proposal."
     proposal = anubis.proposal.get_proposal(pid)
     if proposal is None:
-        utils.flash_error('No such proposal.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such proposal.', flask.url_for('home'))
 
     call = anubis.call.get_call(proposal['call'])
     if not anubis.call.allow_view_reviews(call):
-        utils.flash_error('You may not view the reviews of the call.')
-        return flask.redirect(
-            flask.url_for('call.display', cid=call['identifier']))
+        return utils.error('You may not view the reviews of the call.',
+                           flask.url_for('call.display',cid=call['identifier']))
 
     reviews = utils.get_docs_view('reviews', 'proposal', proposal['identifier'])
     if not (flask.g.am_admin or anubis.call.am_chair(call)):
@@ -191,17 +177,14 @@ def proposal_xlsx(pid):
     "Produce an XLSX file of all reviewers and reviews for a proposal."
     proposal = anubis.proposal.get_proposal(pid)
     if proposal is None:
-        utils.flash_error('No such proposal.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such proposal.', flask.url_for('home'))
     if not anubis.proposal.allow_view(proposal):
-        utils.flash_error('You may not view the proposal.')
-        return flask.redirect(
-            flask.url_for('call.display', cid=call['identifier']))
+        return utils.error('You may not view the proposal.',
+                           flask.url_for('call.display',cid=call['identifier']))
     call = anubis.call.get_call(proposal['call'])
     if not anubis.call.allow_view_reviews(call):
-        utils.flash_error('You may not view the reviews of the call.')
-        return flask.redirect(
-            flask.url_for('call.display', cid=call['identifier']))
+        return utils.error('You may not view the reviews of the call.',
+                           flask.url_for('call.display',cid=call['identifier']))
 
     reviews = utils.get_docs_view('reviews', 'proposal', proposal['identifier'])
     if not (flask.g.am_admin or anubis.call.am_chair(call)):
@@ -224,12 +207,10 @@ def reviewer(username):
     """
     user = anubis.user.get_user(username=username)
     if user is None:
-        utils.flash_error('No such user.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such user.', flask.url_for('home'))
     if not anubis.user.allow_view(user):
-        utils.flash_error("You may not view the user's reviews.")
-        return flask.redirect(
-            flask.url_for('call.display', cid=call['identifier']))
+        return utils.error("You may not view the user's reviews.",
+                           flask.url_for('call.display',cid=call['identifier']))
 
     reviewer_calls = [anubis.call.get_call(r.value)
                       for r in flask.g.db.view('calls', 'reviewer', 

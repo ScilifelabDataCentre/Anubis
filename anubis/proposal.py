@@ -41,13 +41,12 @@ def display(pid):
     from .review import get_reviewer_review
     proposal = get_proposal(pid)
     if proposal is None:
-        utils.flash_error('No such proposal.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such proposal.', flask.url_for('home'))
     call = anubis.call.get_call(proposal['call'])
     if not allow_view(proposal):
-        utils.flash_error('You are not allowed to view this proposal.')
-        return flask.redirect(
-            flask.url_for('call.display', cid=call['identifier']))
+        return utils.error('You are not allowed to view this proposal.',
+                           flask.url_for('call.display',
+                                         cid=call['identifier']))
     am_submitter = flask.g.current_user and \
                    flask.g.current_user['username'] == proposal['user']
     am_reviewer = anubis.call.am_reviewer(call)
@@ -81,38 +80,35 @@ def edit(pid):
     "Edit the proposal."
     proposal = get_proposal(pid)
     if proposal is None:
-        utils.flash_error('No such proposal.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such proposal.', flask.url_for('home'))
     call = anubis.call.get_call(proposal['call'])
 
     if utils.http_GET():
         if not allow_edit(proposal):
-            utils.flash_error('You are not allowed to edit this proposal.')
-            return flask.redirect(utils.referrer_or_home())
+            return utils.error('You are not allowed to edit this proposal.')
         return flask.render_template('proposal/edit.html',
                                      proposal=proposal,
                                      call=call)
 
     elif utils.http_POST():
         if not allow_edit(proposal):
-            utils.flash_error('You are not allowed to edit this proposal.')
-            return flask.redirect(
-                flask.url_for('.display', pid=proposal['identifier']))
+            return utils.error('You are not allowed to edit this proposal.',
+                               flask.url_for('.display',
+                                             pid=proposal['identifier']))
         try:
             with ProposalSaver(proposal) as saver:
                 saver['title'] = flask.request.form.get('_title') or None
                 for field in call['proposal']:
                     saver.set_field_value(field, form=flask.request.form)
         except ValueError as error:
-            utils.flash_error(str(error))
-            return flask.redirect(utils.referrer_or_home())
+            return utils.error(error)
         if flask.request.form.get('_save') == 'submit':
             proposal = get_proposal(pid, refresh=True)
             try:
                 with ProposalSaver(proposal) as saver:
                     saver.set_submitted()  # Tests whether allowed or not.
             except ValueError as error:
-                utils.flash_error(str(error))
+                utils.flash_error(error)
             else:
                 utils.flash_message('Proposal saved and submitted.')
         elif allow_submit(proposal) and not proposal.get('submitted'):
@@ -123,9 +119,9 @@ def edit(pid):
 
     elif utils.http_DELETE():
         if not allow_delete(proposal):
-            utils.flash_error('You are not allowed to delete this proposal.')
-            return flask.redirect(
-                flask.url_for('.display', pid=proposal['identifier']))
+            return utils.error('You are not allowed to delete this proposal.',
+                               flask.url_for('.display',
+                                             pid=proposal['identifier']))
         decision = anubis.decision.get_decision(proposal.get('decision'))
         if decision:
             utils.delete(decision)
@@ -143,11 +139,10 @@ def transfer(pid):
     "Transfer ownership of he proposal."
     proposal = get_proposal(pid)
     if proposal is None:
-        utils.flash_error('No such proposal.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such proposal.', flask.url_for('home'))
     if not allow_transfer(proposal):
-        utils.flash_error('You are not allowed to transfer ownership of'
-                          ' this proposal.')
+        return utils.error('You are not allowed to transfer ownership of'
+                           ' this proposal.')
 
     if utils.http_GET():
         return flask.render_template('proposal/transfer.html',proposal=proposal)
@@ -163,8 +158,7 @@ def transfer(pid):
                     else:
                         raise ValueError('No such user.')
         except ValueError as error:
-            utils.flash_error(str(error))
-            return flask.redirect(utils.referrer_or_home())
+            return utils.error(error)
         return flask.redirect(
             flask.url_for('.display', pid=proposal['identifier']))
 
@@ -174,15 +168,14 @@ def submit(pid):
     "Submit the proposal."
     proposal = get_proposal(pid)
     if proposal is None:
-        utils.flash_error('No such proposal.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such proposal.', flask.url_for('home'))
 
     if utils.http_POST():
         try:
             with ProposalSaver(proposal) as saver:
                 saver.set_submitted()  # Tests whether allowed or not.
         except ValueError as error:
-            utils.flash_error(str(error))
+            utils.flash_error(error)
         else:
             utils.flash_message('Proposal was submitted.')
         return flask.redirect(flask.url_for('.display', pid=pid))
@@ -193,15 +186,14 @@ def unsubmit(pid):
     "Unsubmit the proposal."
     proposal = get_proposal(pid)
     if proposal is None:
-        utils.flash_error('No such proposal.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such proposal.', flask.url_for('home'))
 
     if utils.http_POST():
         try:
             with ProposalSaver(proposal) as saver:
                 saver.set_unsubmitted()  # Tests whether allowed or not.
         except ValueError as error:
-            utils.flash_error(str(error))
+            utils.flash_error(error)
         else:
             utils.flash_warning('Proposal was unsubmitted.')
         return flask.redirect(flask.url_for('.display', pid=pid))
@@ -212,11 +204,10 @@ def logs(pid):
     "Display the log records of the given proposal."
     proposal = get_proposal(pid)
     if proposal is None:
-        utils.flash_error('No such proposal.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such proposal.', flask.url_for('home'))
     if not allow_view(proposal):
-        utils.flash_error('You are not allowed to read this proposal.')
-        return flask.redirect(utils.referrer_or_home())
+        return utils.error('You are not allowed to read this proposal.',
+                           flask.url_for('home'))
 
     return flask.render_template(
         'logs.html',
@@ -230,19 +221,17 @@ def document(pid, fid):
     "Download the proposal document (attachment file) for the given field id."
     proposal = get_proposal(pid)
     if proposal is None:
-        utils.flash_error('No such proposal.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such proposal.', flask.url_for('home'))
     if not allow_view(proposal):
-        utils.flash_error('You are not allowed to read this proposal.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('You are not allowed to read this proposal.',
+                           flask.url_for('home'))
 
     try:
         documentname = proposal['values'][fid]
         stub = proposal['_attachments'][documentname]
     except KeyError:
-        utils.flash_error('No such document in proposal.')
-        return flask.redirect(
-            flask.url_for('.display', pid=proposal['identifier']))
+        return utils.error('No such document in proposal.',
+                           flask.url_for('.display',pid=proposal['identifier']))
     # Colon ':' is a problematic character in filenames.
     # Replace it by dash '-'; used as general glue character here.
     pid = pid.replace(':', '-')

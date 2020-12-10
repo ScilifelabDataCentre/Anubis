@@ -22,8 +22,7 @@ def documentation(page):
                                f"{page}.md")) as infile:
             text = infile.read()
     except (OSError, IOError):
-        utils.flash_error('No such documentation page.')
-        return flask.redirect(utils.referrer_or_home())
+        return utils.error('No such documentation page.')
     title = page.replace('-', ' ')
     return flask.render_template('about/documentation.html',
                                  title=title, text=text)
@@ -70,8 +69,8 @@ def get_software():
 def settings():
     "Display all configuration settings."
     if not (flask.g.am_admin or flask.g.am_staff):
-        utils.flash_error('You are not allowed to view configuration settings.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('You are not allowed to view configuration settings.',
+                           flask.url_for('home'))
     config = flask.current_app.config.copy()
     for key in ['SECRET_KEY', 'COUCHDB_PASSWORD', 'MAIL_PASSWORD']:
         if config[key]:

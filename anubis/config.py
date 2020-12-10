@@ -41,6 +41,7 @@ DEFAULT_SETTINGS = dict(
     CALL_IDENTIFIER_MAXLENGTH = 10,
     CALL_REMAINING_DANGER = 1.0,
     CALL_REMAINING_WARNING = 7.0,
+    CALLS_OPEN_ORDER_KEY = 'closes',
     USER_GENDERS = ['male', 'female', 'other'],
     USER_BIRTHDATE = True,
     USER_TITLE = True,

@@ -24,11 +24,9 @@ def call(cid):
     "List all proposals in a call."
     call = anubis.call.get_call(cid)
     if not call:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
     if not anubis.call.allow_view(call):
-        utils.flash_error("You may not view the call.")
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('You may not view the call.', flask.url_for('home'))
     proposals = get_call_proposals(call)
     proposal_bannerfields = [f for f in call['proposal'] if f.get('banner')]
     mean_field_ids = compute_mean_fields(call, proposals)
@@ -51,11 +49,9 @@ def call_xlsx(cid):
     from openpyxl.utils.cell import get_column_letter
     call = anubis.call.get_call(cid)
     if not call:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
     if not anubis.call.allow_view(call):
-        utils.flash_error("You may not view the call.")
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('You may not view the call.', flask.url_for('home'))
     proposals = get_call_proposals(call)
     mean_field_ids = compute_mean_fields(call, proposals)
     wb = openpyxl.Workbook()
@@ -142,11 +138,10 @@ def user(username):
     "List all proposals for a user."
     user = anubis.user.get_user(username=username)
     if user is None:
-        utils.flash_error('No such user.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such user.', flask.url_for('home'))
     if not anubis.user.allow_view(user):
-        utils.flash_error("You may not view the user's proposals.")
-        return flask.redirect(flask.url_for('home'))
+        return utils.error("You may not view the user's proposals.",
+                           flask.url_for('home'))
     return flask.render_template('proposals/user.html',  
                                  user=user,
                                  proposals=get_user_proposals(user['username']),

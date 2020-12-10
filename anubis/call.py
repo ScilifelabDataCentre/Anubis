@@ -36,8 +36,7 @@ blueprint = flask.Blueprint('call', __name__)
 def create():
     "Create a new call from scratch."
     if not allow_create():
-        utils.flash_error('You are not allowed to create a call.')
-        return flask.redirect(utils.referrer_or_home())
+        return utils.error('You are not allowed to create a call.')
 
     if utils.http_GET():
         return flask.render_template('call/create.html')
@@ -49,8 +48,7 @@ def create():
                 saver.set_title(flask.request.form.get('title'))
             call = saver.doc
         except ValueError as error:
-            utils.flash_error(str(error))
-            return flask.redirect(flask.url_for('.create'))
+            return utils.error(error)
         return flask.redirect(flask.url_for('.edit', cid=call['identifier']))
 
 @blueprint.route('/<cid>')
@@ -59,11 +57,9 @@ def display(cid):
     from .proposal import get_call_user_proposal
     call = get_call(cid)
     if not call:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
     if not allow_view(call):
-        utils.flash_error('You are not allowed to view the call.')
-        return flask.redirect(utils.referrer_or_home())
+        return utils.error('You are not allowed to view the call.')
     if flask.g.current_user:
         my_proposal = get_call_user_proposal(cid, 
                                              flask.g.current_user['username'])
@@ -91,12 +87,10 @@ def edit(cid):
     "Edit the call, or delete it."
     call = get_call(cid)
     if not call:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
 
     if not allow_edit(call):
-        utils.flash_error('You are not allowed to edit the call.')
-        return flask.redirect(utils.referrer_or_home())
+        return utils.error('You are not allowed to edit the call.')
 
     if utils.http_GET():
         return flask.render_template('call/edit.html', call=call)
@@ -114,13 +108,12 @@ def edit(cid):
                     flask.request.form.get('reviews_due'))
                 saver.edit_access(flask.request.form)
         except ValueError as error:
-            utils.flash_error(str(error))
+            utils.flash_error(error)
         return flask.redirect(flask.url_for('.display', cid=call['identifier']))
 
     elif utils.http_DELETE():
         if not allow_delete(call):
-            utils.flash_error('You are not allowed to delete the call.')
-            return flask.redirect(utils.referrer_or_home())
+            return utils.error('You are not allowed to delete the call.')
         utils.delete(call)
         utils.flash_message(f"Deleted call {call['identifier']}:{call['title']}.")
         return flask.redirect(
@@ -133,12 +126,10 @@ def documents(cid):
     "Display documents for delete, or add document (attachment file)."
     call = get_call(cid)
     if not call:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
 
     if not allow_edit(call):
-        utils.flash_error('You are not allowed to edit the call.')
-        return flask.redirect(utils.referrer_or_home())
+        return utils.error('You are not allowed to edit the call.')
 
     if utils.http_GET():
         return flask.render_template('call/documents.html', call=call)
@@ -159,18 +150,15 @@ def document(cid, documentname):
     "Download the given document (attachment file), or delete it."
     call = get_call(cid)
     if not call:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
 
     if utils.http_GET():
         if not (flask.g.am_admin or call['tmp']['is_published']):
-            utils.flash_error(f"Call {call['title']} has not been published.")
-            return flask.redirect(utils.referrer_or_home())
+            return utils.error(f"Call {call['title']} has not been published.")
         try:
             stub = call['_attachments'][documentname]
         except KeyError:
-            utils.flash_error('No such document in call.')
-            return flask.redirect(utils.referrer_or_home())
+            return utils.error('No such document in call.')
         outfile = flask.g.db.get_attachment(call, documentname)
         response = flask.make_response(outfile.read())
         response.headers.set('Content-Type', stub['content_type'])
@@ -180,8 +168,7 @@ def document(cid, documentname):
 
     elif utils.http_DELETE():
         if not flask.g.am_admin:
-            utils.flash_error('You may not delete a document in the call.')
-            return flask.redirect(utils.referrer_or_home())
+            return utils.error('You may not delete a document in the call.')
         with CallSaver(call) as saver:
             saver.delete_document(documentname)
         return flask.redirect(
@@ -193,12 +180,10 @@ def proposal(cid):
     "Display proposal fields for delete, and add field."
     call = get_call(cid)
     if not call:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
 
     if not allow_edit(call):
-        utils.flash_error('You are not allowed to edit the call.')
-        return flask.redirect(utils.referrer_or_home())
+        return utils.error('You are not allowed to edit the call.')
 
     if utils.http_GET():
         return flask.render_template('call/proposal.html', call=call)
@@ -208,9 +193,8 @@ def proposal(cid):
             with CallSaver(call) as saver:
                 saver.add_proposal_field(flask.request.form)
         except ValueError as error:
-            utils.flash_error(str(error))
-        return flask.redirect(
-            flask.url_for('.proposal', cid=call['identifier']))
+            utils.flash_error(error)
+        return flask.redirect(flask.url_for('.proposal',cid=call['identifier']))
 
 @blueprint.route('/<cid>/proposal/<fid>', methods=['POST', 'DELETE'])
 @utils.login_required
@@ -218,30 +202,26 @@ def proposal_field(cid, fid):
     "Edit or delete the proposal field."
     call = get_call(cid)
     if not call:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
 
     if not allow_edit(call):
-        utils.flash_error('You are not allowed to edit the call.')
-        return flask.redirect(utils.referrer_or_home())
+        return utils.error('You are not allowed to edit the call.')
 
     if utils.http_POST():
         try:
             with CallSaver(call) as saver:
                 saver.edit_proposal_field(fid, flask.request.form)
         except (KeyError, ValueError) as error:
-            utils.flash_error(str(error))
-        return flask.redirect(
-            flask.url_for('.proposal', cid=call['identifier']))
+            utils.flash_error(error)
+        return flask.redirect(flask.url_for('.proposal',cid=call['identifier']))
 
     elif utils.http_DELETE():
         try:
             with CallSaver(call) as saver:
                 saver.delete_proposal_field(fid)
         except ValueError as error:
-            utils.flash_error(str(error))
-        return flask.redirect(
-            flask.url_for('.proposal', cid=call['identifier']))
+            utils.flash_error(error)
+        return flask.redirect(flask.url_for('.proposal',cid=call['identifier']))
 
 @blueprint.route('/<cid>/reviewers', methods=['GET', 'POST', 'DELETE'])
 @utils.login_required
@@ -251,12 +231,10 @@ def reviewers(cid):
     from .proposal import get_call_user_proposal
     call = get_call(cid)
     if not call:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
 
     if not allow_edit(call):
-        utils.flash_error('You are not allowed to edit the call.')
-        return flask.redirect(utils.referrer_or_home())
+        return utils.error('You are not allowed to edit the call.')
 
     if utils.http_GET():
         return flask.render_template('call/reviewers.html', call=call)
@@ -269,12 +247,11 @@ def reviewers(cid):
         if user is None:
             user = get_user(email=reviewer)
         if user is None:
-            utils.flash_error('No such user.')
-            return flask.redirect(utils.referrer_or_home())
+            return utils.error('No such user.')
         if get_call_user_proposal(cid, user['username']):
-            utils.flash_error('User has a proposal in the call.')
-            return flask.redirect(
-                flask.url_for('.reviewers', cid=call['identifier']))
+            return utils.error('User has a proposal in the call.',
+                               flask.url_for('.reviewers',
+                                             cid=call['identifier']))
 
         if user['username'] not in call['reviewers']:
             with CallSaver(call) as saver:
@@ -305,12 +282,10 @@ def review(cid):
     "Display review fields for delete, and add field."
     call = get_call(cid)
     if not call:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
 
     if not allow_edit(call):
-        utils.flash_error('You are not allowed to edit the call.')
-        return flask.redirect(utils.referrer_or_home())
+        return utils.error('You are not allowed to edit the call.')
 
     if utils.http_GET():
         return flask.render_template('call/review.html', call=call)
@@ -320,7 +295,7 @@ def review(cid):
             with CallSaver(call) as saver:
                 saver.add_review_field(flask.request.form)
         except ValueError as error:
-            utils.flash_error(str(error))
+            utils.flash_error(error)
         return flask.redirect(flask.url_for('.review', cid=call['identifier']))
 
 @blueprint.route('/<cid>/review/<fid>', methods=['POST', 'DELETE'])
@@ -329,19 +304,17 @@ def review_field(cid, fid):
     "Edit or delete the review field."
     call = get_call(cid)
     if not call:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
 
     if not allow_edit(call):
-        utils.flash_error('You are not allowed to edit the call.')
-        return flask.redirect(utils.referrer_or_home())
+        return utils.error('You are not allowed to edit the call.')
 
     if utils.http_POST():
         try:
             with CallSaver(call) as saver:
                 saver.edit_review_field(fid, flask.request.form)
         except ValueError as error:
-            utils.flash_error(str(error))
+            utils.flash_error(error)
         return flask.redirect(flask.url_for('.review', cid=call['identifier']))
 
     elif utils.http_DELETE():
@@ -349,7 +322,7 @@ def review_field(cid, fid):
             with CallSaver(call) as saver:
                 saver.delete_review_field(fid)
         except ValueError as error:
-            utils.flash_error(str(error))
+            utils.flash_error(error)
         return flask.redirect(flask.url_for('.review', cid=call['identifier']))
 
 @blueprint.route('/<cid>/decision', methods=['GET', 'POST'])
@@ -358,12 +331,10 @@ def decision(cid):
     "Display decision fields for delete, and add field."
     call = get_call(cid)
     if not call:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
 
     if not allow_edit(call):
-        utils.flash_error('You are not allowed to edit the call.')
-        return flask.redirect(utils.referrer_or_home())
+        return utils.error('You are not allowed to edit the call.')
 
     if utils.http_GET():
         return flask.render_template('call/decision.html', call=call)
@@ -373,9 +344,8 @@ def decision(cid):
             with CallSaver(call) as saver:
                 saver.add_decision_field(flask.request.form)
         except ValueError as error:
-            utils.flash_error(str(error))
-        return flask.redirect(
-            flask.url_for('.decision', cid=call['identifier']))
+            utils.flash_error(error)
+        return flask.redirect(flask.url_for('.decision',cid=call['identifier']))
 
 @blueprint.route('/<cid>/decision/<fid>', methods=['POST', 'DELETE'])
 @utils.login_required
@@ -383,30 +353,26 @@ def decision_field(cid, fid):
     "Edit or delete the decision field."
     call = get_call(cid)
     if not call:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
 
     if not allow_edit(call):
-        utils.flash_error('You are not allowed to edit the call.')
-        return flask.redirect(utils.referrer_or_home())
+        return utils.error('You are not allowed to edit the call.')
 
     if utils.http_POST():
         try:
             with CallSaver(call) as saver:
                 saver.edit_decision_field(fid, flask.request.form)
         except (KeyError, ValueError) as error:
-            utils.flash_error(str(error))
-        return flask.redirect(
-            flask.url_for('.decision', cid=call['identifier']))
+            utils.flash_error(error)
+        return flask.redirect(flask.url_for('.decision',cid=call['identifier']))
 
     elif utils.http_DELETE():
         try:
             with CallSaver(call) as saver:
                 saver.delete_decision_field(fid)
         except ValueError as error:
-            utils.flash_error(str(error))
-        return flask.redirect(
-            flask.url_for('.decision', cid=call['identifier']))
+            utils.flash_error(error)
+        return flask.redirect(flask.url_for('.decision',cid=call['identifier']))
 
 @blueprint.route('/<cid>/clone', methods=['GET', 'POST'])
 @utils.login_required
@@ -414,12 +380,10 @@ def clone(cid):
     "Clone the call."
     call = get_call(cid)
     if not call:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
 
     if not allow_create():
-        utils.flash_error('You are not allowed to create a call.')
-        return flask.redirect(utils.referrer_or_home())
+        return utils.error('You are not allowed to create a call.')
 
     if utils.http_GET():
         return flask.render_template('call/clone.html', call=call)
@@ -436,8 +400,7 @@ def clone(cid):
                 # Do not copy reviewers or chairs.
             new = saver.doc
         except ValueError as error:
-            utils.flash_error(str(error))
-            return flask.redirect(utils.referrer_or_home())
+            return utils.error(error)
         return flask.redirect(flask.url_for('.edit', cid=new['identifier']))
 
 @blueprint.route('/<cid>/logs')
@@ -446,12 +409,10 @@ def logs(cid):
     "Display the log records of the call."
     call = get_call(cid)
     if call is None:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
 
     if not (flask.g.am_admin or am_call_owner(call)):
-        utils.flash_error('You are not admin or owner of the call.')
-        return flask.redirect(utils.referrer_or_home())
+        return utils.error('You are not admin or owner of the call.')
 
     return flask.render_template(
         'logs.html',
@@ -466,21 +427,19 @@ def create_proposal(cid):
     from .proposal import ProposalSaver, get_call_user_proposal
     call = get_call(cid)
     if call is None:
-        utils.flash_error('No such call.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such call.', flask.url_for('home'))
     if not call['tmp']['is_open']:
-        utils.flash_error("The call is not open.")
-        return flask.redirect(flask.url_for('.display', cid=cid))
+        return utils.error("The call is not open.")
     if not allow_proposal(call):
-        utils.flash_error('You may not create a proposal in this call.')
-        return flask.redirect(flask.url_for('.display', cid=cid))
+        return utils.error('You may not create a proposal in this call.',
+                           flask.url_for('.display', cid=cid))
 
     if utils.http_POST():
         proposal = get_call_user_proposal(cid, flask.g.current_user['username'])
         if proposal:
-            utils.flash_message('Proposal already exists for the call.')
-            return flask.redirect(
-                flask.url_for('proposal.display', pid=proposal['identifier']))
+            return utils.message('Proposal already exists for the call.',
+                                 flask.url_for('proposal.display',
+                                               pid=proposal['identifier']))
         else:
             with ProposalSaver(call=call, user=flask.g.current_user) as saver:
                 pass

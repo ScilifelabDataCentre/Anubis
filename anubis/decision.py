@@ -35,12 +35,10 @@ def create(pid):
     "Create a new decision for the proposal."
     proposal = anubis.proposal.get_proposal(pid)
     if proposal is None:
-        utils.flash_error('No such proposal.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such proposal.', flask.url_for('home'))
     try:
         if not allow_create(proposal):
-            utils.flash_error('You may not create a decision for the proposal.')
-            raise ValueError
+            raise ValueError('You may not create a decision for the proposal.')
         decision = get_decision(proposal.get('decision'))
         if decision is not None:
             utils.flash_message('The decision already exists.')
@@ -52,7 +50,7 @@ def create(pid):
         with anubis.proposal.ProposalSaver(proposal) as saver:
             saver['decision'] = decision['_id']
     except ValueError as error:
-        pass
+        utils.flash_error(error)
     try:
         return flask.redirect(flask.request.form['_next'])
     except KeyError:
@@ -64,15 +62,14 @@ def display(iuid):
     try:
         decision = get_decision(iuid)
     except KeyError:
-        utils.flash_error('No such decision.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such decision.', flask.url_for('home'))
     proposal = anubis.proposal.get_proposal(decision['proposal'])
     call = anubis.call.get_call(decision['call'])
 
     if not allow_link(decision):
-        utils.flash_error('You are not allowed to view this decision.')
-        return flask.redirect(
-            flask.url_for('proposal.display', pid=decision['proposal']))
+        return utils.error('You are not allowed to view this decision.',
+                           flask.url_for('proposal.display',
+                                         pid=decision['proposal']))
     return flask.render_template('decision/display.html',
                                  decision=decision,
                                  proposal=proposal,
@@ -89,16 +86,14 @@ def edit(iuid):
     try:
         decision = get_decision(iuid)
     except KeyError:
-        utils.flash_error('No such decision.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such decision.', flask.url_for('home'))
     proposal = anubis.proposal.get_proposal(decision['proposal'])
     call = anubis.call.get_call(decision['call'])
 
     if utils.http_GET():
         if not allow_edit(decision):
-            utils.flash_error('You are not allowed to edit this decision.')
-            return flask.redirect(
-                flask.url_for('.display', iuid=decision['_id']))
+            return utils.error('You are not allowed to edit this decision.',
+                               flask.url_for('.display', iuid=decision['_id']))
         return flask.render_template('decision/edit.html',
                                      decision=decision,
                                      proposal=proposal,
@@ -106,23 +101,20 @@ def edit(iuid):
 
     elif utils.http_POST():
         if not allow_edit(decision):
-            utils.flash_error('You are not allowed to edit this decision.')
-            return flask.redirect(
-                flask.url_for('.display', iuid=decision['_id']))
+            return utils.error('You are not allowed to edit this decision.',
+                               flask.url_for('.display', iuid=decision['_id']))
         try:
             with DecisionSaver(doc=decision) as saver:
                 for field in call['decision']:
                     saver.set_field_value(field, form=flask.request.form)
         except ValueError as error:
-            utils.flash_error(str(error))
-            return flask.redirect(utils.referrer_or_home())
+            return utils.error(error)
         return flask.redirect(flask.url_for('.display', iuid=decision['_id']))
 
     elif utils.http_DELETE():
         if not allow_delete(decision):
-            utils.flash_error('You are not allowed to delete this decision.')
-            return flask.redirect(
-                flask.url_for('.display', iuid=decision['_id']))
+            return utils.error('You are not allowed to delete this decision.',
+                               flask.url_for('.display', iuid=decision['_id']))
         with anubis.proposal.ProposalSaver(proposal) as saver:
             saver['decision'] = None
         utils.delete(decision)
@@ -137,18 +129,17 @@ def finalize(iuid):
     try:
         decision = get_decision(iuid)
     except KeyError:
-        utils.flash_error('No such decision.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such decision.', flask.url_for('home'))
     if not allow_finalize(decision):
-        utils.flash_error('You are not allowed to finalize this decision.')
-        return flask.redirect(flask.url_for('.display', iuid=decision['_id']))
+        return utils.error('You are not allowed to finalize this decision.',
+                           flask.url_for('.display', iuid=decision['_id']))
 
     if utils.http_POST():
         try:
             with DecisionSaver(doc=decision) as saver:
                 saver['finalized'] = utils.get_time()
         except ValueError as error:
-            utils.flash_error(str(error))
+            utils.flash_error(error)
         return flask.redirect(flask.url_for('.display', iuid=decision['_id']))
 
 @blueprint.route('/<iuid:iuid>/unfinalize', methods=['POST'])
@@ -158,18 +149,17 @@ def unfinalize(iuid):
     try:
         decision = get_decision(iuid)
     except KeyError:
-        utils.flash_error('No such decision.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such decision.', flask.url_for('home'))
     if not allow_unfinalize(decision):
-        utils.flash_error('You are not allowed to unfinalize this decision.')
-        return flask.redirect(flask.url_for('.display', iuid=decision['_id']))
+        return utils.error('You are not allowed to unfinalize this decision.',
+                           flask.url_for('.display', iuid=decision['_id']))
 
     if utils.http_POST():
         try:
             with DecisionSaver(doc=decision) as saver:
                 saver['finalized'] = None
         except ValueError as error:
-            utils.flash_error(str(error))
+            utils.flash_error(error)
         return flask.redirect(flask.url_for('.display', iuid=decision['_id']))
 
 @blueprint.route('/<iuid:iuid>/logs')
@@ -179,8 +169,7 @@ def logs(iuid):
     try:
         decision = get_decision(iuid)
     except KeyError:
-        utils.flash_error('No such decision.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such decision.', flask.url_for('home'))
 
     return flask.render_template(
         'logs.html',
@@ -195,19 +184,18 @@ def document(iuid, fid):
     try:
         decision = get_decision(iuid)
     except KeyError:
-        utils.flash_error('No such decision.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such decision.', flask.url_for('home'))
     if not allow_link(decision):
-        utils.flash_error('You are not allowed to read this decision.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('You are not allowed to read this decision.',
+                           flask.url_for('home'))
 
     try:
         documentname = decision['values'][fid]
         stub = decision['_attachments'][documentname]
     except KeyError:
-        utils.flash_error('No such document in decision.')
-        return flask.redirect(
-            flask.url_for('.display', iuid=decision['identifier']))
+        return utils.error('No such document in decision.',
+                           flask.url_for('.display',
+                                         iuid=decision['identifier']))
     # Colon ':' is a problematic character in filenames.
     # Replace it by dash '-'; used as general glue character here.
     pid = decision['proposal'].replace(':', '-')

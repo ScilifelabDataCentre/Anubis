@@ -48,29 +48,25 @@ def create(pid, username):
     "Create a new review for the proposal for the given reviewer."
     proposal = anubis.proposal.get_proposal(pid)
     if proposal is None:
-        utils.flash_error('No such proposal.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such proposal.', flask.url_for('home'))
     call = anubis.call.get_call(proposal['call'])
 
     try:
         if not allow_create(proposal):
-            utils.flash_error('You may not create a review for the proposal.')
-            raise ValueError
+            raise ValueError('You may not create a review for the proposal.')
         user = anubis.user.get_user(username=username)
         if user is None:
-            utils.flash_error('No such user.')
-            raise ValueError
+            raise ValueError('No such user.')
         if user['username'] not in call['reviewers']:
-            utils.flash_error('User is not a reviewer in the call.')
-            raise ValueError
+            raise ValueError('User is not a reviewer in the call.')
         review = get_reviewer_review(proposal, user)
         if review is not None:
             utils.flash_message('The review already exists.')
             return flask.redirect(flask.url_for('.display', iuid=review['_id']))
         with ReviewSaver(proposal=proposal, user=user) as saver:
             pass
-    except ValueError:
-        pass
+    except ValueError as error:
+        utils.flash_error(error)
     try:
         return flask.redirect(flask.request.form['_next'])
     except KeyError:
@@ -84,14 +80,13 @@ def display(iuid):
     try:
         review = get_review(iuid)
     except KeyError:
-        utils.flash_error('No such review.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such review.', flask.url_for('home'))
     call = anubis.call.get_call(review['call'])
     proposal = anubis.proposal.get_proposal(review['proposal'])
     if not allow_view(review):
-        utils.flash_error('You are not allowed to view this review.')
-        return flask.redirect(
-            flask.url_for('proposal.display', pid=review['proposal']))
+        return utils.error('You are not allowed to view this review.',
+                           flask.url_for('proposal.display',
+                                         pid=review['proposal']))
     allow_view_reviews = anubis.call.allow_view_reviews(call)
     return flask.render_template('review/display.html',
                                  review=review,
@@ -110,15 +105,14 @@ def edit(iuid):
     try:
         review = get_review(iuid)
     except KeyError:
-        utils.flash_error('No such review.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such review.', flask.url_for('home'))
     proposal = anubis.proposal.get_proposal(review['proposal'])
     call = anubis.call.get_call(review['call'])
 
     if utils.http_GET():
         if not allow_edit(review):
-            utils.flash_error('You are not allowed to edit this review.')
-            return flask.redirect(flask.url_for('.display', iuid=review['_id']))
+            return utils.error('You are not allowed to edit this review.',
+                               flask.url_for('.display', iuid=review['_id']))
         return flask.render_template('review/edit.html',
                                      review=review,
                                      proposal=proposal,
@@ -126,21 +120,20 @@ def edit(iuid):
 
     elif utils.http_POST():
         if not allow_edit(review):
-            utils.flash_error('You are not allowed to edit this review.')
-            return flask.redirect(flask.url_for('.display', iuid=review['_id']))
+            return utils.error('You are not allowed to edit this review.',
+                               flask.url_for('.display', iuid=review['_id']))
         try:
             with ReviewSaver(doc=review) as saver:
                 for field in call['review']:
                     saver.set_field_value(field, form=flask.request.form)
         except ValueError as error:
-            utils.flash_error(str(error))
-            return flask.redirect(utils.referrer_or_home())
+            return utils.error(error)
         return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
     elif utils.http_DELETE():
         if not allow_delete(review):
-            utils.flash_error('You are not allowed to delete this review.')
-            return flask.redirect(flask.url_for('.display', iuid=review['_id']))
+            return utils.error('You are not allowed to delete this review.',
+                               flask.url_for('.display', iuid=review['_id']))
         utils.delete(review)
         utils.flash_message('Deleted review.')
         return flask.redirect(flask.url_for('call.display', cid=review['call']))
@@ -152,18 +145,17 @@ def finalize(iuid):
     try:
         review = get_review(iuid)
     except KeyError:
-        utils.flash_error('No such review.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such review.', flask.url_for('home'))
     if not allow_finalize(review):
-        utils.flash_error('You are not allowed to finalize this review.')
-        return flask.redirect(flask.url_for('.display', iuid=review['_id']))
+        return utils.error('You are not allowed to finalize this review.',
+                           flask.url_for('.display', iuid=review['_id']))
 
     if utils.http_POST():
         try:
             with ReviewSaver(doc=review) as saver:
                 saver['finalized'] = utils.get_time()
         except ValueError as error:
-            utils.flash_error(str(error))
+            utils.flash_error(error)
         return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
 @blueprint.route('/<iuid:iuid>/unfinalize', methods=['POST'])
@@ -173,18 +165,17 @@ def unfinalize(iuid):
     try:
         review = get_review(iuid)
     except KeyError:
-        utils.flash_error('No such review.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such review.', flask.url_for('home'))
     if not allow_unfinalize(review):
-        utils.flash_error('You are not allowed to unfinalize this review.')
-        return flask.redirect(flask.url_for('.display', iuid=review['_id']))
+        return utils.error('You are not allowed to unfinalize this review.',
+                           flask.url_for('.display', iuid=review['_id']))
 
     if utils.http_POST():
         try:
             with ReviewSaver(doc=review) as saver:
                 saver['finalized'] = None
         except ValueError as error:
-            utils.flash_error(str(error))
+            utils.flash_error(error)
         return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
 @blueprint.route('/<iuid:iuid>/logs')
@@ -194,8 +185,7 @@ def logs(iuid):
     try:
         review = get_review(iuid)
     except KeyError:
-        utils.flash_error('No such review.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such review.', flask.url_for('home'))
 
     return flask.render_template(
         'logs.html',
@@ -210,19 +200,17 @@ def document(iuid, fid):
     try:
         review = get_review(iuid)
     except KeyError:
-        utils.flash_error('No such review.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('No such review.', flask.url_for('home'))
     if not allow_view(review):
-        utils.flash_error('You are not allowed to read this review.')
-        return flask.redirect(flask.url_for('home'))
+        return utils.error('You are not allowed to read this review.',
+                           flask.url_for('home'))
 
     try:
         documentname = review['values'][fid]
         stub = review['_attachments'][documentname]
     except KeyError:
-        utils.flash_error('No such document in review.')
-        return flask.redirect(
-            flask.url_for('.display', iuid=review['identifier']))
+        return utils.error('No such document in review.',
+                           flask.url_for('.display', iuid=review['identifier']))
     # Colon ':' is a problematic character in filenames.
     # Replace it by dash '-'; used as general glue character here.
     pid = review['proposal'].replace(':', '-')
