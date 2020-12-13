@@ -38,7 +38,7 @@
   <div class="col-md">
     <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
        role="button" class="btn btn-primary">
-      {{ utils.get_call_proposals_count(call['identifier']) }} proposals</a>
+      {{ call_proposals_count }} proposals</a>
   </div>
 </div>
 {% endif %} {# if allow_view_details #}
@@ -246,8 +246,16 @@
   <a href="{{ url_for('.decision', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit decision fields</a>
 </div>
-{% endif %} {# if allow_edit #}
-{% if g.am_admin or am_call_owner %}
+{% if call_proposals_count == 0 %}
+<div class="mt-2">
+  <form action="{{ url_for('.reset_counter', cid=call['identifier']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <button type="submit" class="btn btn-primary">
+      Reset proposals counter</button>
+  </form>
+</div>
+{% endif %}
 <div class="mt-4">
   <a href="{{ url_for('.reviewers', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit reviewers</a>
@@ -256,7 +264,7 @@
   <a href="{{ url_for('.clone', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Clone</a>
 </div>
-{% endif %} {# if g.am_admin or am_call_owner #}
+{% endif %} {# if allow_edit #}
 {% if allow_delete %}
 <div class="mt-2">
   <form action="{{ url_for('.edit', cid=call['identifier']) }}"

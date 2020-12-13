@@ -60,26 +60,24 @@ def display(cid):
         return utils.error('No such call.', flask.url_for('home'))
     if not allow_view(call):
         return utils.error('You are not allowed to view the call.')
+    kwargs = {}
     if flask.g.current_user:
-        my_proposal = get_call_user_proposal(cid, 
-                                             flask.g.current_user['username'])
-        my_reviews_count = utils.get_count('reviews', 'call_reviewer', 
-                                           [call['identifier'],
-                                            flask.g.current_user['username']])
-    else:
-        my_proposal = None
-        my_reviews_count = 0
+        kwargs['my_proposal'] = get_call_user_proposal(
+            cid, flask.g.current_user['username'])
+        kwargs['my_reviews_count'] = utils.get_count(
+            'reviews', 'call_reviewer',
+            [call['identifier'], flask.g.current_user['username']])
+        kwargs['call_proposals_count'] = utils.get_call_proposals_count(cid)
     return flask.render_template('call/display.html',
                                  call=call,
                                  am_call_owner=am_call_owner(call),
-                                 my_proposal=my_proposal,
                                  am_reviewer=am_reviewer(call),
-                                 my_reviews_count=my_reviews_count,
                                  allow_edit=allow_edit(call),
                                  allow_delete=allow_delete(call),
                                  allow_proposal=allow_proposal(call),
                                  allow_view_details=allow_view_details(call),
-                                 allow_view_reviews=allow_view_reviews(call))
+                                 allow_view_reviews=allow_view_reviews(call),
+                                 **kwargs)
 
 @blueprint.route('/<cid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.login_required
@@ -88,7 +86,6 @@ def edit(cid):
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
-
     if not allow_edit(call):
         return utils.error('You are not allowed to edit the call.')
 
@@ -127,7 +124,6 @@ def documents(cid):
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
-
     if not allow_edit(call):
         return utils.error('You are not allowed to edit the call.')
 
@@ -181,7 +177,6 @@ def proposal(cid):
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
-
     if not allow_edit(call):
         return utils.error('You are not allowed to edit the call.')
 
@@ -203,7 +198,6 @@ def proposal_field(cid, fid):
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
-
     if not allow_edit(call):
         return utils.error('You are not allowed to edit the call.')
 
@@ -232,7 +226,6 @@ def reviewers(cid):
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
-
     if not allow_edit(call):
         return utils.error('You are not allowed to edit the call.')
 
@@ -283,7 +276,6 @@ def review(cid):
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
-
     if not allow_edit(call):
         return utils.error('You are not allowed to edit the call.')
 
@@ -305,7 +297,6 @@ def review_field(cid, fid):
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
-
     if not allow_edit(call):
         return utils.error('You are not allowed to edit the call.')
 
@@ -332,7 +323,6 @@ def decision(cid):
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
-
     if not allow_edit(call):
         return utils.error('You are not allowed to edit the call.')
 
@@ -354,7 +344,6 @@ def decision_field(cid, fid):
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
-
     if not allow_edit(call):
         return utils.error('You are not allowed to edit the call.')
 
@@ -373,6 +362,23 @@ def decision_field(cid, fid):
         except ValueError as error:
             utils.flash_error(error)
         return flask.redirect(flask.url_for('.decision',cid=call['identifier']))
+
+@blueprint.route('/<cid>/reset_counter', methods=['POST'])
+@utils.login_required
+def reset_counter(cid):
+    "Reset the counter of the call. Only if no proposals in it."
+    call = get_call(cid)
+    if not call:
+        return utils.error('No such call.', flask.url_for('home'))
+    if not allow_edit(call):
+        return utils.error('You are not allowed to edit the call.')
+    if utils.get_call_proposals_count(cid) != 0:
+        return utils.error('Cannot reset counter when there are proposals in the call.')
+
+    with CallSaver(call) as saver:
+        saver['counter'] = None
+    utils.flash_message('Counter for proposals in call reset.')
+    return flask.redirect(flask.url_for('.display', cid=call['identifier']))
 
 @blueprint.route('/<cid>/clone', methods=['GET', 'POST'])
 @utils.login_required
