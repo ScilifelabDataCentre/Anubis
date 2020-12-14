@@ -251,7 +251,7 @@
   <form action="{{ url_for('.reset_counter', cid=call['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
-    <button type="submit" class="btn btn-primary">
+    <button type="submit" class="btn btn-primary btn-block">
       Reset proposals counter</button>
   </form>
 </div>
