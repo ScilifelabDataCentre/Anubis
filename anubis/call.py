@@ -486,6 +486,7 @@ class CallSaver(AttachmentSaver):
 
     def set_title(self, title):
         "Call title: non-blank required."
+        title = title.strip()
         if not title:
             raise ValueError('Title must be provided.')
         self.doc['title'] = title

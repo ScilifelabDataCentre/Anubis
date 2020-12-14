@@ -312,7 +312,7 @@ def user_link(user, fullname=True, chair=False):
 def call_link(call, title=True):
     "Template filter: link to call, by title or identifier."
     if title:
-        title = f"{call['identifier']}: {call['title'] or ''}"
+        title = f"{call['title']} ({call['identifier']})"
     else:
         title = call['identifier']
     url = flask.url_for('call.display', cid=call['identifier'])

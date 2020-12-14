@@ -17,11 +17,7 @@
 <div class="card border-dark mt-3">
   <div class="card-header">
     <h4 class="card-title">
-      <a href="{{ url_for('call.display', cid=call['identifier']) }}"
-         class=" mx-4 font-weight-bold">
-        {{ call['identifier'] }}: {{ call['title'] }}</a>
-      {#      Call for proposals.#}
-      
+      <span class="mx-4">{{ call | call_link }}</span>
       <span class="badge badge-pill badge-{{ call['tmp']['color'] }}">
         {{ call['tmp']['text'] }}</span>
     </h4>

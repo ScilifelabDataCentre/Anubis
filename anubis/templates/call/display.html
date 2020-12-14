@@ -1,17 +1,18 @@
 {% extends 'base.html' %}
 
-{% block head_title %}
-{{ call['identifier'] }}: {{ call['title'] }}
-{% endblock %}
+{% block head_title %}{{ call['title'] }}{% endblock %}
 
 {% block body_title %}
 <small class="text-muted mr-3">Call for proposals</small>
-<span class="font-weight-bold">
-  {{ call['identifier'] }}: {{ call['title'] }}
-</span>
+<span class="font-weight-bold">{{ call['title'] }}</span>
 {% endblock %}
 
 {% block main %}
+
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Identifier</div>
+  <div class="col-md">{{ call['identifier']  }}</div>
+</div>
 
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Opens</div>
