@@ -34,13 +34,6 @@
   </div>
 </div>
 {% endif %} {# if not calls #}
-<div class="card mt-3">
-  <div class="card-body">
-    <h4 class="mx-4">
-      Check <a href="{{ url_for('calls.closed') }}">here</a> for closed calls.
-    </h4>
-  </div>
-</div>
 {% endblock %} {# block main #}
 
 {% block actions %}
@@ -58,4 +51,9 @@
     Forgot your password? Reset it</a>
 </p>
 {% endif %}
+<p class="mt-5">
+  <a href="{{ url_for('calls.closed') }}"
+     class="btn btn-block btn-outline-dark py-3">
+    List of closed calls</a>
+</p>
 {% endblock %} {# block actions #}
