@@ -27,6 +27,7 @@ DESIGN_DOC = {
         'username': {'map': "function(doc) {if (doc.doctype !== 'user') return; emit(doc.username, null);}"},
         'email': {'map': "function(doc) {if (doc.doctype !== 'user' || !doc.email) return;  emit(doc.email, null);}"},
         'role': {'map': "function(doc) {if (doc.doctype !== 'user') return;  emit(doc.role, null);}"},
+        'status': {'map': "function(doc) {if (doc.doctype !== 'user') return;  emit(doc.status, null);}"},
     }
 }
 
@@ -106,7 +107,7 @@ def register():
                 utils.flash_message('User account created.')
         # Was set to 'pending'; send email to admins.
         else:
-            admins = get_users(constants.ADMIN, status=constants.ENABLED)
+            admins = get_users(role=constants.ADMIN, status=constants.ENABLED)
             emails = [u['email'] for u in admins if u['email']]
             site = flask.current_app.config['SITE_NAME']
             message = flask_mail.Message(f"{site} user account pending",
@@ -283,13 +284,23 @@ def all():
     if not (flask.g.am_admin or flask.g.am_staff):
         return utils.error('You are not allowed to view all users.',
                            flask.url_for('home'))
-    users = get_users(role=None)
+    users = get_users()
     for user in users:
         user['all_proposals_count'] = utils.get_count('proposals', 'user',
                                                       user['username'])
         user['all_reviews_count'] = utils.get_count('reviews', 'reviewer',
                                                     user['username'])
     return flask.render_template('user/all.html', users=users)
+
+@blueprint.route('/pending')
+@utils.login_required
+def pending():
+    "Display list of all users."
+    if not (flask.g.am_admin or flask.g.am_staff):
+        return utils.error('You are not allowed to view pending users.',
+                           flask.url_for('home'))
+    users = get_users(status=constants.PENDING)
+    return flask.render_template('user/pending.html', users=users)
 
 @blueprint.route('/enable/<username>', methods=['POST'])
 @utils.admin_required
@@ -438,18 +449,23 @@ def get_user(username=None, email=None):
         flask.g.cache[f"email {user['email']}"] = user
     return user
 
-def get_users(role, status=None, safe=False):
+def get_users(role=None, status=None, safe=False):
     "Get the users specified by role and optionally by status."
     assert role is None or role in constants.USER_ROLES
     assert status is None or status in constants.USER_STATUSES
     if role is None:
-        result = [r.doc for r in 
-                  flask.g.db.view('users', 'role', include_docs=True)]
+        if status is None:
+            result = [r.doc for r in 
+                      flask.g.db.view('users', 'role', include_docs=True)]
+        else:
+            result = [r.doc for r in 
+                      flask.g.db.view('users', 'status',
+                                      key=status, include_docs=True)]
     else:
         result = [r.doc for r in 
                   flask.g.db.view('users', 'role', key=role, include_docs=True)]
-    if status is not None:
-        result = [d for d in result if d['status'] == status]
+        if status is not None:
+            result = [d for d in result if d['status'] == status]
     if safe:
         for user in result:
             user['iuid'] = user.pop('_id')

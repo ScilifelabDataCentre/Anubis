@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Pending users{% endblock %}
+
+{% block body_title %}Pending users{% endblock %}
+
+{% block supermain %}
+<table id="users" class="table table-sm">
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Email</th>
+      <th>Given name</th>
+      <th>Family name</th>
+      {% if config['USER_GENDERS'] %}
+      <th>Gender</th>
+      {% endif %}
+      {% if config['USER_BIRTHDATE'] %}
+      <th>Birth date</th>
+      {% endif %}
+      <th>Modified</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user in users %}
+    <tr>
+      <td>{{ user | user_link(fullname=False) }}</td>
+      <td>{{ user['email'] or '-' }}</td>
+      <td>{{ user['givenname'] or '-' }}</td>
+      <td>{{ user['familyname'] or '-' }}</td>
+      {% if config['USER_GENDERS'] %}
+      <td>{{ (user.get('gender') or '-').capitalize() }}</td>
+      {% endif %}
+      {% if config['USER_BIRTHDATE'] %}
+      <td>{{ user.get('birthdate') or '-' }}</td>
+      {% endif %}
+      <td class="localtime">{{ user['modified'] }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %} {# block supermain #}
+
+{% block javascript %}
+<script>
+  $(function() {
+    $("#users").DataTable( {
+      pagingType: "full_numbers",
+      pageLength: 25
+    });
+  });
+</script>
+{% endblock %}

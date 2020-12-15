@@ -92,6 +92,8 @@
             <div class="dropdown-menu" aria-labelledby="navbarAdmin">
               <a class="dropdown-item"
                  href="{{ url_for('user.all') }}">All users</a>
+              <a class="dropdown-item"
+                 href="{{ url_for('user.pending') }}">Pending users</a>
               {% if g.am_admin %}
               <a class="dropdown-item"
                  href="{{ url_for('user.register') }}">Register user</a>
