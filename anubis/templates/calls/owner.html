@@ -61,7 +61,8 @@ Calls by {{ get_user(username) | user_link }}
   $(function() {
     $("#calls").DataTable( {
       pagingType: "full_numbers",
-      pageLength: 25
+      pageLength: 25,
+      order: [[2, "desc"]]
     });
   });
 </script>

@@ -68,11 +68,15 @@
 {% endblock %} {# block supermain #}
 
 {% block javascript %}
+{% set modified = 0 %}
+{% if config['USER_GENDERS'] %} {% set modified = modified + 1 %} {% endif %}
+{% if config['USER_BIRTHDATE'] %} {% set modified = modified + 1 %} {% endif %}
 <script>
   $(function() {
     $("#users").DataTable( {
       pagingType: "full_numbers",
-      pageLength: 25
+      pageLength: 25,
+      order: [[{{ modified + 8 }}, "desc"]]
     });
   });
 </script>

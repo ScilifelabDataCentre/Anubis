@@ -70,7 +70,8 @@
   $(function() {
     $("#calls").DataTable( {
       pagingType: "full_numbers",
-      pageLength: 25
+      pageLength: 25,
+      order: [[1, "desc"]]
     });
   });
 </script>
