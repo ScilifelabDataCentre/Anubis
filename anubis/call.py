@@ -256,6 +256,10 @@ def reviewers(cid):
 
     elif utils.http_DELETE():
         reviewer = flask.request.form.get('reviewer')
+        if utils.get_docs_view('reviews', 'call_reviewer',
+                                  [call['identifier'], reviewer]):
+            return utils.error('Cannot remove reviewer which has reviews'
+                               ' in the call.')
         if reviewer:
             with CallSaver(call) as saver:
                 try:

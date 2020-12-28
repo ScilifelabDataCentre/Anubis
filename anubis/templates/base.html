@@ -24,8 +24,8 @@
     <nav class="navbar navbar-expand-md navbar-light"
          style="background-color: #e8e8e8;">
       <a class="navbar-brand" href="{{ url_for('home') }}">
-        <img width="32" height="32" class="d-inline-block align-top"
-	     src="{{ url_for('static', filename='feather-of-maat.png') }}"
+        <img src="{{ url_for('static', filename='feather-of-maat.png') }}"
+	     width="32" height="32" class="d-inline-block align-top"
 	     title="{{ config['SITE_NAME'] }}" alt="{{ config['SITE_NAME'] }}">
         {{ config['SITE_NAME'] }}</a>
       <button type="button" class="navbar-toggler navbar-toggler-right"
@@ -215,12 +215,10 @@
             {{ config['HOST_NAME'] or '' }}
             {% endif %}
           </a>
-          {% else %}
-          {% if config['HOST_LOGO'] %}
+          {% elif config['HOST_LOGO'] %}
           <img src="{{ url_for('site_file', filename=config['HOST_LOGO']) }}"
                title="{{ config['HOST_NAME'] or '' }}">
           {{ config['HOST_NAME'] or '' }}
-          {% endif %}
           {% endif %}
         </div>
         <div class="col-md-6">
