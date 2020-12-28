@@ -20,7 +20,7 @@
   <thead>
     <tr>
       <th>Proposal</th>
-      {% for field in proposal_bannerfields %}
+      {% for field in utils.get_banner_fields(call['proposal']) %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
       {% if g.am_admin %}
@@ -36,7 +36,7 @@
       {% endfor %}
       {% if allow_view_decisions %}
       <th>Decision</th>
-      {% for field in decision_bannerfields %}
+      {% for field in utils.get_banner_fields(call['decision']) %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
       {% endif %} {# if allow_view_decisions #}
@@ -47,7 +47,7 @@
     <tr>
       <td>{{ proposal | proposal_link }}</td>
       {% set values = proposal['values'] %}
-      {% for field in proposal_bannerfields %}
+      {% for field in utils.get_banner_fields(call['proposal']) %}
       <td>
         {{ values.get(field['identifier']) | typed_value(field['type']) }}
       </td>
@@ -89,18 +89,18 @@
       {% if allow_view_decisions %}
       {% set decision = get_decision(proposal['decision']) %}
       {% if decision %}
-      <td>{{ decision | decision_link }}</td>
+      <td>{{ decision | decision_link(small=True) }}</td>
       {% set values = decision.get('values') or {} %}
-      {% for field in decision_bannerfields %}
+      {% for field in utils.get_banner_fields(call['decision']) %}
       <td>
         {{ values.get(field['identifier']) | typed_value(field['type']) }}
       </td>
-      {% endfor %}
-      {% else %}
+      {% endfor %} {# for field in ... #}
+      {% else %} {# if decision #}
       <td>-</td>
-      {% for field in decision_bannerfields %}
+      {% for field in utils.get_banner_fields(call['decision']) %}
       <td>-</td>
-      {% endfor %}
+      {% endfor %} {# for field in ... #}
       {% endif %} {# if decision #}
       {% endif %} {# if allow_view_decisions #}
     </tr>

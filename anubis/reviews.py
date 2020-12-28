@@ -42,13 +42,11 @@ def call(cid):
     else:
         finalized = False
     reviews_lookup = {f"{r['proposal']} {r['reviewer']}":r for r in reviews}
-    review_bannerfields = [f for f in call['review'] if f.get('banner')]
     result = flask.render_template('reviews/call.html',
-                                 call=call,
-                                 proposals=proposals,
-                                 reviews_lookup=reviews_lookup,
-                                 finalized=finalized,
-                                 review_bannerfields=review_bannerfields)
+                                   call=call,
+                                   proposals=proposals,
+                                   reviews_lookup=reviews_lookup,
+                                   finalized=finalized)
     return result
 
 @blueprint.route('/call/<cid>.xlsx')
@@ -101,13 +99,11 @@ def call_reviewer(cid, username):
     reviews = utils.get_docs_view('reviews', 'call_reviewer',
                                   [call['identifier'], user['username']])
     reviews_lookup = {r['proposal']:r for r in reviews}
-    bannerfields = [f for f in call['review'] if f.get('banner')]
     return flask.render_template('reviews/call_reviewer.html', 
                                  call=call,
                                  proposals=proposals,
                                  user=user,
-                                 reviews_lookup=reviews_lookup,
-                                 bannerfields=bannerfields)
+                                 reviews_lookup=reviews_lookup)
 
 @blueprint.route('/call/<cid>/reviewer/<username>.xlsx')
 @utils.login_required
@@ -161,15 +157,13 @@ def proposal(pid):
         finalized = False
     allow_create_review = anubis.review.allow_create(proposal)
     reviews_lookup = {r['reviewer']:r for r in reviews}
-    bannerfields = [f for f in call['review'] if f.get('banner')]
     return flask.render_template('reviews/proposal.html',
                                  proposal=proposal,
                                  call=call,
                                  allow_create_review=allow_create_review,
                                  reviewers=call['reviewers'],
                                  reviews_lookup=reviews_lookup,
-                                 finalized=finalized,
-                                 bannerfields=bannerfields)
+                                 finalized=finalized)
 
 @blueprint.route('/proposal/<pid>.xlsx')
 @utils.login_required

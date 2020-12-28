@@ -33,7 +33,7 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
   <thead>
     <tr>
       <th>My review</th>
-      {% for field in bannerfields %}
+      {% for field in utils.get_banner_fields(call['review']) %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
       <th>Proposal</th>
@@ -47,7 +47,7 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
     <tr>
       <td>{{ review | review_link }}</td>
       {% set values = review['values'] %}
-      {% for field in bannerfields %}
+      {% for field in utils.get_banner_fields(call['review']) %}
       <td>
         {{ values.get(field['identifier']) | typed_value(field['type']) }}
       </td>
@@ -62,12 +62,13 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 {% endblock %} {# block supermain #}
 
 {% block javascript %}
+{% set nbanners = len(utils.get_banner_fields(call['review'])) %}
 <script>
   $(function() {
     $("#reviews").DataTable( {
       columnDefs: [
-        { targets: [0], orderData: [0, {{ 1 + len(bannerfields) }}] },
-        { targets: [1], orderData: [1, {{ 1 + len(bannerfields) }}] }
+        { targets: [0], orderData: [0, {{ 1 + nbanners }}] },
+        { targets: [1], orderData: [1, {{ 1 + nbanners }}] }
       ],
       order: [[1, "asc"]],
       pagingType: "full_numbers",

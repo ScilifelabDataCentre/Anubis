@@ -37,27 +37,31 @@ Proposals by user {{ user['username'] }}
         <span class="badge badge-pill badge-{{ call['tmp']['color'] }}">
           {{ call['tmp']['text'] }}</span>
       </td>
+      {% set decision = get_decision(proposal.get('decision')) %}
+      {% if not decision or not allow_view_decision(decision) %}
+      <td>-</td>
+      {% else %}
       <td>
-        {% set decision = get_decision(proposal.get('decision')) %}
-        {% if not decision or not allow_view_decision(decision) %}
-        -
-        {% else %}
         <table class="table table-sm table-borderless">
           {% set values = decision['values'] %}
-          {% for field in call['decision'] %}
+          {% for field in utils.get_banner_fields(call['decision']) %}
           <tr>
-            <th>{{ field['title'] }}</td>
+            <th>{{ field['title'] }}</th>
             <td class="text-break">
               {% set value = values.get(field['identifier']) %}
-              {% set docurl = url_for('decision.document', iuid=decision['_id'], documentname=value or 'dummy') %}
-              {{ value | typed_value(field['type'], docurl) }}
+              {% if value and field['type'] == 'document' %}
+                {{ value | typed_value(field['type'], url_for('decision.document', iuid=decision['_id'], fid=field['identifier'])) }}
+              {% else %}
+                {{ value | typed_value(field['type']) }}
+              {% endif %}
             </td>
           </tr>
           {% endfor %} {# for field in ... #}
         </table>
-        {% endif %}
+      </td>
+      {% endif %}
     </tr>
-    {% endfor %}
+    {% endfor %} {# for proposal in proposals #}
   </tbody>
 </table>
 {% endblock %} {# block supermain #}

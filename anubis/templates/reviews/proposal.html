@@ -32,7 +32,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
   <thead>
     <tr>
       <th>Review</th>
-      {% for field in bannerfields %}
+      {% for field in utils.get_banner_fields(call['review']) %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
       <th>Reviewer</th>
@@ -45,11 +45,11 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
       {% if review %}
       <td>{{ review | review_link }}</td>
       {% set values = review['values'] %}
-      {% for field in bannerfields %}
+      {% for field in utils.get_banner_fields(call['review']) %}
       <td>
         {{ values.get(field['identifier']) | typed_value(field['type']) }}
       </td>
-      {% endfor %}
+      {% endfor %} {# for field in ... #}
       {% else %}
       <td>
 	{% if allow_create_review %}
@@ -63,9 +63,9 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
 	-
 	{% endif %} {# if allow_create_review #}
       </td>
-      {% for bannerfield in bannerfields %}
+      {% for field in utils.get_banner_fields(call['review']) %}
       <td>-</td>
-      {% endfor %}
+      {% endfor %} {# for field in ... #}
       {% endif %} {# if review #}
       <td>{{ get_user(reviewer) | user_link }}</td>
     </tr>
@@ -75,9 +75,14 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
 {% endblock %} {# block supermain #}
 
 {% block javascript %}
+{% set nbanners = len(utils.get_banner_fields(call['review'])) %}
 <script>
   $(function() {
     $("#reviews").DataTable( {
+      columnDefs: [
+        { targets: 0, orderData: {{ nbanners + 1 }} }
+      ],
+      order: [[0, "asc"]],
       pagingType: "full_numbers",
       pageLength: 25
     });

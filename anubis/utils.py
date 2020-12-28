@@ -239,6 +239,10 @@ def flash_message(msg):
     "Flash information message."
     flask.flash(str(msg), 'message')
 
+def get_banner_fields(fields):
+    "Return fields flagged as banner fields."
+    return [f for f in fields if f.get('banner')]
+
 def typed_value(value, type, docurl=None):
     "Template filter: Output field value according to its type."
     if type == constants.LINE:
@@ -340,7 +344,7 @@ def review_link(review):
     html += "</a>"
     return jinja2.utils.Markup(html)
 
-def decision_link(decision, block=False):
+def decision_link(decision, block=False, small=False):
     "Template filter: link to decision."
     if decision is None:
         return "-"
@@ -351,6 +355,8 @@ def decision_link(decision, block=False):
         color = "btn-outline-secondary"
     if block:
         color += " btn-block"
+    if small:
+        color += " btn-sm"
     return jinja2.utils.Markup(
         f'''<a href="{url}" role="button" class="btn {color} my-1">'''
         "Decision</a>")
