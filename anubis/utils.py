@@ -318,7 +318,7 @@ def user_link(user, fullname=True, chair=False, affiliation=False):
 def call_link(call, title=False, proposals_link=True):
     "Template filter: link to call and link to all its proposals."
     if title:
-        title = f"{call['title']} ({call['identifier']})"
+        title = call['title'] or call['identifier']
     else:
         title = call['identifier']
     url = flask.url_for('call.display', cid=call['identifier'])
