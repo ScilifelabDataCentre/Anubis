@@ -61,7 +61,7 @@
         {% endif %}
       </td>
       {% endif %}
-      <td>{{ get_user(proposal['user']) | user_link }}</td>
+      <td>{{ get_user(proposal['user']) | user_link(affiliation=True) }}</td>
       {% if allow_view_reviews %}
       <td>
         <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"

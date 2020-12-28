@@ -293,9 +293,9 @@ def datetimetz(value, due=False):
     else:
         return '-'
 
-def user_link(user, fullname=True, chair=False):
+def user_link(user, fullname=True, chair=False, affiliation=False):
     """Template filter: user by name, with link if allowed to view.
-    Optionally output chair flag.
+    Optionally output chair flag, or affiliation.
     """
     import anubis.user
     if fullname and user.get('familyname'):
@@ -307,6 +307,8 @@ def user_link(user, fullname=True, chair=False):
         name = user['username']
     if chair:
         name += " (chair)"
+    if affiliation:
+        name += f" [{user.get('affiliation') or '-'}]"
     if anubis.user.allow_view(user):
         url = flask.url_for('user.display', username=user['username'])
         return jinja2.utils.Markup(f'<a href="{url}">{name}</a>')
