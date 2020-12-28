@@ -29,7 +29,7 @@ Reviews by user {{ user['username'] }}
       Instructions for reviewers</a>
   </div>
 </div>
-<table id="reviews" class="table">
+<table id="reviews" class="table table-hover">
   <thead>
     <tr>
       <th>Review</th>
@@ -39,7 +39,7 @@ Reviews by user {{ user['username'] }}
       <th>Call</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody class="table-borderless">
     {% for review in reviews %}
     {% set call = get_call(review['call']) %}
     {% set proposal = get_proposal(review['proposal']) %}

@@ -23,7 +23,7 @@ Reviews of proposals in call {{ call['identifier'] }}
   NOTE: Only finalized reviews are listed.
 </p>
 {% endif %}
-<table id="reviews" class="table table-sm">
+<table id="reviews" class="table table-sm table-hover">
   <thead>
     <tr>
       <th>Review</th>
@@ -35,7 +35,7 @@ Reviews of proposals in call {{ call['identifier'] }}
       <th>Submitter</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody class="table-borderless">
     {% for proposal in proposals %}
     {% for reviewer in call['reviewers'] %}
     <tr>

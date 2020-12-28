@@ -29,7 +29,7 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
       Instructions for reviewers</a>
   </div>
 </div>
-<table id="reviews" class="table table-sm">
+<table id="reviews" class="table table-sm table-hover">
   <thead>
     <tr>
       <th>My review</th>
@@ -40,7 +40,7 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
       <th>Submitter</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody class="table-borderless">
     {% for proposal in proposals %}
     {% set review = reviews_lookup.get(proposal['identifier']) %}
     {% if review %}

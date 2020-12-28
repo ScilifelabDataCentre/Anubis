@@ -4,7 +4,7 @@
 
 {% block body_title %}
 <small class="text-muted mr-2">Proposals in call</small>
-{{ call | call_link }}
+{{ call | call_link(title=True, proposals_link=False) }}
 {% endblock %}
 
 {% block meta %}
@@ -16,7 +16,7 @@
 {% endblock %}
 
 {% block supermain %}
-<table id="proposals" class="table table-sm table-striped">
+<table id="proposals" class="table table-sm table-hover">
   <thead>
     <tr>
       <th>Proposal</th>

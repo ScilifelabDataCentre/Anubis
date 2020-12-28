@@ -10,7 +10,9 @@
 {% block main %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
-  <div class="col-md">{{ call | call_link }}</div>
+  <div class="col-md">
+    {{ call | call_link(proposals_link=g.am_admin or am_reviewer) }}
+  </div>
 </div>
 
 {% if am_submitter %}
@@ -63,17 +65,6 @@
   <div class="col-md">{{ my_review | review_link }}</div>
 </div>
 {% endif %} {# if my_review #}
-
-{% if g.am_admin or am_reviewer %}
-<div class="row">
-  <div class="col-md-2 font-weight-bold text-right">All proposals in call</div>
-  <div class="col-md">
-    <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
-       role="button" class="btn btn-primary my-1">
-      {{ utils.get_call_proposals_count(call['identifier']) }} proposals</a>
-  </div>
-</div>
-{% endif %} {# if g.am_admin or am_reviewer #}
 
 {% if allow_view_decision %}
 <div class="card border-dark mt-4">

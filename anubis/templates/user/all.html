@@ -5,7 +5,7 @@
 {% block body_title %}All users{% endblock %}
 
 {% block supermain %}
-<table id="users" class="table table-sm">
+<table id="users" class="table table-sm table-hover">
   <thead>
     <tr>
       <th>Username</th>
@@ -14,18 +14,13 @@
       <th>Email</th>
       <th>Given name</th>
       <th>Family name</th>
-      {% if config['USER_GENDERS'] %}
-      <th>Gender</th>
-      {% endif %}
-      {% if config['USER_BIRTHDATE'] %}
-      <th>Birth date</th>
-      {% endif %}
+      <th>Affiliation</th>
       <th>Role</th>
       <th>Status</th>
       <th>Modified</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody class="table-borderless">
     {% for user in users %}
     <tr>
       <td>{{ user | user_link(fullname=False) }}</td>
@@ -44,12 +39,7 @@
       <td>{{ user['email'] or '-' }}</td>
       <td>{{ user['givenname'] or '-' }}</td>
       <td>{{ user['familyname'] or '-' }}</td>
-      {% if config['USER_GENDERS'] %}
-      <td>{{ (user.get('gender') or '-').capitalize() }}</td>
-      {% endif %}
-      {% if config['USER_BIRTHDATE'] %}
-      <td>{{ user.get('birthdate') or '-' }}</td>
-      {% endif %}
+      <td>{{ user['affiliation'] or '-' }}</td>
       <td>{{ user['role'] }}</td>
       <td>
         {% if user['status'] == constants.PENDING %}
@@ -68,15 +58,12 @@
 {% endblock %} {# block supermain #}
 
 {% block javascript %}
-{% set modified = 0 %}
-{% if config['USER_GENDERS'] %} {% set modified = modified + 1 %} {% endif %}
-{% if config['USER_BIRTHDATE'] %} {% set modified = modified + 1 %} {% endif %}
 <script>
   $(function() {
     $("#users").DataTable( {
       pagingType: "full_numbers",
       pageLength: 25,
-      order: [[{{ modified + 8 }}, "desc"]]
+      order: [[9, "desc"]]
     });
   });
 </script>

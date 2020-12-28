@@ -10,7 +10,8 @@ Calls by {{ get_user(username) | user_link }}
 <table id="calls" class="table table-sm table-hover">
   <thead>
     <tr>
-      <th>Call</th>
+      <th>Call id</th>
+      <th>Call title</th>
       <th>Opens</th>
       <th>Closes</th>
       <th></th>
@@ -22,7 +23,8 @@ Calls by {{ get_user(username) | user_link }}
   <tbody class="table-borderless">
     {% for call in calls %}
     <tr>
-      <td>{{ call | call_link }}</td>
+      <td>{{ call | call_link(proposals_link=False) }}</td>
+      <td>{{ call.get('title') or '[No title]' }}</td>
       <td class="text-nowrap pl-2">{{ call['opens'] | datetimetz }}</td>
       <td class="text-nowrap pl-2">{{ call['closes'] | datetimetz }}</td>
       <td>
@@ -62,7 +64,7 @@ Calls by {{ get_user(username) | user_link }}
     $("#calls").DataTable( {
       pagingType: "full_numbers",
       pageLength: 25,
-      order: [[2, "desc"]]
+      order: [[3, "desc"]]
     });
   });
 </script>

@@ -8,7 +8,8 @@
 <table id="calls" class="table table-sm table-hover">
   <thead>
     <tr>
-      <th>Call</th>
+      <th>Call id</th>
+      <th>Call title</th>
       <th>Closed</th>
       {% if allow_create %}
       <th title="Includes only proposals marked by the user as 'submitted'.">
@@ -20,7 +21,8 @@
   <tbody class="table-borderless">
     {% for call in calls %}
     <tr>
-      <td>{{ call | call_link }}</td>
+      <td>{{ call | call_link(proposals_link=False) }}</td>
+      <td>{{ call.get('title') or '[No title]' }}</td>
       <td class="text-nowrap pl-2">{{ call['closes'] | datetimetz }}</td>
       {% if allow_create %}
       {% if g.am_admin or am_call_owner(call) %}
@@ -66,7 +68,7 @@
     $("#calls").DataTable( {
       pagingType: "full_numbers",
       pageLength: 25,
-      order: [[1, "desc"]]
+      order: [[2, "desc"]]
     });
   });
 </script>

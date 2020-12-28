@@ -15,7 +15,7 @@ Edit reviewers for call {{ call['identifier'] }}
     Reviewers</label>
   <div class="col-md">
     {% if call['reviewers'] %}
-    <table class="table table-sm table-borderless">
+    <table class="table table-sm table-hover table-borderless">
       {% for username in sorted(call['reviewers']) %}
       <tr>
         <td>

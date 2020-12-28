@@ -28,7 +28,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
   <div class="col-md">{{ call | call_link }}</div>
 </div>
 
-<table id="reviews" class="table table-sm">
+<table id="reviews" class="table table-sm table-hover">
   <thead>
     <tr>
       <th>Review</th>
@@ -38,7 +38,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
       <th>Reviewer</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody class="table-borderless">
     {% for reviewer in reviewers %}
     {% set review = reviews_lookup.get(reviewer) %}
     <tr>

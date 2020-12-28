@@ -10,7 +10,6 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {% endblock %}
 
 {% block main %}
-{# XXX access? #}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Submitter</div>
   <div class="col-md">{{ get_user(proposal['user']) | user_link }}</div>

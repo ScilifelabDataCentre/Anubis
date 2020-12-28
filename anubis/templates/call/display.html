@@ -164,7 +164,7 @@
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Access</div>
   <div class="col-md-5">
-    <table class="table table-sm table-borderless table-hover">
+    <table class="table table-sm">
       <tbody>
         {% for flag in constants.ACCESS %}
         <tr>
@@ -185,7 +185,7 @@
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Proposal fields</div>
   <div class="col-md">
-    <table class="table table-sm table-borderless table-hover">
+    <table class="table table-sm">
       <tbody>
         {% for field in call['proposal'] %}
         {% include 'display_field_definition.html' %}
@@ -198,7 +198,7 @@
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Review fields</div>
   <div class="col-md">
-    <table class="table table-sm table-borderless table-hover">
+    <table class="table table-sm">
       <tbody>
         {% for field in call['review'] %}
         {% include 'display_field_definition.html' %}
@@ -211,7 +211,7 @@
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Decision fields</div>
   <div class="col-md">
-    <table class="table table-sm table-borderless table-hover">
+    <table class="table table-sm">
       <tbody>
         {% for field in call['decision'] %}
         {% include 'display_field_definition.html' %}

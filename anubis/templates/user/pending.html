@@ -5,35 +5,25 @@
 {% block body_title %}Pending users{% endblock %}
 
 {% block supermain %}
-<table id="users" class="table table-sm">
+<table id="users" class="table table-sm table-hover">
   <thead>
     <tr>
       <th>Username</th>
       <th>Email</th>
       <th>Given name</th>
       <th>Family name</th>
-      {% if config['USER_GENDERS'] %}
-      <th>Gender</th>
-      {% endif %}
-      {% if config['USER_BIRTHDATE'] %}
-      <th>Birth date</th>
-      {% endif %}
+      <th>Affiliation</th>
       <th>Modified</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody class="table-borderless">
     {% for user in users %}
     <tr>
       <td>{{ user | user_link(fullname=False) }}</td>
       <td>{{ user['email'] or '-' }}</td>
       <td>{{ user['givenname'] or '-' }}</td>
       <td>{{ user['familyname'] or '-' }}</td>
-      {% if config['USER_GENDERS'] %}
-      <td>{{ (user.get('gender') or '-').capitalize() }}</td>
-      {% endif %}
-      {% if config['USER_BIRTHDATE'] %}
-      <td>{{ user.get('birthdate') or '-' }}</td>
-      {% endif %}
+      <td>{{ user['affiliation'] or '-' }}</td>
       <td class="localtime">{{ user['modified'] }}</td>
     </tr>
     {% endfor %}
