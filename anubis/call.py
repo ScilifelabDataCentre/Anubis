@@ -20,10 +20,10 @@ def init(app):
 DESIGN_DOC = {
     'views': {
         'identifier': {'map': "function (doc) {if (doc.doctype !== 'call') return; emit(doc.identifier, null);}"},
-        'closes': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.closes || !doc.opens) return; emit(doc.closes, null);}"},
-        'open_ended': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.opens || doc.closes) return; emit(doc.opens, null);}"},
+        'closes': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.closes || !doc.opens) return; emit(doc.closes, doc.identifier);}"},
+        'open_ended': {'map': "function (doc) {if (doc.doctype !== 'call' || !doc.opens || doc.closes) return; emit(doc.opens, doc.identifier);}"},
         'owner': {'reduce': '_count',
-                  'map': "function (doc) {if (doc.doctype !== 'call') return; emit(doc.owner, null);}"},
+                  'map': "function (doc) {if (doc.doctype !== 'call') return; emit(doc.owner, doc.identifier);}"},
         'reviewer': {'reduce': '_count',
                      'map': "function (doc) {if (doc.doctype !== 'call') return; for (var i=0; i < doc.reviewers.length; i++) {emit(doc.reviewers[i], doc.identifier); }}"},
     }

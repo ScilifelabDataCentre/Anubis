@@ -25,10 +25,10 @@ DESIGN_DOC = {
         'call': {'reduce': '_count',
                  'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit(doc.call, doc.user);}"},
         'user': {'reduce': '_count',
-                 'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit(doc.user, null);}"},
-        'call_user': {'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit([doc.call, doc.user], null);}"},
+                 'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit(doc.user, doc.identifier);}"},
+        'call_user': {'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit([doc.call, doc.user], doc.identifier);}"},
         'unsubmitted': {'reduce': '_count',
-                        'map': "function (doc) {if (doc.doctype !== 'proposal' || doc.submitted) return; emit(doc.user, null);}"},
+                        'map': "function (doc) {if (doc.doctype !== 'proposal' || doc.submitted) return; emit(doc.user, doc.identifier);}"},
     }
 }
 

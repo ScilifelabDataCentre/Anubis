@@ -43,9 +43,9 @@
       <td>{{ user['role'] }}</td>
       <td>
         {% if user['status'] == constants.PENDING %}
-	<span class="badge badge-warning">{{ user['status'] }}</span>
+	<span class="badge badge-pill badge-warning">{{ user['status'] }}</span>
         {% elif user['status'] == constants.DISABLED %}
-	<span class="badge badge-danger">{{ user['status'] }}</span>
+	<span class="badge badge-pill badge-danger">{{ user['status'] }}</span>
         {% else %}
         {{ user['status'] }}
         {% endif %}

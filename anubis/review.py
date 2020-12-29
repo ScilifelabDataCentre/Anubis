@@ -23,20 +23,23 @@ DESIGN_DOC = {
     'views': {
         # Reviews for all proposals in call.
         'call': {'reduce': '_count',
-                 'map': "function(doc) {if (doc.doctype !== 'review') return; emit(doc.call, null);}"},
+                 'map': "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit(doc.call, null);}"},
         # Reviews for a proposal.
         'proposal': {'reduce': '_count',
-                     'map': "function(doc) {if (doc.doctype !== 'review') return; emit(doc.proposal, null);}"},
+                     'map': "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit(doc.proposal, null);}"},
         # Reviews per reviewer, in any call
         'reviewer': {'reduce': '_count',
-                     'map': "function(doc) {if (doc.doctype !== 'review') return; emit(doc.reviewer, null);}"},
+                     'map': "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit(doc.reviewer, null);}"},
         # Reviews per call and reviewer.
         'call_reviewer': {'reduce': '_count',
-                          'map': "function(doc) {if (doc.doctype !== 'review') return; emit([doc.call, doc.reviewer], null);}"},
-        'proposal_reviewer': {'map': "function(doc) {if (doc.doctype !== 'review') return; emit([doc.proposal, doc.reviewer], null);}"},
+                          'map': "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit([doc.call, doc.reviewer], null);}"},
+        'proposal_reviewer': {'map': "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit([doc.proposal, doc.reviewer], null);}"},
         # Unfinalized reviews by reviewer, in any call.
         'unfinalized': {'reduce': '_count',
-                        'map': "function(doc) {if (doc.doctype !== 'review' || doc.finalized) return; emit(doc.reviewer, null);}"},
+                        'map': "function(doc) {if (doc.doctype !== 'review' || doc.finalized || doc.archived) return; emit(doc.reviewer, null);}"},
+        # Archived reviews for a proposal.
+        'proposal_archived': {'reduce': '_count',
+                              'map': "function(doc) {if (doc.doctype !== 'review' || !doc.archived) return; emit(doc.proposal, null);}"},
     }
 }
 
@@ -178,6 +181,27 @@ def unfinalize(iuid):
             utils.flash_error(error)
         return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
+@blueprint.route('/<iuid:iuid>/archive', methods=['POST'])
+@utils.login_required
+def archive(iuid):
+    "Archive the review for the proposal. Requires 'delete' privilege."
+    try:
+        review = get_review(iuid)
+    except KeyError:
+        return utils.error('No such review.', flask.url_for('home'))
+    # In a sense similar to deleting, so requires same priviliege.
+    if not allow_delete(review):
+        return utils.error('You are not allowed to archive this review.',
+                           flask.url_for('.display', iuid=review['_id']))
+
+    if utils.http_POST():
+        try:
+            with ReviewSaver(doc=review) as saver:
+                saver.set_archived()
+        except ValueError as error:
+            utils.flash_error(error)
+        return flask.redirect(flask.url_for('.display', iuid=review['_id']))
+
 @blueprint.route('/<iuid:iuid>/logs')
 @utils.login_required
 def logs(iuid):
@@ -240,22 +264,29 @@ class ReviewSaver(FieldMixin, AttachmentSaver):
             raise ValueError('doc or proposal+user must be specified')
 
     def initialize(self):
-        self.doc['values'] = {}
-        self.doc['errors'] = {}
+        self['values'] = {}
+        self['errors'] = {}
 
     def set_proposal(self, proposal):
         "Set the proposal for the review; must be called when creating."
         if self.doc.get('proposal'):
             raise ValueError('proposal has already been set')
-        self.doc['call'] = proposal['call']
-        self.doc['proposal'] = proposal['identifier']
+        self['call'] = proposal['call']
+        self['proposal'] = proposal['identifier']
         call = anubis.call.get_call(proposal['call'])
         for field in call['review']:
             self.set_field_value(field)
 
     def set_reviewer(self, user):
         "Set the reviewer for the review; must be called at creation."
-        self.doc['reviewer'] = user['username']
+        self['reviewer'] = user['username']
+
+    def set_archived(self):
+        "Archive this review; save the current field definitions."
+        if self.doc.get('archived'): return
+        call =     call = anubis.call.get_call(self.doc['call'])
+        self['fields'] = call['review']
+        self['archived'] = True
 
 
 def get_review(iuid):
@@ -308,6 +339,7 @@ def allow_view(review):
 def allow_edit(review):
     "The admin, call owner and reviewer may edit an unfinalized review."
     if review.get('finalized'): return False
+    if review.get('archived'): return False
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     if flask.g.current_user['username'] == review['reviewer']: return True
@@ -324,6 +356,7 @@ def allow_delete(review):
 def allow_finalize(review):
     "The admin, call owner and reviewer may finalize if it contains no errors."
     if review.get('finalized'): return False
+    if review.get('archived'): return False
     if review['errors']: return False
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
@@ -336,6 +369,7 @@ def allow_unfinalize(review):
     Reviewer may unfinalize the review before reviews due date.
     """
     if not review.get('finalized'): return False
+    if review.get('archived'): return False
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(review['call'])

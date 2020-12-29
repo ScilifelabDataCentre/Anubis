@@ -55,6 +55,10 @@
        role="button" class="btn btn-info my-1">
       {{ utils.get_proposal_reviews_count(proposal['identifier']) }} reviews
     </a>
+    <a href="{{ url_for('reviews.proposal_archived', pid=proposal['identifier']) }}"
+       role="button" class="btn btn-dark ml-2 my-1">
+      {{ utils.get_proposal_reviews_count(proposal['identifier'], archived=True) }} archived reviews
+    </a>
   </div>
 </div>
 {% endif %} {# if allow_view_reviews #}

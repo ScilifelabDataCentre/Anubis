@@ -165,6 +165,26 @@ def proposal(pid):
                                  reviews_lookup=reviews_lookup,
                                  finalized=finalized)
 
+@blueprint.route('/proposal/<pid>/archived')
+@utils.login_required
+def proposal_archived(pid):
+    "List all archived reviews for a proposal."
+    proposal = anubis.proposal.get_proposal(pid)
+    if proposal is None:
+        return utils.error('No such proposal.', flask.url_for('home'))
+
+    call = anubis.call.get_call(proposal['call'])
+    if not (flask.g.am_admin or anubis.call.am_chair(call)):
+        return utils.error('You may not view the archived reviews of the call.',
+                           flask.url_for('call.display',cid=call['identifier']))
+
+    reviews = utils.get_docs_view('reviews', 'proposal_archived',
+                                  proposal['identifier'])
+    return flask.render_template('reviews/proposal_archived.html',
+                                 reviews=reviews,
+                                 proposal=proposal,
+                                 call=call)
+
 @blueprint.route('/proposal/<pid>.xlsx')
 @utils.login_required
 def proposal_xlsx(pid):

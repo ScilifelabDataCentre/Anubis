@@ -10,7 +10,6 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {% endblock %}
 
 {% block main %}
-{# XXX access? #}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Submitter</div>
   <div class="col-md">{{ get_user(proposal['user']) | user_link }}</div>
@@ -23,9 +22,9 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   <div class="col-md-2 font-weight-bold text-right">State</div>
   <div class="col-md">
     {% if decision.get('finalized') %}
-    <span class="badge badge-success">Finalized</span>
+    <span class="badge badge-pill badge-success">Finalized</span>
     {% else %}
-    <span class="badge badge-warning">Not finalized</span>
+    <span class="badge badge-pill badge-warning">Not finalized</span>
     {% endif %}
   </div>
 </div>

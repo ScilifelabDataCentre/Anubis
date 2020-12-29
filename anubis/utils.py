@@ -70,9 +70,14 @@ def get_call_reviews_count(cid):
     "Get the count of all reviews in the given call."
     return get_count('reviews', 'call', cid)
 
-def get_proposal_reviews_count(pid):
-    "Get the count of all reviews for the given proposal."
-    return get_count('reviews', 'proposal', pid)
+def get_proposal_reviews_count(pid, archived=False):
+    """Get the count of all reviews for the given proposal.
+    Optionally for archived reviews.
+    """
+    if archived:
+        return get_count('reviews', 'proposal_archived', pid)
+    else:
+        return get_count('reviews', 'proposal', pid)
 
 def get_call_reviewer_reviews_count(cid, username):
     "Get the count of all reviews for the reviewer in the given call."
@@ -343,7 +348,9 @@ def review_link(review):
     "Template filter: link to review."
     url = flask.url_for("review.display", iuid=review["_id"])
     html = f'''<a href="{url}" class="font-weight-bold text-info">Review '''
-    if review.get('finalized'):
+    if review.get('archived'):
+        html += '<span class="badge badge-pill badge-dark">Archived</span>'
+    elif review.get('finalized'):
         html += '<span class="badge badge-pill badge-success">Finalized</span>'
     else:
         html += '<span class="badge badge-pill badge-warning">Not finalized</span>'

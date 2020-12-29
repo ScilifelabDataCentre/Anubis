@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block head_title %}
+Archived reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
+{% endblock %}
+
+{% block body_title %}
+<small class="text-muted mr-2">Archived reviews of proposal</small>
+{{ proposal | proposal_link }}
+{% endblock %}
+
+{% block supermain %}
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Call</div>
+  <div class="col-md">{{ call | call_link }}</div>
+</div>
+
+<table id="reviews" class="table table-sm table-hover">
+  <thead>
+    <tr>
+      <th>Review</th>
+      <th>Banner fields</th>
+      <th>Reviewer</th>
+      <th>Modified</th>
+    </tr>
+  </thead>
+  <tbody class="table-borderless">
+    {% for review in reviews %}
+    <tr>
+      <td>{{ review | review_link }}</td>
+      <td>
+        {% set values = review['values'] %}
+        <table class="table table-sm table-borderless">
+          {% for field in utils.get_banner_fields(review['fields']) %}
+          <tr>
+            <th>{{ field['identifier'] }}</th>
+            <td>
+              {{ values.get(field['identifier']) | typed_value(field['type']) }}
+            </td>
+          </tr>
+          {% endfor %} {# for field in ... #}
+        </table>
+      </td>
+      <td>{{ review['reviewer'] }}</td>
+      <td>
+        <span class="localtime small">{{ review['modified'] }}</span>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %} {# block supermain #}
+
+{% block javascript %}
+<script>
+  $(function() {
+    $("#reviews").DataTable( {
+      pagingType: "full_numbers",
+      pageLength: 25
+    });
+  });
+</script>
+{% endblock %}
