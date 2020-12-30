@@ -1,10 +1,9 @@
 "Reviews lists."
 
-import tempfile
+import io
 
 import flask
-import openpyxl
-import openpyxl.styles
+import xlsxwriter
 
 import anubis.call
 import anubis.user
@@ -244,77 +243,82 @@ def reviewer(username):
 
 def get_xlsx(call, proposals, reviews_lookup):
     "Return the content for the XLSX file for the list of reviews."
-    from openpyxl.utils.cell import get_column_letter
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = f"Reviews in call {call['identifier']}"
-    row = ['Proposal', 'Proposal title', 'Submitter', 
+    output = io.BytesIO()
+    wb = xlsxwriter.Workbook(output, {'in_memory': True})
+    head_text_format = wb.add_format({'bold': True,
+                                      'text_wrap': True,
+                                      'bg_color': '#9ECA7F',
+                                      'font_size': 15,
+                                      'align': 'center',
+                                      'border': 1})
+    normal_text_format = wb.add_format({'font_size': 14,
+                                        'align': 'left',
+                                        'valign': 'vcenter'})
+    long_text_format = wb.add_format({'text_wrap': True,
+                                      'font_size': 14,
+                                      'align': 'left',
+                                      'valign': 'vcenter'})
+    ws = wb.add_worksheet(f"Reviews in call {call['identifier']}")
+    ws.freeze_panes(1, 1)
+    ws.set_row(0, None, head_text_format)
+    ws.set_column(1, 1, 40, normal_text_format)
+    ws.set_column(2, 3, 20, normal_text_format)
+
+    row = ['Proposal', 'Proposal title', 'Submitter', 'Affiliation',
            'Review', 'Finalized', 'Reviewer']
-    ws.column_dimensions[get_column_letter(2)].width = 30
-    review_column = get_column_letter(4)
-    ws.column_dimensions[review_column].width = 30
     for field in call['review']:
-        row.append(field['identifier'])
-        if field['type'] == constants.LINE:
-            ws.column_dimensions[get_column_letter(len(row))].width = 40
-        elif field['type'] == constants.TEXT:
-            ws.column_dimensions[get_column_letter(len(row))].width = 50
-        elif field['type'] == constants.DOCUMENT:
-            ws.column_dimensions[get_column_letter(len(row))].width = 50
-    ws.append(row)
-    row_number = 1
-    wrap_alignment = openpyxl.styles.Alignment(wrapText=True)
+        row.append(field['title'] or field['identifier'])
+    nrow = 0
+    ws.write_row(nrow, 0, row)
+    nrow += 1
     for proposal in proposals:
         for reviewer in call['reviewers']:
             review = reviews_lookup.get("{} {}".format(proposal['identifier'],
                                                        reviewer))
-            if review:
-                row_number += 1
-                row = [proposal['identifier'], 
-                       proposal.get('title') or '',
-                       proposal['user'],
-                       flask.url_for('review.display',
-                                     iuid=review['_id'], _external=True),
-                       review.get('finalized') and 'yes' or 'no',
-                       reviewer]
-                wraptext = []
-                hyperlink = []
-                for field in call['review']:
-                    value = review['values'].get(field['identifier'])
-                    if value is None:
-                        row.append('')
-                    elif field['type'] == constants.TEXT:
-                        row.append(value)
-                        col = get_column_letter(len(row))
-                        wraptext.append(f"{col}{row_number}")
-                    elif field['type'] == constants.DOCUMENT:
-                        row.append(flask.url_for('review.document',
-                                                 iuid=review['_id'],
-                                                 document=value,
-                                                 _external=True))
-                        col = get_column_letter(len(row))
-                        hyperlink.append(f"{col}{row_number}")
-                    else:
-                        row.append(value)
-                ws.append(row)
-                if wraptext:
-                    ws.row_dimensions[row_number].height = 40
-                while wraptext:
-                    ws[wraptext.pop()].alignment = wrap_alignment
-                while hyperlink:
-                    colrow = hyperlink.pop()
-                    ws[colrow].hyperlink = ws[colrow].value
-                    ws[colrow].style = 'Hyperlink'
-                colrow = f"{review_column}{row_number}"
-                ws[colrow].hyperlink = ws[colrow].value
-                ws[colrow].style = 'Hyperlink'
-                colrow = f"A{row_number}"
-                ws[colrow].hyperlink = flask.url_for('proposal.display',
-                                                     pid=ws[colrow].value,
-                                                     _external=True)
-                ws[colrow].style = 'Hyperlink'
-    with tempfile.NamedTemporaryFile(suffix='.xlsx') as tmp:
-        wb.save(tmp.name)
-        tmp.seek(0)
-        content = tmp.read()
-    return content
+            if not review: continue
+            user = anubis.user.get_user(username=proposal['user'])
+            ncol = 0
+            ws.write_url(nrow, ncol,
+                         flask.url_for('proposal.display',
+                                       pid=proposal['identifier'],
+                                       _external=True),
+                         string=proposal['identifier'])
+            ncol += 1
+            ws.write_string(nrow, ncol, proposal.get('title') or '')
+            ncol += 1
+            ws.write_string(nrow, ncol,
+                            f"{user['familyname']}, {user['givenname']}")
+            ncol += 1
+            ws.write_string(nrow, ncol, user['affiliation'] or '')
+            ncol += 1
+            ws.write_url(nrow, ncol,
+                         flask.url_for('review.display',
+                                       iuid=review['_id'],
+                                       _external=True),
+                         string='Link')
+            ncol += 1
+            ws.write_string(nrow, ncol,
+                            review.get('finalized') and 'yes' or 'no')
+            ncol += 1
+            ws.write_string(nrow, ncol, reviewer)
+            ncol += 1
+            for field in call['review']:
+                value = review['values'].get(field['identifier'])
+                if value is None:
+                    ws.write_string(nrow, ncol, '')
+                elif field['type'] == constants.TEXT:
+                    ws.write_string(nrow, ncol, value)
+                elif field['type'] == constants.DOCUMENT:
+                    ws.write_url(nrow, ncol,
+                                 flask.url_for('review.document',
+                                               iuid=review['_id'],
+                                               fid=field['identifier'],
+                                               _external=True),
+                                 string='Link')
+                else:
+                    ws.write(nrow, ncol, value)
+                ncol += 1
+            nrow += 1
+
+    wb.close()
+    return output.getvalue()
