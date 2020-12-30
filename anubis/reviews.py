@@ -254,23 +254,20 @@ def get_xlsx(call, proposals, reviews_lookup):
     normal_text_format = wb.add_format({'font_size': 14,
                                         'align': 'left',
                                         'valign': 'vcenter'})
-    long_text_format = wb.add_format({'text_wrap': True,
-                                      'font_size': 14,
-                                      'align': 'left',
-                                      'valign': 'vcenter'})
     ws = wb.add_worksheet(f"Reviews in call {call['identifier']}")
     ws.freeze_panes(1, 1)
     ws.set_row(0, None, head_text_format)
     ws.set_column(1, 1, 40, normal_text_format)
     ws.set_column(2, 3, 20, normal_text_format)
 
+    nrow = 0
     row = ['Proposal', 'Proposal title', 'Submitter', 'Affiliation',
            'Review', 'Finalized', 'Reviewer']
     for field in call['review']:
-        row.append(field['title'] or field['identifier'])
-    nrow = 0
+        row.append(field['title'] or field['identifier'].capitalize())
     ws.write_row(nrow, 0, row)
     nrow += 1
+
     for proposal in proposals:
         for reviewer in call['reviewers']:
             review = reviews_lookup.get("{} {}".format(proposal['identifier'],
@@ -302,6 +299,7 @@ def get_xlsx(call, proposals, reviews_lookup):
             ncol += 1
             ws.write_string(nrow, ncol, reviewer)
             ncol += 1
+
             for field in call['review']:
                 value = review['values'].get(field['identifier'])
                 if value is None:
@@ -314,7 +312,7 @@ def get_xlsx(call, proposals, reviews_lookup):
                                                iuid=review['_id'],
                                                fid=field['identifier'],
                                                _external=True),
-                                 string='Link')
+                                 string='Download')
                 else:
                     ws.write(nrow, ncol, value)
                 ncol += 1

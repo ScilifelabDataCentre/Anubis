@@ -1,11 +1,10 @@
 "Lists of proposals."
 
+import io
 import statistics
-import tempfile
 
 import flask
-import openpyxl
-import openpyxl.styles
+import xlsxwriter
 
 import anubis.call
 import anubis.decision
@@ -42,7 +41,6 @@ def call(cid):
 @utils.login_required
 def call_xlsx(cid):
     "Produce an XLSX file of all proposals in a call."
-    from openpyxl.utils.cell import get_column_letter
     call = anubis.call.get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
@@ -50,78 +48,110 @@ def call_xlsx(cid):
         return utils.error('You may not view the call.', flask.url_for('home'))
     proposals = get_call_proposals(call)
     mean_field_ids = compute_mean_fields(call, proposals)
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = f"Proposals in call {cid}"
-    row = ['Proposal', 'Proposal title', 'Submitter']
-    ws.column_dimensions[get_column_letter(2)].width = 30
+    output = io.BytesIO()
+    wb = xlsxwriter.Workbook(output, {'in_memory': True})
+    head_text_format = wb.add_format({'bold': True,
+                                      'text_wrap': True,
+                                      'bg_color': '#9ECA7F',
+                                      'font_size': 15,
+                                      'align': 'center',
+                                      'border': 1})
+    normal_text_format = wb.add_format({'font_size': 14,
+                                        'align': 'left',
+                                        'valign': 'vcenter'})
+    ws = wb.add_worksheet(f"Proposals in call {cid}")
+    ws.freeze_panes(1, 1)
+    ws.set_row(0, None, head_text_format)
+    ws.set_column(1, 1, 40, normal_text_format)
+    ws.set_column(3, 4, 20, normal_text_format)
+
+    nrow = 0
+    row = ['Proposal', 'Proposal title', 'Submitted',
+           'Submitter', 'Affiliation']
+    ncol = len(row)
     for field in call['proposal']:
-        row.append(field['identifier'])
+        row.append(field['title'] or field['identifier'].capitalize())
         if field['type'] == constants.LINE:
-            ws.column_dimensions[get_column_letter(len(row))].width = 40
+            ws.set_column(ncol, ncol, 40, normal_text_format)
         elif field['type'] == constants.TEXT:
-            ws.column_dimensions[get_column_letter(len(row))].width = 50
-        elif field['type'] == constants.DOCUMENT:
-            ws.column_dimensions[get_column_letter(len(row))].width = 50
+            ws.set_column(ncol, ncol, 60, normal_text_format)
+        ncol += 1
     for id in mean_field_ids:
-        row.append(f"Reviews {id} mean")
-        row.append(f"Reviews {id} stdev")
-    ws.append(row)
-    row_number = 1
-    wrap_alignment = openpyxl.styles.Alignment(wrapText=True)
+        for field in call['review']:
+            if field['identifier'] == id:
+                title = field['title'] or field['identifier'].capitalize()
+                break
+        row.append(f"Reviews {title} mean")
+        row.append(f"Reviews {title} stdev")
+    for field in call['decision']:
+        if not field.get('banner'): continue
+        title = field['title'] or field['identifier'].capitalize()
+        row.append(f"Decision {title}")
+    ws.write_row(nrow, 0, row)
+    nrow += 1
+
     for proposal in proposals:
-        row_number += 1
-        row = [proposal['identifier'], 
-               proposal.get('title') or '',
-               proposal['user']]
-        wraptext = []
-        hyperlink = []
+        ncol = 0
+        ws.write_url(nrow, ncol,
+                     flask.url_for('proposal.display',
+                                   pid=proposal['identifier'],
+                                   _external=True),
+                     string=proposal['identifier'])
+        ncol += 1
+        ws.write_string(nrow, ncol, proposal.get('title') or '')
+        ncol += 1
+        ws.write_string(nrow, ncol, proposal['submitted'] and 'yes' or 'no')
+        ncol += 1
+        user = anubis.user.get_user(username=proposal['user'])
+        ws.write_string(nrow, ncol,f"{user['familyname']}, {user['givenname']}")
+        ncol += 1
+        ws.write_string(nrow, ncol, user['affiliation'] or '')
+        ncol += 1
+
         for field in call['proposal']:
             value = proposal['values'].get(field['identifier'])
             if value is None:
-                row.append('')
+                ws.write_string(nrow, ncol, '')
             elif field['type'] == constants.TEXT:
-                row.append(value)
-                col = get_column_letter(len(row))
-                wraptext.append(f"{col}{row_number}")
+                ws.write_string(nrow, ncol, value)
             elif field['type'] == constants.DOCUMENT:
-                row.append(flask.url_for('proposal.document',
-                                         iuid=proposal['_id'],
-                                         document=value,
-                                         _external=True))
-                col = get_column_letter(len(row))
-                hyperlink.append(f"{col}{row_number}")
+                ws.write_url(nrow, ncol,
+                             flask.url_for('proposal.document',
+                                           pid=proposal['identifier'],
+                                           fid=field['identifier'],
+                                           _external=True),
+                             string='Download')
             else:
-                row.append(value)
+                ws.write(nrow, ncol, value)
+            ncol += 1
+
         for id in mean_field_ids:
             value = proposal['scores'][id]['mean']
             if value is None:
-                row.append('')
+                ws.write_string(nrow, ncol, '')
             else:
-                row.append(value)
+                ws.write_number(nrow, ncol, value)
+            ncol += 1
             value = proposal['scores'][id]['stdev']
             if value is None:
-                row.append('')
+                ws.write_string(nrow, ncol, '')
             else:
-                row.append(value)
-        ws.append(row)
-        if wraptext:
-            ws.row_dimensions[row_number].height = 40
-        while wraptext:
-            ws[wraptext.pop()].alignment = wrap_alignment
-        while hyperlink:
-            colrow = hyperlink.pop()
-            ws[colrow].hyperlink = ws[colrow].value
-            ws[colrow].style = 'Hyperlink'
-        colrow = f"A{row_number}"
-        ws[colrow].hyperlink = flask.url_for('proposal.display',
-                                             pid=ws[colrow].value,
-                                             _external=True)
-        ws[colrow].style = 'Hyperlink'
-    with tempfile.NamedTemporaryFile(suffix='.xlsx') as tmp:
-        wb.save(tmp.name)
-        tmp.seek(0)
-        content = tmp.read()
+                ws.write_number(nrow, ncol, value)
+            ncol += 1
+
+        decision = anubis.decision.get_decision(proposal.get('decision')) or {}
+        for field in call['decision']:
+            if not field.get('banner'): continue
+            if decision.get('finalized'):
+                value = decision['values'].get(field['identifier'])
+                ws.write(nrow, ncol, value)
+            else:
+                ws.write_string(nrow, ncol, '')
+            ncol += 1
+        nrow += 1
+
+    wb.close()
+    content = output.getvalue()
     response = flask.make_response(content)
     response.headers.set('Content-Type', constants.XLSX_MIMETYPE)
     response.headers.set('Content-Disposition', 'attachment', 
@@ -161,13 +191,13 @@ def get_user_proposals(username, call=None):
 def compute_mean_fields(call, proposals):
     """Compute the mean and stdev of numerical banner fields
     for each proposal. 
-    Return the identifiers if the fields.
+    Return the identifiers of the fields.
     """
     field_ids = [f['identifier'] for f in call['review'] 
                  if f.get('banner') and
                  f['type'] in constants.NUMERICAL_FIELD_TYPES]
     for proposal in proposals:
-        reviews = utils.get_docs_view('reviews', 'proposal',
+        reviews = utils.get_docs_view('reviews', 'proposal', 
                                       proposal['identifier'])
         scores = dict([(id, list()) for id in field_ids])
         for review in reviews:
