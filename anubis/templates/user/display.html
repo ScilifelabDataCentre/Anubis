@@ -187,7 +187,7 @@ User {{ user['username'] }}
 </div>
 {% endif %} {# if g.am_admin #}
 {% if allow_enable_disable %}
-<div class="mt-2">
+<div class="mt-4">
   {% if user['status'] != constants.ENABLED %}
   <form action="{{ url_for('.enable', username=user['username']) }}"
         method="POST">

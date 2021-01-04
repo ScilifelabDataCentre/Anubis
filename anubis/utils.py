@@ -311,7 +311,7 @@ def user_link(user, fullname=True, chair=False, affiliation=False):
     else:
         name = user['username']
     if chair:
-        name += " (chair)"
+        name += " [<strong>chair</strong>]"
     if affiliation:
         name += f" [{user.get('affiliation') or '-'}]"
     if anubis.user.allow_view(user):
@@ -349,7 +349,7 @@ def review_link(review):
     url = flask.url_for("review.display", iuid=review["_id"])
     html = f'''<a href="{url}" class="font-weight-bold text-info">Review '''
     if review.get('archived'):
-        html += '<span class="badge badge-pill badge-dark">Archived</span>'
+        html += '<span class="badge badge-pill badge-secondary">Archived</span>'
     elif review.get('finalized'):
         html += '<span class="badge badge-pill badge-success">Finalized</span>'
     else:
@@ -365,7 +365,7 @@ def decision_link(decision, block=False, small=False):
     if decision.get('finalized'):
         color = "btn-dark font-weight-bold"
     else:
-        color = "btn-outline-secondary"
+        color = "btn-outline-dark"
     if block:
         color += " btn-block"
     if small:

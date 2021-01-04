@@ -32,7 +32,7 @@ Proposals by user {{ user['username'] }}
         <span class="badge badge-pill badge-warning">Not submitted</span>
         {% endif %}
       </td>
-      <td>{{ call | call_link(title=False) }}</td>
+      <td>{{ call | call_link(title=False, proposals_link=False) }}</td>
       <td>
         <span class="badge badge-pill badge-{{ call['tmp']['color'] }}">
           {{ call['tmp']['text'] }}</span>

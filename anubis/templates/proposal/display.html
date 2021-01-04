@@ -49,14 +49,14 @@
 {% if allow_view_reviews %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">
-    Reviews of this proposal</div>
+    Reviews</div>
   <div class="col-md">
     <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
        role="button" class="btn btn-info my-1">
       {{ utils.get_proposal_reviews_count(proposal['identifier']) }} reviews
     </a>
     <a href="{{ url_for('reviews.proposal_archived', pid=proposal['identifier']) }}"
-       role="button" class="btn btn-dark ml-2 my-1">
+       role="button" class="btn btn-secondary ml-2 my-1">
       {{ utils.get_proposal_reviews_count(proposal['identifier'], archived=True) }} archived reviews
     </a>
   </div>
@@ -71,7 +71,7 @@
 {% endif %} {# if my_review #}
 
 {% if allow_view_decision %}
-<div class="card border-dark mt-4">
+<div class="card border-secondary mt-4">
   <div class="card-body">
     <div class="row">
       <div class="col-md-2 font-weight-bold text-right">
@@ -138,7 +138,7 @@
 <form action="{{ url_for('decision.create', pid=proposal['identifier']) }}"
       method="POST">
   {{ csrf_token() }}
-  <button type="submit" class="btn btn-dark btn-block">
+  <button type="submit" class="btn btn-secondary btn-block">
     Create decision</button>
 </form>
 {% endif %} {# if allow_link_decision #}

@@ -20,7 +20,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 </div>
 {% if allow_view_reviews %}
 <div class="row mb-2">
-  <div class="col-md-2 font-weight-bold text-right">All reviews of proposal</div>
+  <div class="col-md-2 font-weight-bold text-right">Reviews of proposal</div>
   <div class="col-md">
     <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
        role="button" class="btn btn-info">
@@ -37,7 +37,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   <div class="col-md-2 font-weight-bold text-right">State</div>
   <div class="col-md">
     {% if review.get('archived') %}
-    <h3><span class="badge badge-pill badge-dark">Archived</span></h3>
+    <h3><span class="badge badge-pill badge-secondary">Archived</span></h3>
     {% elif review.get('finalized') %}
     <span class="badge badge-pill badge-success">Finalized</span>
     {% else %}
@@ -79,7 +79,8 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {% if allow_edit %}
 <div class="mt-2">
   <a href="{{ url_for('about.documentation', page='Instructions-for-reviewers') }}"
-     role="button" class="btn btn-block btn-outline-dark">
+     role="button" class="btn btn-block btn-outline-secondary"
+     target="_blank">
     Instructions for reviewers</a>
 </div>
 <div class="mt-2">
@@ -108,7 +109,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 </div>
 {% endif %} {# if allow_finalize #}
 {% if allow_delete and not review.get('archived')%}
-<div class="mt-2">
+<div class="mt-4">
   <form action="{{ url_for('.archive', iuid=review['_id']) }}"
 	method="POST">
     {{ csrf_token() }}
@@ -119,7 +120,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 </div>
 {% endif %} {# if allow_delete #}
 {% if allow_delete %}
-<div class="mt-2">
+<div class="mt-4">
   <form action="{{ url_for('.edit', iuid=review['_id']) }}"
 	method="POST">
     {{ csrf_token() }}

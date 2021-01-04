@@ -117,7 +117,10 @@ def register():
             utils.mail.send(message)
             utils.flash_message('User account created; an email will be sent'
                                 ' when it has been enabled by the admin.')
-        return flask.redirect(flask.url_for('home'))
+        if flask.g.am_admin:
+            return flask.redirect(flask.url_for('user.all'))
+        else:
+            return flask.redirect(flask.url_for('home'))
 
 @blueprint.route('/reset', methods=['GET', 'POST'])
 def reset():

@@ -54,6 +54,12 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {% endblock %} {# block main #}
 
 {% block actions %}
+{% if allow_edit %}
+<div class="mt-2">
+  <a href="{{ url_for('.edit', iuid=decision['_id']) }}"
+     role="button" class="btn btn-primary btn-block">Edit</a>
+</div>
+{% endif %} {# if allow_edit #}
 {% if allow_unfinalize %}
 <div class="mt-2">
   <form action="{{ url_for('.unfinalize', iuid=decision['_id']) }}"
@@ -74,14 +80,8 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   </form>
 </div>
 {% endif %} {# if allow_finalize #}
-{% if allow_edit %}
-<div class="mt-2">
-  <a href="{{ url_for('.edit', iuid=decision['_id']) }}"
-     role="button" class="btn btn-primary btn-block">Edit</a>
-</div>
-{% endif %} {# if allow_edit #}
 {% if allow_delete %}
-<div class="mt-2">
+<div class="mt-4">
   <form action="{{ url_for('.edit', iuid=decision['_id']) }}"
 	method="POST">
     {{ csrf_token() }}
