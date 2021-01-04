@@ -155,14 +155,17 @@ def password():
     elif utils.http_POST():
         try:
             username = flask.request.form.get('username') or ''
-            code = flask.request.form.get('code') or ''
             if not username:
                 raise ValueError('No such user or wrong code.')
             user = get_user(username=username)
             if user is None:
                 raise ValueError('No such user or wrong code.')
-            if user['password'] != f"code:{code}":
-                raise ValueError('No such user or wrong code.')
+            if flask.g.am_admin:
+                code = ''
+            else:
+                code = flask.request.form.get('code') or ''
+                if user['password'] != f"code:{code}":
+                    raise ValueError('No such user or wrong code.')
             password = flask.request.form.get('password') or ''
             if len(password) < flask.current_app.config['MIN_PASSWORD_LENGTH']:
                 raise ValueError('Too short password.')
@@ -170,12 +173,14 @@ def password():
             return utils.error(error, flask.url_for('.password',
                                                     username=username,
                                                     code=code))
+        with UserSaver(user) as saver:
+            saver.set_password(password)
+        utils.flash_message('Password set.')
+        if flask.g.am_admin:
+            return flask.redirect(flask.url_for('.all'))
         else:
-            with UserSaver(user) as saver:
-                saver.set_password(password)
-            utils.flash_message('Password set.')
             do_login(username, password)
-        return flask.redirect(flask.url_for('home'))
+            return flask.redirect(flask.url_for('home'))
 
 @blueprint.route('/display/<username>')
 @utils.login_required
