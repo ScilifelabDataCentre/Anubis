@@ -38,6 +38,9 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
       <th>{{ field['title'] }}</th>
       {% endfor %}
       <th>Proposal</th>
+      {% if call.get('categories') %}
+      <th>Category</th>
+      {% endif %}
       <th>Submitter</th>
     </tr>
   </thead>
@@ -54,6 +57,9 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
       </td>
       {% endfor %}
       <td>{{ proposal | proposal_link(bold=False) }}</td>
+      {% if call.get('categories') %}
+      <td>{{ proposal.get('category') or '-' }}</td>
+      {% endif %}
       <td>{{ get_user(proposal['user']) | user_link }}</td>
     </tr>
     {% endif %}

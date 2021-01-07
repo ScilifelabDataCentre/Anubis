@@ -26,16 +26,20 @@ def call(cid):
         return utils.error('No such call.', flask.url_for('home'))
     if not anubis.call.allow_view(call):
         return utils.error('You may not view the call.', flask.url_for('home'))
-    proposals = get_call_proposals(call)
+    category = flask.request.args.get('category')
+    proposals = get_call_proposals(call, category)
     mean_field_ids = compute_mean_fields(call, proposals)
     allow_view_reviews = anubis.call.allow_view_reviews(call)
     allow_view_decisions = anubis.call.allow_view_decisions(call)
+    allow_view_details = anubis.call.allow_view_details(call)
     return flask.render_template('proposals/call.html', 
                                  call=call,
                                  proposals=proposals,
                                  mean_field_ids=mean_field_ids,
                                  allow_view_reviews=allow_view_reviews,
-                                 allow_view_decisions=allow_view_decisions)
+                                 allow_view_decisions=allow_view_decisions,
+                                 allow_view_details=allow_view_details,
+                                 category=category)
 
 @blueprint.route('/call/<cid>.xlsx')
 @utils.login_required
@@ -46,7 +50,7 @@ def call_xlsx(cid):
         return utils.error('No such call.', flask.url_for('home'))
     if not anubis.call.allow_view(call):
         return utils.error('You may not view the call.', flask.url_for('home'))
-    proposals = get_call_proposals(call)
+    proposals = get_call_proposals(call, flask.request.args.get('category'))
     mean_field_ids = compute_mean_fields(call, proposals)
     output = io.BytesIO()
     wb = xlsxwriter.Workbook(output, {'in_memory': True})
@@ -63,11 +67,18 @@ def call_xlsx(cid):
     ws.freeze_panes(1, 1)
     ws.set_row(0, None, head_text_format)
     ws.set_column(1, 1, 40, normal_text_format)
-    ws.set_column(3, 4, 20, normal_text_format)
+    if call.get('categories'):
+        ws.set_column(2, 3, 10, normal_text_format)
+        ws.set_column(4, 5, 20, normal_text_format)
+    else:
+        ws.set_column(2, 2, 10, normal_text_format)
+        ws.set_column(3, 4, 20, normal_text_format)
 
     nrow = 0
-    row = ['Proposal', 'Proposal title', 'Submitted',
-           'Submitter', 'Affiliation']
+    row = ['Proposal', 'Proposal title']
+    if call.get('categories'):
+        row.append('Category')
+    row.extend(['Submitted', 'Submitter', 'Affiliation'])
     ncol = len(row)
     for field in call['proposal']:
         row.append(field['title'] or field['identifier'].capitalize())
@@ -100,7 +111,10 @@ def call_xlsx(cid):
         ncol += 1
         ws.write_string(nrow, ncol, proposal.get('title') or '')
         ncol += 1
-        ws.write_string(nrow, ncol, proposal['submitted'] and 'yes' or 'no')
+        if call.get('categories'):
+            ws.write_string(nrow, ncol, proposal.get('category') or '')
+            ncol += 1
+        ws.write_string(nrow, ncol, proposal.get('submitted') and 'yes' or 'no')
         ncol += 1
         user = anubis.user.get_user(username=proposal['user'])
         ws.write_string(nrow, ncol,f"{user['familyname']}, {user['givenname']}")
@@ -173,13 +187,19 @@ def user(username):
                                  proposals=get_user_proposals(user['username']),
                                  allow_view_decision=anubis.decision.allow_view)
 
-def get_call_proposals(call):
-    "Get the proposals in the call. Only include those allowed to view."
+def get_call_proposals(call, category=None):
+    """Get the proposals in the call.
+    Only include those allowed to view.
+    Optionally only those with the given category.
+    """
     result = [i.doc for i in flask.g.db.view('proposals', 'call',
                                              key=call['identifier'],
                                              reduce=False,
                                              include_docs=True)]
-    return [p for p in result if anubis.proposal.allow_view(p)]
+    result = [p for p in result if anubis.proposal.allow_view(p)]
+    if category:
+        result = [p for p in result if p.get('category') == category]
+    return result
 
 def get_user_proposals(username, call=None):
     "Get all proposals created by the user."
@@ -216,19 +236,3 @@ def compute_mean_fields(call, proposals):
             except statistics.StatisticsError:
                 d['stdev'] = None
     return field_ids
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

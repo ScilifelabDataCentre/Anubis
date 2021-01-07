@@ -62,9 +62,14 @@ def get_count(designname, viewname, key):
     else:
         return 0
 
-def get_call_proposals_count(cid):
-    "Get the count for all proposals in the given call."
-    return get_count('proposals', 'call', cid)
+def get_call_proposals_count(cid, category=None):
+    """Get the count for all proposals in the given call.
+    Optionally filtered by category.
+    """
+    if category:
+        return get_count('proposals', 'call_category', [cid, category])
+    else:
+        return get_count('proposals', 'call', cid)
 
 def get_call_reviews_count(cid):
     "Get the count of all reviews in the given call."

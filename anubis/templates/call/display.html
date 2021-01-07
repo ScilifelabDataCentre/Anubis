@@ -183,24 +183,23 @@
 {% if allow_view_details %}
 
 <div class="row mt-4">
+  <div class="col-md-2 font-weight-bold text-right">Proposal categories</div>
+  <div class="col-md-6">
+    {% for category in call.get('categories', []) %}
+    <a href="{{ url_for('proposals.call', cid=call['identifier'], category=category) }}"
+       role="button" class="btn btn-sm btn-outline-dark mr-2">{{ category }}
+      <span class="badge badge-dark">{{ call_proposals_category_counts[category] }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Proposal fields</div>
   <div class="col-md">
     <table class="table table-sm">
       <tbody>
         {% for field in call['proposal'] %}
-        {% include 'display_field_definition.html' %}
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<div class="row mt-4">
-  <div class="col-md-2 font-weight-bold text-right">Review fields</div>
-  <div class="col-md">
-    <table class="table table-sm">
-      <tbody>
-        {% for field in call['review'] %}
         {% include 'display_field_definition.html' %}
         {% endfor %}
       </tbody>

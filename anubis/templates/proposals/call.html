@@ -16,6 +16,31 @@
 {% endblock %}
 
 {% block supermain %}
+{% if call.get('categories') %}
+<div class="row">
+  <div class="offset-md-3 col-md">
+    <form action="{{ url_for('.call', cid=call['identifier']) }}"
+          id="refresh"
+          role="form"
+          class="form-inline"
+          method="GET">
+      <label class="form-input" for="category">Category</label>
+      <select name="category" id="category" 
+              class="custom-select refresh ml-2">
+        <option value="" {{ not category and 'selected' or '' }}>
+          [any]
+        </option>
+        {% for cat in call['categories'] %}
+        <option {{ category == cat and 'selected' or '' }}>
+          {{ cat }}
+        </option>
+        {% endfor %} {# for cat ... #}
+      </select>
+    </form>
+  </div>
+</div>
+{% endif %}
+
 <table id="proposals" class="table table-sm table-hover">
   <thead>
     <tr>
@@ -23,6 +48,9 @@
       {% for field in utils.get_banner_fields(call['proposal']) %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
+      {% if call.get('categories') and allow_view_details %}
+      <th>Category</th>
+      {% endif %} {# if call.get('categories') and allow_view_details #}
       {% if g.am_admin %}
       <th>Submitted</th>
       {% endif %}
@@ -52,6 +80,9 @@
         {{ values.get(field['identifier']) | typed_value(field['type']) }}
       </td>
       {% endfor %}
+      {% if call.get('categories') and allow_view_details %}
+      <td>{{ proposal.get('category') or '-' }}</td>
+      {% endif %} {# if call.get('categories') and allow_view_details #}
       {% if g.am_admin %}
       <td>
         {% if proposal.get('submitted') %}
@@ -112,6 +143,9 @@
 {% block javascript %}
 <script>
   $(function() {
+    $(".refresh").change(function () {
+      $("#refresh").submit();
+    });
     $("#proposals").DataTable( {
       pagingType: "full_numbers",
       pageLength: 25,

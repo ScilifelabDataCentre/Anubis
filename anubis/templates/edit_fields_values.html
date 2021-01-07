@@ -214,6 +214,9 @@
 	  Maximum {{ field['maxlength'] }} characters.
 	  {% endif %}
 	  {{ field.get('description') | markdown }}
+          {% if field['type'] == constants.INTEGER %}
+          Do <strong>not</strong> use commas or dots in the integer value.
+          {% endif %}
 	</div>
 	{% if field['type'] == constants.TEXT %}
 	<div class="col-md-3">

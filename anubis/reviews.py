@@ -258,11 +258,19 @@ def get_xlsx(call, proposals, reviews_lookup):
     ws.freeze_panes(1, 1)
     ws.set_row(0, None, head_text_format)
     ws.set_column(1, 1, 40, normal_text_format)
-    ws.set_column(2, 3, 20, normal_text_format)
+    if call.get('categories'):
+        ws.set_column(2, 2, 10, normal_text_format)
+        ws.set_column(3, 3, 20, normal_text_format)
+        ws.set_column(4, 4, 40, normal_text_format)
+    else:
+        ws.set_column(2, 2, 20, normal_text_format)
+        ws.set_column(3, 3, 40, normal_text_format)
 
     nrow = 0
-    row = ['Proposal', 'Proposal title', 'Submitter', 'Affiliation',
-           'Review', 'Finalized', 'Reviewer']
+    row = ['Proposal', 'Proposal title']
+    if call.get('categories'):
+        row.append('Category')
+    row.extend(['Submitter', 'Affiliation', 'Review', 'Finalized', 'Reviewer'])
     for field in call['review']:
         row.append(field['title'] or field['identifier'].capitalize())
     ws.write_row(nrow, 0, row)
@@ -283,6 +291,9 @@ def get_xlsx(call, proposals, reviews_lookup):
             ncol += 1
             ws.write_string(nrow, ncol, proposal.get('title') or '')
             ncol += 1
+            if call.get('categories'):
+                ws.write_string(nrow, ncol, proposal.get('category') or '')
+                ncol += 1
             ws.write_string(nrow, ncol,
                             f"{user['familyname']}, {user['givenname']}")
             ncol += 1

@@ -68,6 +68,10 @@ def display(cid):
             'reviews', 'call_reviewer',
             [call['identifier'], flask.g.current_user['username']])
         kwargs['call_proposals_count'] = utils.get_call_proposals_count(cid)
+        if call.get('categories'):
+            kwargs['call_proposals_category_counts'] = dict(
+                [(c, utils.get_call_proposals_count(cid, c))
+                 for c in sorted(call.get('categories'))])
     return flask.render_template('call/display.html',
                                  call=call,
                                  am_call_owner=am_call_owner(call),
@@ -104,6 +108,7 @@ def edit(cid):
                 saver['reviews_due'] = utils.normalize_datetime(
                     flask.request.form.get('reviews_due'))
                 saver.edit_access(flask.request.form)
+                saver.set_categories(flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
         return flask.redirect(flask.url_for('.display', cid=call['identifier']))
@@ -740,6 +745,12 @@ class CallSaver(AttachmentSaver):
         self.doc['access'] = {}
         for flag in constants.ACCESS:
             self.doc['access'][flag] = utils.to_bool(form.get(flag))
+
+    def set_categories(self, form):
+        "Set the categories for the proposals in the call."
+        values = [v.strip() for v in form.get("categories").split("\n")]
+        values = [v for v in values if v]
+        self.doc["categories"] = values
 
 
 def get_call(cid):
