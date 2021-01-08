@@ -65,7 +65,7 @@ def call_xlsx(cid):
                                         'valign': 'vcenter'})
     ws = wb.add_worksheet(f"Proposals in call {cid}")
     ws.freeze_panes(1, 1)
-    ws.set_row(0, None, head_text_format)
+    ws.set_row(0, 60, head_text_format)
     ws.set_column(1, 1, 40, normal_text_format)
     if call.get('categories'):
         ws.set_column(2, 3, 10, normal_text_format)
@@ -117,9 +117,11 @@ def call_xlsx(cid):
         ws.write_string(nrow, ncol, proposal.get('submitted') and 'yes' or 'no')
         ncol += 1
         user = anubis.user.get_user(username=proposal['user'])
-        ws.write_string(nrow, ncol,f"{user['familyname']}, {user['givenname']}")
+        ws.write_string(
+            nrow, ncol,
+            f"{user.get('familyname') or '-'}, {user.get('givenname') or '-'}")
         ncol += 1
-        ws.write_string(nrow, ncol, user['affiliation'] or '')
+        ws.write_string(nrow, ncol, user.get('affiliation') or '')
         ncol += 1
 
         for field in call['proposal']:
