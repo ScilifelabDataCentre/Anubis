@@ -113,7 +113,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   <form action="{{ url_for('.archive', iuid=review['_id']) }}"
 	method="POST">
     {{ csrf_token() }}
-    <button type="submit" class="btn btn-block btn-sm btn-danger"
+    <button type="submit" class="btn btn-block btn-sm btn-secondary"
 	    onclick="return confirm('Really archive this review?')">
       Archive</button>
   </form>
