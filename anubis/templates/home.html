@@ -16,11 +16,27 @@
 {% for call in calls %}
 <div class="card border-dark mt-3">
   <div class="card-header">
+    <table class="table table-borderless mb-0">
+      <tr>
+        <td class="py-0">
+          <h4 class="card-title my-0">
+            {{ call | call_link(title=True, proposals_link=False) }}
+          </h4>
+        </td>
+        <td class="text-right py-0">
+          <span class="badge badge-pill badge-{{ call['tmp']['color'] }}">
+            {{ call['tmp']['text'] }}</span>
+        </td>
+      </tr>
+    </table>
+
+<!--
     <h4 class="card-title">
       <span class="mx-4">{{ call | call_link(title=True, proposals_link=False) }}</span>
       <span class="badge badge-pill badge-{{ call['tmp']['color'] }}">
         {{ call['tmp']['text'] }}</span>
     </h4>
+-->
   </div>
   <div class="card-body pb-0">
     {{ call.get('description') | markdown }}

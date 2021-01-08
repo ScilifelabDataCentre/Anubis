@@ -37,9 +37,9 @@
 	</a>
       </td>
       <td>{{ user['email'] or '-' }}</td>
-      <td>{{ user['givenname'] or '-' }}</td>
-      <td>{{ user['familyname'] or '-' }}</td>
-      <td>{{ user['affiliation'] or '-' }}</td>
+      <td>{{ user.get('givenname') or '-' }}</td>
+      <td>{{ user.get('familyname') or '-' }}</td>
+      <td>{{ user.get('affiliation') or '-' }}</td>
       <td>{{ user['role'] }}</td>
       <td>
         {% if user['status'] == constants.PENDING %}
@@ -50,7 +50,7 @@
         {{ user['status'] }}
         {% endif %}
       </td>
-      <td class="localtime">{{ user['modified'] }}</td>
+      <td class="small localtime">{{ user['modified'] }}</td>
     </tr>
     {% endfor %}
   </tbody>
