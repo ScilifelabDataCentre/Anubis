@@ -7,7 +7,7 @@
 - To create an account in the Anubis system, go to the page
   [Register a user account](/user/register) and follow the
   instructions.
-- When a new user account has been enabled, you will recieve an email
+- When a new user account has been enabled, you will receive an email
   describing how to set your password.
 - Once you have an enabled account with the password set, you may
   create a proposal from an open call.
