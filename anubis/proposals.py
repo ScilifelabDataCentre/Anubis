@@ -87,17 +87,21 @@ def call_xlsx(cid):
         elif field['type'] == constants.TEXT:
             ws.set_column(ncol, ncol, 60, normal_text_format)
         ncol += 1
-    for id in mean_field_ids:
-        for field in call['review']:
-            if field['identifier'] == id:
-                title = field['title'] or field['identifier'].capitalize()
-                break
-        row.append(f"Reviews {title} mean")
-        row.append(f"Reviews {title} stdev")
-    for field in call['decision']:
-        if not field.get('banner'): continue
-        title = field['title'] or field['identifier'].capitalize()
-        row.append(f"Decision {title}")
+    allow_view_reviews = anubis.call.allow_view_reviews(call)
+    if allow_view_reviews:
+        for id in mean_field_ids:
+            for field in call['review']:
+                if field['identifier'] == id:
+                    title = field['title'] or field['identifier'].capitalize()
+                    break
+            row.append(f"Reviews {title} mean")
+            row.append(f"Reviews {title} stdev")
+    allow_view_decisions = anubis.call.allow_view_decisions(call)
+    if allow_view_decisions:
+        for field in call['decision']:
+            if not field.get('banner'): continue
+            title = field['title'] or field['identifier'].capitalize()
+            row.append(f"Decision {title}")
     ws.write_row(nrow, 0, row)
     nrow += 1
 
@@ -141,29 +145,32 @@ def call_xlsx(cid):
                 ws.write(nrow, ncol, value)
             ncol += 1
 
-        for id in mean_field_ids:
-            value = proposal['scores'][id]['mean']
-            if value is None:
-                ws.write_string(nrow, ncol, '')
-            else:
-                ws.write_number(nrow, ncol, value)
-            ncol += 1
-            value = proposal['scores'][id]['stdev']
-            if value is None:
-                ws.write_string(nrow, ncol, '')
-            else:
-                ws.write_number(nrow, ncol, value)
-            ncol += 1
+        if allow_view_reviews:
+            for id in mean_field_ids:
+                value = proposal['scores'][id]['mean']
+                if value is None:
+                    ws.write_string(nrow, ncol, '')
+                else:
+                    ws.write_number(nrow, ncol, value)
+                ncol += 1
+                value = proposal['scores'][id]['stdev']
+                if value is None:
+                    ws.write_string(nrow, ncol, '')
+                else:
+                    ws.write_number(nrow, ncol, value)
+                ncol += 1
 
-        decision = anubis.decision.get_decision(proposal.get('decision')) or {}
-        for field in call['decision']:
-            if not field.get('banner'): continue
-            if decision.get('finalized'):
-                value = decision['values'].get(field['identifier'])
-                ws.write(nrow, ncol, value)
-            else:
-                ws.write_string(nrow, ncol, '')
-            ncol += 1
+        if allow_view_decisions:
+            decision = anubis.decision.get_decision(proposal.get('decision')) or {}
+            for field in call['decision']:
+                if not field.get('banner'): continue
+                if decision.get('finalized'):
+                    value = decision['values'].get(field['identifier'])
+                    ws.write(nrow, ncol, value)
+                else:
+                    ws.write_string(nrow, ncol, '')
+                ncol += 1
+
         nrow += 1
 
     wb.close()
