@@ -10,10 +10,10 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
 {% endblock %}
 
 {% block meta %}
-<div>
+<div class="lead">
   <a href="{{ url_for('.proposal_xlsx', pid=proposal['identifier']) }}"
-     title="Excel 2007 XLSX file"
-     class="badge badge-pill badge-primary">Excel file</a>
+     title="All reviews for proposal in Excel file"
+     class="badge badge-pill badge-dark">Excel file</a>
 </div>
 {% endblock %}
 

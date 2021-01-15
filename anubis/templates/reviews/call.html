@@ -10,10 +10,10 @@ Reviews of proposals in call {{ call['identifier'] }}
 {% endblock %}
 
 {% block meta %}
-<div>
+<div class="lead">
   <a href="{{ url_for('.call_xlsx', cid=call['identifier']) }}"
-     title="Excel 2007 XLSX file"
-     class="badge badge-pill badge-primary">Excel file</a>
+     title="Reviews of all proposals in Excel file"
+     class="badge badge-pill badge-dark">Excel file</a>
 </div>
 {% endblock %}
 

@@ -1,14 +1,17 @@
 "Call for proposals."
 
 import copy
+import io
+import zipfile
 
 import flask
 
 import anubis.proposal
-
-from . import constants
-from . import utils
-from .saver import AttachmentSaver
+import anubis.proposals
+import anubis.user
+from anubis import constants
+from anubis import utils
+from anubis.saver import AttachmentSaver
 
 
 def init(app):
@@ -54,7 +57,6 @@ def create():
 @blueprint.route('/<cid>')
 def display(cid):
     "Display the call."
-    from .proposal import get_call_user_proposal
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
@@ -62,7 +64,7 @@ def display(cid):
         return utils.error('You are not allowed to view the call.')
     kwargs = {}
     if flask.g.current_user:
-        kwargs['my_proposal'] = get_call_user_proposal(
+        kwargs['my_proposal'] = anubis.proposal.get_call_user_proposal(
             cid, flask.g.current_user['username'])
         kwargs['my_reviews_count'] = utils.get_count(
             'reviews', 'call_reviewer',
@@ -226,8 +228,6 @@ def proposal_field(cid, fid):
 @utils.login_required
 def reviewers(cid):
     "Edit the list of reviewers."
-    from .user import get_user
-    from .proposal import get_call_user_proposal
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
@@ -241,12 +241,12 @@ def reviewers(cid):
         reviewer = flask.request.form.get('reviewer')
         if not reviewer:
             return flask.redirect(flask.url_for('.display', cid=cid))
-        user = get_user(username=reviewer)
+        user = anubis.user.get_user(username=reviewer)
         if user is None:
-            user = get_user(email=reviewer)
+            user = anubis.user.get_user(email=reviewer)
         if user is None:
             return utils.error('No such user.')
-        if get_call_user_proposal(cid, user['username']):
+        if anubis.proposal.get_call_user_proposal(cid, user['username']):
             return utils.error('User has a proposal in the call.',
                                flask.url_for('.reviewers',
                                              cid=call['identifier']))
@@ -439,7 +439,6 @@ def logs(cid):
 @utils.login_required
 def create_proposal(cid):
     "Create a new proposal within the call. Redirect to an existing proposal."
-    from .proposal import ProposalSaver, get_call_user_proposal
     call = get_call(cid)
     if call is None:
         return utils.error('No such call.', flask.url_for('home'))
@@ -450,7 +449,8 @@ def create_proposal(cid):
                            flask.url_for('.display', cid=cid))
 
     if utils.http_POST():
-        proposal = get_call_user_proposal(cid, flask.g.current_user['username'])
+        proposal = anubis.proposal.get_call_user_proposal(
+            cid, flask.g.current_user['username'])
         if proposal:
             return utils.message('Proposal already exists for the call.',
                                  flask.url_for('proposal.display',
@@ -460,6 +460,37 @@ def create_proposal(cid):
                 pass
             return flask.redirect(
                 flask.url_for('proposal.edit', pid=saver.doc['identifier']))
+
+@blueprint.route('/<cid>.zip')
+def call_zip(cid):
+    """Return a zip file containing the XLSX for all proposals
+    and all documents attached to the proposals.
+    XXX only submitted proposals?
+    """
+    call = get_call(cid)
+    if not call:
+        return utils.error('No such call.', flask.url_for('home'))
+    if not allow_view_details(call):
+        return utils.error('You are not allowed to view the call details.')
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, "w") as zip:
+        zip.writestr(f"{call['identifier']}_proposals.xlsx",
+                     anubis.proposals.get_call_xlsx(call))
+        for proposal in anubis.proposals.get_call_proposals(call):
+            for field in call['proposal']:
+                if field['type'] == constants.DOCUMENT:
+                    try:
+                        doc = anubis.proposal.get_document(proposal,
+                                                           field['identifier'])
+                    except KeyError:
+                        pass
+                    else:
+                        zip.writestr(doc['filename'], doc['content'])
+    response = flask.make_response(output.getvalue())
+    response.headers.set('Content-Type', constants.ZIP_MIMETYPE)
+    response.headers.set('Content-Disposition', 'attachment', 
+                         filename=f"{call['identifier']}.zip")
+    return response
 
 
 class CallSaver(AttachmentSaver):

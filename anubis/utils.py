@@ -27,6 +27,7 @@ def init(app):
     """
     app.add_template_filter(markdown)
     app.add_template_filter(typed_value)
+    app.add_template_filter(none_empty_string)
     app.add_template_filter(datetimetz)
     app.add_template_filter(boolean_value)
     app.add_template_filter(user_link)
@@ -270,9 +271,16 @@ def typed_value(value, type, docurl=None):
     elif type == constants.DOCUMENT:
         if value:
             return jinja2.utils.Markup(
-                f"""<i title="File">{value}</i> <a href="{docurl}" role="button" title="Download file" class="btn btn-secondary btn-sm ml-4">Download</a>""")
+                f"""<i title="File">{value}</i> <a href="{docurl}" role="button" title="Download file" class="btn btn-dark btn-sm ml-4">Download</a>""")
         else:
             return '-'
+    else:
+        return value
+
+def none_empty_string(value):
+    "If the value is None, then return empty string, else the value."
+    if value is None:
+        return ''
     else:
         return value
 

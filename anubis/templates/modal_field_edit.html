@@ -129,33 +129,39 @@
 
 	  {% elif field['type'] in (constants.INTEGER, constants.FLOAT) %}
 	  <div class="form-group row">
-	    <label for="maxlength" class="col-md-2 col-form-label text-right">
+	    <label for="{{ field['identifier'] }}-minimum" 
+                   class="col-md-2 col-form-label text-right">
 	      Minimum</label>
 	    <div class="col-md">
-	      <input type="number" id="minimum" name="minimum"
+	      <input type="number"
+                     id="{{ field['identifier'] }}-minimum" name="minimum"
                      {% if field_type == constants.INTEGER %}
                      step="1"
                      {% endif %}
 		     class="form-control"
-		     aria-describedby="minimumHelp"
-		     value="{{ field.get('minimum') or '' }}">
-	      <small id="minimumHelp" class="form-text text-muted">
+		     aria-describedby="{{ field['identifier'] }}-minimumHelp"
+		     value="{{ field.get('minimum') | none_empty_string }}">
+	      <small id="{{ field['identifier'] }}-minimumHelp" 
+                     class="form-text text-muted">
                 Minimum value allowed, if any.
 	      </small>
 	    </div>
 	  </div>	
 	  <div class="form-group row">
-	    <label for="maxlength" class="col-md-2 col-form-label text-right">
+	    <label for="{{ field['identifier'] }}-maximum"
+                   class="col-md-2 col-form-label text-right">
 	      Maximum</label>
 	    <div class="col-md">
-	      <input type="number" id="maximum" name="maximum"
+	      <input type="number"
+                     id="{{ field['identifier'] }}-maximum" name="maximum"
                      {% if field_type == constants.INTEGER %}
                      step="1"
                      {% endif %}
 		     class="form-control"
-		     aria-describedby="maximumHelp"
-		     value="{{ field.get('maximum') or '' }}">
-	      <small id="maximumHelp" class="form-text text-muted">
+		     aria-describedby="{{ field['identifier'] }}-maximumHelp"
+		     value="{{ field.get('maximum') | none_empty_string }}">
+	      <small id="{{ field['identifier'] }}-maximumHelp" 
+                     class="form-text text-muted">
                 Maximum value allowed, if any.
 	      </small>
 	    </div>
@@ -185,30 +191,36 @@
 	    </div>
 	  </div>
 	  <div class="form-group row">
-	    <label for="maxlength" class="col-md-2 col-form-label text-right">
+	    <label for="{{ field['identifier'] }}-minimum" 
+                   class="col-md-2 col-form-label text-right">
 	      Minimum</label>
 	    <div class="col-md">
-	      <input type="number" id="minimum" name="minimum" step="1"
+	      <input type="number" step="1"
+                     id="{{ field['identifier'] }}-minimum" name="minimum"
 		     class="form-control"
-		     aria-describedby="minimumHelp"
-		     value="{{ field.get('minimum') or '' }}">
-	      <small id="minimumHelp" class="form-text text-muted">
+		     aria-describedby="{{ field['identifier'] }}-minimumHelp"
+		     value="{{ field.get('minimum') | none_empty_string }}">
+	      <small id="{{ field['identifier'] }}-minimumHelp"
+                     class="form-text text-muted">
                 Minimum score value.
 	      </small>
 	    </div>
 	  </div>	
 	  <div class="form-group row">
-	    <label for="maxlength" class="col-md-2 col-form-label text-right">
+	    <label for="{{ field['identifier'] }}-maximum"
+                   class="col-md-2 col-form-label text-right">
 	      Maximum</label>
 	    <div class="col-md">
-	      <input type="number" id="maximum" name="maximum"
+	      <input type="number"
+                     id="{{ field['identifier'] }}-maximum" name="maximum"
                      {% if field_type == constants.INTEGER %}
                      step="1"
                      {% endif %}
 		     class="form-control"
-		     aria-describedby="maximumHelp"
-		     value="{{ field.get('maximum') or '' }}">
-	      <small id="maximumHelp" class="form-text text-muted">
+		     aria-describedby="{{ field['identifier'] }}-maximumHelp"
+		     value="{{ field.get('maximum') | none_empty_string }}">
+	      <small id="{{ field['identifier'] }}-maximumHelp" 
+                     class="form-text text-muted">
                 Maximum score value.
 	      </small>
 	    </div>

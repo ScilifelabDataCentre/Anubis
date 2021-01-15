@@ -232,24 +232,32 @@ def document(pid, fid):
     if not allow_view(proposal):
         return utils.error('You are not allowed to read this proposal.',
                            flask.url_for('home'))
-
     try:
-        documentname = proposal['values'][fid]
-        stub = proposal['_attachments'][documentname]
+        doc = get_document(proposal, fid)
     except KeyError:
         return utils.error('No such document in proposal.',
                            flask.url_for('.display',pid=proposal['identifier']))
-    # Colon ':' is a problematic character in filenames.
-    # Replace it by dash '-'; used as general glue character here.
-    pid = pid.replace(':', '-')
-    ext = os.path.splitext(documentname)[1]
-    filename = f"{pid}-{fid}{ext}"
-    outfile = flask.g.db.get_attachment(proposal, documentname)
-    response = flask.make_response(outfile.read())
-    response.headers.set('Content-Type', stub['content_type'])
-    response.headers.set('Content-Disposition', 'attachment', filename=filename)
+    response = flask.make_response(doc['content'])
+    response.headers.set('Content-Type', doc['content_type'])
+    response.headers.set('Content-Disposition',
+                         'attachment',
+                         filename=doc['filename'])
     return response
 
+def get_document(proposal, fid):
+    "Return a dictionary containing the document in the field of the proposal."
+    documentname = proposal['values'][fid]
+    # This may generate a KeyError, which is correct.
+    stub = proposal['_attachments'][documentname]
+    # Colon ':' is a problematic character in filenames.
+    # Replace it by dash '-'; used as general glue character here.
+    pid = proposal['identifier'].replace(':', '-')
+    ext = os.path.splitext(documentname)[1]
+    outfile = flask.g.db.get_attachment(proposal, documentname)
+    return dict(filename=f"{pid}-{fid}{ext}",
+                content=outfile.read(),
+                content_type=stub['content_type'])
+    
 
 class ProposalSaver(FieldMixin, AttachmentSaver):
     "Proposal document saver context."

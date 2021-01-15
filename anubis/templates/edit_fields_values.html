@@ -1,7 +1,7 @@
 {# Required variables: fields, values, errors, attachments #}
 
 {% for field in fields %}
-{% set value = values[field['identifier']] %}
+{% set value = values.get(field['identifier']) %}
 <div class="form-group row">
   <label for="{{ field['identifier'] }}"
          class="col-md-2 col-form-label text-right font-weight-bold">

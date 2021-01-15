@@ -50,6 +50,14 @@ def call_xlsx(cid):
         return utils.error('No such call.', flask.url_for('home'))
     if not anubis.call.allow_view(call):
         return utils.error('You may not view the call.', flask.url_for('home'))
+    response = flask.make_response(get_call_xlsx(call))
+    response.headers.set('Content-Type', constants.XLSX_MIMETYPE)
+    response.headers.set('Content-Disposition', 'attachment', 
+                         filename=f"{call['identifier']}_proposals.xlsx")
+    return response
+
+def get_call_xlsx(call):
+    "Return the content of an XLSX file for all proposals in a call."
     proposals = get_call_proposals(call, flask.request.args.get('category'))
     mean_field_ids = compute_mean_fields(call, proposals)
     output = io.BytesIO()
@@ -63,7 +71,7 @@ def call_xlsx(cid):
     normal_text_format = wb.add_format({'font_size': 14,
                                         'align': 'left',
                                         'valign': 'vcenter'})
-    ws = wb.add_worksheet(f"Proposals in call {cid}")
+    ws = wb.add_worksheet(f"Proposals in call {call['identifier']}")
     ws.freeze_panes(1, 1)
     ws.set_row(0, 60, head_text_format)
     ws.set_column(1, 1, 40, normal_text_format)
@@ -174,12 +182,7 @@ def call_xlsx(cid):
         nrow += 1
 
     wb.close()
-    content = output.getvalue()
-    response = flask.make_response(content)
-    response.headers.set('Content-Type', constants.XLSX_MIMETYPE)
-    response.headers.set('Content-Disposition', 'attachment', 
-                         filename=f"{cid}_proposals.xlsx")
-    return response
+    return output.getvalue()
 
 @blueprint.route('/user/<username>')
 @utils.login_required
