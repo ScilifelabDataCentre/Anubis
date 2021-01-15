@@ -456,7 +456,8 @@ def create_proposal(cid):
                                  flask.url_for('proposal.display',
                                                pid=proposal['identifier']))
         else:
-            with ProposalSaver(call=call, user=flask.g.current_user) as saver:
+            with anubis.proposal.ProposalSaver(call=call,
+                                               user=flask.g.current_user) as saver:
                 pass
             return flask.redirect(
                 flask.url_for('proposal.edit', pid=saver.doc['identifier']))
