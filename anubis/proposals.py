@@ -149,11 +149,13 @@ def get_call_xlsx(call):
                                            fid=field['identifier'],
                                            _external=True),
                              string='Download')
-            else:
-                if isinstance(value, list):
-                    ws.write(nrow, ncol, 'LIST')
+            elif field['type'] == constants.SELECT:
+                if isinstance(value, list): # Multiselect
+                    ws.write(nrow, ncol, '\n'.join(value))
                 else:
                     ws.write(nrow, ncol, value)
+            else:
+                ws.write(nrow, ncol, value)
             ncol += 1
 
         if allow_view_reviews:
