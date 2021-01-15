@@ -150,7 +150,10 @@ def get_call_xlsx(call):
                                            _external=True),
                              string='Download')
             else:
-                ws.write(nrow, ncol, value)
+                if isinstance(value, list):
+                    ws.write(nrow, ncol, 'LIST')
+                else:
+                    ws.write(nrow, ncol, value)
             ncol += 1
 
         if allow_view_reviews:
