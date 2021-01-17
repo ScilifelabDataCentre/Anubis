@@ -464,20 +464,20 @@ def create_proposal(cid):
 
 @blueprint.route('/<cid>.zip')
 def call_zip(cid):
-    """Return a zip file containing the XLSX for all proposals
-    and all documents attached to the proposals.
-    XXX only submitted proposals?
+    """Return a zip file containing the XLSX for all submitted proposals
+    and all documents attached to those proposals.
     """
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
     if not allow_view_details(call):
         return utils.error('You are not allowed to view the call details.')
+    proposals = anubis.proposals.get_call_proposals(call, submitted=True)
     output = io.BytesIO()
     with zipfile.ZipFile(output, "w") as zip:
         zip.writestr(f"{call['identifier']}_proposals.xlsx",
-                     anubis.proposals.get_call_xlsx(call))
-        for proposal in anubis.proposals.get_call_proposals(call):
+                     anubis.proposals.get_call_xlsx(call, submitted=True))
+        for proposal in proposals:
             for field in call['proposal']:
                 if field['type'] == constants.DOCUMENT:
                     try:

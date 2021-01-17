@@ -56,9 +56,13 @@ def call_xlsx(cid):
                          filename=f"{call['identifier']}_proposals.xlsx")
     return response
 
-def get_call_xlsx(call):
-    "Return the content of an XLSX file for all proposals in a call."
-    proposals = get_call_proposals(call, flask.request.args.get('category'))
+def get_call_xlsx(call, submitted=False):
+    """Return the content of an XLSX file for all proposals in a call.
+    Optionally only the submitted ones.
+    """
+    proposals = get_call_proposals(call,
+                                   category=flask.request.args.get('category'),
+                                   submitted=submitted)
     mean_field_ids = compute_mean_fields(call, proposals)
     output = io.BytesIO()
     wb = xlsxwriter.Workbook(output, {'in_memory': True})
@@ -204,10 +208,11 @@ def user(username):
                                  proposals=get_user_proposals(user['username']),
                                  allow_view_decision=anubis.decision.allow_view)
 
-def get_call_proposals(call, category=None):
+def get_call_proposals(call, category=None, submitted=False):
     """Get the proposals in the call.
     Only include those allowed to view.
     Optionally only those with the given category.
+    Optionally only the submitted ones.
     """
     result = [i.doc for i in flask.g.db.view('proposals', 'call',
                                              key=call['identifier'],
@@ -216,6 +221,8 @@ def get_call_proposals(call, category=None):
     result = [p for p in result if anubis.proposal.allow_view(p)]
     if category:
         result = [p for p in result if p.get('category') == category]
+    if submitted:
+        result = [p for p in result if p.get('submitted')]
     return result
 
 def get_user_proposals(username, call=None):
