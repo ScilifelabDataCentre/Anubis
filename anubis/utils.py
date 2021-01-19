@@ -18,13 +18,14 @@ import werkzeug.routing
 from . import constants
 
 # Global instance of mail interface.
-mail = flask_mail.Mail()
+MAIL = flask_mail.Mail()
 
 def init(app):
     """Initialize.
     - Add template filters.
     - Update CouchDB design documents.
     """
+    MAIL.init_app(app)
     app.add_template_filter(markdown)
     app.add_template_filter(typed_value)
     app.add_template_filter(none_empty_string)
@@ -481,21 +482,14 @@ def delete(doc):
         flask.g.db.purge(logs)
     flask.g.db.purge([doc])
 
-class Timer:
-    "CPU timer."
-
-    def __init__(self):
-        self.start = time.process_time()
-
-    def __call__(self):
-        "Return CPU time (in seconds) since start of this timer."
-        return time.process_time() - self.start
-
-    def __str__(self):
-        "Return formatted CPU time in milliseconds."
-        return f"{self.milliseconds} ms"
-
-    @property
-    def milliseconds(self):
-        "Return CPU time (in milliseconds) since start of this timer."
-        return round(1000 * self())
+def send_email(recipients, title, text):
+    if isinstance(recipients, str):
+        recipients = [recipients]
+    message = flask_mail.Message(title, recipients=recipients)
+    message.body = text
+    try:
+        MAIL.send(message)
+    except ConnectionRefusedError:
+        flash_error("Email has not been properly configured in the Anubis"
+                    " system. No email message was sent.")
+        logging.error(str(message))

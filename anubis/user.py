@@ -7,7 +7,6 @@ import json
 import re
 
 import flask
-import flask_mail
 import werkzeug.security
 
 import anubis.call
@@ -100,23 +99,23 @@ def register():
         # Directly enabled; send code to the user, if so instructed.
         if user['status'] == constants.ENABLED:
             if utils.to_bool(flask.request.form.get('send_email')):
-                send_password_code(user, 'registration')
+                send_password_code(user, 'registered')
                 utils.flash_message('User account created; an email with a link'
                                     ' to set password has been sent.')
             else:
                 utils.flash_message('User account created.')
         # Was set to 'pending'; send email to admins.
         else:
-            admins = get_users(role=constants.ADMIN, status=constants.ENABLED)
-            emails = [u['email'] for u in admins if u['email']]
-            site = flask.current_app.config['SITE_NAME']
-            message = flask_mail.Message(f"{site} user account pending",
-                                         recipients=emails)
-            url = utils.url_for('.display', username=user['username'])
-            message.body = f"To enable the user account, go to {url}"
-            utils.mail.send(message)
             utils.flash_message('User account created; an email will be sent'
                                 ' when it has been enabled by the admin.')
+            admins = get_users(role=constants.ADMIN, status=constants.ENABLED)
+            recipients = [u['email'] for u in admins if u['email']]
+            site = flask.current_app.config['SITE_NAME']
+            title = f"{site} user account pending"
+            url = utils.url_for('.display', username=user['username'])
+            text = f"To enable the user account, go to {url}\n\n" \
+                   "/The Anubis system"
+            utils.send_email(recipients, title, text)
         if flask.g.am_admin:
             return flask.redirect(flask.url_for('user.all'))
         else:
@@ -510,16 +509,20 @@ def send_password_code(user, action):
     """
     if not user['email']: return
     site = flask.current_app.config['SITE_NAME']
-    message = flask_mail.Message(f"{site} user account {action}",
-                                 recipients=[user['email']])
+    title = f"{site} user account {action}"
     url = utils.url_for('.password',
                         username=user['username'],
                         code=user['password'][len('code:'):])
-    message.body = f"Your account in the {site} system has been created.\n\n" \
-                   f"To set your password, go to {url}\n\n" \
-                   "For more information, see the top menu item 'About'" \
-                   " in the pages of the site."
-    utils.mail.send(message)
+    if action == 'registration':
+        action = 'has been created'
+    elif action == 'password reset':
+        action = 'has had its password reset'
+    elif action == 'enabled':
+        action = 'has been enabled'
+    text = f"Your account {user['username']} in the {site} system" \
+           f" {action}.\n\nTo set your password, go to {url}\n\n" \
+           "/The Anubis system"
+    utils.send_email(user['email'], title, text)
 
 def am_admin(user=None):
     "Is the user admin? Default user: current_user."

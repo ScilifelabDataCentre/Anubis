@@ -118,6 +118,8 @@ def edit(pid):
                 utils.flash_error(error)
             else:
                 utils.flash_message('Proposal saved and submitted.')
+                send_submission_email(proposal)
+
         elif allow_submit(proposal) and not proposal.get('submitted'):
             utils.flash_warning('Proposal was saved but not submitted.'
                                 ' You must explicitly submit it!')
@@ -185,7 +187,22 @@ def submit(pid):
             utils.flash_error(error)
         else:
             utils.flash_message('Proposal was submitted.')
+            send_submission_email(proposal)
         return flask.redirect(flask.url_for('.display', pid=pid))
+
+def send_submission_email(proposal):
+    "Send an email to the user verifying the proposal submission."
+    user = anubis.user.get_user(username=proposal['user'])
+    if not (user and user['email']): return
+    site = flask.current_app.config['SITE_NAME']
+    title = f"Proposal {proposal['identifier']} has been submitted in {site}"
+    url = utils.url_for('.display', pid=proposal['identifier'])
+    text = "Your proposal\n\n" \
+           f"  {proposal['identifier']} {proposal['title']}\n\n"\
+           f"has been submitted in the {site} system.\n\n" \
+           f"View it at {url}\n\n" \
+           "/The Anubis system"
+    utils.send_email(user['email'], title, text)
 
 @blueprint.route('/<pid>/unsubmit', methods=['POST'])
 @utils.login_required

@@ -27,7 +27,6 @@ anubis.proposal.init(app)
 anubis.review.init(app)
 anubis.decision.init(app)
 anubis.user.init(app)
-utils.mail.init_app(app)
 
 app.url_map.converters['iuid'] = utils.IuidConverter
 
