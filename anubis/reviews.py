@@ -8,6 +8,7 @@ import xlsxwriter
 import anubis.call
 import anubis.user
 import anubis.proposal
+import anubis.proposals
 import anubis.review
 
 from . import constants
@@ -28,7 +29,7 @@ def call(cid):
         return utils.error('You may not view the reviews of the call.',
                            flask.url_for('call.display',cid=call['identifier']))
 
-    proposals = utils.get_docs_view('proposals', 'call', call['identifier'])
+    proposals = anubis.proposals.get_call_proposals(call, submitted=True)
     for proposal in proposals:
         proposal['allow_create_review'] = anubis.review.allow_create(proposal)
     reviews = utils.get_docs_view('reviews', 'call', call['identifier'])
@@ -61,7 +62,7 @@ def call_xlsx(cid):
         return utils.error('You may not view the reviews of the call.',
                            flask.url_for('call.display',cid=call['identifier']))
 
-    proposals = utils.get_docs_view('proposals', 'call', call['identifier'])
+    proposals = anubis.proposals.get_call_proposals(call, submitted=True)
     reviews = utils.get_docs_view('reviews', 'call', call['identifier'])
     # For ordinary reviewer, list only finalized reviews.
     if not (flask.g.am_admin or anubis.call.am_chair(call)):
@@ -94,7 +95,7 @@ def call_reviewer(cid, username):
         return utils.error("You may not view the user's reviews.",
                            flask.url_for('call.display',cid=call['identifier']))
 
-    proposals = utils.get_docs_view('proposals', 'call', call['identifier'])
+    proposals = anubis.proposals.get_call_proposals(call, submitted=True)
     reviews = utils.get_docs_view('reviews', 'call_reviewer',
                                   [call['identifier'], user['username']])
     reviews_lookup = {r['proposal']:r for r in reviews}
@@ -122,7 +123,7 @@ def call_reviewer_xlsx(cid, username):
         return utils.error("You may not view the user's reviews.",
                            flask.url_for('call.display',cid=call['identifier']))
 
-    proposals = utils.get_docs_view('proposals', 'call', call['identifier'])
+    proposals = anubis.proposals.get_call_proposals(call, submitted=True)
     reviews = utils.get_docs_view('reviews', 'call_reviewer',
                                   [call['identifier'], user['username']])
     reviews_lookup = {f"{r['proposal']} {username}":r for r in reviews}
