@@ -139,7 +139,8 @@ def edit(iuid):
                                flask.url_for('.display', iuid=review['_id']))
         utils.delete(review)
         utils.flash_message('Deleted review.')
-        return flask.redirect(flask.url_for('call.display', cid=review['call']))
+        return flask.redirect(
+            flask.url_for('proposal.display', pid=review['proposal']))
 
 @blueprint.route('/<iuid:iuid>/finalize', methods=['POST'])
 @utils.login_required
