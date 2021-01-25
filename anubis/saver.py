@@ -197,7 +197,7 @@ class FieldMixin:
                 infile = flask.request.files.get(fid)
                 if infile:
                     if self.doc['values'].get(fid) and \
-                       self.doc['values'][fid] != infile.name:
+                       self.doc['values'][fid] != infile.filename:
                         self.delete_attachment(self.doc['values'][fid])
                     self.doc['values'][fid] = infile.filename
                     self.add_attachment(infile.filename,
