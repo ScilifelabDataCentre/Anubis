@@ -842,7 +842,7 @@ def allow_view_details(call):
     return am_reviewer(call)
 
 def allow_view_reviews(call):
-    """The admin, staff and call owner may view all reviews.
+    """The admin, staff and call owner may view all reviews in the call.
     Review chairs may view all reviews.
     Other reviewers may view depending on the access flag for the call.
     """
@@ -856,14 +856,18 @@ def allow_view_reviews(call):
     return False
 
 def allow_view_decisions(call):
-    """The admin, staff and call owner may view all decisions.
-    Reviewer may view all decisions in a call.
+    """The admin, staff and call owner may view all decisions in the call.
+    Reviewer may view all decisions in a call once the review
+    due date has passed; this should reduce confusion.
     """
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     if flask.g.am_staff: return True
     if am_call_owner(call): return True
-    return am_reviewer(call)
+    due = call.get('reviews_due')
+    if due:
+        return am_reviewer(call) and utils.normalized_local_now() > due
+    return False
 
 def am_reviewer(call):
     "Is the current user a reviewer in the call?"

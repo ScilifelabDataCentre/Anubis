@@ -55,11 +55,14 @@
       <th>Submitted</th>
       {% endif %}
       <th>Submitter</th>
+      {% if am_reviewer %}
+      <th>My reviews</th>
+      {% endif %}
       {% if allow_view_reviews %}
-      <th>Reviews</th>
+      <th>All reviews</th>
       {% for id in mean_field_ids %}
-      <th>Reviews {{ id }} mean</th>
-      <th>Reviews {{ id }} stdev</th>
+      <th>All reviews: {{ id }} mean</th>
+      <th>All reviews: {{ id }} stdev</th>
       {% endfor %}
       {% endif %} {# if allow_view_reviews #}
       {% if allow_view_decisions %}
@@ -93,6 +96,9 @@
       </td>
       {% endif %}
       <td>{{ get_user(proposal['user']) | user_link(affiliation=True) }}</td>
+      {% if am_reviewer %}
+      <td>{{ get_reviewer_review(proposal) | review_link }}</td>
+      {% endif %}
       {% if allow_view_reviews %}
       {% if proposal.get('submitted') %}
       <td>

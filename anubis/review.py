@@ -301,8 +301,11 @@ def get_review(iuid):
         flask.g.cache[iuid] = review
         return review
 
-def get_reviewer_review(proposal, reviewer):
+def get_reviewer_review(proposal, reviewer=None):
     "Get the review of the proposal by the reviewer."
+    if reviewer is None:
+        reviewer = flask.g.current_user
+    if reviewer is None: return None
     result = flask.g.db.view('reviews', 'proposal_reviewer',
                              key=[proposal['identifier'], reviewer['username']],
                              reduce=False,

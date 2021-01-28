@@ -89,9 +89,10 @@
   <div class="col-md-2 font-weight-bold text-right">Reviewers</div>
   <div class="col-md">
     {% for pos, reviewer in enumerate(sorted(call['reviewers'])) %}
-    {% set user = get_user(reviewer) %}
-    {{ user | user_link(chair=reviewer in call['chairs']) }}
+    {{ get_user(reviewer) | user_link(chair=reviewer in call['chairs']) }}
+    {% if allow_view_reviews %}
     (<a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=reviewer) }}">reviews</a>)
+    {% endif %}
     {% if pos+1 < len(call['reviewers']) %}, {% endif %}
     {% endfor %}
   </div>

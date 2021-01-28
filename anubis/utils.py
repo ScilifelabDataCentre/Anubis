@@ -332,7 +332,7 @@ def user_link(user, fullname=True, chair=False, affiliation=False):
         url = flask.url_for('user.display', username=user['username'])
         return jinja2.utils.Markup(f'<a href="{url}">{name}</a>')
     else:
-        return name
+        return jinja2.utils.Markup(name)
 
 def call_link(call, title=False, proposals_link=True):
     "Template filter: link to call and link to all its proposals."
@@ -350,6 +350,7 @@ def call_link(call, title=False, proposals_link=True):
 
 def proposal_link(proposal, bold=True):
     "Template filter: link to proposal."
+    if not proposal: return '-'
     url = flask.url_for("proposal.display", pid=proposal["identifier"])
     title = proposal.get("title") or "[No title]"
     html = f'''<a href="{url}" title="{title}"'''
@@ -360,6 +361,7 @@ def proposal_link(proposal, bold=True):
 
 def review_link(review):
     "Template filter: link to review."
+    if not review: return '-'
     url = flask.url_for("review.display", iuid=review["_id"])
     html = f'''<a href="{url}" class="font-weight-bold text-info">Review '''
     if review.get('archived'):
@@ -373,8 +375,7 @@ def review_link(review):
 
 def decision_link(decision, block=False, small=False):
     "Template filter: link to decision."
-    if decision is None:
-        return "-"
+    if not decision: return "-"
     url = flask.url_for("decision.display", iuid=decision["_id"])
     if decision.get('finalized'):
         color = "btn-dark font-weight-bold"

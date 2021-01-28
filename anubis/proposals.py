@@ -29,17 +29,21 @@ def call(cid):
     category = flask.request.args.get('category')
     proposals = get_call_proposals(call, category)
     mean_field_ids = compute_mean_fields(call, proposals)
+    am_reviewer = anubis.call.am_reviewer(call)
     allow_view_reviews = anubis.call.allow_view_reviews(call)
     allow_view_decisions = anubis.call.allow_view_decisions(call)
     allow_view_details = anubis.call.allow_view_details(call)
-    return flask.render_template('proposals/call.html', 
-                                 call=call,
-                                 proposals=proposals,
-                                 mean_field_ids=mean_field_ids,
-                                 allow_view_reviews=allow_view_reviews,
-                                 allow_view_decisions=allow_view_decisions,
-                                 allow_view_details=allow_view_details,
-                                 category=category)
+    return flask.render_template(
+        'proposals/call.html', 
+        call=call,
+        proposals=proposals,
+        mean_field_ids=mean_field_ids,
+        am_reviewer=am_reviewer,
+        allow_view_reviews=allow_view_reviews,
+        allow_view_decisions=allow_view_decisions,
+        allow_view_details=allow_view_details,
+        category=category,
+        get_reviewer_review=anubis.review.get_reviewer_review)
 
 @blueprint.route('/call/<cid>.xlsx')
 @utils.login_required

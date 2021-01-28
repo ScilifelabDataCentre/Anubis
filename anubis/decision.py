@@ -251,15 +251,17 @@ def get_decision(iuid):
 
 def allow_create(proposal):
     "Admin and chair may create a decision for a submitted proposal."
-    if not proposal.get('submitted'): return False
     if not flask.g.current_user: return False
+    if not proposal.get('submitted'): return False
     if proposal.get('decision'): return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(proposal['call'])
     return anubis.call.am_chair(call)
 
 def allow_view(decision):
-    "Submitter may view decision for her proposal."
+    """Submitter may view decision for her proposal
+    once it has been finalized and the call-wide flag set.
+    """
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     if flask.g.am_staff: return True
@@ -281,29 +283,30 @@ def allow_link(decision):
 
 def allow_edit(decision):
     "Admin and chair may edit an unfinalized decision."
-    if decision.get('finalized'): return False
     if not flask.g.current_user: return False
+    if decision.get('finalized'): return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(decision['call'])
     return anubis.call.am_chair(call)
 
 def allow_delete(decision):
-    "Admin may delete a decision."
+    "Admin may delete an unfinalized decision."
+    if decision.get('finalized'): return False
     return flask.g.am_admin
 
 def allow_finalize(decision):
-    "Admin and chaie may finalize if the decision contains no errors."
+    "Admin and chair may finalize if the decision contains no errors."
+    if not flask.g.current_user: return False
     if decision.get('finalized'): return False
     if decision.get('errors'): return False
-    if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(decision['call'])
     return anubis.call.am_chair(call)
 
 def allow_unfinalize(decision):
-    "Admin and decisioner may unfinalize the decision."
-    if not decision.get('finalized'): return False
+    "Admin and chair may unfinalize the decision."
     if not flask.g.current_user: return False
+    if not decision.get('finalized'): return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(decision['call'])
     return anubis.call.am_chair(call)
