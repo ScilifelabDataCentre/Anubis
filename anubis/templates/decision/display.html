@@ -57,7 +57,7 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {% if allow_edit %}
 <div class="mt-2">
   <a href="{{ url_for('.edit', iuid=decision['_id']) }}"
-     role="button" class="btn btn-primary btn-block">Edit</a>
+     role="button" class="btn btn-block btn-primary">Edit</a>
 </div>
 {% endif %} {# if allow_edit #}
 {% if allow_unfinalize %}
@@ -86,7 +86,7 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 	method="POST">
     {{ csrf_token() }}
     <input type="hidden" name="_http_method" value="DELETE">
-    <button type="submit" class="btn btn-block btn-sm btn-danger"
+    <button type="submit" class="btn btn-sm btn-block btn-danger"
 	    onclick="return confirm('Really delete this decision?')">
       Delete</button>
   </form>
