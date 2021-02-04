@@ -11,9 +11,9 @@ Reviews of proposals in call {{ call['identifier'] }}
 
 {% block meta %}
 <div class="lead">
-  <a href="{{ url_for('.call_xlsx', cid=call['identifier']) }}"
-     title="Reviews of all proposals in Excel file"
-     class="badge badge-pill badge-dark">Excel file</a>
+  <a href="{{ url_for('reviews.call_xlsx', cid=call['identifier']) }}"
+     title="All reviews in the call"
+     class="badge badge-pill badge-dark">Reviews Excel file</a>
 </div>
 {% endblock %}
 

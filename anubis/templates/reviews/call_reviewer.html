@@ -15,7 +15,7 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 <div class="lead">
   <a href="{{ url_for('.call_reviewer_xlsx', cid=call['identifier'], username=user['username']) }}"
      title="Excel 2007 XLSX file"
-     class="badge badge-pill badge-dark">Excel file</a>
+     class="badge badge-pill badge-dark">Reviews Excel file</a>
 </div>
 {% endblock %}
 

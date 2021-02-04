@@ -94,7 +94,7 @@ def get_call_xlsx(call, submitted=False):
     row = ['Proposal', 'Proposal title']
     if call.get('categories'):
         row.append('Category')
-    row.extend(['Submitted', 'Submitter', 'Affiliation'])
+    row.extend(['Submitted', 'Submitter', 'Email', 'Affiliation'])
     ncol = len(row)
     for field in call['proposal']:
         row.append(field['title'] or field['identifier'].capitalize())
@@ -140,6 +140,8 @@ def get_call_xlsx(call, submitted=False):
         ws.write_string(
             nrow, ncol,
             f"{user.get('familyname') or '-'}, {user.get('givenname') or '-'}")
+        ncol += 1
+        ws.write_string(nrow, ncol, user.get('email') or '')
         ncol += 1
         ws.write_string(nrow, ncol, user.get('affiliation') or '')
         ncol += 1
@@ -227,14 +229,17 @@ def get_call_proposals(call, category=None, submitted=False):
         result = [p for p in result if p.get('category') == category]
     if submitted:
         result = [p for p in result if p.get('submitted')]
+    result.sort(key=lambda p: p['identifier'])
     return result
 
 def get_user_proposals(username, call=None):
     "Get all proposals created by the user."
-    return [i.doc for i in flask.g.db.view('proposals', 'user',
-                                           key=username,
-                                           reduce=False,
-                                           include_docs=True)]
+    result = [i.doc for i in flask.g.db.view('proposals', 'user',
+                                             key=username,
+                                             reduce=False,
+                                             include_docs=True)]
+    result.sort(key=lambda p: p['identifier'])
+    return result
 
 def compute_mean_fields(call, proposals):
     """Compute the mean and stdev of numerical banner fields

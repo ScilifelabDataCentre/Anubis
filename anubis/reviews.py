@@ -70,7 +70,7 @@ def call_xlsx(cid):
                    if r['reviewer'] != flask.g.current_user['username'] and 
                    r.get('finalized')]
     reviews_lookup = {f"{r['proposal']} {r['reviewer']}":r for r in reviews}
-    content = get_xlsx(call, proposals, reviews_lookup)
+    content = get_reviews_xlsx(call, proposals, reviews_lookup)
     response = flask.make_response(content)
     response.headers.set('Content-Type', constants.XLSX_MIMETYPE)
     response.headers.set('Content-Disposition', 'attachment', 
@@ -127,7 +127,7 @@ def call_reviewer_xlsx(cid, username):
     reviews = utils.get_docs_view('reviews', 'call_reviewer',
                                   [call['identifier'], user['username']])
     reviews_lookup = {f"{r['proposal']} {username}":r for r in reviews}
-    content = get_xlsx(call, proposals, reviews_lookup)
+    content = get_reviews_xlsx(call, proposals, reviews_lookup)
     response = flask.make_response(content)
     response.headers.set('Content-Type', constants.XLSX_MIMETYPE)
     response.headers.set('Content-Disposition', 'attachment', 
@@ -206,7 +206,7 @@ def proposal_xlsx(pid):
                    if r['reviewer'] != flask.g.current_user['username'] and 
                    r.get('finalized')]
     reviews_lookup = {f"{pid} {r['reviewer']}":r for r in reviews}
-    content = get_xlsx(call, [proposal], reviews_lookup)
+    content = get_reviews_xlsx(call, [proposal], reviews_lookup)
     response = flask.make_response(content)
     response.headers.set('Content-Type', constants.XLSX_MIMETYPE)
     response.headers.set('Content-Disposition', 'attachment', 
@@ -242,7 +242,7 @@ def reviewer(username):
                                  reviewer_calls=reviewer_calls,
                                  reviews=reviews)
 
-def get_xlsx(call, proposals, reviews_lookup):
+def get_reviews_xlsx(call, proposals, reviews_lookup):
     "Return the content for the XLSX file for the list of reviews."
     output = io.BytesIO()
     wb = xlsxwriter.Workbook(output, {'in_memory': True})
@@ -271,7 +271,8 @@ def get_xlsx(call, proposals, reviews_lookup):
     row = ['Proposal', 'Proposal title']
     if call.get('categories'):
         row.append('Category')
-    row.extend(['Submitter', 'Affiliation', 'Review', 'Finalized', 'Reviewer'])
+    row.extend(['Submitter', 'Email', 'Affiliation',
+                'Reviewer', 'Review', 'Finalized'])
     for field in call['review']:
         row.append(field['title'] or field['identifier'].capitalize())
     ws.write_row(nrow, 0, row)
@@ -299,7 +300,11 @@ def get_xlsx(call, proposals, reviews_lookup):
                 nrow, ncol,
                 f"{user.get('familyname') or '-'}, {user.get('givenname') or '-'}")
             ncol += 1
+            ws.write_string(nrow, ncol, user.get('email') or '')
+            ncol += 1
             ws.write_string(nrow, ncol, user.get('affiliation') or '')
+            ncol += 1
+            ws.write_string(nrow, ncol, reviewer)
             ncol += 1
             ws.write_url(nrow, ncol,
                          flask.url_for('review.display',
@@ -309,8 +314,6 @@ def get_xlsx(call, proposals, reviews_lookup):
             ncol += 1
             ws.write_string(nrow, ncol,
                             review.get('finalized') and 'yes' or 'no')
-            ncol += 1
-            ws.write_string(nrow, ncol, reviewer)
             ncol += 1
 
             for field in call['review']:
