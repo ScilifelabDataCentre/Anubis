@@ -251,11 +251,18 @@ def reviewers(cid):
                                flask.url_for('.reviewers',
                                              cid=call['identifier']))
 
-        if user['username'] not in call['reviewers']:
-            with CallSaver(call) as saver:
-                saver['reviewers'].append(user['username'])
-                if utils.to_bool(flask.request.form.get('chair')):
-                    saver['chairs'].append(user['username'])
+        with CallSaver(call) as saver:
+            try:
+                saver['reviewers'].remove(user['username'])
+            except ValueError:
+                pass
+            try:
+                saver['chairs'].remove(user['username'])
+            except ValueError:
+                pass
+            saver['reviewers'].append(user['username'])
+            if utils.to_bool(flask.request.form.get('chair')):
+                saver['chairs'].append(user['username'])
         return flask.redirect(
             flask.url_for('.reviewers', cid=call['identifier']))
 
