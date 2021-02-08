@@ -35,7 +35,7 @@ this system.
   - = Application = submission; the proposal to be reviewed.
   - Belongs to one and only one call, and one and only one user.
   - One user may have at most one proposal within a call.
-  - Identifier: {prefix}:001
+  - Identifier: {call-prefix}:001
   - Fields; defined in the call.
   - Attached documents (project description, CV,...)
   - Made by user, ownership may be transferred to another user.
@@ -43,10 +43,24 @@ this system.
   
 - Review
   - A reviewer's comments and scores for a proposal.
-  - A review is created by the admin (or chair) for a given
+  - A review is created by the admin or chair for a given
     submitted proposal and a given reviewer.
   - Fields; defined in the call.
-  - Finalized or unfinalized.  
+  - Finalized or unfinalized.
+
+- Decision
+  - The decision for a proposal.
+  - Fields: defined in the call.
+  - Finalized or unfinalized.
+  - Admin or chair may create it for a proposal.
+
+- Grant
+  - The grant for a proposal which (presumably) got a positive decision.
+  - Identifier: {call-prefix}-G:001. Not the same number as the proposal.
+  - Admin may create and edit the field definitions.
+  - Staff may edit the grant field contents.
+  - User is allowed to edit the contents of specific fields.
+  - Attached files for various documents (budget, etc).
 
 - Lists
   - All proposals in a call (also Excel)

@@ -323,7 +323,9 @@ def allow_create(proposal):
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(proposal['call'])
-    return anubis.call.am_chair(call) or anubis.call.am_call_owner(call)
+    if anubis.call.am_chair(call) or anubis.call.am_call_owner(call): 
+        return True
+    return False
 
 def allow_view(review):
     """The admin, staff and call owner may view any review in the call.
@@ -338,7 +340,9 @@ def allow_view(review):
     call = anubis.call.get_call(review['call'])
     if anubis.call.am_chair(call): return True
     if anubis.call.am_call_owner(call): return True
-    return anubis.call.allow_view_reviews(call) and review.get('finalized')
+    if anubis.call.allow_view_reviews(call) and review.get('finalized'):
+        return True
+    return False
 
 def allow_edit(review):
     "The admin, call owner and reviewer may edit an unfinalized review."
@@ -348,14 +352,16 @@ def allow_edit(review):
     if flask.g.am_admin: return True
     if flask.g.current_user['username'] == review['reviewer']: return True
     call = anubis.call.get_call(review['call'])
-    return anubis.call.am_call_owner(call)
+    if anubis.call.am_call_owner(call): return True
+    return False
 
 def allow_delete(review):
     "The admin and call owner may delete a review."
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(review['call'])
-    return anubis.call.am_call_owner(call)
+    if anubis.call.am_call_owner(call): return True
+    return False
 
 def allow_finalize(review):
     "The admin, call owner and reviewer may finalize if it contains no errors."
@@ -366,7 +372,8 @@ def allow_finalize(review):
     if flask.g.am_admin: return True
     if flask.g.current_user['username'] == review['reviewer']: return True
     call = anubis.call.get_call(review['call'])
-    return anubis.call.am_call_owner(call)
+    if anubis.call.am_call_owner(call): return True
+    return False
 
 def allow_unfinalize(review):
     """The admin and call owner may always unfinalize.
@@ -380,4 +387,5 @@ def allow_unfinalize(review):
     if anubis.call.am_call_owner(call): return True
     if call.get('reviews_due') and utils.days_remaining(call['reviews_due'])<0:
         return False
-    return flask.g.current_user['username'] == review['reviewer']
+    if flask.g.current_user['username'] == review['reviewer']: return True
+    return False

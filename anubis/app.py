@@ -11,6 +11,7 @@ import anubis.reviews
 import anubis.proposal
 import anubis.proposals
 import anubis.decision
+import anubis.grant
 import anubis.site
 import anubis.user
 
@@ -26,6 +27,7 @@ anubis.call.init(app)
 anubis.proposal.init(app)
 anubis.review.init(app)
 anubis.decision.init(app)
+anubis.grant.init(app)
 anubis.user.init(app)
 
 app.url_map.converters['iuid'] = utils.IuidConverter
@@ -44,7 +46,8 @@ def setup_template_context():
                 get_call=anubis.call.get_call,
                 get_proposal=anubis.proposal.get_proposal,
                 get_review=anubis.review.get_review,
-                get_decision=anubis.decision.get_decision)
+                get_decision=anubis.decision.get_decision,
+                get_grant=anubis.grant.get_grant)
 
 @app.before_request
 def prepare():
@@ -84,6 +87,7 @@ app.register_blueprint(anubis.proposals.blueprint, url_prefix='/proposals')
 app.register_blueprint(anubis.review.blueprint, url_prefix='/review')
 app.register_blueprint(anubis.reviews.blueprint, url_prefix='/reviews')
 app.register_blueprint(anubis.decision.blueprint, url_prefix='/decision')
+app.register_blueprint(anubis.grant.blueprint, url_prefix='/grant')
 app.register_blueprint(anubis.about.blueprint, url_prefix='/about')
 app.register_blueprint(anubis.site.blueprint, url_prefix='/site')
 

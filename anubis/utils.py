@@ -36,6 +36,7 @@ def init(app):
     app.add_template_filter(proposal_link)
     app.add_template_filter(review_link)
     app.add_template_filter(decision_link)
+    app.add_template_filter(grant_link)
 
     db = get_db(app=app)
     if db.put_design('logs', DESIGN_DOC):
@@ -373,7 +374,7 @@ def review_link(review):
     html += "</a>"
     return jinja2.utils.Markup(html)
 
-def decision_link(decision, block=False, small=False):
+def decision_link(decision, small=False):
     "Template filter: link to decision."
     if not decision: return "-"
     url = flask.url_for("decision.display", iuid=decision["_id"])
@@ -381,13 +382,22 @@ def decision_link(decision, block=False, small=False):
         color = "btn-dark font-weight-bold"
     else:
         color = "btn-outline-dark"
-    if block:
-        color += " btn-block"
     if small:
         color += " btn-sm"
     return jinja2.utils.Markup(
         f'''<a href="{url}" role="button" class="btn {color} my-1">'''
         "Decision</a>")
+
+def grant_link(grant, small=False):
+    "Template filter: link to grant."
+    if not grant: return "-"
+    url = flask.url_for("grant.display", gid=grant["identifier"])
+    color = "btn-success"
+    if small:
+        color += " btn-sm"
+    return jinja2.utils.Markup(
+        f'''<a href="{url}" role="button" class="btn {color} my-1">'''
+        f"Grant {grant['identifier']}</a>")
 
 def boolean_value(value):
     "Output field value boolean."

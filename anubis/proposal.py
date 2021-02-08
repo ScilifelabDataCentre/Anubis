@@ -7,6 +7,7 @@ import flask
 import anubis.call
 import anubis.user
 import anubis.decision
+import anubis.grant
 
 from . import constants
 from . import utils
@@ -55,11 +56,14 @@ def display(pid):
     my_review = get_reviewer_review(proposal, flask.g.current_user)
     allow_view_reviews = anubis.call.allow_view_reviews(call)
     decision = anubis.decision.get_decision(proposal.get('decision'))
-    allow_link_decision = anubis.decision.allow_link(decision)
     allow_create_decision = anubis.decision.allow_create(proposal)
+    allow_link_decision = anubis.decision.allow_link(decision)
     allow_view_decision = decision and \
                           decision.get('finalized') and \
                           call['access'].get('allow_submitter_view_decision')
+    grant = anubis.grant.get_grant(proposal.get('grant'))
+    allow_create_grant = anubis.grant.allow_create(proposal)
+    allow_link_grant = anubis.grant.allow_link(grant)
     return flask.render_template('proposal/display.html',
                                  proposal=proposal,
                                  call=call,
@@ -72,9 +76,12 @@ def display(pid):
                                  my_review=my_review,
                                  allow_view_reviews=allow_view_reviews,
                                  decision=decision,
-                                 allow_link_decision=allow_link_decision,
                                  allow_create_decision=allow_create_decision,
-                                 allow_view_decision=allow_view_decision)
+                                 allow_link_decision=allow_link_decision,
+                                 allow_view_decision=allow_view_decision,
+                                 grant=grant,
+                                 allow_create_grant=allow_create_grant,
+                                 allow_link_grant=allow_link_grant)
 
 @blueprint.route('/<pid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.login_required
@@ -330,7 +337,9 @@ class ProposalSaver(FieldMixin, AttachmentSaver):
 
 
 def get_proposal(pid, refresh=False):
-    "Return the proposal with the given identifier."
+    """Return the proposal with the given identifier.
+    Return None if not found.
+    """
     try:
         if refresh: raise KeyError
         return flask.g.cache[pid]
@@ -357,7 +366,8 @@ def allow_view(proposal):
     call = anubis.call.get_call(proposal['call'])
     if anubis.call.am_call_owner(call): return True
     if anubis.call.am_reviewer(call): return bool(proposal.get('submitted'))
-    return flask.g.current_user['username'] == proposal['user']
+    if flask.g.current_user['username'] == proposal['user']: return True
+    return False
 
 def allow_edit(proposal):
     """The admin and call owner may edit the proposal.
@@ -368,7 +378,8 @@ def allow_edit(proposal):
     call = anubis.call.get_call(proposal['call'])
     if anubis.call.am_call_owner(call): return True
     if proposal.get('submitted'): return False
-    return flask.g.current_user['username'] == proposal['user']
+    if flask.g.current_user['username'] == proposal['user']: return True
+    return False
 
 def allow_delete(proposal):
     """The admin, and call owner may delete the proposal.
@@ -379,7 +390,8 @@ def allow_delete(proposal):
     call = anubis.call.get_call(proposal['call'])
     if anubis.call.am_call_owner(call): return True
     if proposal.get('submitted'): return False
-    return flask.g.current_user['username'] == proposal['user']
+    if flask.g.current_user['username'] == proposal['user']: return True
+    return False
 
 def allow_submit(proposal):
     """Only if there are no errors.
@@ -391,14 +403,17 @@ def allow_submit(proposal):
     if flask.g.am_admin: return True
     call = anubis.call.get_call(proposal['call'])
     if anubis.call.am_call_owner(call): return True
-    return flask.g.current_user['username'] == proposal['user'] and \
-           call['tmp']['is_open']
+    if flask.g.current_user['username'] == proposal['user'] and \
+       call['tmp']['is_open']: return True
+    return False
     
 def allow_transfer(proposal):
     """The admin and staff may transfer ownership of a proposal.
     """
     if not flask.g.current_user: return False
-    return flask.g.am_admin or flask.g.am_staff
+    if flask.g.am_admin: return True
+    if flask.g.am_staff: return True
+    return False
 
 def get_call_user_proposal(cid, username):
     "Get the proposal created by the user in the call."

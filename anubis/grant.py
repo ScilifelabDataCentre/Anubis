@@ -1,0 +1,187 @@
+"Grant based on a proposal, which (presumably) got a positive decision."
+
+import flask
+
+import anubis.call
+import anubis.proposal
+import anubis.user
+import anubis.decision
+
+from . import constants
+from . import utils
+from .saver import AttachmentSaver, FieldMixin
+
+
+def init(app):
+    "Initialize; update CouchDB design documents."
+    db = utils.get_db(app=app)
+    if db.put_design('grants', DESIGN_DOC):
+        app.logger.info('Updated grants design document.')
+
+DESIGN_DOC = {
+    'views': {
+        'identifier': {'map': "function (doc) {if (doc.doctype !== 'grant') return; emit(doc.identifier, null);}"},
+        'call': {'reduce': '_count',
+                 'map': "function (doc) {if (doc.doctype !== 'grant') return; emit(doc.call, doc.proposal);}"},
+        'user': {'reduce': '_count',
+                 'map': "function (doc) {if (doc.doctype !== 'grant') return; emit(doc.user, doc.identifier);}"},
+    }
+}
+
+blueprint = flask.Blueprint('grant', __name__)
+
+@blueprint.route('/create/<pid>', methods=['POST'])
+@utils.login_required
+def create(pid):
+    "Create a grant for the proposal."
+    proposal = anubis.proposal.get_proposal(pid)
+    if proposal is None:
+        return utils.error('No such proposal.', flask.url_for('home'))
+    try:
+        if not allow_create(proposal):
+            raise ValueError('You may not create a decision for the proposal.')
+        grant = get_grant(proposal.get('grant'))
+        if grant is not None:
+            utils.flash_message('The grant already exists.')
+            return flask.redirect(
+                flask.url_for('.display', gid=grant['identifier']))
+        with GrantSaver(proposal=proposal) as saver:
+            pass
+        grant = saver.doc
+        with anubis.proposal.ProposalSaver(proposal) as saver:
+            saver['grant'] = grant['identifier']
+    except ValueError as error:
+        utils.flash_error(error)
+    try:
+        return flask.redirect(flask.request.form['_next'])
+    except KeyError:
+        return flask.redirect(
+            flask.url_for('.display', gid=grant['identifier']))
+
+@blueprint.route('/<gid>')
+@utils.login_required
+def display(gid):
+    "Display the grant."
+    grant = get_grant(fid)
+    if grant is None:
+        return utils.error('No such grant.', flask.url_for('home'))
+    if not allow_view(grant):
+        return utils.error('You are not allowed to view this grant.',
+                           flask.url_for('call.display', cid=grant['call']))
+    proposal = anubis.proposal.get_proposal(grant['proposal'])
+    return flask.render_template('grant/display.html',
+                                 grant=grant,
+                                 proposal=proposal,
+                                 allow_view=allow_view(grant),
+                                 allow_delete=allow_delete(grant))
+
+@blueprint.route('/<gid>/logs')
+@utils.login_required
+def logs(gid):
+    "Display the log records of the given grant."
+    grant = get_grant(gid)
+    if grant is None:
+        return utils.error('No such grant.', flask.url_for('home'))
+    if not allow_view(grant):
+        return utils.error('You are not allowed to read this grant.',
+                           flask.url_for('home'))
+
+    return flask.render_template(
+        'logs.html',
+        title=f"Grant {grant['identifier']}",
+        back_url=flask.url_for('.display', gid=grant['identifier']),
+        logs=utils.get_logs(grant['_id']))
+
+
+class GrantSaver(FieldMixin, AttachmentSaver):
+    "Grant document saver context."
+
+    DOCTYPE = constants.GRANT
+
+    def __init__(self, doc=None, proposal=None):
+        if doc:
+            super().__init__(doc=doc)
+        elif proposal:
+            super().__init__(doc=None)
+            self.set_proposal(proposal)
+        else:
+            raise ValueError('doc or proposal must be specified')
+
+    def initialize(self):
+        self.doc['values'] = {}
+        self.doc['errors'] = {}
+
+    def set_proposal(self, proposal):
+        "Set the proposal for the grant; must be called when creating."
+        if self.doc.get('proposal'):
+            raise ValueError('proposal has already been set')
+        self.doc['proposal'] = proposal['identifier']
+        call = anubis.call.get_call(proposal['call'])
+        counter = call.get('grant_counter')
+        if counter is None:
+            counter = 1
+        else:
+            counter += 1
+        with anubis.call.CallSaver(call):
+            call['grant_counter'] = counter
+        self.doc['identifier'] = f"{call['identifier']}-G:{counter:03d}"
+        for field in call.get('grant', []):
+            self.set_field_value(field)
+
+
+def get_grant(gid, refresh=False):
+    """Return the grant with the given identifier.
+    Return None if not found.
+    """
+    try:
+        if refresh: raise KeyError
+        return flask.g.cache[gid]
+    except KeyError:
+        docs = [r.doc for r in flask.g.db.view('grants', 'identifier',
+                                               key=gid,
+                                               include_docs=True)]
+        if len(docs) == 1:
+            grant = docs[0]
+            flask.g.cache[gid] = grant
+            flask.g.cache[grant["_id"]] = grant
+            return grant
+        else:
+            return None
+
+def allow_create(proposal):
+    "The admin and staff may create a grant."
+    if not flask.g.current_user: return False
+    if not proposal.get('submitted'): return False  # Sanity check.
+    if not proposal.get('decision'): return False   # Sanity check.
+    decision = anubis.decision.get_decision(proposal['decision'])
+    if not (decision and decision.get('finalized')):  # Sanity check.
+        return False
+    # Can't check for positive decision, since that encoding is not hard-wired.
+    if flask.g.am_admin: return True
+    if flask.g.am_staff: return True
+    return False
+
+def allow_view(grant):
+    "The admin, staff and proposal user may view the grant."
+    if not flask.g.current_user: return False
+    if flask.g.am_admin: return True
+    if flask.g.am_staff: return True
+    if flask.g.current_user['username'] == grant['user']: return True
+    return False
+
+def allow_link(grant):
+    """Admin and staff may view link to any decision.
+    User may link to her own grant.
+    """
+    if not grant: return False
+    if not flask.g.current_user: return False
+    if flask.g.am_admin: return True
+    if flask.g.am_staff: return True
+    if flask.g.current_user['username'] == grant['user']: return True
+    return False
+
+def allow_delete(grant):
+    "Only the admin may delete a grant."
+    if not flask.g.current_user: return False
+    if flask.g.am_admin: return True
+    return False

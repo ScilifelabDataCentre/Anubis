@@ -573,12 +573,14 @@ def allow_enable_disable(user):
     """Is the current user allowed to enable or disable the user account?
     Yes, if current user is admin an not self.
     """
-    return flask.g.am_admin and \
-        flask.g.current_user['username'] != user['username']
+    if flask.g.am_admin and \
+       flask.g.current_user['username'] != user['username']: return True
+    return False
 
 def allow_change_role(user):
     """Is the current user allowed to change the role of the user account?
     Yes, if current user is admin an not self.
     """
-    return flask.g.am_admin and \
-        flask.g.current_user['username'] != user['username']
+    if flask.g.am_admin and \
+       flask.g.current_user['username'] != user['username']: return True
+    return False

@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '1.0.19'
+__version__ = '1.1.0'
 
 class Constants:
     VERSION     = __version__
@@ -23,6 +23,7 @@ class Constants:
     PROPOSAL = 'proposal'
     REVIEW   = 'review'
     DECISION = 'decision'
+    GRANT    = 'grant'
     LOG      = 'log'
 
     # User roles

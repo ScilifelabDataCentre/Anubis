@@ -77,6 +77,44 @@
 </div>
 {% endif %} {# if my_review #}
 
+{% if allow_link_decision %}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Decision</div>
+  <div class="col-md">{{ decision | decision_link() }}</div>
+</div>
+{% elif allow_create_decision %}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Decision</div>
+  <div class="col-md">
+    <form action="{{ url_for('decision.create', pid=proposal['identifier']) }}"
+          method="POST">
+      {{ csrf_token() }}
+      <button type="submit" class="btn btn-secondary">
+        Create decision</button>
+    </form>
+  </div>
+</div>
+{% endif %} {# if allow_link_decision #}
+
+{% if allow_link_grant %}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Grant</div>
+  <div class="col-md">{{ grant | grant_link() }}</div>
+</div>
+{% elif allow_create_grant %}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Grant</div>
+  <div class="col-md">
+    <form action="{{ url_for('grant.create', pid=proposal['identifier']) }}"
+          method="POST">
+      {{ csrf_token() }}
+      <button type="submit" class="btn btn-outline-success">
+        Create grant</button>
+    </form>
+  </div>
+</div>
+{% endif %} {# if allow_link_grant #}
+
 {% if allow_view_decision %}
 <div class="card border-secondary mt-4">
   <div class="card-body">
@@ -138,17 +176,6 @@
 {% endblock %} {# block main #}
 
 {% block actions %}
-
-{% if allow_link_decision %}
-{{ decision | decision_link(block=True) }}
-{% elif allow_create_decision %}
-<form action="{{ url_for('decision.create', pid=proposal['identifier']) }}"
-      method="POST">
-  {{ csrf_token() }}
-  <button type="submit" class="btn btn-block btn-secondary">
-    Create decision</button>
-</form>
-{% endif %} {# if allow_link_decision #}
 
 {% if allow_edit %}
 <div class="mt-2">

@@ -32,7 +32,7 @@ blueprint = flask.Blueprint('decision', __name__)
 @blueprint.route('/create/<pid>', methods=['POST'])
 @utils.login_required
 def create(pid):
-    "Create a new decision for the proposal."
+    "Create a decision for the proposal."
     proposal = anubis.proposal.get_proposal(pid)
     if proposal is None:
         return utils.error('No such proposal.', flask.url_for('home'))
@@ -256,7 +256,8 @@ def allow_create(proposal):
     if proposal.get('decision'): return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(proposal['call'])
-    return anubis.call.am_chair(call)
+    if anubis.call.am_chair(call): return True
+    return False
 
 def allow_view(decision):
     """Submitter may view decision for her proposal
@@ -269,7 +270,8 @@ def allow_view(decision):
     if not call['access']['allow_submitter_view_decision']: return False
     proposal = anubis.proposal.get_proposal(decision['proposal'])
     if proposal['user'] != flask.g.current_user['username']: return False
-    return decision.get('finalized')
+    if decision.get('finalized'): return True
+    return False
 
 def allow_link(decision):
     """Admin may view link to any decision.
@@ -279,7 +281,8 @@ def allow_link(decision):
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(decision['call'])
-    return anubis.call.am_reviewer(call)
+    if anubis.call.am_reviewer(call): return True
+    return False
 
 def allow_edit(decision):
     "Admin and chair may edit an unfinalized decision."
@@ -287,7 +290,8 @@ def allow_edit(decision):
     if decision.get('finalized'): return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(decision['call'])
-    return anubis.call.am_chair(call)
+    if anubis.call.am_chair(call): return True
+    return False
 
 def allow_delete(decision):
     "Admin may delete an unfinalized decision."
@@ -301,7 +305,8 @@ def allow_finalize(decision):
     if decision.get('errors'): return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(decision['call'])
-    return anubis.call.am_chair(call)
+    if anubis.call.am_chair(call): return True
+    return False
 
 def allow_unfinalize(decision):
     "Admin and chair may unfinalize the decision."
@@ -309,4 +314,5 @@ def allow_unfinalize(decision):
     if not decision.get('finalized'): return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(decision['call'])
-    return anubis.call.am_chair(call)
+    if anubis.call.am_chair(call): return True
+    return False
