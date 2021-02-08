@@ -42,12 +42,11 @@ def call(cid):
     else:
         finalized = False
     reviews_lookup = {f"{r['proposal']} {r['reviewer']}":r for r in reviews}
-    result = flask.render_template('reviews/call.html',
-                                   call=call,
-                                   proposals=proposals,
-                                   reviews_lookup=reviews_lookup,
-                                   finalized=finalized)
-    return result
+    return flask.render_template('reviews/call.html',
+                                 call=call,
+                                 proposals=proposals,
+                                 reviews_lookup=reviews_lookup,
+                                 finalized=finalized)
 
 @blueprint.route('/call/<cid>.xlsx')
 @utils.login_required

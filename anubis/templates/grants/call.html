@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Grants in call {{ call['identifier'] }}{% endblock %}
+
+{% block body_title %}
+<small class="text-muted mr-2">Grants in call</small>
+{{ call | call_link(title=True, proposals_link=False) }}
+{% endblock %}
+
+{% block meta %}
+<div class="lead">
+  <a href="{{ url_for('grants.call_xlsx', cid=call['identifier']) }}"
+     title="All grants in the call"
+     class="badge badge-pill badge-dark">Grants Excel file</a>
+</div>
+{% endblock %}
+
+{% block supermain %}
+<table id="grants" class="table table-sm table-hover">
+  <thead>
+    <tr>
+      <th>Grant</th>
+      {% for field in utils.get_banner_fields(call['grant']) %}
+      <th>{{ field['title'] }}</th>
+      {% endfor %}
+      <th>Complete</th>
+      <th>Proposal</th>
+      <th>Submitter</th>
+    </tr>
+  </thead>
+  <tbody class="table-borderless">
+    {% for grant in grants %}
+    {% set values = grant['values'] %}
+    <tr>
+      {% for field in utils.get_banner_fields(call['grant']) %}
+      <td>
+        {{ values.get(field['identifier']) | typed_value(field['type']) }}
+      </td>
+      {% endfor %} {# for field in ... #}
+      <td>{{ grant | grant_link(small=True) }}</td>
+      <td>
+        {% if grant['errors'] %}
+        <span class="badge badge-danger">Incomplete</span>
+        {% else %}
+        <span class="badge badge-success">Complete</span>
+        {% endif %}
+      </td>
+      <td>{{ get_proposal(grant['proposal']) | proposal_link }}</td>
+      <td>{{ get_user(grant['user']) | user_link }}</td>
+    </tr>
+    {% endfor %} {# for grant in grants #}
+  </tbody>
+</table>
+{% endblock %} {# block supermain #}
+
+{% block javascript %}
+{% set nbanners = len(utils.get_banner_fields(call['grant'])) %}
+<script>
+  $(function() {
+    $("#grants").DataTable( {
+      columnDefs: [
+        { targets: 0, orderData: [0, {{ nbanners + 1 }}, {{ nbanners + 2 }}] }
+      ],
+      order: [[0, "asc"]],
+      pagingType: "full_numbers",
+      pageLength: 25
+    });
+  });
+</script>
+{% endblock %}

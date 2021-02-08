@@ -335,14 +335,16 @@ def user_link(user, fullname=True, chair=False, affiliation=False):
     else:
         return jinja2.utils.Markup(name)
 
-def call_link(call, title=False, proposals_link=True):
+def call_link(call, identifier=True, title=False, proposals_link=True):
     "Template filter: link to call and link to all its proposals."
-    if title:
-        title = call['title'] or call['identifier']
-    else:
-        title = call['identifier']
+    label = []
+    if identifier:
+        label.append(call['identifier'])
+    if title and call['title']:
+        label.append(call['title'])
+    label = ' '.join(label) or call['identifier']
     url = flask.url_for('call.display', cid=call['identifier'])
-    html = f'<a href="{url}" class="font-weight-bold">{title}</a>'
+    html = f'<a href="{url}" class="font-weight-bold">{label}</a>'
     if proposals_link:
         count = get_call_proposals_count(call['identifier'])
         url = flask.url_for("proposals.call", cid=call["identifier"])
@@ -392,7 +394,7 @@ def grant_link(grant, small=False):
     "Template filter: link to grant."
     if not grant: return "-"
     url = flask.url_for("grant.display", gid=grant["identifier"])
-    color = "btn-success"
+    color = "btn-success font-weight-bold"
     if small:
         color += " btn-sm"
     return jinja2.utils.Markup(

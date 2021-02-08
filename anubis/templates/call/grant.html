@@ -1,25 +1,25 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Edit decision fields for call {{ call['identifier'] }}
+Edit grant fields for call {{ call['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-Edit decision fields for call {{ call['identifier'] }}
+Edit grant fields for call {{ call['identifier'] }}
 {% endblock %}
 
 {% block main %}
 <div class="alert alert-warning" role="alert">
-  <strong>Warning:</strong> Edit with care! Changing decision fields
-  may invalidate current decisions.
+  <strong>Warning:</strong> Edit with care! Changing grant fields may
+  invalidate current grants.
 </div>
 
 <table class="table table-hover">
   <tbody>
-    {% for field in call['decision'] %}
-    {% set post_url = url_for('.decision_field', cid=call['identifier'], fid=field['identifier']) %}
+    {% for field in call['grant'] %}
+    {% set post_url = url_for('.grant_field', cid=call['identifier'], fid=field['identifier']) %}
     {% include 'display_field_definition.html' %}
-    {% endfor %} {# for field in call['decision'] #}
+    {% endfor %} {# for field in call['grant'] #}
   </tbody>
 </table>
 
@@ -33,13 +33,13 @@ Edit decision fields for call {{ call['identifier'] }}
   {% endfor %} {# for field_type in constants.FIELD_TYPES #}
 </div>
 
-{% set post_url = url_for('.decision', cid=call['identifier']) %}
+{% set post_url = url_for('.grant', cid=call['identifier']) %}
 {% for field_type in constants.FIELD_TYPES %}
 {% include 'modal_field_create.html' %}
 {% endfor %}
 
-{% for field in call['decision'] %}
-{% set post_url = url_for('.decision_field', cid=call['identifier'], fid=field['identifier']) %}
+{% for field in call['grant'] %}
+{% set post_url = url_for('.grant_field', cid=call['identifier'], fid=field['identifier']) %}
 {% include 'modal_field_edit.html' %}
 {% endfor %}
 

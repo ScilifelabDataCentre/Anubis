@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Edit grant {{ grant['identifier'] }}{% endblock %}
+
+{% block body_title %}Edit grant {{ grant['identifier'] }}{% endblock %}
+
+{% block main %}
+<form action="{{ url_for('.edit', gid=grant['identifier']) }}"
+      enctype="multipart/form-data"
+      method="POST">
+  {{ csrf_token() }}
+
+  {% set fields = call['grant'] %}
+  {% set values = grant['values'] %}
+  {% set errors = grant['errors'] %}
+  {% set attachments = grant.get('_attachments', {}) %}
+  {% include 'edit_fields_values.html' %}
+
+  <div class="form-group row">
+    <div class="col-md-3 offset-md-2">
+      <button type="submit" class="btn btn-block btn-primary">Save</button>
+    </div>
+  </div>
+</form>
+{% endblock %} {# block main #}
+
+{% block actions %}
+<div class="mt-2">
+  <form action="{{ url_for('.display', gid=grant['identifier']) }}"
+	method="GET">
+    <button type="submit" class="btn btn-block btn-secondary">Cancel</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+$(".custom-file-input").on("change", function() {
+  var fileName = $(this).val().split("\\").pop();
+  $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+});
+</script>{% endblock %}

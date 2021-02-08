@@ -1,4 +1,6 @@
-"Grant based on a proposal, which (presumably) got a positive decision."
+"Grant dossier based on a proposal, which (presumably) got a positive decision."
+
+import os.path
 
 import flask
 
@@ -33,16 +35,16 @@ blueprint = flask.Blueprint('grant', __name__)
 @blueprint.route('/create/<pid>', methods=['POST'])
 @utils.login_required
 def create(pid):
-    "Create a grant for the proposal."
+    "Create a grant dossier for the proposal."
     proposal = anubis.proposal.get_proposal(pid)
     if proposal is None:
         return utils.error('No such proposal.', flask.url_for('home'))
     try:
         if not allow_create(proposal):
-            raise ValueError('You may not create a decision for the proposal.')
+            raise ValueError('You may not create a grant dossier for the proposal.')
         grant = get_grant(proposal.get('grant'))
         if grant is not None:
-            utils.flash_message('The grant already exists.')
+            utils.flash_message('The grant dossier already exists.')
             return flask.redirect(
                 flask.url_for('.display', gid=grant['identifier']))
         with GrantSaver(proposal=proposal) as saver:
@@ -61,29 +63,107 @@ def create(pid):
 @blueprint.route('/<gid>')
 @utils.login_required
 def display(gid):
-    "Display the grant."
-    grant = get_grant(fid)
+    "Display the grant dossier."
+    grant = get_grant(gid)
     if grant is None:
-        return utils.error('No such grant.', flask.url_for('home'))
+        return utils.error('No such grant dossier.', flask.url_for('home'))
     if not allow_view(grant):
-        return utils.error('You are not allowed to view this grant.',
+        return utils.error('You are not allowed to view this grant dossier.',
                            flask.url_for('call.display', cid=grant['call']))
     proposal = anubis.proposal.get_proposal(grant['proposal'])
+    call = anubis.call.get_call(grant['call'])
     return flask.render_template('grant/display.html',
                                  grant=grant,
                                  proposal=proposal,
+                                 call=call,
                                  allow_view=allow_view(grant),
+                                 allow_edit=allow_edit(grant),
                                  allow_delete=allow_delete(grant))
+
+@blueprint.route('/<gid>/edit', methods=["GET", "POST", "DELETE"])
+@utils.login_required
+def edit(gid):
+    "Edit the grant record."
+    grant = get_grant(gid)
+    if grant is None:
+        return utils.error('No such grant.', flask.url_for('home'))
+    call = anubis.call.get_call(grant['call'])
+
+    if utils.http_GET():
+        if not allow_edit(grant):
+            return utils.error(
+                'You are not allowed to edit this grant dossier.',
+                flask.url_for('.display', gid=grant['identifier']))
+        return flask.render_template('grant/edit.html',
+                                     grant=grant,
+                                     call=call)
+
+    elif utils.http_POST():
+        if not allow_edit(grant):
+            return utils.error(
+                'You are not allowed to edit this grant dossier.',
+                flask.url_for('.display', gid=grant['identifier']))
+        try:
+            with GrantSaver(doc=grant) as saver:
+                for field in call['grant']:
+                    saver.set_field_value(field, form=flask.request.form)
+        except ValueError as error:
+            return utils.error(error)
+        return flask.redirect(
+            flask.url_for('.display', gid=grant['identifier']))
+
+    elif utils.http_DELETE():
+        if not allow_delete(grant):
+            return utils.error(
+                'You are not allowed to delete this grant dossier.',
+                flask.url_for('.display', gid=grant['identifier']))
+        proposal = anubis.proposal.get_proposal(grant['proposal'])
+        with anubis.proposal.ProposalSaver(proposal) as saver:
+            saver['grant'] = None
+        utils.delete(grant)
+        utils.flash_message('Deleted grant dossier.')
+        return flask.redirect(
+            flask.url_for('proposal.display', pid=proposal['identifier']))
+
+@blueprint.route('/<gid>/document/<fid>')
+@utils.login_required
+def document(gid, fid):
+    "Download the grant document (attachment file) for the given field id."
+    try:
+        grant = get_grant(gid)
+    except KeyError:
+        return utils.error('No such grant dossier.', flask.url_for('home'))
+    if not allow_view(grant):
+        return utils.error('You are not allowed to read this grant dossier.',
+                           flask.url_for('home'))
+
+    try:
+        documentname = grant['values'][fid]
+        stub = grant['_attachments'][documentname]
+    except KeyError:
+        return utils.error('No such document in grant dossier.',
+                           flask.url_for('.display',
+                                         iuid=grant['identifier']))
+    # Colon ':' is a problematic character in filenames.
+    # Replace it by dash '-'; used as general glue character here.
+    gid = gid.replace(':', '-')
+    ext = os.path.splitext(documentname)[1]
+    filename = f"{gid}-{fid}{ext}"
+    outfile = flask.g.db.get_attachment(grant, documentname)
+    response = flask.make_response(outfile.read())
+    response.headers.set('Content-Type', stub['content_type'])
+    response.headers.set('Content-Disposition', 'attachment', filename=filename)
+    return response
 
 @blueprint.route('/<gid>/logs')
 @utils.login_required
 def logs(gid):
-    "Display the log records of the given grant."
+    "Display the log records of the given grant dossier."
     grant = get_grant(gid)
     if grant is None:
-        return utils.error('No such grant.', flask.url_for('home'))
+        return utils.error('No such grant dossier.', flask.url_for('home'))
     if not allow_view(grant):
-        return utils.error('You are not allowed to read this grant.',
+        return utils.error('You are not allowed to read this grant dossier.',
                            flask.url_for('home'))
 
     return flask.render_template(
@@ -94,7 +174,7 @@ def logs(gid):
 
 
 class GrantSaver(FieldMixin, AttachmentSaver):
-    "Grant document saver context."
+    "Grant dossier document saver context."
 
     DOCTYPE = constants.GRANT
 
@@ -104,6 +184,7 @@ class GrantSaver(FieldMixin, AttachmentSaver):
         elif proposal:
             super().__init__(doc=None)
             self.set_proposal(proposal)
+            self['user'] = proposal['user']
         else:
             raise ValueError('doc or proposal must be specified')
 
@@ -112,10 +193,11 @@ class GrantSaver(FieldMixin, AttachmentSaver):
         self.doc['errors'] = {}
 
     def set_proposal(self, proposal):
-        "Set the proposal for the grant; must be called when creating."
+        "Set the proposal for the grant dossier; must be called when creating."
         if self.doc.get('proposal'):
             raise ValueError('proposal has already been set')
         self.doc['proposal'] = proposal['identifier']
+        self.doc['call'] = proposal['call']
         call = anubis.call.get_call(proposal['call'])
         counter = call.get('grant_counter')
         if counter is None:
@@ -124,13 +206,13 @@ class GrantSaver(FieldMixin, AttachmentSaver):
             counter += 1
         with anubis.call.CallSaver(call):
             call['grant_counter'] = counter
-        self.doc['identifier'] = f"{call['identifier']}-G:{counter:03d}"
+        self.doc['identifier'] = f"{call['identifier']}:G{counter:02d}"
         for field in call.get('grant', []):
             self.set_field_value(field)
 
 
 def get_grant(gid, refresh=False):
-    """Return the grant with the given identifier.
+    """Return the grant dossier with the given identifier.
     Return None if not found.
     """
     try:
@@ -149,7 +231,7 @@ def get_grant(gid, refresh=False):
             return None
 
 def allow_create(proposal):
-    "The admin and staff may create a grant."
+    "The admin and staff may create a grant dossier."
     if not flask.g.current_user: return False
     if not proposal.get('submitted'): return False  # Sanity check.
     if not proposal.get('decision'): return False   # Sanity check.
@@ -162,7 +244,19 @@ def allow_create(proposal):
     return False
 
 def allow_view(grant):
-    "The admin, staff and proposal user may view the grant."
+    """The admin, staff and proposal user (= grant receiver) may 
+    view the grant dossier.
+    """
+    if not flask.g.current_user: return False
+    if flask.g.am_admin: return True
+    if flask.g.am_staff: return True
+    if flask.g.current_user['username'] == grant['user']: return True
+    return False
+
+def allow_edit(grant):
+    """The admin, staff and proposal user (= grant receiver) may in general
+    edit the grand dossier. Some fields have special edit privileges.
+    """
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     if flask.g.am_staff: return True
@@ -170,8 +264,8 @@ def allow_view(grant):
     return False
 
 def allow_link(grant):
-    """Admin and staff may view link to any decision.
-    User may link to her own grant.
+    """Admin and staff may view link to any grant dossier.
+    User may link to her own grant dossier.
     """
     if not grant: return False
     if not flask.g.current_user: return False
@@ -181,7 +275,7 @@ def allow_link(grant):
     return False
 
 def allow_delete(grant):
-    "Only the admin may delete a grant."
+    "Only the admin may delete a grant dossier."
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     return False

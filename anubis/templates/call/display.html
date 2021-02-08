@@ -99,6 +99,17 @@
 </div>
 {% endif %} {# if allow_view_details #}
 
+{% if allow_view_grants %}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Grant dossiers</div>
+  <div class="col-md">
+    <a href="{{ url_for('grants.call', cid=call['identifier']) }}"
+       role="button" class="btn btn-sm btn-success">
+      {{ call_grants_count }} grant dossiers</a>
+  </div>
+</div>
+{% endif %} {# if allow_view_grants #}
+
 {% if not am_reviewer %}
 <div class="row my-4">
   <div class="col-md-2 font-weight-bold text-right">My proposal</div>
@@ -268,6 +279,10 @@
 <div class="mt-2">
   <a href="{{ url_for('.decision', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit decision fields</a>
+</div>
+<div class="mt-2">
+  <a href="{{ url_for('.grant', cid=call['identifier']) }}"
+     role="button" class="btn btn-primary btn-block">Edit grant fields</a>
 </div>
 {% if call_proposals_count == 0 %}
 <div class="mt-2">

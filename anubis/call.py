@@ -74,6 +74,7 @@ def display(cid):
             kwargs['call_proposals_category_counts'] = dict(
                 [(c, utils.get_call_proposals_count(cid, c))
                  for c in sorted(call.get('categories'))])
+        kwargs['call_grants_count'] = utils.get_count('grants', 'call', cid)
     return flask.render_template('call/display.html',
                                  call=call,
                                  am_call_owner=am_call_owner(call),
@@ -83,6 +84,7 @@ def display(cid):
                                  allow_proposal=allow_proposal(call),
                                  allow_view_details=allow_view_details(call),
                                  allow_view_reviews=allow_view_reviews(call),
+                                 allow_view_grants=allow_view_grants(call),
                                  **kwargs)
 
 @blueprint.route('/<cid>/edit', methods=['GET', 'POST', 'DELETE'])
@@ -379,6 +381,53 @@ def decision_field(cid, fid):
             utils.flash_error(error)
         return flask.redirect(flask.url_for('.decision',cid=call['identifier']))
 
+@blueprint.route('/<cid>/grant', methods=['GET', 'POST'])
+@utils.login_required
+def grant(cid):
+    "Display grant fields for delete, and add field."
+    call = get_call(cid)
+    if not call:
+        return utils.error('No such call.', flask.url_for('home'))
+    if not allow_edit(call):
+        return utils.error('You are not allowed to edit the call.')
+
+    if utils.http_GET():
+        return flask.render_template('call/grant.html', call=call)
+
+    elif utils.http_POST():
+        try:
+            with CallSaver(call) as saver:
+                saver.add_grant_field(flask.request.form)
+        except ValueError as error:
+            utils.flash_error(error)
+        return flask.redirect(flask.url_for('.grant',cid=call['identifier']))
+
+@blueprint.route('/<cid>/grant/<fid>', methods=['POST', 'DELETE'])
+@utils.login_required
+def grant_field(cid, fid):
+    "Edit or delete the grant field."
+    call = get_call(cid)
+    if not call:
+        return utils.error('No such call.', flask.url_for('home'))
+    if not allow_edit(call):
+        return utils.error('You are not allowed to edit the call.')
+
+    if utils.http_POST():
+        try:
+            with CallSaver(call) as saver:
+                saver.edit_grant_field(fid, flask.request.form)
+        except (KeyError, ValueError) as error:
+            utils.flash_error(error)
+        return flask.redirect(flask.url_for('.grant',cid=call['identifier']))
+
+    elif utils.http_DELETE():
+        try:
+            with CallSaver(call) as saver:
+                saver.delete_grant_field(fid)
+        except ValueError as error:
+            utils.flash_error(error)
+        return flask.redirect(flask.url_for('.grant',cid=call['identifier']))
+
 @blueprint.route('/<cid>/reset_counter', methods=['POST'])
 @utils.login_required
 def reset_counter(cid):
@@ -418,6 +467,7 @@ def clone(cid):
                 saver.doc['proposal'] = copy.deepcopy(call['proposal'])
                 saver.doc['review'] = copy.deepcopy(call['review'])
                 saver.doc['decision'] = copy.deepcopy(call['decision'])
+                saver.doc['grant'] = copy.deepcopy(call.get('grant', list()))
                 # Do not copy documents.
                 # Do not copy reviewers or chairs.
             new = saver.doc
@@ -517,6 +567,7 @@ class CallSaver(AttachmentSaver):
         self.doc['chairs'] = []
         self.doc['access'] = {k: False for k in constants.ACCESS}
         self.doc['decision'] = []
+        self.doc['grant'] = []
 
     def set_identifier(self, identifier):
         "Call identifier."
@@ -758,6 +809,28 @@ class CallSaver(AttachmentSaver):
         else:
             raise ValueError('No such decision field.')
 
+    def add_grant_field(self, form):
+        "Add a field to the grant dossier definition."
+        if not 'grant' in self.doc: # To upgrade from older versions.
+            self.doc['grant'] = []
+        field = self.add_field(form)
+        if field['identifier'] in [f['identifier'] for f in self.doc['grant']]:
+            raise ValueError('Field identifier is already in use.')
+        self.doc['grant'].append(field)
+
+    def edit_grant_field(self, fid, form):
+        "Edit the grant dossier definition field."
+        self.edit_field(self.doc['grant'], fid, form)
+
+    def delete_grant_field(self, fid):
+        "Delete the field from the grant dossier definition."
+        for pos, field in enumerate(self.doc['grant']):
+            if field['identifier'] == fid:
+                self.doc['grant'].pop(pos)
+                break
+        else:
+            raise ValueError('No such grant dossier field.')
+
     def add_document(self, infile, description):
         "Add a document to the call."
         self.add_attachment(infile.filename,
@@ -883,6 +956,14 @@ def allow_view_decisions(call):
     due = call.get('reviews_due')
     if due:
         return am_reviewer(call) and utils.normalized_local_now() > due
+    return False
+
+def allow_view_grants(call):
+    """The admin and staff may view all grants in the call.
+    """
+    if not flask.g.current_user: return False
+    if flask.g.am_admin: return True
+    if flask.g.am_staff: return True
     return False
 
 def am_reviewer(call):

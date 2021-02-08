@@ -98,18 +98,18 @@
 
 {% if allow_link_grant %}
 <div class="row">
-  <div class="col-md-2 font-weight-bold text-right">Grant</div>
+  <div class="col-md-2 font-weight-bold text-right">Grant dossier</div>
   <div class="col-md">{{ grant | grant_link() }}</div>
 </div>
 {% elif allow_create_grant %}
 <div class="row">
-  <div class="col-md-2 font-weight-bold text-right">Grant</div>
+  <div class="col-md-2 font-weight-bold text-right">Grant dossier</div>
   <div class="col-md">
     <form action="{{ url_for('grant.create', pid=proposal['identifier']) }}"
           method="POST">
       {{ csrf_token() }}
       <button type="submit" class="btn btn-outline-success">
-        Create grant</button>
+        Create grant dossier</button>
     </form>
   </div>
 </div>

@@ -77,8 +77,8 @@ Reviews of proposals in call {{ call['identifier'] }}
       {% endif %}
       <td>{{ get_user(proposal['user']) | user_link }}</td>
     </tr>
-    {% endfor %}
-    {% endfor %}
+    {% endfor % } {# for reviewer in call['reviewers'] #}
+    {% endfor %} {# for proposal in proposals #}
   </tbody>
 </table>
 {% endblock %} {# block supermain #}
