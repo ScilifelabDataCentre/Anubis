@@ -5,6 +5,9 @@
   <td>{{ field['title'] }}</td>
   <td>
     {{ field['type'] | capitalize }} field.
+    {% if field.get('repeat') %}
+    Repeated by <strong>{{ field['repeat'] }}</strong>.<br>
+    {% endif %}
     {% if field.get('multiple') %}
     Multiple allowed.
     {% endif %}

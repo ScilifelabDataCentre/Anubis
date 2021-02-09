@@ -26,16 +26,22 @@ Edit decision fields for call {{ call['identifier'] }}
 <hr>
 <div class="m-4">
   {% for field_type in constants.FIELD_TYPES %}
+  {# Exclude repeat field; not implemented yet for decision! #}
+  {% if field_type != constants.REPEAT %}
   <button type="button" class="btn btn-primary mr-2 mb-2"
 	  data-toggle="modal" data-target="#_{{ field_type }}Modal">
     Add {{ field_type }} field
   </button>
+  {% endif %}
   {% endfor %} {# for field_type in constants.FIELD_TYPES #}
 </div>
 
 {% set post_url = url_for('.decision', cid=call['identifier']) %}
 {% for field_type in constants.FIELD_TYPES %}
+{# Exclude repeat field; not implemented yet for decision! #}
+{% if field_type != constants.REPEAT %}
 {% include 'modal_field_create.html' %}
+{% endif %}
 {% endfor %}
 
 {% for field in call['decision'] %}

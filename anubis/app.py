@@ -37,6 +37,7 @@ app.url_map.converters['iuid'] = utils.IuidConverter
 def setup_template_context():
     "Add to the global context of Jinja2 templates."
     return dict(enumerate=enumerate,
+                range=range,
                 sorted=sorted,
                 len=len,
                 max=max,

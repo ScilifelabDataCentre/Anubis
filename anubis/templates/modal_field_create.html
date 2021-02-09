@@ -19,7 +19,7 @@
 	</div>
 	<div class="modal-body">
 	  <div class="form-group row">
-	    <label for="_{{ field_type }}_identifier" 
+	    <label for="_{{ field_type }}_identifier"
                    class="col-md-2 col-form-label text-right">
 	      Identifier</label>
 	    <div class="col-md">
@@ -35,6 +35,28 @@
 	      </small>
 	    </div>
 	  </div>
+          {% if repeat_fields %}
+	  <div class="form-group row">
+	    <label for="_{{ field_type }}_repeat"
+                   class="col-md-2 col-form-label text-right">
+	      Repeated by</label>
+	    <div class="col-md">
+              <select name="repeat" id="_{{ field_type }}_repeat"
+		      class="form-control"
+		      aria-describedby="_{{ field_type }}_repeatHelp">
+                <option value="">[none]</option>
+                {% for rf in repeat_fields %}
+                <option>{{ rf['identifier'] }}</option>
+                {% endfor %}
+              </select>
+	      <small id="_{{ field_type }}_repeatHelp"
+                     class="form-text text-muted">
+		The field controlling how many times this field will
+                be repeated in the final form.
+	      </small>
+	    </div>
+	  </div>
+          {% endif %}
 	  <div class="form-group row">
 	    <label for="_{{ field_type }}_title" 
                    class="col-md-2 col-form-label text-right">
@@ -110,7 +132,7 @@
 
 	  {% elif field_type in (constants.INTEGER, constants.FLOAT) %}
 	  <div class="form-group row">
-	    <label for="_{{ field_type }}_maxlength" 
+	    <label for="_{{ field_type }}_mimimum"
                    class="col-md-2 col-form-label text-right">
 	      Minimum</label>
 	    <div class="col-md">
@@ -128,7 +150,7 @@
 	    </div>
 	  </div>	
 	  <div class="form-group row">
-	    <label for="_{{ field_type }}_maxlength" 
+	    <label for="_{{ field_type }}_maximum" 
                    class="col-md-2 col-form-label text-right">
 	      Maximum</label>
 	    <div class="col-md">
@@ -167,7 +189,7 @@
 	    </div>
 	  </div>
 	  <div class="form-group row">
-	    <label for="_{{ field_type }}_maxlength" 
+	    <label for="_{{ field_type }}_minimum" 
                    class="col-md-2 col-form-label text-right">
 	      Minimum</label>
 	    <div class="col-md">
@@ -184,7 +206,7 @@
 	    </div>
 	  </div>	
 	  <div class="form-group row">
-	    <label for="_{{ field_type }}_maxlength"
+	    <label for="_{{ field_type }}_maximum"
                    class="col-md-2 col-form-label text-right">
 	      Maximum</label>
 	    <div class="col-md">
@@ -241,6 +263,25 @@
 	      </small>
 	    </div>
 	  </div>
+
+	  {% elif field_type == constants.REPEAT %}
+	  <div class="form-group row">
+	    <label for="_{{ field_type }}_maximum"
+                   class="col-md-2 col-form-label text-right">
+	      Maximum</label>
+	    <div class="col-md">
+	      <input type="number" name="maximum"
+                     id="_{{ field_type }}_maximum"
+                     step="1"
+		     class="form-control"
+		     aria-describedby="_{{ field_type }}_maximumHelp"
+                     value="0">
+	      <small id="_{{ field_type }}_maximumHelp"
+                     class="form-text text-muted">
+                Maximum number of repeats.
+	      </small>
+	    </div>
+	  </div>	
 	  {% endif %} {# if field_type == ... #}
 
 	  <div class="form-group row">

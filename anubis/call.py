@@ -392,7 +392,11 @@ def grant(cid):
         return utils.error('You are not allowed to edit the call.')
 
     if utils.http_GET():
-        return flask.render_template('call/grant.html', call=call)
+        repeat_fields = [f for f in call['grant']
+                         if f['type'] == constants.REPEAT]
+        return flask.render_template('call/grant.html',
+                                     call=call,
+                                     repeat_fields=repeat_fields)
 
     elif utils.http_POST():
         try:
@@ -400,7 +404,7 @@ def grant(cid):
                 saver.add_grant_field(flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for('.grant',cid=call['identifier']))
+        return flask.redirect(flask.url_for('.grant', cid=call['identifier']))
 
 @blueprint.route('/<cid>/grant/<fid>', methods=['POST', 'DELETE'])
 @utils.login_required
@@ -607,7 +611,8 @@ class CallSaver(AttachmentSaver):
                  'title': title,
                  'description': form.get('description') or None,
                  'required': bool(form.get('required')),
-                 'banner': bool(form.get('banner'))
+                 'banner': bool(form.get('banner')),
+                 'repeat': form.get('repeat') or None
                  }
         if type in (constants.TEXT, constants.LINE):
             try:
@@ -665,6 +670,15 @@ class CallSaver(AttachmentSaver):
             field['selection'] = [s.strip() for s in
                                   form.get('selection', '').split('\n')]
 
+        elif type == constants.REPEAT:
+            try:
+                maximum = int(form.get('maximum'))
+            except (TypeError, ValueError):
+                maximum = None
+            if maximum is not None and maximum < 0:
+                raise ValueError('Invalid maximum value; must be non-negative.')
+            field['maximum'] = maximum
+
         return field
 
     def edit_field(self, fieldlist, fid, form):
@@ -695,6 +709,7 @@ class CallSaver(AttachmentSaver):
         field['description'] = form.get('description') or None
         field['required'] = bool(form.get('required'))
         field['banner'] = bool(form.get('banner'))
+        field['repeat'] = form.get('repeat') or None
 
         if field['type'] in (constants.TEXT, constants.LINE):
             try:
@@ -747,6 +762,16 @@ class CallSaver(AttachmentSaver):
             field['multiple'] = bool(form.get('multiple'))
             field['selection'] = [s.strip() for s in
                                   form.get('selection', '').split('\n')]
+
+        elif field['type'] == constants.REPEAT:
+            try:
+                maximum = int(form.get('maximum'))
+            except (TypeError, ValueError):
+                maximum = None
+            if maximum is not None and maximum < 0:
+                raise ValueError('Invalid maximum value; must be non-negative.')
+            field['maximum'] = maximum
+
 
     def add_proposal_field(self, form):
         "Add a field to the proposal definition."

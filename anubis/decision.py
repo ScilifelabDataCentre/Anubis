@@ -109,6 +109,7 @@ def edit(iuid):
                     saver.set_field_value(field, form=flask.request.form)
         except ValueError as error:
             return utils.error(error)
+        # NOTE: Repeat field has not been implemented for decision.
         return flask.redirect(flask.url_for('.display', iuid=decision['_id']))
 
     elif utils.http_DELETE():

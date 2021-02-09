@@ -71,10 +71,10 @@ def create(pid, username):
     except ValueError as error:
         utils.flash_error(error)
     try:
-        return flask.redirect(flask.request.form['_next'])
+        url = flask.request.form['_next']
     except KeyError:
-        return flask.redirect(
-            flask.url_for('reviews.proposal', pid=proposal['identifier']))
+        url = flask.url_for('reviews.proposal', pid=proposal['identifier'])
+    return flask.redirect(url)
 
 @blueprint.route('/<iuid:iuid>')
 @utils.login_required
@@ -131,6 +131,7 @@ def edit(iuid):
                     saver.set_field_value(field, form=flask.request.form)
         except ValueError as error:
             return utils.error(error)
+        # NOTE: Repeat field has not been implemented for review.
         return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
     elif utils.http_DELETE():

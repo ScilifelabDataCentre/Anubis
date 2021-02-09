@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 
 class Constants:
     VERSION     = __version__
@@ -47,7 +47,9 @@ class Constants:
     SCORE    = 'score'
     TEXT     = 'text'
     DOCUMENT = 'document'
-    FIELD_TYPES = (LINE, BOOLEAN, SELECT, INTEGER, FLOAT, SCORE, TEXT, DOCUMENT)
+    REPEAT   = 'repeat'
+    FIELD_TYPES = (LINE, BOOLEAN, SELECT, INTEGER, FLOAT,
+                   SCORE, TEXT, DOCUMENT, REPEAT)
     NUMERICAL_FIELD_TYPES = (INTEGER, FLOAT, SCORE)
 
     # Access flags for each call

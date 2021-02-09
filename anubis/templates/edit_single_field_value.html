@@ -1,0 +1,244 @@
+{# Required variables: field, value, error #}
+<div class="form-group row">
+  <label for="{{ field['identifier'] }}"
+         class="col-md-2 col-form-label text-right font-weight-bold">
+    {{ field['title'] }}
+  </label>
+  <div class="col-md">
+
+    {% if field['type'] == constants.TEXT %}
+    <textarea id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
+	      class="form-control" rows="6"
+	      {% if field.get('maxlength') %}
+	      maxlength="{{ field['maxlength'] }}"
+	      {% endif %}
+	      aria-describedby="{{ field['identifier'] }}Help"
+	      >{{ value or '' }}</textarea>
+
+    {% elif field['type'] == constants.LINE %}
+    <input type="text"
+	   id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
+	   class="form-control"
+	   {% if field.get('maxlength') %}
+	   maxlength="{{ field['maxlength'] }}"
+	   {% endif %}
+	   aria-describedby="{{ field['identifier'] }}Help"
+	   value="{{ value or '' }}">
+
+    {% elif field['type'] == constants.BOOLEAN %}
+    <div class="custom-control custom-radio custom-control-inline">
+      <input type="radio"
+             id="{{ field['identifier'] }}_yes" name="{{ field['identifier'] }}"
+             class="custom-control-input"
+             {{ value == True and 'checked' }}
+             value="true">
+      <label class="custom-control-label" for="{{ field['identifier'] }}_yes">
+        Yes</label>
+    </div>
+    <div class="custom-control custom-radio custom-control-inline">
+      <input type="radio"
+             id="{{ field['identifier'] }}_no" name="{{ field['identifier'] }}"
+             class="custom-control-input"
+             {{ value == False and 'checked' }}
+             value="false">
+      <label class="custom-control-label" for="{{ field['identifier'] }}_no">
+        No</label>
+    </div>
+    <div class="custom-control custom-radio custom-control-inline ml-4">
+      <input type="radio"
+             id="{{ field['identifier'] }}_novalue" 
+             name="{{ field['identifier'] }}"
+             class="custom-control-input"
+             {{ value is none and 'checked' }}
+             value="">
+      <label class="custom-control-label"
+             for="{{ field['identifier'] }}_novalue">No value</label>
+    </div>
+
+    {% elif field['type'] == constants.SELECT %}
+    {% if field.get('multiple') %}
+    {% for select in field['selection'] %}
+    <div class="custom-control custom-checkbox">
+      <input type="checkbox"
+             id="{{ field['identifier'] }}_{{ select }}"
+             name="{{ field['identifier'] }}"
+             class="custom-control-input"
+             {{ value and select in value and 'checked' }}
+             value="{{ select }}">
+      <label class="custom-control-label"
+             for="{{ field['identifier'] }}_{{ select }}">
+        {{ select }}</label>
+    </div>
+    {% endfor %} {# for select in field['selection'] #}
+    {% else %}
+    {% for select in field['selection'] %}
+    <div class="custom-control custom-radio">
+      <input type="radio"
+             id="{{ field['identifier'] }}_{{ select }}"
+             name="{{ field['identifier'] }}"
+             class="custom-control-input"
+             {{ value and select in value and 'checked' }}
+             value="{{ select }}">
+      <label class="custom-control-label"
+             for="{{ field['identifier'] }}_{{ select }}">
+        {{ select }}</label>
+    </div>
+    {% endfor %} {# for select in field['selection'] #}
+    {% endif %} {# if field.get('multiple') #}
+
+    {% elif field['type'] in constants.INTEGER %}
+    <input type="number" step="1"
+           {% if field.get('minimum') %}
+           min="{{ field['minimum'] }}"
+           {% endif %}
+           {% if field.get('maximum') %}
+           max="{{ field['maximum'] }}"
+           {% endif %}
+	   id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
+	   class="form-control"
+           {% if value is not none %}
+	   value="{{ value }}"
+           {% endif %}
+	   aria-describedby="{{ field['identifier'] }}Help">
+
+    {% elif field['type'] == constants.FLOAT %}
+    <input type="number" step="0.01"
+           {% if field.get('minimum') %}
+           min="{{ field['minimum'] }}"
+           {% endif %}
+           {% if field.get('maximum') %}
+           max="{{ field['maximum'] }}"
+           {% endif %}
+	   id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
+	   class="form-control"
+           {% if value is not none %}
+	   value="{{ value }}"
+           {% endif %}
+	   aria-describedby="{{ field['identifier'] }}Help">
+
+    {% elif field['type'] in constants.SCORE %}
+    {% if field.get('slider') %}
+    <div class="form-group row">
+      <div class="col-md-1 text-right">{{ field['minimum'] }}</div>
+      <div class="col-md">
+        <input type="range" step="1"
+               min="{{ field['minimum'] }}" max="{{ field['maximum'] }}"
+	       id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
+	       class="custom-range"
+               {% if value is not none %}
+	       value="{{ value }}"
+               {% endif %}
+	       aria-describedby="{{ field['identifier'] }}Help">
+      </div>
+      <div class="col-md-1">{{ field['maximum'] }}</div>
+      <div class="col-md-1">
+        <div class="custom-control custom-radio custom-control-inline">
+          <input type="checkbox"
+                 id="{{ field['identifier'] }}_novalue"
+                 name="{{ field['identifier'] }}_novalue"
+                 class="custom-control-input"
+                 {{ value is none and 'checked' }}
+                 value="true">
+          <label class="custom-control-label" 
+                 for="{{ field['identifier'] }}_novalue">No value</label>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    {% for pos in range(field['minimum'], field['maximum']+1) %}
+    <div class="custom-control custom-radio custom-control-inline pt-1">
+      <input type="radio"
+             id="{{ field['identifier'] }}_{{ pos }}" name="{{ field['identifier'] }}"
+             class="custom-control-input"
+             {{ value == pos and 'checked'  or ''}}
+             value="{{ pos }}">
+      <label class="custom-control-label" for="{{ field['identifier'] }}_{{ pos }}">
+        {{ pos }}</label>
+    </div>
+    {% endfor %}
+    <div class="custom-control custom-radio custom-control-inline ml-4">
+      <input type="radio"
+             id="{{ field['identifier'] }}_novalue"
+             name="{{ field['identifier'] }}"
+             class="custom-control-input"
+             {{ value is none and 'checked' or ''}}
+             value="true">
+      <label class="custom-control-label"
+             for="{{ field['identifier'] }}_novalue">No value</label>
+    </div>
+    {% endif %}
+
+    {% elif field['type'] == constants.DOCUMENT %}
+    <div class="row">
+      <div class="col-md-10">
+        <div class="custom-file">
+          <input type="file"
+	         id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
+	         class="custom-file-input"
+	         aria-describedby="{{ field['identifier'] }}Help">
+          <label class="custom-file-label" for="{{ field['identifier'] }}">
+            {{ value or 'Choose document' }}
+          </label>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="custom-control custom-checkbox mt-2">
+          <input type="checkbox"
+                 id="{{ field['identifier'] }}_remove"
+                 name="{{ field['identifier'] }}_remove"
+                 class="custom-control-input"
+                 value="remove">
+          <label class="custom-control-label"
+                 for="{{ field['identifier'] }}_remove">
+            Remove</label>
+        </div>
+      </div>
+    </div>
+
+    {% elif field['type'] in constants.REPEAT %}
+    <input type="number" step="1" min="0"
+           {% if field.get('maximum') %}
+           max="{{ field['maximum'] }}"
+           {% endif %}
+	   id="{{ field['identifier'] }}" name="{{ field['identifier'] }}"
+	   class="form-control"
+           {% if value is not none %}
+	   value="{{ value }}"
+           {% endif %}
+	   aria-describedby="{{ field['identifier'] }}Help"
+           onchange="this.form.submit()">
+
+    {% endif %} {# if field['type'] == ... #}
+
+    <small id="{{ field['identifier'] }}Help" class="form-text">
+      <div class="row">
+        {% if error %}
+	<div class="col-md-2 text-danger">Error: {{ error }}</div>
+        {% endif %}
+	<div class="col-md">
+	  {% if field.get('required') %}
+	  <strong>Required!</strong>
+	  {% endif %}
+	  {% if field.get('maxlength') %}
+	  Maximum {{ field['maxlength'] }} characters.
+	  {% endif %}
+          {% if field.get('minimum') is not none %}
+          Minimum value {{ field['minimum'] }}.
+          {% endif %}
+          {% if field.get('maximum') is not none %}
+          Maximum value {{ field['maximum'] }}.
+          {% endif %}
+	  {{ field.get('description') | markdown }}
+          {% if field['type'] in (constants.INTEGER, constants.REPEAT) %}
+          Do <strong>not</strong> use commas or dots in the integer value.
+          {% endif %}
+	</div>
+	{% if field['type'] == constants.TEXT %}
+	<div class="col-md-3">
+	  Formatted using <a href="{{ config['MARKDOWN_URL'] }}">Markdown</a>.
+	</div>
+	{% endif %}
+      </div>
+    </small>
+  </div>
+</div>

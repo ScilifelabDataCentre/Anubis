@@ -130,6 +130,7 @@ def edit(pid):
         elif allow_submit(proposal) and not proposal.get('submitted'):
             utils.flash_warning('Proposal was saved but not submitted.'
                                 ' You must explicitly submit it!')
+        # NOTE: Repeat field has not been implemented for proposal.
         return flask.redirect(
             flask.url_for('.display', pid=proposal['identifier']))
 

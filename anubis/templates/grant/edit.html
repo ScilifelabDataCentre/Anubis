@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
-{% block head_title %}Edit grant {{ grant['identifier'] }}{% endblock %}
+{% block head_title %}Edit grant dossier {{ grant['identifier'] }}{% endblock %}
 
-{% block body_title %}Edit grant {{ grant['identifier'] }}{% endblock %}
+{% block body_title %}Edit grant dossier {{ grant['identifier'] }}{% endblock %}
 
 {% block main %}
 <form action="{{ url_for('.edit', gid=grant['identifier']) }}"

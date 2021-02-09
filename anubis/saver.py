@@ -24,6 +24,10 @@ class BaseSaver:
             self.original = copy.deepcopy(doc)
             self.doc = doc
         self.prepare()
+        # Special flag when a repeat field has changed value.
+        # May be used to immediately redisplay the edit page
+        # with changed number of input fields.
+        self.repeat_changed = False
 
     def __enter__(self):
         return self
@@ -53,7 +57,7 @@ class BaseSaver:
 
     def finish(self):
         """Final changes and checks on the document before storing it.
-        Remove the temporary data from the document.
+        Remove any temporary data from the document.
         """
         self.doc.pop('tmp', None)
 
@@ -188,7 +192,7 @@ class FieldMixin:
                         self.doc['errors'][fid] = 'value is too high'
             self.doc['values'][fid] = value
 
-        elif field['type'] in constants.DOCUMENT:
+        elif field['type'] == constants.DOCUMENT:
             if form.get(f"{fid}_remove"):
                 if self.doc['values'].get(fid):
                     self.delete_attachment(self.doc['values'][fid])
@@ -203,6 +207,24 @@ class FieldMixin:
                     self.add_attachment(infile.filename,
                                         infile.read(),
                                         infile.mimetype)
+
+        elif field['type'] == constants.REPEAT:
+            value = form.get(fid) or None
+            try:
+                value = int(value)
+            except (TypeError, ValueError):
+                if field['required'] and value:
+                    self.doc['errors'][fid] = 'invalid value'
+                value = None
+            if value is not None:
+                if field.get('maximum') is not None:
+                    if value > field['maximum']:
+                        self.doc['errors'][fid] = 'value is too high'
+            if not self.doc['errors'].get(fid) and \
+               self.doc['values'].get(fid) != value:
+                self.repeat_changed = True
+            self.doc['values'][fid] = value
+            # XXX change number of input fields.
 
         if self.doc['errors'].get(fid): return # Error message already set; skip
         if field['required'] and self.doc['values'].get(fid) is None:

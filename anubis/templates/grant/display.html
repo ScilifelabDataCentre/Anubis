@@ -21,27 +21,61 @@
   <div class="col-md">{{ get_call(grant['call']) | call_link(proposals_link=False) }}</div>
 </div>
 
-{% set values = grant['values'] %}
-{% for field in call['grant'] %}
+{% for field1 in call['grant'] if not field1.get('repeat') %}
+{# Field without repeats. #}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">
-    {{ field['title'] }}
+    {{ field1['title'] }}
   </div>
-  {% if grant['errors'].get(field['identifier']) %}
+  {% if grant['errors'].get(field1['identifier']) %}
   <div class="col-md-2 text-danger">
-    Error: {{ grant['errors'][field['identifier']] }}
+    Error: {{ grant['errors'][field1['identifier']] }}
   </div>
   {% endif %}
   <div class="col-md text-break">
-    {% set value = values.get(field['identifier']) %}
-    {% if value and field['type'] == 'document' %}
-      {{ value | typed_value(field['type'], url_for('.document', gid=grant['identifier'], fid=field['identifier'])) }}
+    {% set value = grant['values'].get(field1['identifier']) %}
+    {% if value and field1['type'] == 'document' %}
+      {{ value | typed_value(field1['type'], url_for('.document', gid=grant['identifier'], fid=field1['identifier'])) }}
     {% else %}
-      {{ value | typed_value(field['type']) }}
+      {{ value | typed_value(field1['type']) }}
     {% endif %}
   </div>
 </div>
-{% endfor %} {# for field in ... #}
+
+{# Repeat fields. I know, this is rather kludgy...  #}
+
+{% if field1['type'] == 'repeat' and grant['values'].get(field1['identifier']) %}
+{% for count in range(1, grant['values'][field1['identifier']] + 1) %}
+<div class="card mb-2">
+  <div class="card-header">{{ count }}</div>
+  <div class="card-body">
+    {% for field2 in call['grant'] if field2.get('repeat') == field1['identifier'] %}
+    {% set id2 = "{}/{}".format(field2['identifier'], count) %}
+    <div class="row mb-2">
+      <div class="col-md-2 font-weight-bold text-right">
+        {{ field2['title'] }}
+      </div>
+      {% if grant['errors'].get(id2) %}
+      <div class="col-md-2 text-danger">
+        Error: {{ grant['errors'][id2] }}
+      </div>
+      {% endif %}
+      <div class="col-md text-break">
+        {% set value = grant['values'].get(id2) %}
+        {% if value and field2['type'] == 'document' %}
+        {{ value | typed_value(field2['type'], url_for('.document', gid=grant['identifier'], fid=id2)) }}
+        {% else %}
+        {{ value | typed_value(field2['type']) }}
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %} {# for field2 in fields ... #}
+  </div>
+</div>
+{% endfor %} {# for count... #}
+{% endif %} {# if field1['type'] == 'repeat' ... #}
+
+{% endfor %} {# for field1 in ... #}
 
 {% endblock %} {# block main #}
 

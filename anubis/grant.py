@@ -109,8 +109,11 @@ def edit(gid):
                     saver.set_field_value(field, form=flask.request.form)
         except ValueError as error:
             return utils.error(error)
-        return flask.redirect(
-            flask.url_for('.display', gid=grant['identifier']))
+        if saver.repeat_changed:
+            url = flask.url_for('.edit', gid=grant['identifier'])
+        else:
+            url = flask.url_for('.display', gid=grant['identifier'])
+        return flask.redirect(url)
 
     elif utils.http_DELETE():
         if not allow_delete(grant):
@@ -255,11 +258,12 @@ def allow_view(grant):
 
 def allow_edit(grant):
     """The admin, staff and proposal user (= grant receiver) may in general
-    edit the grand dossier. Some fields have special edit privileges.
+    edit the grant dossier. Some fields have special edit privileges.
     """
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     if flask.g.am_staff: return True
+    # XXX special field privileges!
     if flask.g.current_user['username'] == grant['user']: return True
     return False
 
