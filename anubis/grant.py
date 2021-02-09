@@ -105,8 +105,7 @@ def edit(gid):
                 flask.url_for('.display', gid=grant['identifier']))
         try:
             with GrantSaver(doc=grant) as saver:
-                for field in call['grant']:
-                    saver.set_field_value(field, form=flask.request.form)
+                saver.set_fields_values(call['grant'], form=flask.request.form)
         except ValueError as error:
             return utils.error(error)
         if saver.repeat_changed:
@@ -151,6 +150,7 @@ def document(gid, fid):
     # Replace it by dash '-'; used as general glue character here.
     gid = gid.replace(':', '-')
     ext = os.path.splitext(documentname)[1]
+    # Add the appropriate file extension to the filename.
     filename = f"{gid}-{fid}{ext}"
     outfile = flask.g.db.get_attachment(grant, documentname)
     response = flask.make_response(outfile.read())

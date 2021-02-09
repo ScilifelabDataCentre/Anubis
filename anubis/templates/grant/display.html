@@ -5,6 +5,11 @@
 {% block body_title %}
 <small class="text-muted mr-2">Grant dossier</small>
 {{ grant['identifier'] }}
+{% if grant.get('errors') %}
+<span class="badge badge-danger">Incomplete</span>
+{% else %}
+<span class="badge badge-success">Complete</span>
+{% endif %}
 {% endblock %}
 
 {% block main %}
@@ -50,7 +55,7 @@
   <div class="card-header">{{ count }}</div>
   <div class="card-body">
     {% for field2 in call['grant'] if field2.get('repeat') == field1['identifier'] %}
-    {% set id2 = "{}/{}".format(field2['identifier'], count) %}
+    {% set id2 = "{}-{}".format(field2['identifier'], count) %}
     <div class="row mb-2">
       <div class="col-md-2 font-weight-bold text-right">
         {{ field2['title'] }}

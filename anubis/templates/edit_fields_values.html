@@ -5,8 +5,9 @@
 {# Field without repeats. #}
 
 {% set field = field1 %}
-{% set value = values.get(field1['identifier']) %}
-{% set error = errors.get(field1['identifier']) %}
+{% set fid = field['identifier']%}
+{% set value = values.get(fid) %}
+{% set error = errors.get(fid) %}
 {% include 'edit_single_field_value.html' %}
 
 {# Repeat fields. I know, this is rather kludgy...  #}
@@ -18,9 +19,9 @@
   <div class="card-body">
     {% for field2 in fields if field2.get('repeat') ==  field['identifier'] %}
     {% set field = field2 %}
-    {% set id2 = "{}/{}".format(field2['identifier'], count) %}
-    {% set value = values.get(id2) %}
-    {% set error = errors.get(id2) %}
+    {% set fid = "{}-{}".format(field2['identifier'], count) %}
+    {% set value = values.get(fid) %}
+    {% set error = errors.get(fid) %}
     {% include 'edit_single_field_value.html' %}
     {% endfor %} {# for field2 in fields ... #}
   </div>

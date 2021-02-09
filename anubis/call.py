@@ -858,15 +858,15 @@ class CallSaver(AttachmentSaver):
 
     def add_document(self, infile, description):
         "Add a document to the call."
-        self.add_attachment(infile.filename,
-                            infile.read(),
-                            infile.mimetype)
+        filename = self.add_attachment(infile.filename,
+                                       infile.read(),
+                                       infile.mimetype)
         for document in self.doc['documents']:
-            if document['name'] == infile.filename:
+            if document['name'] == filename:
                 document['description'] = description
                 break
         else:
-            self.doc['documents'].append({'name': infile.filename,
+            self.doc['documents'].append({'name': filename,
                                           'description': description})
 
     def delete_document(self, documentname):

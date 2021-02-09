@@ -1,6 +1,7 @@
 "Base document saver context classes."
 
 import copy
+import os.path
 
 import flask
 
@@ -133,9 +134,20 @@ class AttachmentSaver(BaseSaver):
                                       content_type=attachment['mimetype'])
 
     def add_attachment(self, filename, content, mimetype):
+        """If the filename is already in use, add a numerical suffix.
+        Return the final filename.
+        """
+        current = set(self.doc.get('_attachments', {}).keys())
+        current.update([a['filename'] for a in self._add_attachments])
+        orig_basename, ext = os.path.splitext(filename)
+        count = 0
+        while filename in current:
+            count += 1
+            filename = f"{orig_basename}_{count}{ext}"
         self._add_attachments.append({'filename': filename,
                                       'content': content,
                                       'mimetype': mimetype})
+        return filename
 
     def delete_attachment(self, filename):
         self._delete_attachments.add(filename)
@@ -144,9 +156,30 @@ class AttachmentSaver(BaseSaver):
 class FieldMixin:
     "Mixin for setting a field value in the saver."
 
+    def set_fields_values(self, fields, form=dict()):
+        "Set the values of the fields according to field type."
+        # First set the non-repeat fields; the number of
+        # repeats is determined by fields in that set.
+        for field in fields:
+            if field.get('repeat'): continue
+            # The 'fields' value is needed to clean away
+            # superfluous values if repeat number is reduced.
+            self.set_single_field_value(field['identifier'], field, form, fields)
+        # Then set the values of the repeat fields.
+        for field in fields:
+            if not field.get('repeat'): continue
+            n_repeat = self.doc['values'].get(field['repeat'])
+            if not n_repeat: continue
+            for n in range(1, n_repeat+1):
+                fid = f"{field['identifier']}-{n}"
+                self.set_single_field_value(fid, field, form)
+
     def set_field_value(self, field, form=dict()):
-        "Set the value according to field type."
-        fid = field['identifier']
+        "Set the value of the field according to field type."
+        self.set_single_field_value(field['identifier'], field, form)
+
+    def set_single_field_value(self, fid, field, form, fields=None):
+        "Set the single field value."
         self.doc['errors'].pop(fid, None)
 
         if field['type'] in (constants.TEXT, constants.LINE):
@@ -203,10 +236,10 @@ class FieldMixin:
                     if self.doc['values'].get(fid) and \
                        self.doc['values'][fid] != infile.filename:
                         self.delete_attachment(self.doc['values'][fid])
-                    self.doc['values'][fid] = infile.filename
-                    self.add_attachment(infile.filename,
-                                        infile.read(),
-                                        infile.mimetype)
+                    filename = self.add_attachment(infile.filename,
+                                                   infile.read(),
+                                                   infile.mimetype)
+                    self.doc['values'][fid] = filename
 
         elif field['type'] == constants.REPEAT:
             value = form.get(fid) or None
@@ -220,11 +253,21 @@ class FieldMixin:
                 if field.get('maximum') is not None:
                     if value > field['maximum']:
                         self.doc['errors'][fid] = 'value is too high'
+            # The number of repeats changed.
             if not self.doc['errors'].get(fid) and \
                self.doc['values'].get(fid) != value:
+                # If reduced, remove field values and errors.
+                for f in fields:
+                    if f.get('repeat') != fid: continue
+                    for n in range(value+1, self.doc['values'].get(fid)+1):
+                        id = f"{f['identifier']}-{n}"
+                        # Delete the attachment, if any.
+                        filename = self.doc['values'].pop(id, None)
+                        if f['type'] == constants.DOCUMENT and filename:
+                            self.delete_attachment(filename)
+                        self.doc['errors'].pop(id, None)
                 self.repeat_changed = True
             self.doc['values'][fid] = value
-            # XXX change number of input fields.
 
         if self.doc['errors'].get(fid): return # Error message already set; skip
         if field['required'] and self.doc['values'].get(fid) is None:

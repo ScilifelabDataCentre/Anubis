@@ -39,7 +39,7 @@
       {% endfor %} {# for field in ... #}
       <td>{{ grant | grant_link(small=True) }}</td>
       <td>
-        {% if grant['errors'] %}
+        {% if grant.get('errors') %}
         <span class="badge badge-danger">Incomplete</span>
         {% else %}
         <span class="badge badge-success">Complete</span>
