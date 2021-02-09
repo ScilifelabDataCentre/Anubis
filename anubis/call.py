@@ -791,8 +791,6 @@ class CallSaver(AttachmentSaver):
             if field['identifier'] == fid:
                 self.doc['proposal'].pop(pos)
                 break
-        else:
-            raise ValueError('No such proposal field.')
 
     def add_review_field(self, form):
         "Add a field to the review definition."
@@ -811,8 +809,6 @@ class CallSaver(AttachmentSaver):
             if field['identifier'] == fid:
                 self.doc['review'].pop(pos)
                 break
-        else:
-            raise ValueError('No such review field.')
 
     def add_decision_field(self, form):
         "Add a field to the decision definition."
@@ -831,8 +827,6 @@ class CallSaver(AttachmentSaver):
             if field['identifier'] == fid:
                 self.doc['decision'].pop(pos)
                 break
-        else:
-            raise ValueError('No such decision field.')
 
     def add_grant_field(self, form):
         "Add a field to the grant dossier definition."
@@ -848,13 +842,15 @@ class CallSaver(AttachmentSaver):
         self.edit_field(self.doc['grant'], fid, form)
 
     def delete_grant_field(self, fid):
-        "Delete the field from the grant dossier definition."
+        """Delete the field from the grant dossier definition.
+        If any repeat fields for it, then remove also those.
+        """
         for pos, field in enumerate(self.doc['grant']):
             if field['identifier'] == fid:
-                self.doc['grant'].pop(pos)
-                break
-        else:
-            raise ValueError('No such grant dossier field.')
+                self.doc['grant'][pos] = None
+            elif field.get('repeat') == fid:
+                self.doc['grant'][pos] = None
+        self.doc['grant'] = [f for f in self.doc['grant'] if f is not None]
 
     def add_document(self, infile, description):
         "Add a document to the call."
