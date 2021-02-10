@@ -298,16 +298,15 @@ def datetimetz(value, due=False):
                 return dtz
             elif remaining >= 2:
                 return jinja2.utils.Markup(
-                    f'{dtz} <span class="bg-warning px-2">'
-                    f'{remaining:.1f} days until due.</span>')
+                    f'{dtz} <div class="badge badge-warning">'
+                    f'{remaining:.1f} days until due.</div>')
             elif remaining >= 0:
                 return jinja2.utils.Markup(
-                    f'{dtz} <span class="bg-danger text-white px-2">'
-                    f'{remaining:.1f} days until due.</span>')
+                    f'{dtz} <div class="badge badge-danger">'
+                    f'{remaining:.1f} days until due.</div>')
             else:
                 return jinja2.utils.Markup(
-                    f'{dtz} <span class="font-weight-bold bg-danger'
-                    ' text-white px-2">Overdue!</span>')
+                    f'{dtz} <div class="badge badge-danger">Overdue!</div>')
         else:
             return dtz
     else:
@@ -489,11 +488,14 @@ def get_logs(docid, cleanup=True):
     return result
 
 def delete(doc):
-    "Delete the given document and all its log entries."
-    logs = get_logs(doc['_id'], cleanup=False)
-    if logs:
-        flask.g.db.purge(logs)
-    flask.g.db.purge([doc])
+    """Delete the given document and all its log entries.
+    NOTE: This was done by 'purge' before. This should be faster,
+    but leaves the deleted documents in CouchDB.
+    These will be removed when a database compaction is done.
+    """
+    for log in get_logs(doc['_id'], cleanup=False):
+        flask.g.db.delete(log)
+    flask.g.db.delete(doc)
 
 def send_email(recipients, title, text):
     if isinstance(recipients, str):
