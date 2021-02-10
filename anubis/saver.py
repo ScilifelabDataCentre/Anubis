@@ -259,7 +259,9 @@ class FieldMixin:
                 # If reduced, remove field values and errors.
                 for f in fields:
                     if f.get('repeat') != fid: continue
-                    for n in range(value+1, self.doc['values'].get(fid)+1):
+                    old_value = self.doc['values'].get(fid)
+                    if old_value is None: continue
+                    for n in range(value+1, old_value+1):
                         id = f"{f['identifier']}-{n}"
                         # Delete the attachment, if any.
                         filename = self.doc['values'].pop(id, None)

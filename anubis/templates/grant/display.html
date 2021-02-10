@@ -23,7 +23,12 @@
 </div>
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
-  <div class="col-md">{{ get_call(grant['call']) | call_link(proposals_link=False) }}</div>
+  <div class="col-md">
+    {{ get_call(grant['call']) | call_link(proposals_link=False) }}
+    <a href="{{ url_for('grants.call', cid=call['identifier']) }}"
+       role="button" class="btn btn-sm btn-success">
+      {{ call_grants_count }} grant dossiers</a>
+  </div>
 </div>
 
 {% for field1 in call['grant'] if not field1.get('repeat') %}
@@ -52,7 +57,13 @@
 {% if field1['type'] == 'repeat' and grant['values'].get(field1['identifier']) %}
 {% for count in range(1, grant['values'][field1['identifier']] + 1) %}
 <div class="card mb-2">
-  <div class="card-header">{{ count }}</div>
+  <div class="card-header">
+    <div class="row">
+      <div class="col-md offset-md-2">
+        {{ field1['title'] }}  number {{ count }}
+      </div>
+    </div>
+  </div>
   <div class="card-body">
     {% for field2 in call['grant'] if field2.get('repeat') == field1['identifier'] %}
     {% set id2 = "{}-{}".format(field2['identifier'], count) %}

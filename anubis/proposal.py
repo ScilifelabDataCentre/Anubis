@@ -22,7 +22,7 @@ def init(app):
 
 DESIGN_DOC = {
     'views': {
-        'identifier': {'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit(doc.identifier, null);}"},
+        'identifier': {'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit(doc.identifier, doc.title);}"},
         'call': {'reduce': '_count',
                  'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit(doc.call, doc.user);}"},
         'user': {'reduce': '_count',
@@ -61,7 +61,7 @@ def display(pid):
     allow_view_decision = decision and \
                           decision.get('finalized') and \
                           call['access'].get('allow_submitter_view_decision')
-    grant = anubis.grant.get_grant(proposal.get('grant'))
+    grant = anubis.grant.get_grant_proposal(proposal['identifier'])
     allow_create_grant = anubis.grant.allow_create(proposal)
     allow_link_grant = anubis.grant.allow_link(grant)
     return flask.render_template('proposal/display.html',

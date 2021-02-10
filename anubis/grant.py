@@ -22,9 +22,11 @@ def init(app):
 
 DESIGN_DOC = {
     'views': {
-        'identifier': {'map': "function (doc) {if (doc.doctype !== 'grant') return; emit(doc.identifier, null);}"},
+        'identifier': {'map': "function (doc) {if (doc.doctype !== 'grant') return; emit(doc.identifier, doc.proposal);}"},
         'call': {'reduce': '_count',
-                 'map': "function (doc) {if (doc.doctype !== 'grant') return; emit(doc.call, doc.proposal);}"},
+                 'map': "function (doc) {if (doc.doctype !== 'grant') return; emit(doc.call, doc.identifier);}"},
+        'proposal': {'reduce': '_count',
+                     'map': "function (doc) {if (doc.doctype !== 'grant') return; emit(doc.proposal, doc.identifier);}"},
         'user': {'reduce': '_count',
                  'map': "function (doc) {if (doc.doctype !== 'grant') return; emit(doc.user, doc.identifier);}"},
     }
@@ -42,7 +44,7 @@ def create(pid):
     try:
         if not allow_create(proposal):
             raise ValueError('You may not create a grant dossier for the proposal.')
-        grant = get_grant(proposal.get('grant'))
+        grant = get_grant_proposal(pid)
         if grant is not None:
             utils.flash_message('The grant dossier already exists.')
             return flask.redirect(
@@ -72,10 +74,12 @@ def display(gid):
                            flask.url_for('call.display', cid=grant['call']))
     proposal = anubis.proposal.get_proposal(grant['proposal'])
     call = anubis.call.get_call(grant['call'])
+    call_grants_count = utils.get_count('grants', 'call', grant['call'])
     return flask.render_template('grant/display.html',
                                  grant=grant,
                                  proposal=proposal,
                                  call=call,
+                                 call_grants_count=call_grants_count,
                                  allow_view=allow_view(grant),
                                  allow_edit=allow_edit(grant),
                                  allow_delete=allow_delete(grant))
@@ -214,24 +218,29 @@ class GrantSaver(FieldMixin, AttachmentSaver):
             self.set_field_value(field)
 
 
-def get_grant(gid, refresh=False):
+def get_grant(gid):
     """Return the grant dossier with the given identifier.
     Return None if not found.
     """
-    try:
-        if refresh: raise KeyError
-        return flask.g.cache[gid]
-    except KeyError:
-        docs = [r.doc for r in flask.g.db.view('grants', 'identifier',
-                                               key=gid,
-                                               include_docs=True)]
-        if len(docs) == 1:
-            grant = docs[0]
-            flask.g.cache[gid] = grant
-            flask.g.cache[grant["_id"]] = grant
-            return grant
-        else:
-            return None
+    docs = [r.doc for r in flask.g.db.view('grants', 'identifier',
+                                           key=gid,
+                                           include_docs=True)]
+    if len(docs) == 1:
+        return docs[0]
+    else:
+        return None
+
+def get_grant_proposal(pid):
+    """Return the grant dossier for the proposal with the given identifier.
+    Return None if not found.
+    """
+    docs = [r.doc for r in flask.g.db.view('grants', 'proposal',
+                                           key=pid,
+                                           include_docs=True)]
+    if len(docs) == 1:
+        return docs[0]
+    else:
+        return None
 
 def allow_create(proposal):
     "The admin and staff may create a grant dossier."
