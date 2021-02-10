@@ -47,6 +47,7 @@ def call_xlsx(cid):
                            flask.url_for('call.display',cid=call['identifier']))
 
     grants = utils.get_docs_view('grants', 'call', call['identifier'])
+    grants.sort(key=lambda g: g['identifier'])
     content = get_grants_xlsx(call, grants)
     response = flask.make_response(content)
     response.headers.set('Content-Type', constants.XLSX_MIMETYPE)
@@ -68,71 +69,153 @@ def get_grants_xlsx(call, grants):
                                         'align': 'left',
                                         'valign': 'vcenter'})
     ws = wb.add_worksheet(f"Grants in call {call['identifier']}")
-    ws.freeze_panes(1, 1)
+    ws.freeze_panes(2, 1)
     ws.set_row(0, 60, head_text_format)
-    ws.set_column(1, 1, 40, normal_text_format)
-    if call.get('categories'):
-        ws.set_column(2, 2, 10, normal_text_format)
-        ws.set_column(3, 3, 20, normal_text_format)
-        ws.set_column(4, 4, 40, normal_text_format)
-    else:
-        ws.set_column(2, 2, 20, normal_text_format)
-        ws.set_column(3, 3, 40, normal_text_format)
+    ws.set_row(1, 60, head_text_format)
+    ws.set_column(0, 2, 10, normal_text_format)
+    ws.set_column(3, 3, 40, normal_text_format)
+    ws.set_column(4, 6, 20, normal_text_format)
 
     nrow = 0
-    row = ['Grant']
-    for field in call['grant']:
-        row.append(field['title'] or field['identifier'].capitalize())
-    row.extend(['Proposal', 'Proposal title', 
-                'Submitter', 'Email', 'Affiliation'])
+    row = ['Grant', 'Status', 'Proposal', 'Proposal title', 
+           'Submitter', 'Email', 'Affiliation']
     ws.write_row(nrow, 0, row)
+
+    # Repeated fields are those fields to be repeated N number
+    # of times as given in a repeat field. Notice the difference!
+    # Repeated fields are in a certain sense dependent on their repeat field.
+
+    # First all non-repeated fields, including any repeat fields.
+    pos = len(row) - 1
+    start_pos = pos
+    for field in call['grant']:
+        if field.get('repeat'): continue
+        title = field['title'] or field['identifier'].capitalize()
+        pos += 1
+        n_repeat = len([f for f in call['grant'] 
+                        if f.get('repeat') == field['identifier']])
+        if n_repeat:
+            ws.merge_range(0, pos, 0, pos+n_repeat-1, title)
+            pos += n_repeat - 1
+        else:
+            ws.write_row(nrow, pos, [title])
+    nrow += 1
+
+    # Then repeated fields; their titles beneath the repeat field.
+    pos = start_pos
+    for field in call['grant']:
+        if field.get('repeat'): continue
+        pos += 1
+        repeat = [f['title'] or f['identifier'].capitalize()
+                  for f in call['grant'] 
+                  if f.get('repeat') == field['identifier']]
+        n_repeat = len(repeat)
+        if n_repeat:
+            ws.write_row(nrow, pos, repeat)
+            pos += n_repeat - 1
     nrow += 1
 
     for grant in grants:
+        # Find the maximum number of rows to merge for this grant.
+        n_merge = 1
+        for field in call['grant']:
+            if field['type'] != constants.REPEAT: continue
+            try:
+                n_merge = max(n_merge, grant['values'][field['identifier']])
+            except KeyError:
+                pass
+
         ncol = 0
+        if n_merge > 1:
+            ws.merge_range(nrow, ncol, nrow+n_merge-1, ncol, '')
         ws.write_url(nrow, ncol,
                      flask.url_for('grant.display',
                                    gid=grant['identifier'],
                                    _external=True),
                      string=grant['identifier'])
         ncol += 1
-        for field in call['grant']:
-            value = grant['values'].get(field['identifier'])
-            if value is None:
-                ws.write_string(nrow, ncol, '')
-            elif field['type'] == constants.TEXT:
-                ws.write_string(nrow, ncol, value)
-            elif field['type'] == constants.DOCUMENT:
-                ws.write_url(nrow, ncol,
-                             flask.url_for('grant.document',
-                                           gid=grant['identifier'],
-                                           fid=field['identifier'],
-                                           _external=True),
-                             string='Download')
-            else:
-                ws.write(nrow, ncol, value)
-            ncol += 1
-
-        proposal = anubis.proposal.get_proposal(grant['proposal'])
+        if n_merge > 1:
+            ws.merge_range(nrow, ncol, nrow+n_merge-1, ncol, '')
+        ws.write_string(nrow, ncol,
+                        grant['errors'] and 'Incomplete' or 'Complete')
+        ncol += 1
+        if n_merge > 1:
+            ws.merge_range(nrow, ncol, nrow+n_merge-1, ncol, '')
         ws.write_url(nrow, ncol,
                      flask.url_for('proposal.display',
-                                   pid=proposal['identifier'],
+                                   pid=grant['proposal'],
                                    _external=True),
-                     string=proposal['identifier'])
+                     string=grant['proposal'])
         ncol += 1
-        ws.write_string(nrow, ncol, proposal.get('title') or '')
+        if n_merge > 1:
+            ws.merge_range(nrow, ncol, nrow+n_merge-1, ncol, '')
+        proposal = anubis.proposal.get_proposal(grant['proposal'])
+        ws.write_string(nrow, ncol, proposal['title'])
         ncol += 1
-        user = anubis.user.get_user(grant['user'])
+        if n_merge > 1:
+            ws.merge_range(nrow, ncol, nrow+n_merge-1, ncol, '')
+        user = anubis.user.get_user(username=proposal['user'])
+        if n_merge > 1:
+            ws.merge_range(nrow, ncol, nrow+n_merge-1, ncol, '')
         ws.write_string(
             nrow, ncol,
             f"{user.get('familyname') or '-'}, {user.get('givenname') or '-'}")
         ncol += 1
+        if n_merge > 1:
+            ws.merge_range(nrow, ncol, nrow+n_merge-1, ncol, '')
         ws.write_string(nrow, ncol, user.get('email') or '')
         ncol += 1
+        if n_merge > 1:
+            ws.merge_range(nrow, ncol, nrow+n_merge-1, ncol, '')
         ws.write_string(nrow, ncol, user.get('affiliation') or '')
         ncol += 1
 
-        nrow += 1
+        for field in call['grant']:
+            if field.get('repeat'): continue
+            if field['type'] == constants.REPEAT:
+                n_repeat = grant['values'][field['identifier']]
+                col_offset = 0
+                for repeated in call['grant']:
+                    if repeated.get('repeat') != field['identifier']:
+                        continue
+                    for row_offset in range(n_repeat):
+                        fid = f"{repeated['identifier']}-{row_offset+1}"
+                        write_cell(ws,
+                                   nrow + row_offset,
+                                   ncol + col_offset,
+                                   grant['values'].get(fid),
+                                   repeated['type'],
+                                   grant['identifier'],
+                                   fid)
+                    col_offset += 1
+            else:
+                if n_merge > 1:
+                    ws.merge_range(nrow, ncol, nrow+n_merge-1, ncol, '')
+                write_cell(ws,
+                           nrow,
+                           ncol,
+                           grant['values'].get(field['identifier']),
+                           field['type'],
+                           grant['identifier'],
+                           field['identifier'])
+            ncol += 1
+
+        nrow += n_merge
 
     wb.close()
     return output.getvalue()
+
+def write_cell(ws, nrow, ncol, value, field_type, gid, fid):
+    if value is None:
+        ws.write_string(nrow, ncol, '')
+    elif field_type == constants.TEXT:
+        ws.write_string(nrow, ncol, value)
+    elif field_type == constants.DOCUMENT:
+        ws.write_url(nrow, ncol,
+                     flask.url_for('grant.document',
+                                   gid=gid,
+                                   fid=fid,
+                                   _external=True),
+                     string='Download')
+    else:
+        ws.write(nrow, ncol, value)

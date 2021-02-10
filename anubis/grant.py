@@ -205,15 +205,8 @@ class GrantSaver(FieldMixin, AttachmentSaver):
             raise ValueError('proposal has already been set')
         self.doc['proposal'] = proposal['identifier']
         self.doc['call'] = proposal['call']
+        self.doc['identifier'] = "{}:G:{}".format(*proposal['identifier'].split(":"))
         call = anubis.call.get_call(proposal['call'])
-        counter = call.get('grant_counter')
-        if counter is None:
-            counter = 1
-        else:
-            counter += 1
-        with anubis.call.CallSaver(call):
-            call['grant_counter'] = counter
-        self.doc['identifier'] = f"{call['identifier']}:G{counter:02d}"
         self.set_fields_values(call.get('grant', []))
 
 
