@@ -235,8 +235,7 @@ class DecisionSaver(FieldMixin, AttachmentSaver):
         self.doc['proposal'] = proposal['identifier']
         call = anubis.call.get_call(proposal['call'])
         self.doc['call'] = call['identifier']
-        for field in call['decision']:
-            self.set_field_value(field)
+        self.set_fields_values(call['decision'])
 
 
 def get_decision(iuid):

@@ -214,8 +214,7 @@ class GrantSaver(FieldMixin, AttachmentSaver):
         with anubis.call.CallSaver(call):
             call['grant_counter'] = counter
         self.doc['identifier'] = f"{call['identifier']}:G{counter:02d}"
-        for field in call.get('grant', []):
-            self.set_field_value(field)
+        self.set_fields_values(call.get('grant', []))
 
 
 def get_grant(gid):

@@ -276,8 +276,7 @@ class ReviewSaver(FieldMixin, AttachmentSaver):
         self['call'] = proposal['call']
         self['proposal'] = proposal['identifier']
         call = anubis.call.get_call(proposal['call'])
-        for field in call['review']:
-            self.set_field_value(field)
+        self.set_fields_values(call['review'])
 
     def set_reviewer(self, user):
         "Set the reviewer for the review; must be called at creation."

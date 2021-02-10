@@ -162,7 +162,7 @@ class FieldMixin:
         # repeats is determined by fields in that set.
         for field in fields:
             if field.get('repeat'): continue
-            # The 'fields' value is needed to clean away
+            # The 'fields' argument is needed to clean away
             # superfluous values if repeat number is reduced.
             self.set_single_field_value(field['identifier'], field, form, fields)
         # Then set the values of the repeat fields.
@@ -256,6 +256,7 @@ class FieldMixin:
             # The number of repeats changed.
             if not self.doc['errors'].get(fid) and \
                self.doc['values'].get(fid) != value:
+                print("repeat change", fid, self.doc['values'].get(fid), value)
                 # If reduced, remove field values and errors.
                 for f in fields:
                     if f.get('repeat') != fid: continue
