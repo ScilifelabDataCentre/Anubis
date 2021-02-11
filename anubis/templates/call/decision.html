@@ -36,6 +36,19 @@ Edit decision fields for call {{ call['identifier'] }}
   {% endfor %} {# for field_type in constants.FIELD_TYPES #}
 </div>
 
+{% endblock %} {# block main #}
+
+{% block actions %}
+<div class="mt-2">
+  <form action="{{ url_for('.display', cid=call['identifier']) }}"
+	method="GET">
+    <button type="submit" class="btn btn-block btn-secondary">Back</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block modals %}
+
 {% set post_url = url_for('.decision', cid=call['identifier']) %}
 {% for field_type in constants.FIELD_TYPES %}
 {# Exclude repeat field; not implemented yet for decision! #}
@@ -49,13 +62,4 @@ Edit decision fields for call {{ call['identifier'] }}
 {% include 'edit_field_definition.html' %}
 {% endfor %}
 
-{% endblock %} {# block main #}
-
-{% block actions %}
-<div class="mt-2">
-  <form action="{{ url_for('.display', cid=call['identifier']) }}"
-	method="GET">
-    <button type="submit" class="btn btn-block btn-secondary">Back</button>
-  </form>
-</div>
-{% endblock %}
+{% endblock %} {# block modals #}

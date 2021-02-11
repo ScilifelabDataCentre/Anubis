@@ -298,15 +298,15 @@ def datetimetz(value, due=False):
                 return dtz
             elif remaining >= 2:
                 return jinja2.utils.Markup(
-                    f'{dtz} <div class="badge badge-warning">'
+                    f'{dtz} <div class="badge badge-warning ml-2">'
                     f'{remaining:.1f} days until due.</div>')
             elif remaining >= 0:
                 return jinja2.utils.Markup(
-                    f'{dtz} <div class="badge badge-danger">'
+                    f'{dtz} <div class="badge badge-danger ml-2">'
                     f'{remaining:.1f} days until due.</div>')
             else:
                 return jinja2.utils.Markup(
-                    f'{dtz} <div class="badge badge-danger">Overdue!</div>')
+                    f'{dtz} <div class="badge badge-danger ml-2">Overdue!</div>')
         else:
             return dtz
     else:

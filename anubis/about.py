@@ -60,7 +60,10 @@ def get_software():
         ('Bootstrap', constants.BOOTSTRAP_VERSION, 'https://getbootstrap.com/'),
         ('jQuery', constants.JQUERY_VERSION, 'https://jquery.com/'),
         ('DataTables', constants.DATATABLES_VERSION, 'https://datatables.net/'),
-        ("Feather of Ma'at icon", 'freepik',
+        ('jQuery.localtime', '0.9.1',
+         'https://github.com/GregDThomas/jquery-localtime'),
+        ('clipboard.js', '2.0.6', 'https://clipboardjs.com/'),
+        ("Feather of Ma'at icon", '-',
          'https://www.flaticon.com/authors/freepik'),
     ]
 

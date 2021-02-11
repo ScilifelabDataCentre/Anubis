@@ -1,0 +1,20 @@
+{# To include for lists of email addresses, with clipboard buttons.
+   Required variables: email_lists = dict(title=list-of-emails)
+#}
+
+<div class="collapse" id="email_lists">
+  {% for title, emails in email_lists.items() %}
+  <div class="card mb-2">
+    <div class="card-header">
+      {{ title }}
+      <button type="button"
+              class="btn btn-sm btn-outline-dark mx-2 clipboard"
+              data-clipboard-text="{{ emails }}"
+              title="Copy email addresses to the clipboard.">
+        Copy to clipboard
+      </button>
+    </div>
+    <div class="card-body">{{ emails }}</div>
+  </div>
+  {% endfor %}
+</div>

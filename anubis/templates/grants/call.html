@@ -14,10 +14,21 @@ Grant dossiers in call {{ call['identifier'] }}
   <a href="{{ url_for('grants.call_xlsx', cid=call['identifier']) }}"
      title="All grants in the call"
      class="badge badge-pill badge-dark">Grants Excel file</a>
+  <a href="#email_lists" data-toggle="collapse"
+     class="badge badge-pill badge-secondary" role="button"
+     aria-expanded="false" aria-controls="email_lists">
+    Email address lists
+  </a>
 </div>
 {% endblock %}
 
 {% block supermain %}
+<div class="row">
+  <div class="col-md-10">
+    {% include 'email_lists.html' %}
+  </div>
+</div>
+
 <table id="grants" class="table table-sm table-hover">
   <thead>
     <tr>
@@ -48,7 +59,7 @@ Grant dossiers in call {{ call['identifier'] }}
         {% endif %}
       </td>
       <td>{{ get_proposal(grant['proposal']) | proposal_link }}</td>
-      <td>{{ get_user(grant['user']) | user_link }}</td>
+      <td>{{ grant['user'] | user_link }}</td>
     </tr>
     {% endfor %} {# for grant in grants #}
   </tbody>

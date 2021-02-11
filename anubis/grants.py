@@ -29,9 +29,16 @@ def call(cid):
                            flask.url_for('call.display',cid=call['identifier']))
 
     grants = utils.get_docs_view('grants', 'call', call['identifier'])
+    # Convert username for grant to full user dict.
+    for grant in grants:
+        grant['user'] = anubis.user.get_user(grant['user'])
+    emails = [g['user']['email'] for g in grants]
+    email_lists = {'Grant receivers (= proposal submitters)':
+                   ', '.join(emails)}
     return flask.render_template('grants/call.html',
                                  call=call,
-                                 grants=grants)
+                                 grants=grants,
+                                 email_lists=email_lists)
 
 @blueprint.route('/call/<cid>.xlsx')
 @utils.login_required

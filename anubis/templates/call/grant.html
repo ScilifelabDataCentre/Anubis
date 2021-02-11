@@ -33,16 +33,6 @@ Edit grant fields for call {{ call['identifier'] }}
   {% endfor %} {# for field_type in constants.FIELD_TYPES #}
 </div>
 
-{% set post_url = url_for('.grant', cid=call['identifier']) %}
-{% for field_type in constants.FIELD_TYPES %}
-{% include 'create_field_definition.html' %}
-{% endfor %}
-
-{% for field in call['grant'] %}
-{% set post_url = url_for('.grant_field', cid=call['identifier'], fid=field['identifier']) %}
-{% include 'edit_field_definition.html' %}
-{% endfor %}
-
 {% endblock %} {# block main #}
 
 {% block actions %}
@@ -53,3 +43,17 @@ Edit grant fields for call {{ call['identifier'] }}
   </form>
 </div>
 {% endblock %}
+
+{% block modals %}
+
+{% set post_url = url_for('.grant', cid=call['identifier']) %}
+{% for field_type in constants.FIELD_TYPES %}
+{% include 'create_field_definition.html' %}
+{% endfor %}
+
+{% for field in call['grant'] %}
+{% set post_url = url_for('.grant_field', cid=call['identifier'], fid=field['identifier']) %}
+{% include 'edit_field_definition.html' %}
+{% endfor %}
+
+{% endblock %} {# block modals #}

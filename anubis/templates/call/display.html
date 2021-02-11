@@ -31,8 +31,8 @@
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
   <div class="col-md">
-    <span class="mr-4">{{ call['closes'] | datetimetz }}</span>
-    <span class="badge badge-pill badge-{{ call['tmp']['color'] }}">
+    {{ call['closes'] | datetimetz }}
+    <span class="badge badge-pill badge-{{ call['tmp']['color'] }} ml-3">
       {{ call['tmp']['text'] }}</span>
   </div>
 </div>
@@ -80,21 +80,29 @@
 {% if allow_view_details %}
 <div class="row mt-1">
   <div class="col-md-2 font-weight-bold text-right">Reviews due</div>
-  <div class="col-md">{{ call.get('reviews_due') | datetimetz(due=True) }}</div>
+  <div class="col-md">
+    {{ call.get('reviews_due') | datetimetz(due=True) }}
+  </div>
 </div>
 {% endif %} {# if allow_view_details #}
 
 {% if allow_view_details %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Reviewers</div>
-  <div class="col-md">
-    {% for pos, reviewer in enumerate(sorted(call['reviewers'])) %}
-    {{ get_user(reviewer) | user_link(chair=reviewer in call['chairs']) }}
+  <div class="col-md-8">
+    {% for reviewer in reviewers %}
+    {{ reviewer | user_link(chair=reviewer['username'] in call['chairs']) }}
     {% if allow_view_reviews %}
-    (<a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=reviewer) }}">reviews</a>)
+    (<a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=reviewer['username']) }}">reviews</a>)
     {% endif %}
-    {% if pos+1 < len(call['reviewers']) %}, {% endif %}
+    <span class="px-2"></span>
     {% endfor %}
+    <a href="#email_lists" data-toggle="collapse"
+       class="badge badge-pill badge-secondary" role="button"
+       aria-expanded="false" aria-controls="email_lists">
+      Email address list
+    </a>
+    {% include 'email_lists.html' %}
   </div>
 </div>
 {% endif %} {# if allow_view_details #}

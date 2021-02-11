@@ -20,7 +20,7 @@ blueprint = flask.Blueprint('proposals', __name__)
 @blueprint.route('/call/<cid>')
 @utils.login_required
 def call(cid):
-    "List all proposals in a call."
+    "List all proposals in a call. Optionally by category."
     call = anubis.call.get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
@@ -28,6 +28,17 @@ def call(cid):
         return utils.error('You may not view the call.', flask.url_for('home'))
     category = flask.request.args.get('category')
     proposals = get_call_proposals(call, category)
+    all_emails = []
+    submitted_emails = []
+    for proposal in proposals:
+        user = anubis.user.get_user(username=proposal['user'])
+        if not user: continue
+        all_emails.append(user['email'])
+        if proposal.get('submitted'):
+            submitted_emails.append(user['email'])
+    email_lists = {'Emails to for submitted proposals': 
+                   ', '.join(submitted_emails),
+                   'Emails for all proposals': ', '.join(all_emails)}
     mean_field_ids = compute_mean_fields(call, proposals)
     am_reviewer = anubis.call.am_reviewer(call)
     allow_view_reviews = anubis.call.allow_view_reviews(call)
@@ -37,6 +48,7 @@ def call(cid):
         'proposals/call.html', 
         call=call,
         proposals=proposals,
+        email_lists=email_lists,
         mean_field_ids=mean_field_ids,
         am_reviewer=am_reviewer,
         allow_view_reviews=allow_view_reviews,

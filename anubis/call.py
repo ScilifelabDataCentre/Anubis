@@ -62,6 +62,10 @@ def display(cid):
         return utils.error('No such call.', flask.url_for('home'))
     if not allow_view(call):
         return utils.error('You are not allowed to view the call.')
+    reviewers = [anubis.user.get_user(r) for r in call['reviewers']]
+    reviewers.sort(key=lambda r: (r['familyname'], r['givenname']))
+    emails = [r['email'] for r in reviewers]
+    email_lists = {'Emails for reviewers': ', '.join(emails)}
     kwargs = {}
     if flask.g.current_user:
         kwargs['my_proposal'] = anubis.proposal.get_call_user_proposal(
@@ -77,6 +81,8 @@ def display(cid):
         kwargs['call_grants_count'] = utils.get_count('grants', 'call', cid)
     return flask.render_template('call/display.html',
                                  call=call,
+                                 reviewers=reviewers,
+                                 email_lists=email_lists,
                                  am_call_owner=am_call_owner(call),
                                  am_reviewer=am_reviewer(call),
                                  allow_edit=allow_edit(call),

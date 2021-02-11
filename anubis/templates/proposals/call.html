@@ -10,12 +10,24 @@
 {% block meta %}
 <div class="lead">
   <a href="{{ url_for('proposals.call_xlsx', cid=call['identifier']) }}"
-     title="All proposals in the call"
-     class="badge badge-pill badge-dark">Proposals Excel file</a>
+     class="badge badge-pill badge-dark" role="button"
+     title="All proposals in the call">
+    Proposals Excel file</a>
+  <a href="#email_lists" data-toggle="collapse"
+     class="badge badge-pill badge-secondary" role="button"
+     aria-expanded="false" aria-controls="email_lists">
+    Email address lists
+  </a>
 </div>
 {% endblock %}
 
 {% block supermain %}
+<div class="row">
+  <div class="col-md-10">
+    {% include 'email_lists.html' %}
+  </div>
+</div>
+
 {% if call.get('categories') %}
 <div class="row">
   <div class="offset-md-3 col-md">
@@ -152,9 +164,11 @@
     {% endfor %} {# for proposal in proposals #}
   </tbody>
 </table>
+
 {% endblock %} {# block supermain #}
 
 {% block javascript %}
+{% include 'clipboard.html' %}
 <script>
   $(function() {
     $(".refresh").change(function () {
