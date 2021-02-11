@@ -40,13 +40,13 @@ Edit decision fields for call {{ call['identifier'] }}
 {% for field_type in constants.FIELD_TYPES %}
 {# Exclude repeat field; not implemented yet for decision! #}
 {% if field_type != constants.REPEAT %}
-{% include 'modal_field_create.html' %}
+{% include 'create_field_definition.html' %}
 {% endif %}
 {% endfor %}
 
 {% for field in call['decision'] %}
 {% set post_url = url_for('.decision_field', cid=call['identifier'], fid=field['identifier']) %}
-{% include 'modal_field_edit.html' %}
+{% include 'edit_field_definition.html' %}
 {% endfor %}
 
 {% endblock %} {# block main #}

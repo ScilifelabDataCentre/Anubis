@@ -29,6 +29,12 @@
     {% if field.get('slider') is not none %}
     {{ field['slider'] and 'Input using slider.' or 'Input using radio buttons.' }}
     {% endif %}
+    {% if field.get('extensions') %}
+    Uploaded document file must have one of the extensions:
+    {% for e in field['extensions'] %}
+    <code>{{ e }}</code>
+    {% endfor %}
+    {% endif %}
     <br>
     {{ field.get('description') | markdown }}
   </td>

@@ -198,7 +198,7 @@ class FieldMixin:
                 else:
                     self.doc['values'][fid] = []
                 if field['required'] and not self.doc['values'][fid]:
-                    self.doc['errors'][fid] = 'missing value'
+                    self.doc['errors'][fid] = 'Missing value.'
             else:
                 self.doc['values'][fid] = form.get(fid) or None
 
@@ -214,15 +214,15 @@ class FieldMixin:
                 value = converter(value)
             except (TypeError, ValueError):
                 if field['required'] and value:
-                    self.doc['errors'][fid] = 'invalid value'
+                    self.doc['errors'][fid] = 'Invalid value.'
                 value = None
             if value is not None:
                 if field.get('minimum') is not None:
                     if value < field['minimum']:
-                        self.doc['errors'][fid] = 'value is too low'
+                        self.doc['errors'][fid] = 'Value is too low.'
                 if field.get('maximum') is not None:
                     if value > field['maximum']:
-                        self.doc['errors'][fid] = 'value is too high'
+                        self.doc['errors'][fid] = 'Value is too high.'
             self.doc['values'][fid] = value
 
         elif field['type'] == constants.DOCUMENT:
@@ -240,6 +240,10 @@ class FieldMixin:
                                                    infile.read(),
                                                    infile.mimetype)
                     self.doc['values'][fid] = filename
+                    if field.get('extensions'):
+                        extension = os.path.splitext(filename)[1].lstrip('.')
+                        if extension not in field['extensions']:
+                            self.doc['errors'][fid] = 'Invalid file type.'
 
         elif field['type'] == constants.REPEAT:
             value = form.get(fid) or None
@@ -247,16 +251,15 @@ class FieldMixin:
                 value = int(value)
             except (TypeError, ValueError):
                 if field['required'] and value:
-                    self.doc['errors'][fid] = 'invalid value'
+                    self.doc['errors'][fid] = 'Invalid value.'
                 value = None
             if value is not None:
                 if field.get('maximum') is not None:
                     if value > field['maximum']:
-                        self.doc['errors'][fid] = 'value is too high'
+                        self.doc['errors'][fid] = 'Value is too high.'
             # The number of repeats changed.
             if not self.doc['errors'].get(fid) and \
                self.doc['values'].get(fid) != value:
-                print("repeat change", fid, self.doc['values'].get(fid), value)
                 # If reduced, remove field values and errors.
                 for f in fields:
                     if f.get('repeat') != fid: continue
@@ -274,4 +277,4 @@ class FieldMixin:
 
         if self.doc['errors'].get(fid): return # Error message already set; skip
         if field['required'] and self.doc['values'].get(fid) is None:
-            self.doc['errors'][fid] = 'missing value'
+            self.doc['errors'][fid] = 'Missing value.'

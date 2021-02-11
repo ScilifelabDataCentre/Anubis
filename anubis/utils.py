@@ -347,7 +347,7 @@ def call_link(call, identifier=True, title=False, proposals_link=True):
     if proposals_link:
         count = get_call_proposals_count(call['identifier'])
         url = flask.url_for("proposals.call", cid=call["identifier"])
-        html += f' <a href="{url}" class="badge badge-primary">{count} proposals</a>'
+        html += f' <a href="{url}" class="badge badge-primary mx-2">{count} proposals</a>'
     return jinja2.utils.Markup(html)
 
 def proposal_link(proposal, bold=True):

@@ -614,13 +614,19 @@ class CallSaver(AttachmentSaver):
                  'banner': bool(form.get('banner')),
                  'repeat': form.get('repeat') or None
                  }
-        if type in (constants.TEXT, constants.LINE):
+
+        if type in (constants.LINE, constants.TEXT):
             try:
                 maxlength = int(form.get('maxlength'))
                 if maxlength <= 0: raise ValueError
             except (TypeError, ValueError):
                 maxlength = None
             field['maxlength'] = maxlength
+
+        elif type == constants.SELECT:
+            field['multiple'] = bool(form.get('multiple'))
+            field['selection'] = [s.strip() for s in
+                                  form.get('selection', '').split('\n')]
 
         elif type == constants.INTEGER:
             try:
@@ -665,10 +671,10 @@ class CallSaver(AttachmentSaver):
             field['maximum'] = maximum
             field['slider'] = utils.to_bool(form.get('slider'))
 
-        elif type == constants.SELECT:
-            field['multiple'] = bool(form.get('multiple'))
-            field['selection'] = [s.strip() for s in
-                                  form.get('selection', '').split('\n')]
+        elif type == constants.DOCUMENT:
+            extensions = [e.strip().lstrip('.') 
+                          for e in form.get('extensions', '').split(',')]
+            field['extensions'] = [e for e in extensions if e]
 
         elif type == constants.REPEAT:
             try:
@@ -711,13 +717,19 @@ class CallSaver(AttachmentSaver):
         field['banner'] = bool(form.get('banner'))
         field['repeat'] = form.get('repeat') or None
 
-        if field['type'] in (constants.TEXT, constants.LINE):
+        if field['type'] in (constants.LINE, constants.TEXT):
             try:
                 maxlength = int(form.get('maxlength'))
                 if maxlength <= 0: raise ValueError
             except (TypeError, ValueError):
                 maxlength = None
             field['maxlength'] = maxlength
+
+        elif field['type'] == constants.SELECT:
+            field['multiple'] = bool(form.get('multiple'))
+            selection = [s.strip() for s in 
+                         form.get('selection', '').split('\n')]
+            field['selection'] = [s for s in selection if s]
 
         elif field['type'] == constants.INTEGER:
             try:
@@ -758,10 +770,10 @@ class CallSaver(AttachmentSaver):
             field['maximum'] = maximum
             field['slider'] = utils.to_bool(form.get('slider'))
 
-        elif field['type'] == constants.SELECT:
-            field['multiple'] = bool(form.get('multiple'))
-            field['selection'] = [s.strip() for s in
-                                  form.get('selection', '').split('\n')]
+        elif field['type'] == constants.DOCUMENT:
+            extensions = [e.strip().lstrip('.') 
+                          for e in form.get('extensions', '').split(',')]
+            field['extensions'] = [e for e in extensions if e]
 
         elif field['type'] == constants.REPEAT:
             try:
@@ -771,7 +783,6 @@ class CallSaver(AttachmentSaver):
             if maximum is not None and maximum < 0:
                 raise ValueError('Invalid maximum value; must be non-negative.')
             field['maximum'] = maximum
-
 
     def add_proposal_field(self, form):
         "Add a field to the proposal definition."

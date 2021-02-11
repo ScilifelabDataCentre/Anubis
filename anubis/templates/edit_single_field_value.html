@@ -6,16 +6,7 @@
   </label>
   <div class="col-md">
 
-    {% if field['type'] == constants.TEXT %}
-    <textarea id="{{ fid }}" name="{{ fid }}"
-	      class="form-control" rows="6"
-	      {% if field.get('maxlength') %}
-	      maxlength="{{ field['maxlength'] }}"
-	      {% endif %}
-	      aria-describedby="{{ fid }}Help"
-	      >{{ value or '' }}</textarea>
-
-    {% elif field['type'] == constants.LINE %}
+    {% if field['type'] == constants.LINE %}
     <input type="text"
 	   id="{{ fid }}" name="{{ fid }}"
 	   class="form-control"
@@ -168,6 +159,15 @@
     </div>
     {% endif %}
 
+    {% elif field['type'] == constants.TEXT %}
+    <textarea id="{{ fid }}" name="{{ fid }}"
+	      class="form-control" rows="6"
+	      {% if field.get('maxlength') %}
+	      maxlength="{{ field['maxlength'] }}"
+	      {% endif %}
+	      aria-describedby="{{ fid }}Help"
+	      >{{ value or '' }}</textarea>
+
     {% elif field['type'] == constants.DOCUMENT %}
     <div class="row">
       <div class="col-md-10">
@@ -219,6 +219,9 @@
 	  {% if field.get('required') %}
 	  <strong>Required!</strong>
 	  {% endif %}
+          {% if field['type'] in (constants.INTEGER, constants.REPEAT) %}
+          Do <strong>not</strong> use commas or dots in the integer value.
+          {% endif %}
 	  {% if field.get('maxlength') %}
 	  Maximum {{ field['maxlength'] }} characters.
 	  {% endif %}
@@ -228,10 +231,13 @@
           {% if field.get('maximum') is not none %}
           Maximum value {{ field['maximum'] }}.
           {% endif %}
-	  {{ field.get('description') | markdown }}
-          {% if field['type'] in (constants.INTEGER, constants.REPEAT) %}
-          Do <strong>not</strong> use commas or dots in the integer value.
+          {% if field.get('extensions') %}
+          Uploaded document file must have one of the extensions:
+          {% for e in field['extensions'] %}
+          <code>{{ e }}</code>
+          {% endfor %}
           {% endif %}
+	  {{ field.get('description') | markdown }}
 	</div>
 	{% if field['type'] == constants.TEXT %}
 	<div class="col-md-3">
