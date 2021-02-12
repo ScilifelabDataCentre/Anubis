@@ -109,7 +109,8 @@ def edit(gid):
                 flask.url_for('.display', gid=grant['identifier']))
         try:
             with GrantSaver(doc=grant) as saver:
-                saver.set_fields_values(call['grant'], form=flask.request.form)
+                saver.set_fields_values(call.get('grant', []),
+                                        form=flask.request.form)
         except ValueError as error:
             return utils.error(error)
         if saver.repeat_changed:

@@ -26,8 +26,8 @@
   <div class="col-md">
     {{ get_call(grant['call']) | call_link(proposals_link=False) }}
     <a href="{{ url_for('grants.call', cid=call['identifier']) }}"
-       role="button" class="btn btn-sm btn-success">
-      {{ call_grants_count }} grant dossiers</a>
+       role="button" class="btn btn-sm btn-success ml-2">
+      {{ call_grants_count }} grants</a>
   </div>
 </div>
 

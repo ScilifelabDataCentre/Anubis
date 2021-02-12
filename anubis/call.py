@@ -398,7 +398,7 @@ def grant(cid):
         return utils.error('You are not allowed to edit the call.')
 
     if utils.http_GET():
-        repeat_fields = [f for f in call['grant']
+        repeat_fields = [f for f in call.get('grant', [])
                          if f['type'] == constants.REPEAT]
         return flask.render_template('call/grant.html',
                                      call=call,
@@ -477,7 +477,7 @@ def clone(cid):
                 saver.doc['proposal'] = copy.deepcopy(call['proposal'])
                 saver.doc['review'] = copy.deepcopy(call['review'])
                 saver.doc['decision'] = copy.deepcopy(call['decision'])
-                saver.doc['grant'] = copy.deepcopy(call.get('grant', list()))
+                saver.doc['grant'] = copy.deepcopy(call.get('grant', []))
                 # Do not copy documents.
                 # Do not copy reviewers or chairs.
             new = saver.doc
