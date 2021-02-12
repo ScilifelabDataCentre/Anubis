@@ -7,10 +7,9 @@ import flask
 import anubis.user
 import anubis.call
 import anubis.proposal
-
-from . import constants
-from . import utils
-from .saver import AttachmentSaver, FieldMixin
+from anubis import constants
+from anubis import utils
+from anubis.saver import AttachmentSaver, FieldMixin
 
 
 def init(app):
@@ -22,24 +21,34 @@ def init(app):
 DESIGN_DOC = {
     'views': {
         # Reviews for all proposals in call.
-        'call': {'reduce': '_count',
-                 'map': "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit(doc.call, null);}"},
+        'call':
+        {'reduce': '_count',
+         'map': "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit(doc.call, null);}"},
         # Reviews for a proposal.
-        'proposal': {'reduce': '_count',
-                     'map': "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit(doc.proposal, null);}"},
+        'proposal':
+        {'reduce': '_count',
+         'map': "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit(doc.proposal, null);}"},
         # Reviews per reviewer, in any call
-        'reviewer': {'reduce': '_count',
-                     'map': "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit(doc.reviewer, null);}"},
+        'reviewer':
+        {'reduce': '_count',
+         'map': "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit(doc.reviewer, null);}"},
         # Reviews per call and reviewer.
-        'call_reviewer': {'reduce': '_count',
-                          'map': "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit([doc.call, doc.reviewer], null);}"},
+        'call_reviewer':
+        {'reduce': '_count',
+         'map': "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit([doc.call, doc.reviewer], null);}"},
         'proposal_reviewer': {'map': "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit([doc.proposal, doc.reviewer], null);}"},
         # Unfinalized reviews by reviewer, in any call.
-        'unfinalized': {'reduce': '_count',
-                        'map': "function(doc) {if (doc.doctype !== 'review' || doc.finalized || doc.archived) return; emit(doc.reviewer, null);}"},
+        'unfinalized':
+        {'reduce': '_count',
+         'map': "function(doc) {if (doc.doctype !== 'review' || doc.finalized || doc.archived) return; emit(doc.reviewer, null);}"},
         # Archived reviews for a proposal.
-        'proposal_archived': {'reduce': '_count',
-                              'map': "function(doc) {if (doc.doctype !== 'review' || !doc.archived) return; emit(doc.proposal, null);}"},
+        'proposal_archived':
+        {'reduce': '_count',
+         'map': "function(doc) {if (doc.doctype !== 'review' || !doc.archived) return; emit(doc.proposal, null);}"},
+        # Archived reviews for a proposal and reviewer.
+        'proposal_reviewer_archived':
+        {'reduce': '_count',
+         'map': "function(doc) {if (doc.doctype !== 'review' || !doc.archived) return; emit([doc.proposal, doc.reviewer], null);}"},
     }
 }
 

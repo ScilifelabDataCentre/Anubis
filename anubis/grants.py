@@ -9,9 +9,8 @@ import anubis.call
 import anubis.user
 import anubis.proposal
 import anubis.grant
-
-from . import constants
-from . import utils
+from anubis import constants
+from anubis import utils
 
 blueprint = flask.Blueprint('grants', __name__)
 

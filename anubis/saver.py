@@ -5,8 +5,8 @@ import os.path
 
 import flask
 
-from . import constants
-from . import utils
+from anubis import constants
+from anubis import utils
 
 
 class BaseSaver:

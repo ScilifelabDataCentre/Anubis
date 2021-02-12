@@ -15,7 +15,7 @@ import jinja2.utils
 import marko
 import werkzeug.routing
 
-from . import constants
+from anubis import constants
 
 # Global instance of mail interface.
 MAIL = flask_mail.Mail()
@@ -519,7 +519,7 @@ def send_email(recipients, title, text):
     message.body = text
     try:
         MAIL.send(message)
-    except ConnectionRefusedError:
+    except (ConnectionRefusedError, smtplib.SMTPAuthenticationError) as error:
         flash_error("Email has not been properly configured in the Anubis"
                     " system. No email message was sent.")
-        logging.error(str(message))
+        logging.error(str(error))

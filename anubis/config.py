@@ -3,8 +3,8 @@
 import os
 import os.path
 
-from . import constants
-from . import utils
+from anubis import constants
+from anubis import utils
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 

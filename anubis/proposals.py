@@ -10,9 +10,8 @@ import anubis.call
 import anubis.decision
 import anubis.proposal
 import anubis.user
-
-from . import constants
-from . import utils
+from anubis import constants
+from anubis import utils
 
 
 blueprint = flask.Blueprint('proposals', __name__)

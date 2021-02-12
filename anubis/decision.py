@@ -5,10 +5,9 @@ import os.path
 import flask
 
 import anubis.proposal
-
-from . import constants
-from . import utils
-from .saver import AttachmentSaver, FieldMixin
+from anubis import constants
+from anubis import utils
+from anubis.saver import AttachmentSaver, FieldMixin
 
 
 def init(app):

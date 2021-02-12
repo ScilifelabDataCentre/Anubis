@@ -9,8 +9,8 @@ import jinja2
 import xlsxwriter
 
 import anubis
-from . import constants
-from . import utils
+from anubis import constants
+from anubis import utils
 
 
 blueprint = flask.Blueprint('about', __name__)

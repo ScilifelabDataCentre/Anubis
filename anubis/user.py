@@ -10,9 +10,9 @@ import flask
 import werkzeug.security
 
 import anubis.call
-from . import constants
-from . import utils
-from .saver import BaseSaver
+from anubis import constants
+from anubis import utils
+from anubis.saver import BaseSaver
 
 
 def init(app):
@@ -188,13 +188,12 @@ def password():
 @utils.login_required
 def display(username):
     "Display the given user."
-    from .call import get_call
     user = get_user(username=username)
     if user is None:
         return utils.error('No such user.', flask.url_for('home'))
     if not allow_view(user):
         return utils.error('Access to user display not allowed.')
-    reviewer_calls = [get_call(r.value)
+    reviewer_calls = [anubis.call.get_call(r.value)
                       for r in flask.g.db.view('calls', 'reviewer', 
                                                key=user['username'],
                                                reduce=False)]

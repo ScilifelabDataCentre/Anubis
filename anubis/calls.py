@@ -3,9 +3,8 @@
 import flask
 
 import anubis.call
-
-from . import constants
-from . import utils
+from anubis import constants
+from anubis import utils
 
 
 blueprint = flask.Blueprint('calls', __name__)

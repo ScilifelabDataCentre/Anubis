@@ -8,10 +8,10 @@ import anubis.call
 import anubis.user
 import anubis.decision
 import anubis.grant
-
-from . import constants
-from . import utils
-from .saver import AttachmentSaver, FieldMixin
+import anubis.review
+from anubis import constants
+from anubis import utils
+from anubis.saver import AttachmentSaver, FieldMixin
 
 
 def init(app):
@@ -41,7 +41,6 @@ blueprint = flask.Blueprint('proposal', __name__)
 @utils.login_required
 def display(pid):
     "Display the proposal."
-    from .review import get_reviewer_review
     proposal = get_proposal(pid)
     if proposal is None:
         return utils.error('No such proposal.', flask.url_for('home'))
@@ -53,7 +52,7 @@ def display(pid):
     am_submitter = flask.g.current_user and \
                    flask.g.current_user['username'] == proposal['user']
     am_reviewer = anubis.call.am_reviewer(call)
-    my_review = get_reviewer_review(proposal, flask.g.current_user)
+    my_review = anubis.review.get_reviewer_review(proposal,flask.g.current_user)
     allow_view_reviews = anubis.call.allow_view_reviews(call)
     decision = anubis.decision.get_decision(proposal.get('decision'))
     allow_create_decision = anubis.decision.allow_create(proposal)

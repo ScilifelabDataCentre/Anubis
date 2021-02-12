@@ -10,9 +10,8 @@ import anubis.user
 import anubis.proposal
 import anubis.proposals
 import anubis.review
-
-from . import constants
-from . import utils
+from anubis import constants
+from anubis import utils
 
 blueprint = flask.Blueprint('reviews', __name__)
 
