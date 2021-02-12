@@ -255,9 +255,8 @@ def reviewers(cid):
         if user is None:
             return utils.error('No such user.')
         if anubis.proposal.get_call_user_proposal(cid, user['username']):
-            return utils.error('User has a proposal in the call.',
-                               flask.url_for('.reviewers',
-                                             cid=call['identifier']))
+            utils.flash_warning('User has a proposal in the call. Allowing'
+                                ' her to be a reviewer is questionable.')
 
         with CallSaver(call) as saver:
             try:

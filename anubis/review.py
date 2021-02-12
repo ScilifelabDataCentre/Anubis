@@ -66,6 +66,8 @@ def create(pid, username):
         if review is not None:
             utils.flash_message('The review already exists.')
             return flask.redirect(flask.url_for('.display', iuid=review['_id']))
+        if proposals['user'] == user['username']:
+            raise ValueError('Reviewer and proposal submitter are the same.')
         with ReviewSaver(proposal=proposal, user=user) as saver:
             pass
     except ValueError as error:
