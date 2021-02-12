@@ -9,9 +9,9 @@ class Constants:
     SOURCE_NAME = 'Anubis'
     SOURCE_URL  = 'https://github.com/pekrau/Anubis'
 
-    BOOTSTRAP_VERSION  = '4.5.3'
+    BOOTSTRAP_VERSION  = '4.6.0'
     JQUERY_VERSION     = '3.5.1'
-    DATATABLES_VERSION = '1.10.22'
+    DATATABLES_VERSION = '1.10.23'
 
     ID_RX    = re.compile(r'^[a-z][a-z0-9_]*$', re.I)
     IUID_RX  = re.compile(r'^[a-f0-9]{32,32}$', re.I)

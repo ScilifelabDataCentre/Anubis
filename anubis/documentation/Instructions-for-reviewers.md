@@ -36,7 +36,6 @@ reviews are done.
 ### Reviewer privileges
 
 - The reviewer may view all proposals in the call.
-- A reviewer may not have a proposal of her own in the call.
 - The reviewer cannot create or delete review instances, only edit them.
 - The chair, if any, of a call may create review instances.
 - A reviewer may view finalized reviews by other reviewers only if the

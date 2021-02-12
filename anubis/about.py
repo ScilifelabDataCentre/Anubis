@@ -5,6 +5,7 @@ import sys
 
 import couchdb2
 import flask
+import jinja2
 import xlsxwriter
 
 import anubis
@@ -51,6 +52,7 @@ def get_software():
         (constants.SOURCE_NAME, anubis.__version__, constants.SOURCE_URL),
         ('Python', f"{v.major}.{v.minor}.{v.micro}", 'https://www.python.org/'),
         ('Flask', flask.__version__, 'http://flask.pocoo.org/'),
+        ('Jinja2', jinja2.__version__, 'https://pypi.org/project/Jinja2/'),
         ('CouchDB server', flask.g.db.server.version, 
          'https://couchdb.apache.org/'),
         ('CouchDB2 interface', couchdb2.__version__, 
