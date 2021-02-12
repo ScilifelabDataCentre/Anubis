@@ -108,7 +108,17 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   </form>
 </div>
 {% endif %} {# if allow_finalize #}
-{% if allow_delete and not review.get('archived')%}
+{% if allow_delete %}
+{% if review.get('archived') %}
+<div class="mt-4">
+  <form action="{{ url_for('.unarchive', iuid=review['_id']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <button type="submit" class="btn btn-sm btn-block btn-secondary">
+      Unarchive</button>
+  </form>
+</div>
+{% else %}
 <div class="mt-4">
   <form action="{{ url_for('.archive', iuid=review['_id']) }}"
 	method="POST">
@@ -118,8 +128,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
       Archive</button>
   </form>
 </div>
-{% endif %} {# if allow_delete #}
-{% if allow_delete %}
+{% endif %} {# if review.get('archived') #}
 <div class="mt-4">
   <form action="{{ url_for('.edit', iuid=review['_id']) }}"
 	method="POST">

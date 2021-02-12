@@ -206,6 +206,29 @@ def archive(iuid):
             utils.flash_error(error)
         return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
+@blueprint.route('/<iuid:iuid>/unarchive', methods=['POST'])
+@utils.login_required
+def unarchive(iuid):
+    "Unarchive the review for the proposal. Requires 'delete' privilege."
+    try:
+        review = get_review(iuid)
+    except KeyError:
+        return utils.error('No such archived review.', flask.url_for('home'))
+    if not allow_delete(review):
+        return utils.error('You are not allowed to unarchive this review.',
+                           flask.url_for('.display', iuid=review['_id']))
+    if get_reviewer_review(anubis.proposal.get_proposal(review['proposal']),
+                           anubis.user.get_user(review['reviewer'])):
+        return utils.error('Unarchived review exists for proposal and reviewer.')
+
+    if utils.http_POST():
+        try:
+            with ReviewSaver(doc=review) as saver:
+                saver.set_unarchived()
+        except ValueError as error:
+            utils.flash_error(error)
+        return flask.redirect(flask.url_for('.display', iuid=review['_id']))
+
 @blueprint.route('/<iuid:iuid>/logs')
 @utils.login_required
 def logs(iuid):
@@ -287,9 +310,15 @@ class ReviewSaver(FieldMixin, AttachmentSaver):
     def set_archived(self):
         "Archive this review; save the current field definitions."
         if self.doc.get('archived'): return
-        call =     call = anubis.call.get_call(self.doc['call'])
+        call = anubis.call.get_call(self.doc['call'])
         self['fields'] = call['review']
         self['archived'] = True
+
+    def set_unarchived(self):
+        "Archive this review; save the current field definitions."
+        if not self.doc.get('archived'): return
+        self.doc.pop('archived', None)
+        self.doc.pop('fields', None)
 
 
 def get_review(iuid):
