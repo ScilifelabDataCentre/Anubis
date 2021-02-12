@@ -65,6 +65,7 @@ def display(cid):
     reviewers = [anubis.user.get_user(r) for r in call['reviewers']]
     reviewers.sort(key=lambda r: (r['familyname'], r['givenname']))
     emails = [r['email'] for r in reviewers]
+    emails = [e for e in emails if e]
     email_lists = {'Emails for reviewers': ', '.join(emails)}
     kwargs = {}
     if flask.g.current_user:

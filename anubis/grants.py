@@ -33,6 +33,7 @@ def call(cid):
     for grant in grants:
         grant['user'] = anubis.user.get_user(grant['user'])
     emails = [g['user']['email'] for g in grants]
+    emails = [e for e in emails if e]
     email_lists = {'Grant receivers (= proposal submitters)':
                    ', '.join(emails)}
     return flask.render_template('grants/call.html',

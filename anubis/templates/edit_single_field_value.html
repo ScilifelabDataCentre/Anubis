@@ -7,8 +7,7 @@
   <div class="col-md">
 
     {% if field['type'] == constants.LINE %}
-    <input type="text"
-	   id="{{ fid }}" name="{{ fid }}"
+    <input type="text" id="{{ fid }}" name="{{ fid }}"
 	   class="form-control"
 	   {% if field.get('maxlength') %}
 	   maxlength="{{ field['maxlength'] }}"
@@ -18,8 +17,7 @@
 
     {% elif field['type'] == constants.BOOLEAN %}
     <div class="custom-control custom-radio custom-control-inline">
-      <input type="radio"
-             id="{{ fid }}_yes" name="{{ fid }}"
+      <input type="radio" id="{{ fid }}_yes" name="{{ fid }}"
              class="custom-control-input"
              {{ value == True and 'checked' }}
              value="true">
@@ -27,8 +25,7 @@
         Yes</label>
     </div>
     <div class="custom-control custom-radio custom-control-inline">
-      <input type="radio"
-             id="{{ fid }}_no" name="{{ fid }}"
+      <input type="radio" id="{{ fid }}_no" name="{{ fid }}"
              class="custom-control-input"
              {{ value == False and 'checked' }}
              value="false">
@@ -36,9 +33,7 @@
         No</label>
     </div>
     <div class="custom-control custom-radio custom-control-inline ml-4">
-      <input type="radio"
-             id="{{ fid }}_novalue" 
-             name="{{ fid }}"
+      <input type="radio" id="{{ fid }}_novalue" name="{{ fid }}"
              class="custom-control-input"
              {{ value is none and 'checked' }}
              value="">
@@ -50,9 +45,7 @@
     {% if field.get('multiple') %}
     {% for select in field['selection'] %}
     <div class="custom-control custom-checkbox">
-      <input type="checkbox"
-             id="{{ fid }}_{{ select }}"
-             name="{{ fid }}"
+      <input type="checkbox" id="{{ fid }}_{{ select }}" name="{{ fid }}"
              class="custom-control-input"
              {{ value and select in value and 'checked' }}
              value="{{ select }}">
@@ -64,9 +57,7 @@
     {% else %}
     {% for select in field['selection'] %}
     <div class="custom-control custom-radio">
-      <input type="radio"
-             id="{{ fid }}_{{ select }}"
-             name="{{ fid }}"
+      <input type="radio" id="{{ fid }}_{{ select }}" name="{{ fid }}"
              class="custom-control-input"
              {{ value and select in value and 'checked' }}
              value="{{ select }}">
@@ -78,14 +69,13 @@
     {% endif %} {# if field.get('multiple') #}
 
     {% elif field['type'] in constants.INTEGER %}
-    <input type="number" step="1"
+    <input type="number" step="1" id="{{ fid }}" name="{{ fid }}"
            {% if field.get('minimum') %}
            min="{{ field['minimum'] }}"
            {% endif %}
            {% if field.get('maximum') %}
            max="{{ field['maximum'] }}"
            {% endif %}
-	   id="{{ fid }}" name="{{ fid }}"
 	   class="form-control"
            {% if value is not none %}
 	   value="{{ value }}"
@@ -93,14 +83,13 @@
 	   aria-describedby="{{ fid }}Help">
 
     {% elif field['type'] == constants.FLOAT %}
-    <input type="number" step="0.01"
+    <input type="number" step="0.01" id="{{ fid }}" name="{{ fid }}"
            {% if field.get('minimum') %}
            min="{{ field['minimum'] }}"
            {% endif %}
            {% if field.get('maximum') %}
            max="{{ field['maximum'] }}"
            {% endif %}
-	   id="{{ fid }}" name="{{ fid }}"
 	   class="form-control"
            {% if value is not none %}
 	   value="{{ value }}"
@@ -112,9 +101,8 @@
     <div class="form-group row">
       <div class="col-md-1 text-right">{{ field['minimum'] }}</div>
       <div class="col-md">
-        <input type="range" step="1"
+        <input type="range" step="1" id="{{ fid }}" name="{{ fid }}"
                min="{{ field['minimum'] }}" max="{{ field['maximum'] }}"
-	       id="{{ fid }}" name="{{ fid }}"
 	       class="custom-range"
                {% if value is not none %}
 	       value="{{ value }}"
@@ -124,9 +112,7 @@
       <div class="col-md-1">{{ field['maximum'] }}</div>
       <div class="col-md-1">
         <div class="custom-control custom-radio custom-control-inline">
-          <input type="checkbox"
-                 id="{{ fid }}_novalue"
-                 name="{{ fid }}_novalue"
+          <input type="checkbox" id="{{ fid }}_novalue" name="{{ fid }}_novalue"
                  class="custom-control-input"
                  {{ value is none and 'checked' }}
                  value="true">
@@ -138,8 +124,7 @@
     {% else %}
     {% for pos in range(field['minimum'], field['maximum']+1) %}
     <div class="custom-control custom-radio custom-control-inline pt-1">
-      <input type="radio"
-             id="{{ fid }}_{{ pos }}" name="{{ fid }}"
+      <input type="radio" id="{{ fid }}_{{ pos }}" name="{{ fid }}"
              class="custom-control-input"
              {{ value == pos and 'checked'  or ''}}
              value="{{ pos }}">
@@ -148,9 +133,7 @@
     </div>
     {% endfor %}
     <div class="custom-control custom-radio custom-control-inline ml-4">
-      <input type="radio"
-             id="{{ fid }}_novalue"
-             name="{{ fid }}"
+      <input type="radio" id="{{ fid }}_novalue" name="{{ fid }}"
              class="custom-control-input"
              {{ value is none and 'checked' or ''}}
              value="true">
@@ -172,8 +155,7 @@
     <div class="row">
       <div class="col-md-10">
         <div class="custom-file">
-          <input type="file"
-	         id="{{ fid }}" name="{{ fid }}"
+          <input type="file" id="{{ fid }}" name="{{ fid }}"
 	         class="custom-file-input"
 	         aria-describedby="{{ fid }}Help">
           <label class="custom-file-label" for="{{ fid }}">
@@ -183,9 +165,7 @@
       </div>
       <div class="col-md-2">
         <div class="custom-control custom-checkbox mt-2">
-          <input type="checkbox"
-                 id="{{ fid }}_remove"
-                 name="{{ fid }}_remove"
+          <input type="checkbox" id="{{ fid }}_remove" name="{{ fid }}_remove"
                  class="custom-control-input"
                  value="remove">
           <label class="custom-control-label"
@@ -196,11 +176,11 @@
     </div>
 
     {% elif field['type'] in constants.REPEAT %}
-    <input type="number" step="1" min="0"
+    <input type="number" id="{{ fid }}" name="{{ fid }}"
+           step="1" min="0"
            {% if field.get('maximum') %}
            max="{{ field['maximum'] }}"
            {% endif %}
-	   id="{{ fid }}" name="{{ fid }}"
 	   class="form-control"
            {% if value is not none %}
 	   value="{{ value }}"

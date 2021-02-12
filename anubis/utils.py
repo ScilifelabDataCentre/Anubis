@@ -380,14 +380,29 @@ def decision_link(decision, small=False):
     if not decision: return "-"
     url = flask.url_for("decision.display", iuid=decision["_id"])
     if decision.get('finalized'):
-        color = "btn-dark font-weight-bold"
+        if decision.get('verdict'):
+            color = "btn-success font-weight-bold"
+            label = 'Accepted'
+        else:
+            color = "btn-secondary font-weight-bold"
+            label = 'Declined'
     else:
-        color = "btn-outline-dark"
+        if decision.get('verdict'):
+            color = "btn-outline-success font-weight-bold"
+            label = 'Accepted'
+        elif decision.get('verdict') == False:
+            color = "btn-outline-secondary font-weight-bold"
+            label = 'Declined'
+        else:
+            color = "btn-warning"
+            label = 'Undecided'
     if small:
         color += " btn-sm"
+    else:
+        color += " my-1"
     return jinja2.utils.Markup(
-        f'''<a href="{url}" role="button" class="btn {color} my-1">'''
-        "Decision</a>")
+        f'''<a href="{url}" role="button" class="btn {color}">'''
+        f"{label}</a>")
 
 def grant_link(grant, small=False):
     "Template filter: link to grant."

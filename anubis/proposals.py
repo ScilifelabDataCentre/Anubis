@@ -36,6 +36,9 @@ def call(cid):
         all_emails.append(user['email'])
         if proposal.get('submitted'):
             submitted_emails.append(user['email'])
+    # There may be accounts that have no email!
+    all_emails = [e for e in all_emails if e]
+    submitted_emails = [e for e in submitted_emails if e]
     email_lists = {'Emails to for submitted proposals': 
                    ', '.join(submitted_emails),
                    'Emails for all proposals': ', '.join(all_emails)}

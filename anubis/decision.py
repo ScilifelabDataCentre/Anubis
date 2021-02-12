@@ -105,6 +105,7 @@ def edit(iuid):
                                flask.url_for('.display', iuid=decision['_id']))
         try:
             with DecisionSaver(doc=decision) as saver:
+                saver.set_verdict(form=flask.request.form)
                 for field in call['decision']:
                     saver.set_field_value(field, form=flask.request.form)
         except ValueError as error:
@@ -225,6 +226,7 @@ class DecisionSaver(FieldMixin, AttachmentSaver):
             raise ValueError('doc or proposal must be specified')
 
     def initialize(self):
+        self.doc['verdict'] = None
         self.doc['values'] = {}
         self.doc['errors'] = {}
 
@@ -236,6 +238,13 @@ class DecisionSaver(FieldMixin, AttachmentSaver):
         call = anubis.call.get_call(proposal['call'])
         self.doc['call'] = call['identifier']
         self.set_fields_values(call['decision'])
+
+    def set_verdict(self, form=dict()):
+        "Set the value of verdict."
+        value = form.get('_verdict') or None
+        if value:
+            value = utils.to_bool(value)
+        self.doc['verdict'] = value
 
 
 def get_decision(iuid):
@@ -303,6 +312,7 @@ def allow_finalize(decision):
     if not flask.g.current_user: return False
     if decision.get('finalized'): return False
     if decision.get('errors'): return False
+    if decision.get('verdict') is None: return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(decision['call'])
     if anubis.call.am_chair(call): return True

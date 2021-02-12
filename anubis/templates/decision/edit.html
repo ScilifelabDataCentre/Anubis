@@ -14,6 +14,39 @@ Edit decision for {{ proposal['identifier'] }}
       method="POST">
   {{ csrf_token() }}
 
+  <div class="form-group row">
+    <label for="_verdict"
+           class="col-md-2 col-form-label text-right font-weight-bold">
+      Verdict
+    </label>
+    <div class="col-md">
+      <div class="custom-control custom-radio custom-control-inline mt-2">
+        <input type="radio" id="_verdict_accepted" name="_verdict"
+               class="custom-control-input"
+               {{ decision.get('verdict') == True and 'checked' }}
+               value="true">
+        <label class="custom-control-label" for="_verdict_accepted">
+          Accepted</label>
+      </div>
+      <div class="custom-control custom-radio custom-control-inline">
+        <input type="radio" id="_verdict_declined" name="_verdict"
+               class="custom-control-input"
+               {{ decision.get('verdict') == False and 'checked' }}
+               value="false">
+        <label class="custom-control-label" for="_verdict_declined">
+          Declined</label>
+      </div>
+      <div class="custom-control custom-radio custom-control-inline">
+        <input type="radio" id="_verdict_undecided" name="_verdict"
+               class="custom-control-input"
+               {{  decision.get('verdict') is none and 'checked' }}
+               value="">
+        <label class="custom-control-label" for="_verdict_undecided">
+          Undecided</label>
+      </div>
+    </div>
+  </div>
+
   {% set fields = call['decision'] %}
   {% set values = decision['values'] %}
   {% set errors = decision['errors'] %}

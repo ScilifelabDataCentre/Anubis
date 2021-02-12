@@ -28,6 +28,18 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
     {% endif %}
   </div>
 </div>
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Verdict</div>
+  <div class="col-md">
+    {% if decision.get('verdict') %}
+    <span class="badge badge-pill badge-success">Accepted</span>
+    {% elif decision.get('verdict') == false %}
+    <span class="badge badge-pill badge-secondary">Declined</span>
+    {% else %}
+    <span class="badge badge-pill badge-warning">Undecided</span>
+    {% endif %}
+  </div>
+</div>
 
 {% for field in call['decision'] %}
 <div class="row mb-2">
