@@ -174,48 +174,56 @@ def grant_zip(gid):
     if not allow_view(grant):
         return utils.error('You are not allowed to read this grant dossier.',
                            flask.url_for('home'))
-    call = anubis.call.get_call(grant['call'])
     # Colon ':' is a problematic character in filenames; replace by dash '_'
     gid = gid.replace(':', '-')
     output = io.BytesIO()
-    with zipfile.ZipFile(output, "w") as zip:
-        # First non-repeated document fields.
-        for field in call['grant']:
-            if field.get('repeat'): continue
-            if field['type'] != constants.DOCUMENT: continue
-            try:
-                documentname = grant['values'][field['identifier']]
-            except KeyError:
-                continue
-            ext = os.path.splitext(documentname)[1]
-            stub = grant['_attachments'][documentname]
-            outfile = flask.g.db.get_attachment(grant, documentname)
-            filename = f"{gid}-{field['identifier']}{ext}"
-            zip.writestr(filename, outfile.read())
-        # Then repeated document fields.
-        for field in call['grant']:
-            if field['type'] != constants.REPEAT: continue
-            n_fields = grant['values'].get(field['identifier']) or 0
-            for n in range(1, n_fields + 1):
-                for field2 in call['grant']:
-                    if field2.get('repeat') != field['identifier']: continue
-                    if field2['type'] != constants.DOCUMENT: continue
-                    field2name = f"{field2['identifier']}-{n}"
-                    try:
-                        documentname = grant['values'][field2name]
-                    except KeyError:
-                        continue
-                    ext = os.path.splitext(documentname)[1]
-                    stub = grant['_attachments'][documentname]
-                    outfile = flask.g.db.get_attachment(grant, documentname)
-                    filename = f"{gid}-{field2['identifier']}-{n}{ext}"
-                    zip.writestr(filename, outfile.read())
+    with zipfile.ZipFile(output, "w") as outfile:
+        for document in get_grant_documents(grant):
+            outfile.writestr(document['filename'], document['content'])
     response = flask.make_response(output.getvalue())
     response.headers.set('Content-Type', constants.ZIP_MIMETYPE)
     response.headers.set('Content-Disposition', 'attachment', 
                          filename=f"{gid}.zip")
     return response
 
+def get_grant_documents(grant):
+    "Get all documents in a grant as a list of dict(filename, content)."
+    result = []
+    call = anubis.call.get_call(grant['call'])
+    # Colon ':' is a problematic character in filenames; replace by dash '_'
+    gid = grant['identifier'].replace(':', '-')
+    # First non-repeated document fields.
+    for field in call['grant']:
+        if field.get('repeat'): continue
+        if field['type'] != constants.DOCUMENT: continue
+        try:
+            documentname = grant['values'][field['identifier']]
+        except KeyError:
+            continue
+        stub = grant['_attachments'][documentname]
+        ext = os.path.splitext(documentname)[1]
+        filename = f"{gid}-{field['identifier']}{ext}"
+        outfile = flask.g.db.get_attachment(grant, documentname)
+        result.append(dict(filename=filename, content=outfile.read()))
+    # Then repeated document fields.
+    for field in call['grant']:
+        if field['type'] != constants.REPEAT: continue
+        n_fields = grant['values'].get(field['identifier']) or 0
+        for n in range(1, n_fields + 1):
+            for field2 in call['grant']:
+                if field2.get('repeat') != field['identifier']: continue
+                if field2['type'] != constants.DOCUMENT: continue
+                field2name = f"{field2['identifier']}-{n}"
+                try:
+                    documentname = grant['values'][field2name]
+                except KeyError:
+                    continue
+                stub = grant['_attachments'][documentname]
+                outfile = flask.g.db.get_attachment(grant, documentname)
+                ext = os.path.splitext(documentname)[1]
+                filename = f"{gid}-{field2['identifier']}-{n}{ext}"
+                result.append(dict(filename=filename, content=outfile.read()))
+    return result
 
 @blueprint.route('/<gid>/logs')
 @utils.login_required

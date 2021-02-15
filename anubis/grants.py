@@ -1,6 +1,7 @@
 "Grants dossier lists."
 
 import io
+import zipfile
 
 import flask
 import xlsxwriter
@@ -226,3 +227,32 @@ def write_cell(ws, nrow, ncol, value, field_type, gid, fid):
                      string='Download')
     else:
         ws.write(nrow, ncol, value)
+
+@blueprint.route('/call/<cid>.zip')
+@utils.login_required
+def call_zip(cid):
+    """Return a zip file containing the XLSX file of all grants for a call
+    and all documents in all grant dossiers.
+    """
+    call = anubis.call.get_call(cid)
+    if call is None:
+        return utils.error('No such call.', flask.url_for('home'))
+    if not anubis.call.allow_view(call):
+        return utils.error('You may not view the call.', flask.url_for('home'))
+    if not anubis.call.allow_view_grants(call):
+        return utils.error('You may not view the grants of the call.',
+                           flask.url_for('call.display',cid=call['identifier']))
+    # Colon ':' is a problematic character in filenames; replace by dash '_'
+    cid = cid.replace(':', '-')
+    grants = utils.get_docs_view('grants', 'call', call['identifier'])
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, "w") as outfile:
+        outfile.writestr(f"{cid}_grants.xlsx", get_grants_xlsx(call, grants))
+        for grant in grants:
+            for document in anubis.grant.get_grant_documents(grant):
+                outfile.writestr(document['filename'], document['content'])
+    response = flask.make_response(output.getvalue())
+    response.headers.set('Content-Type', constants.ZIP_MIMETYPE)
+    response.headers.set('Content-Disposition', 'attachment', 
+                         filename=f"{cid}_grants.zip")
+    return response

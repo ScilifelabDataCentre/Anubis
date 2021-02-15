@@ -10,16 +10,17 @@ Grant dossiers in call {{ call['identifier'] }}
 {% endblock %}
 
 {% block meta %}
-<div class="lead">
-  <a href="{{ url_for('grants.call_xlsx', cid=call['identifier']) }}"
-     title="All grants in the call"
-     class="badge badge-pill badge-dark">Grants Excel file</a>
-  <a href="#email_lists" data-toggle="collapse"
-     class="badge badge-pill badge-secondary" role="button"
-     aria-expanded="false" aria-controls="email_lists">
-    Email address lists
-  </a>
-</div>
+<a href="{{ url_for('grants.call_xlsx', cid=call['identifier']) }}"
+   title="All grants in the call in an Excel file."
+   class="badge badge-pill badge-dark">Grants Excel file</a>
+<a href="{{ url_for('grants.call_zip', cid=call['identifier']) }}"
+   title="All grants in the call and their documents in a zip file"
+   class="badge badge-pill badge-dark">Grants documents zip file</a>
+<a href="#email_lists" data-toggle="collapse"
+   class="badge badge-pill badge-secondary" role="button"
+   aria-expanded="false" aria-controls="email_lists">
+  Email address lists
+</a>
 {% endblock %}
 
 {% block supermain %}

@@ -13,11 +13,9 @@
 {% endblock %}
 
 {% block meta %}
-<div class="lead">
-  <a href="{{ url_for('.grant_zip', gid=grant['identifier']) }}"
-     title="All documents for the grant."
-     class="badge badge-pill badge-dark">Documents in zip file</a>
-</div>
+<a href="{{ url_for('.grant_zip', gid=grant['identifier']) }}"
+   title="All documents for the grant."
+   class="badge badge-pill badge-dark">Grant documents zip file</a>
 {% endblock %}
 
 {% block main %}
