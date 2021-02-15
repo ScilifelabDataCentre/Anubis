@@ -12,7 +12,7 @@ import anubis.user
 import anubis.decision
 from anubis import constants
 from anubis import utils
-from anubis.saver import AttachmentSaver, FieldMixin
+from anubis.saver import AttachmentSaver, FieldMixin, AccessMixin
 
 
 def init(app):
@@ -133,6 +133,56 @@ def edit(gid):
         return flask.redirect(
             flask.url_for('proposal.display', pid=proposal['identifier']))
 
+@blueprint.route('/<gid>/access', methods=["GET", "POST", "DELETE"])
+@utils.login_required
+def access(gid):
+    "Edit the access privileges for the grant record."
+    grant = get_grant(gid)
+    if grant is None:
+        return utils.error('No such grant.', flask.url_for('home'))
+    call = anubis.call.get_call(grant['call'])
+
+    if utils.http_GET():
+        if not allow_edit(grant):
+            return utils.error(
+                'You are not allowed to edit this grant dossier.',
+                flask.url_for('.display', gid=grant['identifier']))
+        users = {}
+        for user in grant.get('access_view', []):
+            users[user] = False
+        for user in grant.get('access_edit', []):
+            users[user] = True
+        return flask.render_template(
+            'access.html',
+            title=f"Grant {grant['identifier']}",
+            url=flask.url_for('.access', gid=grant['identifier']),
+            users=users,
+            back=flask.url_for('.display', gid=grant['identifier']))
+
+    elif utils.http_POST():
+        if not allow_edit(grant):
+            return utils.error(
+                'You are not allowed to edit this grant dossier.',
+                flask.url_for('.display', gid=grant['identifier']))
+        try:
+            with GrantSaver(doc=grant) as saver:
+                saver.set_access(form=flask.request.form)
+        except ValueError as error:
+            utils.flash_error(error)
+        return flask.redirect(flask.url_for('.access', gid=grant['identifier']))
+
+    elif utils.http_DELETE():
+        if not allow_edit(grant):
+            return utils.error(
+                'You are not allowed to edit this grant dossier.',
+                flask.url_for('.display', gid=grant['identifier']))
+        try:
+            with GrantSaver(doc=grant) as saver:
+                saver.remove_access(form=flask.request.form)
+        except ValueError as error:
+            utils.flash_error(error)
+        return flask.redirect(flask.url_for('.access', gid=grant['identifier']))
+
 @blueprint.route('/<gid>/document/<fid>')
 @utils.login_required
 def document(gid, fid):
@@ -243,7 +293,7 @@ def logs(gid):
         logs=utils.get_logs(grant['_id']))
 
 
-class GrantSaver(FieldMixin, AttachmentSaver):
+class GrantSaver(AccessMixin, FieldMixin, AttachmentSaver):
     "Grant dossier document saver context."
 
     DOCTYPE = constants.GRANT
@@ -318,6 +368,8 @@ def allow_view(grant):
     if flask.g.am_admin: return True
     if flask.g.am_staff: return True
     if flask.g.current_user['username'] == grant['user']: return True
+    if flask.g.current_user['username'] in grant.get('access_view', []):
+        return True
     return False
 
 def allow_edit(grant):
@@ -329,6 +381,8 @@ def allow_edit(grant):
     if flask.g.am_staff: return True
     # XXX special field privileges!
     if flask.g.current_user['username'] == grant['user']: return True
+    if flask.g.current_user['username'] in grant.get('access_edit', []):
+        return True
     return False
 
 def allow_link(grant):

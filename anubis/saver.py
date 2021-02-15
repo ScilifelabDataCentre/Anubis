@@ -5,6 +5,7 @@ import os.path
 
 import flask
 
+import anubis.user
 from anubis import constants
 from anubis import utils
 
@@ -278,3 +279,53 @@ class FieldMixin:
         if self.doc['errors'].get(fid): return # Error message already set; skip
         if field['required'] and self.doc['values'].get(fid) is None:
             self.doc['errors'][fid] = 'Missing value.'
+
+
+class AccessMixin:
+    "Mixin to change access privileges."
+
+    def set_access(self, form=dict()):
+        """Set the access of the object according to the form input.
+        Raise ValueError if no such user.
+        """
+        username = form.get('username')
+        user = anubis.user.get_user(username=username)
+        if user is None:
+            user = anubis.user.get_user(email=username)
+        if user is None:
+            raise ValueError("No such user.")
+        if form.get('access') == 'view':
+            # Remove edit access if view access specified.
+            try:
+                self.doc['access_edit'].remove(user['username'])
+            except (KeyError, ValueError):
+                pass
+            view = set(self.doc.setdefault('access_view', []))
+            view.add(user['username'])
+            self.doc['access_view'] = list(view)
+        elif form.get('access') == 'edit':
+            view = set(self.doc.setdefault('access_view', []))
+            view.add(user['username'])
+            self.doc['access_view'] = list(view)
+            edit = set(self.doc.setdefault('access_edit', []))
+            edit.add(user['username'])
+            self.doc['access_edit'] = list(edit)
+
+    def remove_access(self, form=dict()):
+        """Remove the access of the object according to the form input.
+        Raise ValueError if no such user.
+        """
+        username = form.get('username')
+        user = anubis.user.get_user(username=username)
+        if user is None:
+            user = anubis.user.get_user(email=username)
+        if user is None:
+            raise ValueError("No such user.")
+        try:
+            self.doc['access_view'].remove(user['username'])
+        except (KeyError, ValueError):
+            pass
+        try:
+            self.doc['access_edit'].remove(user['username'])
+        except (KeyError, ValueError):
+            pass

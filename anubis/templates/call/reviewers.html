@@ -13,12 +13,12 @@ Edit reviewers for call {{ call['identifier'] }}
   <label for="reviewers"
 	 class="col-md-2 col-form-label text-right font-weight-bold">
     Reviewers</label>
-  <div class="col-md">
+  <div class="col-md" id="reviewers">
     {% if call['reviewers'] %}
     <table class="table table-sm table-hover table-borderless">
       {% for username in sorted(call['reviewers']) %}
       <tr>
-        <td>
+        <td class="align-middle">
           {{ get_user(username) | user_link(chair=username in call['chairs']) }}
         </td>
         <td>

@@ -16,7 +16,8 @@
 	   value="{{ value or '' }}">
 
     {% elif field['type'] == constants.BOOLEAN %}
-    <div class="custom-control custom-radio custom-control-inline">
+    <div class="custom-control custom-radio custom-control-inline"
+      aria-describedby="{{ fid }}Help">
       <input type="radio" id="{{ fid }}_yes" name="{{ fid }}"
              class="custom-control-input"
              {{ value == True and 'checked' }}
@@ -47,6 +48,7 @@
     <div class="custom-control custom-checkbox">
       <input type="checkbox" id="{{ fid }}_{{ select }}" name="{{ fid }}"
              class="custom-control-input"
+             aria-describedby="{{ fid }}Help"
              {{ value and select in value and 'checked' }}
              value="{{ select }}">
       <label class="custom-control-label"
@@ -59,6 +61,7 @@
     <div class="custom-control custom-radio">
       <input type="radio" id="{{ fid }}_{{ select }}" name="{{ fid }}"
              class="custom-control-input"
+             aria-describedby="{{ fid }}Help"
              {{ value and select in value and 'checked' }}
              value="{{ select }}">
       <label class="custom-control-label"

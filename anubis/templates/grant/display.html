@@ -24,6 +24,39 @@
   <div class="col-md">{{ get_user(grant['user']) | user_link }}</div>
 </div>
 <div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Access</div>
+  <div class="col-md">
+    <table>
+      <tr>
+        <td class="text-right pr-2">View:</td>
+        <td>
+          {% if grant.get('access_view') %}
+          {% for username in grant['access_view'] %}
+          {{ get_user(username) | user_link }}
+          <span class="px-2"></span>
+          {% endfor %}
+          {% else %}
+          -
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td class="text-right pr-2">Edit:</td>
+        <td>
+          {% if grant.get('access_edit') %}
+          {% for username in grant['access_edit'] %}
+          {{ get_user(username) | user_link }}
+          <span class="px-2"></span>
+          {% endfor %}
+          {% else %}
+          -
+          {% endif %}
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+<div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Proposal</div>
   <div class="col-md">{{ proposal | proposal_link }}</div>
 </div>
@@ -106,6 +139,10 @@
 <div class="mt-2">
   <a href="{{ url_for('.edit', gid=grant['identifier']) }}"
      role="button" class="btn btn-block btn-primary">Edit</a>
+</div>
+<div class="mt-2">
+  <a href="{{ url_for('.access', gid=grant['identifier']) }}"
+     role="button" class="btn btn-block btn-warning">Change access</a>
 </div>
 {% endif %} {# if allow_edit #}
 {% if allow_delete %}

@@ -1,0 +1,90 @@
+{# Change access to an object. #}
+
+{% extends 'base.html' %}
+
+{% block head_title %}Change access to {{ title }}{% endblock %}
+{% block body_title %}Change access to {{ title }}{% endblock %}
+
+{% block main %}
+<div class="form-group row">
+  <label for="users"
+	 class="col-md-2 col-form-label text-right font-weight-bold">
+    Access</label>
+  <div class="col-md" id="users">
+    {% if users %}
+    <table class="table table-sm table-hover table-borderless">
+      {% for username, edit in sorted(users.items()) %}
+      <tr>
+        <td width="20%" class="align-middle text-right pr-2">
+          {{ edit and 'Edit & view' or 'View' }}:</td>
+        <td class="align-middle">
+          {{ get_user(username) | user_link() }}
+        </td>
+        <td>
+          <form action="{{ url }}"
+	        method="POST">
+	    {{ csrf_token() }}
+            <input type="hidden" name="_http_method" value="DELETE">
+            <input type="hidden" name="username" value="{{ username }}">
+	    <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    -
+    {% endif %}
+  </div>
+</div>
+<div class="form-group row">
+  <label for="add_access"
+         class="col-md-2 col-form-label text-right font-weight-bold">
+    Add access</label>
+  <div class="col-md" id="add_access">
+    <form action="{{ url }}"
+          method="POST">
+      {{ csrf_token() }}
+      <div class="form-group">
+        <div class="form-check">
+          <input type="radio" name="access" id="access_view"
+                 class="form-check-input"
+                 value="view">
+          <label class="form-check-label" for="access_view">View access</label>
+        </div>
+        <div class="form-check">
+          <input type="radio" name="access" id="access_edit"
+                 class="form-check-input"
+                 value="edit">
+          <label class="form-check-label" for="access_edit">
+            Edit & view access</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="sr-only" for="username">Username</label>
+        <input type="text" name="username" id="username"
+               class="form-control"
+               aria-describedby="usernameHelp"
+               placeholder="Username or email">
+        <small id="usernameHelp" class="form-text">
+          Provide the username or the email address of the user to add
+          access privileges for. The user must have an account in this
+          system.
+        </small>
+      </div>
+      <div class="form-group mt-3">
+        <button type="submit" class="btn btn-primary">Add</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %} {# block main #}
+
+{% block actions %}
+<div class="mt-2">
+  <form action="{{ back }}"
+	method="GET">
+    <button type="submit" class="btn btn-block btn-secondary">Back</button>
+  </form>
+</div>
+{% endblock %}
