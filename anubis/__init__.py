@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '1.1.13'
+__version__ = '1.1.14'
 
 class Constants:
     VERSION     = __version__
@@ -55,7 +55,7 @@ class Constants:
     # Access flags for each call
     ACCESS = ('allow_reviewer_view_all_reviews',
               'allow_submitter_view_decision',
-              # not implemented 'allow_public_view_all_decisions',
+              # XXX not implemented: 'allow_public_view_all_decisions',
     )
 
     # MIME types

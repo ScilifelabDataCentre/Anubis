@@ -31,14 +31,6 @@
         </td>
       </tr>
     </table>
-
-<!--
-    <h4 class="card-title">
-      <span class="mx-4">{{ call | call_link(title=True, proposals_link=False) }}</span>
-      <span class="badge badge-pill badge-{{ call['tmp']['color'] }}">
-        {{ call['tmp']['text'] }}</span>
-    </h4>
--->
   </div>
   <div class="card-body pb-0">
     {{ call.get('description') | markdown }}
@@ -64,14 +56,14 @@
   <a href="{{ url_for('user.register') }}" class="btn btn-block btn-success">
     Register a new user account</a>
 </p>
-<p>
+<p class="mb-5">
   <a href="{{ url_for('user.reset') }}" class="btn btn-block btn-info">
     Forgot your password? Reset it</a>
 </p>
 {% endif %}
-<p class="mt-5">
+<p class="mt-3">
   <a href="{{ url_for('calls.closed') }}"
      class="btn btn-block btn-outline-primary py-3">
-    List of closed calls</a>
+    List of closed calls.</a>
 </p>
 {% endblock %} {# block actions #}

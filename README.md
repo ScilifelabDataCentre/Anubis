@@ -46,17 +46,23 @@ this system.
   - A review is created by the admin or chair for a given
     submitted proposal and a given reviewer.
   - Fields; defined in the call.
-  - Finalized or unfinalized.
+  - It can be finalized or unfinalized.
 
 - Decision
   - The decision for a proposal.
+  - There is one hardwired field, internally called 'verdict', which
+    can assume the values "Undecided", "Accepted" and "Declined".
   - Fields: defined in the call.
-  - Finalized or unfinalized.
+  - It can be finalized or unfinalized.
   - Admin or chair may create it for a proposal.
 
 - Grant
-  - The grant for a proposal which (presumably) got a positive decision.
-  - Identifier: {call-prefix}-G:001. Not the same number as the proposal.
+  - A dossier for the grant for a proposal which (presumably) got a
+    positive decision. This is intended to store documents and other
+    data related to the handling of a grant.
+  - Identifier: {call-prefix}-G:{number}, where number is the same as
+    the proposal. This implies that the grant numbers are **not**
+    consecutive, nor that they necessarily start with 001.
   - Admin may create and edit the field definitions.
   - Staff may edit the grant field contents.
   - User is allowed to edit the contents of specific fields.
@@ -78,11 +84,13 @@ in the system design.
 - A call is closed when its closes date is defined, and has passed.
 - It is not possible to create or submit a proposal in a closed call.
 - Reviews are finalizable until the reviews-due date set for the call.
+- Decisions are not visible to the review chair until the reviews due date
+  has passed.
 
 ## Built on
 
 Python3, Flask, CouchDB server, CouchDB2 (Python module),
 Bootstrap, jQuery, DataTables.
 
-The icon "Feather of Ma'at" made by
+The icon "Feather of Ma'at" was made by
 [freepik at flaticon.com](https://www.flaticon.com/authors/freepik).

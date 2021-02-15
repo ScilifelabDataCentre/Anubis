@@ -1,6 +1,8 @@
 "Grant dossier based on a proposal, which (presumably) got a positive decision."
 
+import io
 import os.path
+import zipfile
 
 import flask
 
@@ -150,8 +152,7 @@ def document(gid, fid):
         return utils.error('No such document in grant dossier.',
                            flask.url_for('.display',
                                          iuid=grant['identifier']))
-    # Colon ':' is a problematic character in filenames.
-    # Replace it by dash '-'; used as general glue character here.
+    # Colon ':' is a problematic character in filenames; replace by dash '-'.
     gid = gid.replace(':', '-')
     ext = os.path.splitext(documentname)[1]
     # Add the appropriate file extension to the filename.
@@ -161,6 +162,60 @@ def document(gid, fid):
     response.headers.set('Content-Type', stub['content_type'])
     response.headers.set('Content-Disposition', 'attachment', filename=filename)
     return response
+
+@blueprint.route('/<gid>.zip')
+@utils.login_required
+def grant_zip(gid):
+    "Return a zip file containing all documents in the grant dossier."
+    try:
+        grant = get_grant(gid)
+    except KeyError:
+        return utils.error('No such grant dossier.', flask.url_for('home'))
+    if not allow_view(grant):
+        return utils.error('You are not allowed to read this grant dossier.',
+                           flask.url_for('home'))
+    call = anubis.call.get_call(grant['call'])
+    # Colon ':' is a problematic character in filenames; replace by dash '_'
+    gid = gid.replace(':', '-')
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, "w") as zip:
+        # First non-repeated document fields.
+        for field in call['grant']:
+            if field.get('repeat'): continue
+            if field['type'] != constants.DOCUMENT: continue
+            try:
+                documentname = grant['values'][field['identifier']]
+            except KeyError:
+                continue
+            ext = os.path.splitext(documentname)[1]
+            stub = grant['_attachments'][documentname]
+            outfile = flask.g.db.get_attachment(grant, documentname)
+            filename = f"{gid}-{field['identifier']}{ext}"
+            zip.writestr(filename, outfile.read())
+        # Then repeated document fields.
+        for field in call['grant']:
+            if field['type'] != constants.REPEAT: continue
+            n_fields = grant['values'].get(field['identifier']) or 0
+            for n in range(1, n_fields + 1):
+                for field2 in call['grant']:
+                    if field2.get('repeat') != field['identifier']: continue
+                    if field2['type'] != constants.DOCUMENT: continue
+                    field2name = f"{field2['identifier']}-{n}"
+                    try:
+                        documentname = grant['values'][field2name]
+                    except KeyError:
+                        continue
+                    ext = os.path.splitext(documentname)[1]
+                    stub = grant['_attachments'][documentname]
+                    outfile = flask.g.db.get_attachment(grant, documentname)
+                    filename = f"{gid}-{field2['identifier']}-{n}{ext}"
+                    zip.writestr(filename, outfile.read())
+    response = flask.make_response(output.getvalue())
+    response.headers.set('Content-Type', constants.ZIP_MIMETYPE)
+    response.headers.set('Content-Disposition', 'attachment', 
+                         filename=f"{gid}.zip")
+    return response
+
 
 @blueprint.route('/<gid>/logs')
 @utils.login_required
