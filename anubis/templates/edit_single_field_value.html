@@ -26,16 +26,14 @@
              class="custom-control-input"
              {{ value == True and 'checked' }}
              value="true">
-      <label class="custom-control-label" for="{{ fid }}_yes">
-        Yes</label>
+      <label class="custom-control-label" for="{{ fid }}_yes">Yes</label>
     </div>
     <div class="custom-control custom-radio custom-control-inline">
       <input type="radio" id="{{ fid }}_no" name="{{ fid }}"
              class="custom-control-input"
              {{ value == False and 'checked' }}
              value="false">
-      <label class="custom-control-label" for="{{ fid }}_no">
-        No</label>
+      <label class="custom-control-label" for="{{ fid }}_no">No</label>
     </div>
     <div class="custom-control custom-radio custom-control-inline ml-4">
       <input type="radio" id="{{ fid }}_novalue" name="{{ fid }}"
@@ -55,8 +53,7 @@
              aria-describedby="{{ fid }}Help"
              {{ value and select in value and 'checked' }}
              value="{{ select }}">
-      <label class="custom-control-label"
-             for="{{ fid }}_{{ select }}">
+      <label class="custom-control-label" for="{{ fid }}_{{ select }}">
         {{ select }}</label>
     </div>
     {% endfor %} {# for select in field['selection'] #}
@@ -68,8 +65,7 @@
              aria-describedby="{{ fid }}Help"
              {{ value and select in value and 'checked' }}
              value="{{ select }}">
-      <label class="custom-control-label"
-             for="{{ fid }}_{{ select }}">
+      <label class="custom-control-label" for="{{ fid }}_{{ select }}">
         {{ select }}</label>
     </div>
     {% endfor %} {# for select in field['selection'] #}
@@ -123,8 +119,8 @@
                  class="custom-control-input"
                  {{ value is none and 'checked' }}
                  value="true">
-          <label class="custom-control-label" 
-                 for="{{ fid }}_novalue">No value</label>
+          <label class="custom-control-label" for="{{ fid }}_novalue">
+            No value</label>
         </div>
       </div>
     </div>
@@ -175,8 +171,7 @@
           <input type="checkbox" id="{{ fid }}_remove" name="{{ fid }}_remove"
                  class="custom-control-input"
                  value="remove">
-          <label class="custom-control-label"
-                 for="{{ fid }}_remove">
+          <label class="custom-control-label" for="{{ fid }}_remove">
             Remove</label>
         </div>
       </div>

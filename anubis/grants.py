@@ -56,14 +56,14 @@ def call_xlsx(cid):
 
     grants = utils.get_docs_view('grants', 'call', call['identifier'])
     grants.sort(key=lambda g: g['identifier'])
-    content = get_grants_xlsx(call, grants)
+    content = get_call_grants_xlsx(call, grants)
     response = flask.make_response(content)
     response.headers.set('Content-Type', constants.XLSX_MIMETYPE)
     response.headers.set('Content-Disposition', 'attachment', 
                          filename=f"{cid}_grants.xlsx")
     return response
 
-def get_grants_xlsx(call, grants):
+def get_call_grants_xlsx(call, grants):
     "Return the content for the XLSX file for the list of grants."
     output = io.BytesIO()
     wb = xlsxwriter.Workbook(output, {'in_memory': True})
@@ -247,7 +247,8 @@ def call_zip(cid):
     grants = utils.get_docs_view('grants', 'call', call['identifier'])
     output = io.BytesIO()
     with zipfile.ZipFile(output, "w") as outfile:
-        outfile.writestr(f"{cid}_grants.xlsx", get_grants_xlsx(call, grants))
+        outfile.writestr(f"{cid}_grants.xlsx",
+                         get_call_grants_xlsx(call, grants))
         for grant in grants:
             for document in anubis.grant.get_grant_documents(grant):
                 outfile.writestr(document['filename'], document['content'])
@@ -256,3 +257,16 @@ def call_zip(cid):
     response.headers.set('Content-Disposition', 'attachment', 
                          filename=f"{cid}_grants.zip")
     return response
+
+@blueprint.route('/user/<username>')
+@utils.login_required
+def user(username):
+    "List all grants for a user."
+    user = anubis.user.get_user(username=username)
+    if user is None:
+        return utils.error('No such user.', flask.url_for('home'))
+    if not anubis.user.allow_view(user):
+        return utils.error("You may not view the user's grants.",
+                           flask.url_for('home'))
+    grants = utils.get_docs_view('grants', 'user', user['username'])
+    return flask.render_template('grants/user.html', user=user, grants=grants)

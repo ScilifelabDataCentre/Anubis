@@ -63,10 +63,7 @@
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
   <div class="col-md">
-    {{ get_call(grant['call']) | call_link(proposals_link=False) }}
-    <a href="{{ url_for('grants.call', cid=call['identifier']) }}"
-       role="button" class="btn btn-sm btn-success ml-2">
-      {{ call_grants_count }} grants</a>
+    {{ get_call(grant['call']) | call_link(proposals_link=False, grants_link=g.am_admin or g.am_staff) }}
   </div>
 </div>
 

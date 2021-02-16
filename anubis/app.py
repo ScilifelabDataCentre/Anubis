@@ -71,6 +71,8 @@ def prepare():
             'proposals', 'unsubmitted', username)
         flask.g.my_unfinalized_reviews_count = utils.get_count(
             'reviews', 'unfinalized', username)
+        flask.g.my_grants_count = utils.get_count(
+            'grants', 'user', username)
 
 @app.route('/')
 def home():

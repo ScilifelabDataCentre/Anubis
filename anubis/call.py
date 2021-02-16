@@ -79,7 +79,7 @@ def display(cid):
             kwargs['call_proposals_category_counts'] = dict(
                 [(c, utils.get_call_proposals_count(cid, c))
                  for c in sorted(call.get('categories'))])
-        kwargs['call_grants_count'] = utils.get_count('grants', 'call', cid)
+        kwargs['call_grants_count'] = utils.get_call_grants_count(cid)
     return flask.render_template('call/display.html',
                                  call=call,
                                  reviewers=reviewers,

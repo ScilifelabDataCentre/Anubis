@@ -78,6 +78,10 @@ def get_call_reviews_count(cid):
     "Get the count of all reviews in the given call."
     return get_count('reviews', 'call', cid)
 
+def get_call_grants_count(cid):
+    "Get the count for all grants for the given call."
+    return get_count('grants', 'call', cid)
+
 def get_proposal_reviews_count(pid, archived=False):
     """Get the count of all reviews for the given proposal.
     Optionally for archived reviews.
@@ -334,8 +338,11 @@ def user_link(user, fullname=True, chair=False, affiliation=False):
     else:
         return jinja2.utils.Markup(name)
 
-def call_link(call, identifier=True, title=False, proposals_link=True):
-    "Template filter: link to call and link to all its proposals."
+def call_link(call, identifier=True, title=False,
+              proposals_link=True, grants_link=False):
+    """Template filter: Link to call and optionally links to all its proposals
+    and grants.
+    """
     label = []
     if identifier:
         label.append(call['identifier'])
@@ -348,6 +355,10 @@ def call_link(call, identifier=True, title=False, proposals_link=True):
         count = get_call_proposals_count(call['identifier'])
         url = flask.url_for("proposals.call", cid=call["identifier"])
         html += f' <a href="{url}" class="badge badge-primary mx-2">{count} proposals</a>'
+    if grants_link:
+        count = get_call_grants_count(call['identifier'])
+        url = flask.url_for("grants.call", cid=call["identifier"])
+        html += f' <a href="{url}" class="badge badge-success mx-2">{count} grants</a>'
     return jinja2.utils.Markup(html)
 
 def proposal_link(proposal, bold=True):

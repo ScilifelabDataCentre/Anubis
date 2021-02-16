@@ -11,6 +11,7 @@
 {% set fid = field['identifier']%}
 {% set value = values.get(fid) %}
 {% set error = errors.get(fid) %}
+
 {% include 'edit_single_field_value.html' %}
 
 {# Repeat fields. I know, this is rather kludgy...  #}
@@ -26,7 +27,9 @@
     {% set fid = "{}-{}".format(field2['identifier'], count) %}
     {% set value = values.get(fid) %}
     {% set error = errors.get(fid) %}
+
     {% include 'edit_single_field_value.html' %}
+
     {% endif %} {# if not field2.get('staffonly') ... #}
     {% endfor %} {# for field2 in fields ... #}
   </div>

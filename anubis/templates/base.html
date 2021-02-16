@@ -63,6 +63,13 @@
 	    </a>
           </li>
 	  {% endif %}
+	  {% if g.my_grants_count %}
+          <li class="nav-item">
+            <a href="{{ url_for('grants.user', username=g.current_user['username']) }}"
+	       class="nav-link">My grants
+	    </a>
+          </li>
+	  {% endif %}
           {% endif %} {# if g.current_user #}
           <li class="nav-item dropdown">
             <a href="#" id="navbarCalls" class="nav-link dropdown-toggle pr-4"
