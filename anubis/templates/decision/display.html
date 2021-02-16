@@ -41,26 +41,9 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   </div>
 </div>
 
-{% for field in call['decision'] %}
-<div class="row mb-2">
-  <div class="col-md-2 font-weight-bold text-right">
-    {{ field['title'] }}
-  </div>
-  {% if decision['errors'].get(field['identifier']) %}
-  <div class="col-md-2 text-danger">
-    Error: {{ decision['errors'][field['identifier']] }}
-  </div>
-  {% endif %}
-  <div class="col-md text-break">
-    {% set value = decision['values'].get(field['identifier']) %}
-    {% if value and field['type'] == 'document' %}
-      {{ value | typed_value(field['type'], url_for('.document', iuid=decision['_id'], fid=field['identifier'])) }}
-    {% else %}
-      {{ value | typed_value(field['type']) }}
-    {% endif %}
-  </div>
-</div>
-{% endfor %} {# for field in ... #}
+{% set fields = call['decision'] %}
+{% set entity = decision %}
+{% include 'display_field_values.html' %}
 
 {% endblock %} {# block main #}
 

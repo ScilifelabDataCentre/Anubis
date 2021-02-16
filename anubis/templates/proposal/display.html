@@ -130,21 +130,9 @@
     </div>
   </div>
   <div class="card-body">
-    {% for field in call['decision'] %}
-    <div class="row">
-      <div class="col-md-2 font-weight-bold text-right">
-        {{ field['title'] }}
-      </div>
-      <div class="col-md text-break">
-        {% set value = decision['values'].get(field['identifier']) %}
-        {% if value and field['type'] == 'document' %}
-        {{ value | typed_value(field['type'], url_for('decision.document', iuid=decision['_id'], fid=field['identifier'])) }}
-        {% else %}
-        {{ value | typed_value(field['type']) }}
-        {% endif %}
-      </div>
-    </div>
-    {% endfor %} {# for field in ... #}
+    {% set fields = call['decision'] %}
+    {% set entity = decision %}
+    {% include 'display_field_values.html' %}
   </div>
 </div>
 {% endif %} {# if allow_view_decision #}
@@ -153,26 +141,9 @@
 
 <div class="card mt-4">
   <div class="card-body">
-    {% for field in call['proposal'] %}
-    <div class="row">
-      <div class="col-md-2 font-weight-bold text-right">
-        {{ field['title'] }}
-      </div>
-      {% if proposal['errors'].get(field['identifier']) %}
-      <div class="col-md-2 text-danger">
-        Error: {{ proposal['errors'][field['identifier']] }}
-      </div>
-      {% endif %}
-      <div class="col-md text-break">
-        {% set value = proposal['values'].get(field['identifier']) %}
-        {% if value and field['type'] == 'document' %}
-          {{ value | typed_value(field['type'], url_for('.document', pid=proposal['identifier'], fid=field['identifier'])) }}
-        {% else %}
-          {{ value | typed_value(field['type']) }}
-        {% endif %}
-      </div>
-    </div>
-    {% endfor %} {# for field in ... #}
+    {% set fields = call['proposal'] %}
+    {% set entity = proposal %}
+    {% include 'display_field_values.html' %}
   </div>
 </div>
 {% endblock %} {# block main #}

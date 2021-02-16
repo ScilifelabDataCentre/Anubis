@@ -44,12 +44,9 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
     <tr>
       {% if review %}
       <td>{{ review | review_link }}</td>
-      {% set values = review['values'] %}
       {% for field in utils.get_banner_fields(call['review']) %}
-      <td>
-        {{ values.get(field['identifier']) | typed_value(field['type']) }}
-      </td>
-      {% endfor %} {# for field in ... #}
+      <td>{{ field | field_value(review) }}</td>
+      {% endfor %}
       {% else %}
       <td>
 	{% if allow_create_review %}

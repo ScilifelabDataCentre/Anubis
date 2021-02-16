@@ -44,14 +44,11 @@ Grant dossiers in call {{ call['identifier'] }}
   </thead>
   <tbody class="table-borderless">
     {% for grant in grants %}
-    {% set values = grant['values'] %}
     <tr>
       <td>{{ grant | grant_link(small=True) }}</td>
       {% for field in utils.get_banner_fields(call['grant']) %}
-      <td>
-        {{ values.get(field['identifier']) | typed_value(field['type']) }}
-      </td>
-      {% endfor %} {# for field in ... #}
+      <td>{{ field | field_value(grant) }}</td>
+      {% endfor %}
       <td>
         {% if grant.get('errors') %}
         <span class="badge badge-danger">Incomplete</span>

@@ -89,11 +89,8 @@
     {% for proposal in proposals %}
     <tr>
       <td>{{ proposal | proposal_link }}</td>
-      {% set values = proposal['values'] %}
       {% for field in utils.get_banner_fields(call['proposal']) %}
-      <td>
-        {{ values.get(field['identifier']) | typed_value(field['type']) }}
-      </td>
+      <td>{{ field | field_value(proposal) }}</td>
       {% endfor %}
       {% if call.get('categories') and allow_view_details %}
       <td>{{ proposal.get('category') or '-' }}</td>
@@ -147,12 +144,9 @@
       {% set decision = get_decision(proposal['decision']) %}
       {% if decision %}
       <td>{{ decision | decision_link(small=True) }}</td>
-      {% set values = decision.get('values') or {} %}
       {% for field in utils.get_banner_fields(call['decision']) %}
-      <td>
-        {{ values.get(field['identifier']) | typed_value(field['type']) }}
-      </td>
-      {% endfor %} {# for field in ... #}
+      <td>{{ field | field_value(decision) }}</td>
+      {% endfor %}
       {% else %} {# if decision #}
       <td>-</td>
       {% for field in utils.get_banner_fields(call['decision']) %}

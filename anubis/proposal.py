@@ -57,9 +57,12 @@ def display(pid):
     decision = anubis.decision.get_decision(proposal.get('decision'))
     allow_create_decision = anubis.decision.allow_create(proposal)
     allow_link_decision = anubis.decision.allow_link(decision)
+    # Only show decision in-line in proposal for non-admin or non-staff.
     allow_view_decision = decision and \
                           decision.get('finalized') and \
+                          not (flask.g.am_admin or flask.g.am_staff) and \
                           call['access'].get('allow_submitter_view_decision')
+    print('allow_view_decision', allow_view_decision)
     grant = anubis.grant.get_grant_proposal(proposal['identifier'])
     allow_create_grant = anubis.grant.allow_create(proposal)
     allow_link_grant = anubis.grant.allow_link(grant)

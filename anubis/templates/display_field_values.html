@@ -1,0 +1,67 @@
+{# Include for displaying the fields and their values for an entity.
+   Required variables: fields, entity
+#}
+
+{% for field1 in fields if not field1.get('repeat') %}
+{% if not field1.get('staffonly') or (g.am_admin or g.am_staff) %}
+
+{# Field without repeats. #}
+<div class="row mb-1">
+  <div class="col-md-2 font-weight-bold text-right">
+    {{ field1['title'] }}
+    {% if field1.get('staffonly') %}
+    <br>
+    <strong class="text-danger">Staff only</strong>
+    {% endif %}
+  </div>
+  {% if entity['errors'].get(field1['identifier']) %}
+  <div class="col-md-2 text-danger">
+    Error: {{ entity['errors'][field1['identifier']] }}
+  </div>
+  {% endif %}
+  <div class="col-md text-break">
+    {{ field1 | field_value(entity) }}
+  </div>
+</div>
+
+{# Repeat fields. I know, this is rather kludgy...  #}
+{% if field1['type'] == 'repeat' and entity['values'].get(field1['identifier']) %}
+{% for count in range(1, entity['values'][field1['identifier']] + 1) %}
+<div class="card mb-2">
+  <div class="card-header">
+    <div class="row">
+      <div class="col-md offset-md-2">
+        {{ field1['title'] }}  number {{ count }}
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    {% for field2 in fields if field2.get('repeat') == field1['identifier'] %}
+    {% if not field2.get('staffonly') or (g.am_admin or g.am_staff) %}
+    {% set id2 = "{}-{}".format(field2['identifier'], count) %}
+    <div class="row mb-2">
+      <div class="col-md-2 font-weight-bold text-right">
+        {{ field2['title'] }}
+        {% if field2.get('staffonly') %}
+        <br>
+        <strong class="text-danger">Staff only</strong>
+        {% endif %}
+      </div>
+      {% if entity['errors'].get(id2) %}
+      <div class="col-md-2 text-danger">
+        Error: {{ entity['errors'][id2] }}
+      </div>
+      {% endif %}
+      <div class="col-md text-break">
+        {{ field2 | field_value(entity, fid=id2) }}
+      </div>
+    </div>
+    {% endif %} {# if not field2.get('staffonly') ... #}
+    {% endfor %} {# for field2 in fields ... #}
+  </div>
+</div>
+{% endfor %} {# for count... #}
+{% endif %} {# if field1['type'] == 'repeat' ... #}
+
+{% endif %} {# if not field1.get('staffonly') ... #}
+{% endfor %} {# for field1 in ... #}

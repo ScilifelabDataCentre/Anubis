@@ -29,16 +29,13 @@ Archived reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] o
     <tr>
       <td>{{ review | review_link }}</td>
       <td>
-        {% set values = review['values'] %}
         <table class="table table-sm table-borderless">
           {% for field in utils.get_banner_fields(review['fields']) %}
           <tr>
             <th>{{ field['identifier'] }}</th>
-            <td>
-              {{ values.get(field['identifier']) | typed_value(field['type']) }}
-            </td>
+            <td>{{ field | field_value(review) }}</td>
           </tr>
-          {% endfor %} {# for field in ... #}
+          {% endfor %}
         </table>
       </td>
       <td>{{ review['reviewer'] }}</td>

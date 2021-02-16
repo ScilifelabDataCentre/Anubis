@@ -50,11 +50,8 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
     {% if review %}
     <tr>
       <td>{{ review | review_link }}</td>
-      {% set values = review['values'] %}
       {% for field in utils.get_banner_fields(call['review']) %}
-      <td>
-        {{ values.get(field['identifier']) | typed_value(field['type']) }}
-      </td>
+      <td>{{ field | field_value(review) }}</td>
       {% endfor %}
       <td>{{ proposal | proposal_link(bold=False) }}</td>
       {% if call.get('categories') %}

@@ -27,7 +27,7 @@ def init(app):
     """
     MAIL.init_app(app)
     app.add_template_filter(markdown)
-    app.add_template_filter(typed_value)
+    app.add_template_filter(field_value)
     app.add_template_filter(none_empty_string)
     app.add_template_filter(datetimetz)
     app.add_template_filter(boolean_value)
@@ -257,27 +257,48 @@ def flash_message(msg):
     flask.flash(str(msg), 'message')
 
 def get_banner_fields(fields):
-    "Return fields flagged as banner fields."
-    return [f for f in fields if f.get('banner')]
+    "Return fields flagged as banner fields. Avoid repeated fields."
+    return [f for f in fields if f.get('banner') and not f.get('repeat')]
 
-def typed_value(value, type, docurl=None):
+def field_value(field, entity, fid=None):
     "Template filter: Output field value according to its type."
-    if type == constants.LINE:
+    if not fid:
+        fid = field['identifier']
+    value = entity.get('values', {}).get(fid)
+    if field['type'] == constants.LINE:
         return value or '-'
-    if type == constants.BOOLEAN:
+    if field['type'] == constants.BOOLEAN:
         return boolean_value(value)
-    elif type == constants.SELECT:
+    elif field['type'] == constants.SELECT:
         return select_value(value)
-    elif type in (constants.INTEGER, constants.SCORE):
+    elif field['type'] in (constants.INTEGER, constants.SCORE):
         return integer_value(value)
-    elif type == constants.FLOAT:
+    elif field['type'] == constants.FLOAT:
         return float_value(value)
-    elif type == constants.TEXT:
+    elif field['type'] == constants.TEXT:
         return markdown(value)
-    elif type == constants.DOCUMENT:
+    elif field['type'] == constants.DOCUMENT:
         if value:
+            if entity['doctype'] == constants.PROPOSAL:
+                docurl = flask.url_for('proposal.document',
+                                       pid=entity['identifier'],
+                                       fid=fid)
+            elif entity['doctype'] == constants.REVIEW:
+                docurl = flask.url_for('review.document',
+                                       iuid=entity['_id'],
+                                       fid=fid)
+            elif entity['doctype'] == constants.DECISION:
+                docurl = flask.url_for('decision.document',
+                                       iuid=entity['_id'],
+                                       fid=fid)
+            elif entity['doctype'] == constants.GRANT:
+                docurl = flask.url_for('grant.document',
+                                       gid=entity['identifier'],
+                                       fid=fid)
             return jinja2.utils.Markup(
-                f"""<i title="File">{value}</i> <a href="{docurl}" role="button" title="Download file" class="btn btn-dark btn-sm ml-4">Download</a>""")
+                f'<i title="File" class="align-top">{value}</i> <a href="{docurl}"'
+                ' role="button" title="Download file"'
+                ' class="btn btn-dark btn-sm ml-4">Download</a>')
         else:
             return '-'
     else:
