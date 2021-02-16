@@ -1,7 +1,6 @@
 "Grant dossier based on a proposal, which (presumably) got a positive decision."
 
 import io
-import json
 import os.path
 import zipfile
 
@@ -76,7 +75,6 @@ def display(gid):
     if not allow_view(grant):
         return utils.error('You are not allowed to view this grant dossier.',
                            flask.url_for('call.display', cid=grant['call']))
-    print(json.dumps(grant, indent=2))
     proposal = anubis.proposal.get_proposal(grant['proposal'])
     call = anubis.call.get_call(grant['call'])
     call_grants_count = utils.get_count('grants', 'call', grant['call'])
