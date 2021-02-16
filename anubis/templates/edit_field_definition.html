@@ -52,13 +52,13 @@
 	  </div>
           {% if repeat_fields %}
 	  <div class="form-group row">
-	    <label for="_{{ field['type'] }}_repeat"
+	    <label for="_{{ field['type'] }}-repeat"
                    class="col-md-2 col-form-label text-right">
 	      Repeated by</label>
 	    <div class="col-md">
-              <select name="repeat" id="_{{ field['type'] }}_repeat"
+              <select name="repeat" id="_{{ field['type'] }}-repeat"
 		      class="form-control"
-		      aria-describedby="_{{ field['type'] }}_repeatHelp">
+		      aria-describedby="_{{ field['type'] }}-repeatHelp">
                 <option value=""
                         {{ field.get('repeat') and 'selected' or '' }}
                         >[none]</option>
@@ -68,7 +68,7 @@
                         >{{ rf['identifier'] }}</option>
                 {% endfor %}
               </select>
-	      <small id="_{{ field['type'] }}_repeatHelp"
+	      <small id="_{{ field['type'] }}-repeatHelp"
                      class="form-text text-muted">
 		The field controlling how many times this field will
                 be repeated in the final form.
@@ -81,8 +81,8 @@
 		   class="col-md-2 col-form-label text-right">
 	      Title</label>
 	    <div class="col-md">
-	      <input type="text" id="{{ field['identifier'] }}-title"
-		     name="title"
+	      <input type="text" name="title"
+                     id="{{ field['identifier'] }}-title"
 		     class="form-control"
 		     aria-describedby="{{ field['identifier'] }}-titleHelp"
 		     value="{{ field.get('title') or '' }}">
@@ -98,8 +98,8 @@
 	      Required</label>
 	    <div class="col-md">
 	      <div class="form-check">
-		<input type="checkbox" id="{{ field['identifier'] }}-required"
-		       name="required"
+		<input type="checkbox" name="required"
+                       id="{{ field['identifier'] }}-required"
 		       class="form-check-input"
 		       aria-describedby="{{ field['identifier'] }}-requiredHelp"
 		       value="true"
@@ -115,13 +115,37 @@
 	    </div>
 	  </div>
 	  <div class="form-group row">
+	    <label for="{{ field['identifier'] }}-staffonly"
+		   class="col-md-2 col-form-label text-right">
+	      Staff only</label>
+	    <div class="col-md">
+	      <div class="form-check">
+		<input type="checkbox" name="staffonly"
+                       id="{{ field['identifier'] }}-staffonly"
+		       class="form-check-input"
+		       aria-describedby="{{ field['identifier'] }}-staffonlyHelp"
+		       value="true"
+		       {{ field.get('staffonly') and 'checked' or '' }}>
+		<label class="form-check-label"
+		       for="{{ field['identifier'] }}-staffonly">
+		  Yes</label>
+	      </div>
+	      <small id="{{ field['identifier'] }}-staffonlyHelp"
+		     class="form-text text-muted">
+                The field will be visible to staff only.
+                <strong>Note</strong>: The 'Required' flag will not be
+                set if this is used.
+	      </small>
+	    </div>
+	  </div>
+	  <div class="form-group row">
 	    <label for="{{ field['identifier'] }}-banner"
 		   class="col-md-2 col-form-label text-right">
 	      Banner</label>
 	    <div class="col-md">
 	      <div class="form-check">
-		<input type="checkbox" id="{{ field['identifier'] }}-banner"
-		       name="banner"
+		<input type="checkbox" name="banner"
+                       id="{{ field['identifier'] }}-banner"
 		       class="form-check-input"
 		       aria-describedby="{{ field['identifier'] }}-bannerHelp"
 		       value="true"
@@ -143,8 +167,8 @@
 		   class="col-md-2 col-form-label text-right">
 	      Maxlength</label>
 	    <div class="col-md">
-	      <input type="text" id="{{ field['identifier'] }}-maxlength"
-		     name="maxlength"
+	      <input type="text" name="maxlength"
+                     id="{{ field['identifier'] }}-maxlength"
 		     class="form-control"
 		     aria-describedby="{{ field['identifier'] }}-maxlengthHelp"
 		     value="{{ field.get('maxlength') or '' }}">
@@ -157,17 +181,17 @@
 
 	  {% elif field['type'] == constants.SELECT %}
 	  <div class="form-group row">
-	    <label for="_{{ field['type'] }}_selection"
+	    <label for="_{{ field['type'] }}-selection"
                    class="col-md-2 col-form-label text-right">
 	      Selection values</label>
 	    <div class="col-md">
 	      <textarea name="selection"
-                        id="_{{ field['type'] }}_selection"
+                        id="_{{ field['type'] }}-selection"
 			class="form-control"
-			aria-describedby="_{{ field['type'] }}_selectionHelp"
+			aria-describedby="_{{ field['type'] }}-selectionHelp"
                         rows="{{ max(2, len(field['selection'])) }}"
                         >{{ '\n'.join(field['selection']) }}</textarea>
-	      <small id="_{{ field['type'] }}_selectionHelp"
+	      <small id="_{{ field['type'] }}-selectionHelp"
                      class="form-text text-muted">
 		<div class="row">
 		  <div class="col-md">
@@ -178,19 +202,19 @@
 	    </div>
 	  </div>
 	  <div class="form-group row">
-	    <label for="_{{ field['type'] }}_multiple"
+	    <label for="_{{ field['type'] }}-multiple"
                    class="col-md-2 col-form-label text-right">
 	      Multiple choice</label>
 	    <div class="col-md">
 	      <div class="form-check">
 		<input type="checkbox" name="multiple"
-                       id="_{{ field['type'] }}_multiple"
+                       id="_{{ field['type'] }}-multiple"
 		       class="form-check-input"
-		       aria-describedby="_{{ field['type'] }}_multipleHelp"
+		       aria-describedby="_{{ field['type'] }}-multipleHelp"
 		       value="true"
                        {{ field.get('multiple') and 'checked' }}>
 		<label class="form-check-label" 
-                       for="_{{ field['type'] }}_multiple">Yes</label>
+                       for="_{{ field['type'] }}-multiple">Yes</label>
 	      </div>
 	      <small id="sliderHelp" class="form-text text-muted">
                 Allow selection of multiple values.
@@ -204,8 +228,8 @@
                    class="col-md-2 col-form-label text-right">
 	      Minimum</label>
 	    <div class="col-md">
-	      <input type="number"
-                     id="{{ field['identifier'] }}-minimum" name="minimum"
+	      <input type="number" name="minimum"
+                     id="{{ field['identifier'] }}-minimum"
                      {% if field['type'] == constants.INTEGER %}
                      step="1"
                      {% endif %}
@@ -223,8 +247,8 @@
                    class="col-md-2 col-form-label text-right">
 	      Maximum</label>
 	    <div class="col-md">
-	      <input type="number"
-                     id="{{ field['identifier'] }}-maximum" name="maximum"
+	      <input type="number" name="maximum"
+                     id="{{ field['identifier'] }}-maximum"
                      {% if field['type'] == constants.INTEGER %}
                      step="1"
                      {% endif %}
@@ -245,8 +269,8 @@
 	      Slider input</label>
 	    <div class="col-md">
 	      <div class="form-check">
-		<input type="checkbox" id="{{ field['identifier'] }}-slider"
-		       name="slider"
+		<input type="checkbox" name="slider"
+                       id="{{ field['identifier'] }}-slider"
 		       class="form-check-input"
 		       aria-describedby="{{ field['identifier'] }}-sliderHelp"
 		       value="true"
@@ -266,8 +290,8 @@
                    class="col-md-2 col-form-label text-right">
 	      Minimum</label>
 	    <div class="col-md">
-	      <input type="number" step="1"
-                     id="{{ field['identifier'] }}-minimum" name="minimum"
+	      <input type="number" name="minimum" step="1"
+                     id="{{ field['identifier'] }}-minimum"
 		     class="form-control"
 		     aria-describedby="{{ field['identifier'] }}-minimumHelp"
 		     value="{{ field.get('minimum') | none_empty_string }}">
@@ -282,8 +306,8 @@
                    class="col-md-2 col-form-label text-right">
 	      Maximum</label>
 	    <div class="col-md">
-	      <input type="number"
-                     id="{{ field['identifier'] }}-maximum" name="maximum"
+	      <input type="number" name="maximum"
+                     id="{{ field['identifier'] }}-maximum"
                      {% if field['type'] == constants.INTEGER %}
                      step="1"
                      {% endif %}
@@ -299,16 +323,16 @@
 
 	  {% elif field['type'] == constants.DOCUMENT %}
 	  <div class="form-group row">
-	    <label for="_{{ field['type'] }}_extensions"
+	    <label for="_{{ field['type'] }}-extensions"
                    class="col-md-2 col-form-label text-right">
 	      Extensions</label>
 	    <div class="col-md">
 	      <input type="text" name="extensions"
-                     id="_{{ field['type'] }}_extensions"
+                     id="_{{ field['type'] }}-extensions"
 		     class="form-control"
-		     aria-describedby="_{{ field['type'] }}_extensionsHelp"
+		     aria-describedby="_{{ field['type'] }}-extensionsHelp"
                      value="{{ ', '.join(field.get('extensions') or []) }}">
-	      <small id="_{{ field['type'] }}_extensionsHelp" 
+	      <small id="_{{ field['type'] }}-extensionsHelp" 
                      class="form-text text-muted">
                 Require that the uploaded document file has one of the
                 specified extensions (file types). Give a list of
@@ -323,17 +347,16 @@
 
 	  {% elif field['type'] == constants.REPEAT %}
 	  <div class="form-group row">
-	    <label for="_{{ field['type'] }}_maximum"
+	    <label for="_{{ field['type'] }}-maximum"
                    class="col-md-2 col-form-label text-right">
 	      Maximum</label>
 	    <div class="col-md">
-	      <input type="number" name="maximum"
-                     id="_{{ field['type'] }}_maximum"
-                     step="1"
+	      <input type="number" name="maximum" step="1"
+                     id="_{{ field['type'] }}-maximum"
 		     class="form-control"
-		     aria-describedby="_{{ field['type'] }}_maximumHelp"
+		     aria-describedby="_{{ field['type'] }}-maximumHelp"
                      value="{{ field.get('maximum') or '' }}">
-	      <small id="_{{ field['type'] }}_maximumHelp"
+	      <small id="_{{ field['type'] }}-maximumHelp"
                      class="form-text text-muted">
                 Maximum number of repeats.
 	      </small>
@@ -346,8 +369,8 @@
 		   class="col-md-2 col-form-label text-right">
 	      Description</label>
 	    <div class="col-md">
-	      <textarea id="{{ field['identifier'] }}-description"
-			name="description"
+	      <textarea name="description"
+                        id="{{ field['identifier'] }}-description"
 			class="form-control"
 			aria-describedby="{{ field['identifier'] }}-descriptionHelp"
 		>{{ field.get('description') or '' }}</textarea>

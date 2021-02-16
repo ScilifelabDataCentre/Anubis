@@ -1,8 +1,8 @@
-"Proposals review handling system."
+"System to handle calls, proposals, reviews, decisions, grants."
 
 import re
 
-__version__ = '1.2.0'
+__version__ = '1.2.1'
 
 class Constants:
     VERSION     = __version__

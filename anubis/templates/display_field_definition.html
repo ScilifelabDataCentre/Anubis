@@ -18,6 +18,9 @@
     {% if field.get('required') %}
     <strong>Required!</strong>
     {% endif %}
+    {% if field.get('staffonly') %}
+    <strong class="text-danger">Staff only.</strong>
+    {% endif %}
     {% if field.get('banner') %}
     Banner.
     {% endif %}

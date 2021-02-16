@@ -3,6 +3,7 @@
 #}
 
 {% for field1 in fields if not field1.get('repeat') %}
+{% if not field1.get('staffonly') or (g.am_admin or g.am_staff) %}
 
 {# Field without repeats. #}
 
@@ -20,16 +21,19 @@
   <div class="card-header">{{ count }}</div>
   <div class="card-body">
     {% for field2 in fields if field2.get('repeat') ==  field['identifier'] %}
+    {% if not field2.get('staffonly') or (g.am_admin or g.am_staff) %}
     {% set field = field2 %}
     {% set fid = "{}-{}".format(field2['identifier'], count) %}
     {% set value = values.get(fid) %}
     {% set error = errors.get(fid) %}
     {% include 'edit_single_field_value.html' %}
+    {% endif %} {# if not field2.get('staffonly') ... #}
     {% endfor %} {# for field2 in fields ... #}
   </div>
 </div>
 {% endfor %} {# for count ... #}
 {% endif %} {# if field1['type'] == 'repeat' ... #}
 
+{% endif %} {# if not field1.get('staffonly') ... #}
 {% endfor %} {# for field1 in fields #}
 

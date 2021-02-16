@@ -612,11 +612,16 @@ class CallSaver(AttachmentSaver):
         if not title:
             title = ' '.join([w.capitalize()
                               for w in fid.replace('_', ' ').split()])
+        required = bool(form.get('required'))
+        staffonly = bool(form.get('staffonly'))
+        if staffonly:
+            required = False
         field = {'type': type,
                  'identifier': fid,
                  'title': title,
                  'description': form.get('description') or None,
-                 'required': bool(form.get('required')),
+                 'required': required,
+                 'staffonly': staffonly,
                  'banner': bool(form.get('banner')),
                  'repeat': form.get('repeat') or None
                  }
@@ -720,6 +725,9 @@ class CallSaver(AttachmentSaver):
         field['title'] = title
         field['description'] = form.get('description') or None
         field['required'] = bool(form.get('required'))
+        field['staffonly'] = bool(form.get('staffonly'))
+        if field['staffonly']:
+            field['required'] = False
         field['banner'] = bool(form.get('banner'))
         field['repeat'] = form.get('repeat') or None
 

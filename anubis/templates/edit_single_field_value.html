@@ -3,6 +3,10 @@
   <label for="{{ fid }}"
          class="col-md-2 col-form-label text-right font-weight-bold">
     {{ field['title'] }}
+    {% if field.get('staffonly') %}
+    <br>
+    <strong class="text-danger">Staff only</strong>
+    {% endif %}
   </label>
   <div class="col-md">
 
