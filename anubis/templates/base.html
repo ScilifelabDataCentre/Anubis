@@ -68,6 +68,12 @@
             <a href="{{ url_for('grants.user', username=g.current_user['username']) }}"
                title="My grants and the grants to which I have access."
 	       class="nav-link">My grants
+	      {% if g.my_incomplete_grants_count %}
+	      <span class="font-weight-bold px-2 py-1 bg-warning active"
+		    title="You have incomplete grant dossiers.">
+                {{ g.my_incomplete_grants_count }}
+              </span>
+	      {% endif %}
 	    </a>
           </li>
 	  {% endif %}

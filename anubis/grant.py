@@ -30,6 +30,8 @@ DESIGN_DOC = {
                      'map': "function (doc) {if (doc.doctype !== 'grant') return; emit(doc.proposal, doc.identifier);}"},
         'user': {'reduce': '_count',
                  'map': "function (doc) {if (doc.doctype !== 'grant') return; emit(doc.user, doc.identifier);}"},
+        'incomplete': {'reduce': '_count',
+                       'map': "function (doc) {if (doc.doctype !== 'grant') return; if (Object.keys(doc.errors).length === 0) return; emit(doc.user, doc.identifier);}"},
         'access': {'reduce': '_count',
                    'map': "function (doc) {if (doc.doctype !== 'grant') return; for (var i=0; i < doc.access_view.length; i++) {emit(doc.access_view[i], doc.identifier); }}"},
     }
