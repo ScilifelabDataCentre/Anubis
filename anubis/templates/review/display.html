@@ -14,10 +14,12 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   <div class="col-md-2 font-weight-bold text-right">Submitter</div>
   <div class="col-md">{{ get_user(proposal['user']) | user_link }}</div>
 </div>
+
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
   <div class="col-md">{{ call | call_link }}</div>
 </div>
+
 {% if allow_view_reviews %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Reviews of proposal</div>
@@ -29,10 +31,12 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   </div>
 </div>
 {% endif %} {# if allow_view_reviews #}
+
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Reviewer</div>
   <div class="col-md">{{ get_user(review['reviewer']) | user_link }}</div>
 </div>
+
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">State</div>
   <div class="col-md">
@@ -61,37 +65,40 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 <div class="mt-2">
   <a href="{{ url_for('about.documentation', page='Instructions-for-reviewers') }}"
      role="button" class="btn btn-block btn-outline-secondary"
-     target="_blank">
-    Instructions for reviewers</a>
+     target="_blank">Instructions for reviewers</a>
 </div>
 <div class="mt-2">
   <a href="{{ url_for('.edit', iuid=review['_id']) }}"
      role="button" class="btn btn-block btn-primary">Edit</a>
 </div>
 {% endif %} {# if allow_edit #}
+
 {% if allow_unfinalize %}
 <div class="mt-2">
   <form action="{{ url_for('.unfinalize', iuid=review['_id']) }}"
 	method="POST">
     {{ csrf_token() }}
-    <button type="submit" class="btn btn-block btn-warning">
-      Unfinalize</button>
+    <button type="submit" class="btn btn-block btn-warning">Unfinalize</button>
   </form>
 </div>
 {% endif %} {# if allow_unfinalize #}
+
 {% if allow_finalize %}
 <div class="mt-2">
   <form action="{{ url_for('.finalize', iuid=review['_id']) }}"
 	method="POST">
     {{ csrf_token() }}
-    <button type="submit" class="btn btn-block btn-success">
-      Finalize</button>
+    <button type="submit" class="btn btn-block btn-success">Finalize</button>
   </form>
 </div>
 {% endif %} {# if allow_finalize #}
+
+<div class="mt-4">
+</div>
+
 {% if allow_delete %}
 {% if review.get('archived') %}
-<div class="mt-4">
+<div class="mt-2">
   <form action="{{ url_for('.unarchive', iuid=review['_id']) }}"
 	method="POST">
     {{ csrf_token() }}
@@ -110,7 +117,11 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   </form>
 </div>
 {% endif %} {# if review.get('archived') #}
+
 <div class="mt-4">
+</div>
+
+<div class="mt-2">
   <form action="{{ url_for('.edit', iuid=review['_id']) }}"
 	method="POST">
     {{ csrf_token() }}

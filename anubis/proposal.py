@@ -11,7 +11,7 @@ import anubis.grant
 import anubis.review
 from anubis import constants
 from anubis import utils
-from anubis.saver import AttachmentSaver, FieldMixin
+from anubis.saver import AttachmentSaver, FieldMixin, AccessMixin
 
 
 def init(app):
@@ -32,6 +32,8 @@ DESIGN_DOC = {
                         'map': "function (doc) {if (doc.doctype !== 'proposal' || doc.submitted) return; emit(doc.user, doc.identifier);}"},
         'call_category': {'reduce': '_count',
                           'map': "function (doc) {if (doc.doctype !== 'proposal' || !doc.category) return; emit([doc.call, doc.category], doc.identifier);}"},
+        'access': {'reduce': '_count',
+                   'map': "function (doc) {if (doc.doctype !== 'proposal') return; for (var i=0; i < doc.access_view.length; i++) {emit(doc.access_view[i], doc.identifier); }}"},
     }
 }
 
@@ -44,44 +46,38 @@ def display(pid):
     proposal = get_proposal(pid)
     if proposal is None:
         return utils.error('No such proposal.', flask.url_for('home'))
-    call = anubis.call.get_call(proposal['call'])
     if not allow_view(proposal):
         return utils.error('You are not allowed to view this proposal.')
+    call = anubis.call.get_call(proposal['call'])
     am_submitter = flask.g.current_user and \
                    flask.g.current_user['username'] == proposal['user']
-    am_reviewer = anubis.call.am_reviewer(call)
-    my_review = anubis.review.get_reviewer_review(proposal,flask.g.current_user)
-    allow_view_reviews = anubis.call.allow_view_reviews(call)
     decision = anubis.decision.get_decision(proposal.get('decision'))
-    allow_create_decision = anubis.decision.allow_create(proposal)
-    allow_link_decision = anubis.decision.allow_link(decision)
     # Only show decision in-line in proposal for non-admin or non-staff.
     allow_view_decision = decision and \
                           decision.get('finalized') and \
                           not (flask.g.am_admin or flask.g.am_staff) and \
                           call['access'].get('allow_submitter_view_decision')
-    print('allow_view_decision', allow_view_decision)
     grant = anubis.grant.get_grant_proposal(proposal['identifier'])
-    allow_create_grant = anubis.grant.allow_create(proposal)
-    allow_link_grant = anubis.grant.allow_link(grant)
-    return flask.render_template('proposal/display.html',
-                                 proposal=proposal,
-                                 call=call,
-                                 allow_edit=allow_edit(proposal),
-                                 allow_delete=allow_delete(proposal),
-                                 allow_submit=allow_submit(proposal),
-                                 allow_transfer=allow_transfer(proposal),
-                                 am_submitter=am_submitter,
-                                 am_reviewer=am_reviewer,
-                                 my_review=my_review,
-                                 allow_view_reviews=allow_view_reviews,
-                                 decision=decision,
-                                 allow_create_decision=allow_create_decision,
-                                 allow_link_decision=allow_link_decision,
-                                 allow_view_decision=allow_view_decision,
-                                 grant=grant,
-                                 allow_create_grant=allow_create_grant,
-                                 allow_link_grant=allow_link_grant)
+    return flask.render_template(
+        'proposal/display.html',
+        proposal=proposal,
+        call=call,
+        decision=decision,
+        grant=grant,
+        allow_edit=allow_edit(proposal),
+        allow_delete=allow_delete(proposal),
+        allow_submit=allow_submit(proposal),
+        allow_transfer=allow_transfer(proposal),
+        am_submitter=am_submitter,
+        am_reviewer=anubis.call.am_reviewer(call),
+        my_review=anubis.review.get_reviewer_review(proposal,
+                                                    flask.g.current_user),
+        allow_view_reviews=anubis.call.allow_view_reviews(call),
+        allow_create_decision=anubis.decision.allow_create(proposal),
+        allow_link_decision=anubis.decision.allow_link(decision),
+        allow_view_decision=allow_view_decision,
+        allow_create_grant=anubis.grant.allow_create(proposal),
+        allow_link_grant=anubis.grant.allow_link(grant))
 
 @blueprint.route('/<pid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.login_required
@@ -230,22 +226,49 @@ def unsubmit(pid):
             utils.flash_warning('Proposal was unsubmitted.')
         return flask.redirect(flask.url_for('.display', pid=pid))
 
-@blueprint.route('/<pid>/logs')
+@blueprint.route('/<pid>/access', methods=["GET", "POST", "DELETE"])
 @utils.login_required
-def logs(pid):
-    "Display the log records of the given proposal."
+def access(pid):
+    "Edit the access privileges for the proposal record."
     proposal = get_proposal(pid)
     if proposal is None:
         return utils.error('No such proposal.', flask.url_for('home'))
-    if not allow_view(proposal):
-        return utils.error('You are not allowed to read this proposal.',
-                           flask.url_for('home'))
+    if not allow_edit(proposal):
+        return utils.error(
+            'You are not allowed to edit this proposal.',
+            flask.url_for('.display', pid=proposal['identifier']))
+    call = anubis.call.get_call(proposal['call'])
 
-    return flask.render_template(
-        'logs.html',
-        title=f"Proposal {proposal['identifier']}",
-        back_url=flask.url_for('.display', pid=proposal['identifier']),
-        logs=utils.get_logs(proposal['_id']))
+    if utils.http_GET():
+        users = {}
+        for user in proposal.get('access_view', []):
+            users[user] = False
+        for user in proposal.get('access_edit', []):
+            users[user] = True
+        return flask.render_template(
+            'access.html',
+            title=f"Proposal {proposal['identifier']}",
+            url=flask.url_for('.access', pid=proposal['identifier']),
+            users=users,
+            back=flask.url_for('.display', pid=proposal['identifier']))
+
+    elif utils.http_POST():
+        try:
+            with ProposalSaver(doc=proposal) as saver:
+                saver.set_access(form=flask.request.form)
+        except ValueError as error:
+            utils.flash_error(error)
+        return flask.redirect(
+            flask.url_for('.access', pid=proposal['identifier']))
+
+    elif utils.http_DELETE():
+        try:
+            with ProposalSaver(doc=proposal) as saver:
+                saver.remove_access(form=flask.request.form)
+        except ValueError as error:
+            utils.flash_error(error)
+        return flask.redirect(
+            flask.url_for('.access', pid=proposal['identifier']))
 
 @blueprint.route('/<pid>/document/<fid>')
 @utils.login_required
@@ -283,8 +306,25 @@ def get_document(proposal, fid):
                 content=outfile.read(),
                 content_type=stub['content_type'])
     
+@blueprint.route('/<pid>/logs')
+@utils.login_required
+def logs(pid):
+    "Display the log records of the given proposal."
+    proposal = get_proposal(pid)
+    if proposal is None:
+        return utils.error('No such proposal.', flask.url_for('home'))
+    if not allow_view(proposal):
+        return utils.error('You are not allowed to read this proposal.',
+                           flask.url_for('home'))
 
-class ProposalSaver(FieldMixin, AttachmentSaver):
+    return flask.render_template(
+        'logs.html',
+        title=f"Proposal {proposal['identifier']}",
+        back_url=flask.url_for('.display', pid=proposal['identifier']),
+        logs=utils.get_logs(proposal['_id']))
+
+
+class ProposalSaver(AccessMixin, FieldMixin, AttachmentSaver):
     "Proposal document saver context."
 
     DOCTYPE = constants.PROPOSAL

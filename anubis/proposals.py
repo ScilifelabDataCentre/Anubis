@@ -41,21 +41,16 @@ def call(cid):
     email_lists = {'Emails to for submitted proposals': 
                    ', '.join(submitted_emails),
                    'Emails for all proposals': ', '.join(all_emails)}
-    mean_field_ids = compute_mean_fields(call, proposals)
-    am_reviewer = anubis.call.am_reviewer(call)
-    allow_view_reviews = anubis.call.allow_view_reviews(call)
-    allow_view_decisions = anubis.call.allow_view_decisions(call)
-    allow_view_details = anubis.call.allow_view_details(call)
     return flask.render_template(
         'proposals/call.html', 
         call=call,
         proposals=proposals,
         email_lists=email_lists,
-        mean_field_ids=mean_field_ids,
-        am_reviewer=am_reviewer,
-        allow_view_reviews=allow_view_reviews,
-        allow_view_decisions=allow_view_decisions,
-        allow_view_details=allow_view_details,
+        mean_field_ids=compute_mean_fields(call, proposals),
+        am_reviewer=anubis.call.am_reviewer(call),
+        allow_view_reviews=anubis.call.allow_view_reviews(call),
+        allow_view_decisions=anubis.call.allow_view_decisions(call),
+        allow_view_details=anubis.call.allow_view_details(call),
         category=category,
         get_reviewer_review=anubis.review.get_reviewer_review)
 
@@ -223,9 +218,11 @@ def user(username):
     if not anubis.user.allow_view(user):
         return utils.error("You may not view the user's proposals.",
                            flask.url_for('home'))
+    proposals = get_user_proposals(user['username'])
+    proposals.extend(utils.get_docs_view('proposals', 'access', user['username']))
     return flask.render_template('proposals/user.html',  
                                  user=user,
-                                 proposals=get_user_proposals(user['username']),
+                                 proposals=proposals,
                                  allow_view_decision=anubis.decision.allow_view)
 
 def get_call_proposals(call, category=None, submitted=False):

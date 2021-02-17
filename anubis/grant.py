@@ -154,13 +154,13 @@ def access(gid):
     grant = get_grant(gid)
     if grant is None:
         return utils.error('No such grant.', flask.url_for('home'))
+    if not allow_edit(grant):
+        return utils.error(
+            'You are not allowed to edit this grant dossier.',
+            flask.url_for('.display', gid=grant['identifier']))
     call = anubis.call.get_call(grant['call'])
 
     if utils.http_GET():
-        if not allow_edit(grant):
-            return utils.error(
-                'You are not allowed to edit this grant dossier.',
-                flask.url_for('.display', gid=grant['identifier']))
         users = {}
         for user in grant.get('access_view', []):
             users[user] = False
@@ -174,10 +174,6 @@ def access(gid):
             back=flask.url_for('.display', gid=grant['identifier']))
 
     elif utils.http_POST():
-        if not allow_edit(grant):
-            return utils.error(
-                'You are not allowed to edit this grant dossier.',
-                flask.url_for('.display', gid=grant['identifier']))
         try:
             with GrantSaver(doc=grant) as saver:
                 saver.set_access(form=flask.request.form)
@@ -186,10 +182,6 @@ def access(gid):
         return flask.redirect(flask.url_for('.access', gid=grant['identifier']))
 
     elif utils.http_DELETE():
-        if not allow_edit(grant):
-            return utils.error(
-                'You are not allowed to edit this grant dossier.',
-                flask.url_for('.display', gid=grant['identifier']))
         try:
             with GrantSaver(doc=grant) as saver:
                 saver.remove_access(form=flask.request.form)

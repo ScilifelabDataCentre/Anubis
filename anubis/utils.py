@@ -101,7 +101,8 @@ def get_user_calls_count(username):
 
 def get_user_proposals_count(username):
     "Return the number of proposals for the user."
-    return get_count('proposals', 'user', username)
+    return get_count('proposals', 'user', username) + \
+           get_count('proposals', 'access', username)
 
 def get_user_reviews_count(username):
     "Return the number of reviews for the user."

@@ -29,10 +29,12 @@
     {% include 'email_lists.html' %}
   </div>
 </div>
+
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Grant receiver</div>
   <div class="col-md">{{ get_user(grant['user']) | user_link }}</div>
 </div>
+
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Access</div>
   <div class="col-md">
@@ -66,10 +68,12 @@
     </table>
   </div>
 </div>
+
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Proposal</div>
   <div class="col-md">{{ proposal | proposal_link }}</div>
 </div>
+
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
   <div class="col-md">
@@ -89,13 +93,20 @@
   <a href="{{ url_for('.edit', gid=grant['identifier']) }}"
      role="button" class="btn btn-block btn-primary">Edit</a>
 </div>
+{% endif %} {# if allow_edit #}
+
+<div class="mt-4">
+</div>
+
+{% if allow_edit %}
 <div class="mt-2">
   <a href="{{ url_for('.access', gid=grant['identifier']) }}"
-     role="button" class="btn btn-block btn-warning">Change access</a>
+     role="button" class="btn btn-block btn-sm btn-warning">Change access</a>
 </div>
 {% endif %} {# if allow_edit #}
+
 {% if allow_delete %}
-<div class="mt-4">
+<div class="mt-2">
   <form action="{{ url_for('.edit', gid=grant['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}

@@ -293,6 +293,7 @@
   <a href="{{ url_for('.grant', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit grant fields</a>
 </div>
+
 {% if call_proposals_count == 0 %}
 <div class="mt-2">
   <form action="{{ url_for('.reset_counter', cid=call['identifier']) }}"
@@ -303,7 +304,11 @@
   </form>
 </div>
 {% endif %}
+
 <div class="mt-4">
+</div>
+
+<div class="mt-2">
   <a href="{{ url_for('.reviewers', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit reviewers</a>
 </div>
@@ -312,6 +317,10 @@
      role="button" class="btn btn-primary btn-block">Clone</a>
 </div>
 {% endif %} {# if allow_edit #}
+
+<div class="mt-4">
+</div>
+
 {% if allow_delete %}
 <div class="mt-2">
   <form action="{{ url_for('.edit', cid=call['identifier']) }}"
