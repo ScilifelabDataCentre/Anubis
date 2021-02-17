@@ -47,10 +47,12 @@ def closed():
                                       startkey='',
                                       endkey=utils.normalized_local_now(),
                                       include_docs=True)]
-    return flask.render_template('calls/closed.html',
-                                 calls=calls,
-                                 am_call_owner=anubis.call.am_call_owner,
-                                 allow_create=anubis.call.allow_create())
+    return flask.render_template(
+        'calls/closed.html',
+        calls=calls,
+        am_call_owner=anubis.call.am_call_owner,
+        # Function, not value, is passed.
+        allow_view_details=anubis.call.allow_view_details)
 
 @blueprint.route('/open')
 def open():

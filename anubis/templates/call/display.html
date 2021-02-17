@@ -9,15 +9,22 @@
 
 {% block meta %}
 {% if allow_view_details %}
-<div class="lead">
-  <a href="{{ url_for('.call_zip', cid=call['identifier']) }}"
-     title="Submitted proposals: Excel file and their documents."
-     class="badge badge-pill badge-dark">Call proposals zip file</a>
-</div>
+<a href="{{ url_for('.call_zip', cid=call['identifier']) }}"
+   title="Submitted proposals: Excel file and their documents."
+   class="badge badge-pill badge-dark">Call proposals zip file</a>
+    <a href="#email_lists" data-toggle="collapse"
+       class="badge badge-pill badge-secondary" role="button"
+       aria-expanded="false" aria-controls="email_lists">
+      Email address lists
+    </a>
 {% endif %} {# if allow_view_details #}
 {% endblock %}
 
 {% block main %}
+{% if allow_view_details %}
+{% include 'email_lists.html' %}
+{% endif %} {# if allow_view_details #}
+
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Identifier</div>
   <div class="col-md font-weight-bold">{{ call['identifier']  }}</div>
@@ -96,13 +103,7 @@
     (<a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=reviewer['username']) }}">reviews</a>)
     {% endif %}
     <span class="px-2"></span>
-    {% endfor %}
-    <a href="#email_lists" data-toggle="collapse"
-       class="badge badge-pill badge-secondary" role="button"
-       aria-expanded="false" aria-controls="email_lists">
-      Email address list
-    </a>
-    {% include 'email_lists.html' %}
+    {% endfor %} {# for reviewer in reviewers #}
   </div>
 </div>
 {% endif %} {# if allow_view_details #}
@@ -327,6 +328,7 @@
 
 {% block info %}
 {% if allow_view_details %}
+{% include 'clipboard.html' %}
 <div class="small">
   Modified <span class="localtime">{{ call['modified'] }}</span>
   <span class="ml-4">

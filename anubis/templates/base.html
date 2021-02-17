@@ -40,10 +40,10 @@
 	  {% if g.my_proposals_count %}
           <li class="nav-item">
             <a href="{{ url_for('proposals.user', username=g.current_user['username']) }}"
-	       class="nav-link">My proposals
+	       class="nav-link mr-2">My proposals
 	      {% if g.my_unsubmitted_proposals_count %}
 	      <span class="font-weight-bold px-2 py-1 bg-warning active"
-		    title="You have unsubmitted proposals!">
+		    title="You have unsubmitted proposals.">
                 {{ g.my_unsubmitted_proposals_count }}
               </span>
 	      {% endif %}
@@ -53,10 +53,10 @@
 	  {% if g.my_reviews_count %}
           <li class="nav-item">
             <a href="{{ url_for('reviews.reviewer', username=g.current_user['username']) }}"
-	       class="nav-link">My reviews
+	       class="nav-link mr-2">My reviews
 	      {% if g.my_unfinalized_reviews_count %}
 	      <span class="font-weight-bold px-2 py-1 bg-warning active"
-		    title="You have unfinalized reviews!">
+		    title="You have unfinalized reviews.">
                 {{ g.my_unfinalized_reviews_count }}
               </span>
 	      {% endif %}
@@ -64,7 +64,7 @@
           </li>
 	  {% endif %}
 	  {% if g.my_grants_count %}
-          <li class="nav-item">
+          <li class="nav-item mr-2">
             <a href="{{ url_for('grants.user', username=g.current_user['username']) }}"
                title="My grants and the grants to which I have access."
 	       class="nav-link">My grants

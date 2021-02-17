@@ -32,10 +32,19 @@ def call(cid):
     # Convert username for grant to full user dict.
     for grant in grants:
         grant['user'] = anubis.user.get_user(grant['user'])
-    emails = [g['user']['email'] for g in grants]
-    emails = [e for e in emails if e]
+    # There may be accounts that have no emails.
+    receiver_emails = [g['user']['email'] for g in grants]
+    receiver_emails = [e for e in receiver_emails if e]
+    access_emails = []
+    for grant in grants:
+        access_emails.extend([anubis.user.get_user(a)['email']
+                              for a in grant.get('access_view', [])])
+    access_emails = [e for e in access_emails if e]
+    all_emails = receiver_emails + access_emails
     email_lists = {'Grant receivers (= proposal submitters)':
-                   ', '.join(emails)}
+                   ', '.join(receiver_emails),
+                   'Persons with access to a grant': ', '.join(access_emails),
+                   'All involved persons': ', '.join(all_emails)}
     return flask.render_template('grants/call.html',
                                  call=call,
                                  grants=grants,

@@ -84,11 +84,10 @@ def display(gid):
     # There may be accounts that have no email!
     access_emails = [e for e in access_emails if e]
     all_emails = [receiver_email] + access_emails
-    email_lists = {'Email for grant receiver': receiver_email,
-                   'Emails for persons with access to this grant':
+    email_lists = {'Grant receiver': receiver_email,
+                   'Persons with access to this grant':
                    ', '.join(access_emails),
-                   'All emails for involved persons':
-                   ', '.join(all_emails)}
+                   'All involved persons': ', '.join(all_emails)}
     return flask.render_template(
         'grant/display.html',
         grant=grant,

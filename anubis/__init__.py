@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '1.2.3'
+__version__ = '1.2.4'
 
 class Constants:
     VERSION     = __version__
@@ -54,9 +54,7 @@ class Constants:
 
     # Access flags for each call
     ACCESS = ('allow_reviewer_view_all_reviews',
-              'allow_submitter_view_decision',
-              # XXX not implemented: 'allow_public_view_all_decisions',
-    )
+              'allow_submitter_view_decision')
 
     # MIME types
     XLSX_MIMETYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'

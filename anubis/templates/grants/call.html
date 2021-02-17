@@ -65,6 +65,7 @@ Grant dossiers in call {{ call['identifier'] }}
 {% endblock %} {# block supermain #}
 
 {% block javascript %}
+{% include 'clipboard.html' %}
 {% set nbanners = len(utils.get_banner_fields(call['grant'])) %}
 <script>
   $(function() {

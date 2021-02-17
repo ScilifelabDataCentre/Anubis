@@ -62,13 +62,15 @@ def display(cid):
         return utils.error('No such call.', flask.url_for('home'))
     if not allow_view(call):
         return utils.error('You are not allowed to view the call.')
-    reviewers = [anubis.user.get_user(r) for r in call['reviewers']]
-    reviewers.sort(key=lambda r: (r['familyname'], r['givenname']))
-    emails = [r['email'] for r in reviewers]
-    emails = [e for e in emails if e]
-    email_lists = {'Emails for reviewers': ', '.join(emails)}
     kwargs = {}
     if flask.g.current_user:
+        if allow_view_details(call):
+            reviewers = [anubis.user.get_user(r) for r in call['reviewers']]
+            reviewers.sort(key=lambda r: (r['familyname'], r['givenname']))
+            emails = [r['email'] for r in reviewers]
+            emails = [e for e in emails if e]
+            kwargs['reviewers'] = reviewers
+            kwargs['email_lists'] = {'Emails for reviewers': ', '.join(emails)}
         kwargs['my_proposal'] = anubis.proposal.get_call_user_proposal(
             cid, flask.g.current_user['username'])
         kwargs['my_reviews_count'] = utils.get_call_reviewer_reviews_count(
@@ -81,8 +83,6 @@ def display(cid):
         kwargs['call_grants_count'] = utils.get_call_grants_count(cid)
     return flask.render_template('call/display.html',
                                  call=call,
-                                 reviewers=reviewers,
-                                 email_lists=email_lists,
                                  am_call_owner=am_call_owner(call),
                                  am_reviewer=am_reviewer(call),
                                  allow_edit=allow_edit(call),
@@ -965,7 +965,7 @@ def allow_proposal(call):
 
 def allow_view_details(call):
     """The admin, staff, call owner and reviewers may view the details
-    of the call, including all proposals.
+    of the call, including all proposals, reviews and grants.
     """
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True

@@ -18,6 +18,7 @@ Calls by {{ get_user(username) | user_link }}
       <th title="Includes only proposals marked by the user as 'submitted'.">
 	Proposals</th>
       <th>Reviews</a>
+      <th>Grants</a>
     </tr>
   </thead>
   <tbody class="table-borderless">
@@ -32,16 +33,32 @@ Calls by {{ get_user(username) | user_link }}
           {{ call['tmp']['text'] }}</span>
       </td>
       <td>
+        {% set count = utils.get_call_proposals_count(call['identifier']) %}
+        {% if count %}
         <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
-           role="button" class="btn btn-sm btn-primary px-3">
-          {{ utils.get_call_proposals_count(call['identifier']) }}
-        </a>
+           role="button" class="btn btn-sm btn-primary px-3">{{ count }}</a>
+        {% else %}
+        -
+        {% endif %}
       </td>
       <td>
+        {% set count = utils.get_call_reviews_count(call['identifier']) %}
+        {% if count %}
         <a href="{{ url_for('reviews.call', cid=call['identifier']) }}"
-           role="button" class="btn btn-sm btn-info px-3">
-          {{ utils.get_call_reviews_count(call['identifier']) }}
-        </a>
+           role="button" class="btn btn-sm btn-info px-3">{{ count }}</a>
+        
+        {% else %}
+        -
+        {% endif %}
+      </td>
+      <td>
+        {% set count = utils.get_call_grants_count(call['identifier']) %}
+        {% if count %}
+        <a href="{{ url_for('grants.call', cid=call['identifier']) }}"
+           role="button" class="btn btn-sm btn-success px-3">{{ count }}</a>
+        {% else %}
+        -
+        {% endif %}
       </td>
     </tr>
     {% endfor %} {# for call in calls #}
