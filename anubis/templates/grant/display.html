@@ -16,12 +16,10 @@
 <a href="{{ url_for('.grant_zip', gid=grant['identifier']) }}"
    title="All documents for the grant."
    class="badge badge-pill badge-dark">Grant documents zip file</a>
-  <a href="#email_lists" data-toggle="collapse"
-     class="badge badge-pill badge-secondary" role="button"
-     aria-expanded="false" aria-controls="email_lists">
-    Email address lists
-  </a>
-{% endblock %}
+<a href="#email_lists" data-toggle="collapse"
+   class="badge badge-pill badge-secondary" role="button"
+   aria-expanded="false" aria-controls="email_lists">Email address lists</a>
+{% endblock %} {# block meta #}
 
 {% block main %}
 <div class="row">

@@ -7,7 +7,19 @@
 {{ proposal['identifier'] }} {{ proposal.get('title') or '[No title]' }}
 {% endblock %}
 
+{% block meta %}
+<a href="#email_lists" data-toggle="collapse"
+   class="badge badge-pill badge-secondary" role="button"
+   aria-expanded="false" aria-controls="email_lists">Email address lists</a>
+{% endblock %} {# block meta #}
+
 {% block main %}
+<div class="row">
+  <div class="col-md-10">
+    {% include 'email_lists.html' %}
+  </div>
+</div>
+
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
   <div class="col-md">

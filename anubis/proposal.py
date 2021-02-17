@@ -51,6 +51,19 @@ def display(pid):
     call = anubis.call.get_call(proposal['call'])
     am_submitter = flask.g.current_user and \
                    flask.g.current_user['username'] == proposal['user']
+    submitter_email = anubis.user.get_user(username=proposal['user'])['email']
+    access_emails = []
+    for username in proposal.get('access_view', []):
+        user = anubis.user.get_user(username=username)
+        if user:
+            access_emails.append(user['email'])
+    # There may be accounts that have no email!
+    access_emails = [e for e in access_emails if e]
+    all_emails = [submitter_email] + access_emails
+    email_lists = {'Proposal submitter': submitter_email,
+                   'Persons with access to this proposal':
+                   ', '.join(access_emails),
+                   'All involved persons': ', '.join(all_emails)}
     decision = anubis.decision.get_decision(proposal.get('decision'))
     # Only show decision in-line in proposal for non-admin or non-staff.
     allow_view_decision = decision and \
@@ -64,6 +77,7 @@ def display(pid):
         call=call,
         decision=decision,
         grant=grant,
+        email_lists=email_lists,
         allow_edit=allow_edit(proposal),
         allow_delete=allow_delete(proposal),
         allow_submit=allow_submit(proposal),
