@@ -37,21 +37,18 @@ Proposals by user {{ user['username'] }}
         <span class="badge badge-pill badge-{{ call['tmp']['color'] }}">
           {{ call['tmp']['text'] }}</span>
       </td>
-      {% set decision = get_decision(proposal.get('decision')) %}
-      {% if not decision or not allow_view_decision(decision) %}
-      <td>-</td>
-      {% else %}
       <td>
-        <table class="table table-sm table-borderless">
-          {% for field in utils.get_banner_fields(call['decision']) %}
-          <tr>
-            <th>{{ field['title'] }}</th>
-            <td class="text-break">{{ field | field_value(decision) }}</td>
-          </tr>
-          {% endfor %}
-        </table>
+        {% set decision = get_decision(proposal.get('decision')) %}
+        {% if decision and allow_view_decision(decision) %}
+        {% if decision.get('verdict') %}
+        <div class="badge btn-success font-weight-bold">Accepted</div>
+        {% else %}
+        <div class="badge btn-secondary font-weight-bold">Declined</div>
+        {% endif %}
+        {% else %}
+        -
+        {% endif %}
       </td>
-      {% endif %}
     </tr>
     {% endfor %} {# for proposal in proposals #}
   </tbody>
