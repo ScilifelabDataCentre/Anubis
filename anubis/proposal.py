@@ -127,7 +127,7 @@ def edit(pid):
         except ValueError as error:
             return utils.error(error)
         if flask.request.form.get('_save') == 'submit':
-            proposal = get_proposal(pid, refresh=True)
+            proposal = get_proposal(pid, refresh=True)  # Get up-to-date info.
             try:
                 with ProposalSaver(proposal) as saver:
                     saver.set_submitted()  # Tests whether allowed or not.
@@ -394,17 +394,19 @@ def get_proposal(pid, refresh=False):
     """Return the proposal with the given identifier.
     Return None if not found.
     """
+    key = f"proposal {pid}"
     try:
         if refresh: raise KeyError
-        return flask.g.cache[pid]
+        proposal = flask.g.cache[key]
+        flask.current_app.logger.debug(f"cache hit {key}")
+        return proposal
     except KeyError:
         docs = [r.doc for r in flask.g.db.view('proposals', 'identifier',
                                                key=pid,
                                                include_docs=True)]
         if len(docs) == 1:
             proposal = docs[0]
-            flask.g.cache[pid] = proposal
-            flask.g.cache[proposal["_id"]] = proposal
+            flask.g.cache[key] = proposal
             return proposal
         else:
             return None

@@ -912,16 +912,18 @@ class CallSaver(AttachmentSaver):
 
 def get_call(cid):
     "Return the call with the given identifier."
+    key = f"call {cid}"
     try:
-        return flask.g.cache[cid]
+        call = flask.g.cache[key]
+        flask.current_app.logger.debug(f"cache hit {key}")
+        return call
     except KeyError:
         result = [r.doc for r in flask.g.db.view('calls', 'identifier',
                                                  key=cid,
                                                  include_docs=True)]
         if len(result) == 1:
             call = set_tmp(result[0])
-            flask.g.cache[cid] = call
-            flask.g.cache[call["_id"]] = call
+            flask.g.cache[key] = call
             return call
         else:
             return None

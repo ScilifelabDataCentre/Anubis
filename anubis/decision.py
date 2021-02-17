@@ -247,14 +247,23 @@ class DecisionSaver(FieldMixin, AttachmentSaver):
 
 
 def get_decision(iuid):
-    "Get the decision by its iuid."
+    """Get the decision by its iuid.
+    Return None if not found.
+    Raise ValueError if the iuid is for a document of another type.
+    """
     if not iuid: return None
+    key = f"decision {iuid}"
     try:
-        return flask.g.cache[iuid]
+        decision = flask.g.cache[key]
+        flask.current_app.logger.debug(f"cache hit {key}")
+        return decision
     except KeyError:
-        decision = flask.g.db[iuid]
+        try:
+            decision = flask.g.db[iuid]
+        except KeyError:
+            return None
         if decision['doctype'] != constants.DECISION: raise ValueError
-        flask.g.cache[iuid] = decision
+        flask.g.cache[key] = decision
         return decision
 
 def allow_create(proposal):

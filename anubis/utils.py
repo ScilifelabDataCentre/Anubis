@@ -116,7 +116,7 @@ def get_user_grants_count(username):
            get_count('grants', 'access', username)
 
 def get_docs_view(designname, viewname, key):
-    "Get the documents from the view; also put them into the cache."
+    "Get the documents from the view."
     result = [r.doc for r in flask.g.db.view(designname, viewname,
                                              key=key,
                                              include_docs=True)]
@@ -124,10 +124,17 @@ def get_docs_view(designname, viewname, key):
         if doc.get('doctype') == constants.CALL:
             flask.g.cache[f"call {doc['identifier']}"] = doc
         elif doc.get('doctype') == constants.PROPOSAL:
-            flask.g.cache[f" proposal {doc['identifier']}"] = doc
+            flask.g.cache[f"proposal {doc['identifier']}"] = doc
+        elif doc.get('doctype') == constants.REVIEW:
+            flask.g.cache[f"review {doc['_id']}"] = doc
+        elif doc.get('doctype') == constants.DECISION:
+            flask.g.cache[f"decision {doc['_id']}"] = doc
+        elif doc.get('doctype') == constants.GRANT:
+            flask.g.cache[f"grant {doc['identifier']}"] = doc
         elif doc.get('doctype') == constants.USER:
             flask.g.cache[f"username {doc['username']}"] = doc
-        flask.g.cache[doc["_id"]] = doc
+            if doc['email']:
+                flask.g.cache[f"email {doc['email']}"] = doc
     return result
 
 def login_required(f):

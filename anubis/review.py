@@ -331,14 +331,23 @@ class ReviewSaver(FieldMixin, AttachmentSaver):
 
 
 def get_review(iuid):
-    "Get the review by its iuid."
+    """Get the review by its iuid.
+    Return None if not found.
+    Raise ValueError if the iuid is for a document of another type.
+    """
     if not iuid: return None
+    key = f"review {iuid}"
     try:
-        return flask.g.cache[iuid]
+        review = flask.g.cache[key]
+        flask.current_app.logger.debug(f"cache hit {key}")
+        return review
     except KeyError:
-        review = flask.g.db[iuid]
+        try:
+            review = flask.g.db[iuid]
+        except KeyError:
+            return None
         if review['doctype'] != constants.REVIEW: raise ValueError
-        flask.g.cache[iuid] = review
+        flask.g.cache[key] = review
         return review
 
 def get_reviewer_review(proposal, reviewer=None):

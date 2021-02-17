@@ -241,15 +241,19 @@ def get_call_proposals(call, category=None, submitted=False):
     if submitted:
         result = [p for p in result if p.get('submitted')]
     result.sort(key=lambda p: p['identifier'])
+    for proposal in result:
+        flask.g.cache[f"proposal {proposal['identifier']}"] = proposal
     return result
 
-def get_user_proposals(username, call=None):
+def get_user_proposals(username):
     "Get all proposals created by the user."
     result = [i.doc for i in flask.g.db.view('proposals', 'user',
                                              key=username,
                                              reduce=False,
                                              include_docs=True)]
     result.sort(key=lambda p: p['identifier'])
+    for proposal in result:
+        flask.g.cache[f"proposal {proposal['identifier']}"] = proposal
     return result
 
 def compute_mean_fields(call, proposals):

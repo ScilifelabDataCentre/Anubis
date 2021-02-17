@@ -424,35 +424,43 @@ def get_user(username=None, email=None):
     Return None if no such user.
     """
     if username:
+        key = f"username {username}"
         try:
-            return flask.g.cache[f"username {username}"]
+            user = flask.g.cache[key]
+            flask.current_app.logger.debug(f"cache hit {key}")
+            return user
         except KeyError:
             docs = [r.doc for r in flask.g.db.view('users', 'username', 
                                                    key=username,
                                                    include_docs=True)]
             if len(docs) == 1:
                 user = docs[0]
+                flask.g.cache[key] = user
+                if user['email']:
+                    flask.g.cache[f"email {user['email']}"] = user
+                return user
             else:
                 return None
     elif email:
         email = email.lower()
+        key = f"email {email}"
         try:
-            return flask.g.cache[f"email {email}"]
+            user = flask.g.cache[key]
+            flask.current_app.logger.debug(f"cache hit {key}")
+            return user
         except KeyError:
             docs = [r.doc for r in flask.g.db.view('users', 'email',
                                                    key=email,
                                                    include_docs=True)]
             if len(docs) == 1:
                 user = docs[0]
+                flask.g.cache[key] = user
+                flask.g.cache[f"username {user['username']}"] = user
+                return user
             else:
                 return None
     else:
         return None
-    flask.g.cache[user["_id"]] = user
-    flask.g.cache[f"username {user['username']}"] = user
-    if user['email']:
-        flask.g.cache[f"email {user['email']}"] = user
-    return user
 
 def get_users(role=None, status=None, safe=False):
     "Get the users specified by role and optionally by status."

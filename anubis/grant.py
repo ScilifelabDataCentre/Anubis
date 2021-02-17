@@ -335,27 +335,43 @@ def get_grant(gid):
     """Return the grant dossier with the given identifier.
     Return None if not found.
     """
-    # XXX use cache!
-    docs = [r.doc for r in flask.g.db.view('grants', 'identifier',
-                                           key=gid,
-                                           include_docs=True)]
-    if len(docs) == 1:
-        return docs[0]
-    else:
-        return None
+    key = f"grant {gid}"
+    try:
+        grant = flask.g.cache[key]
+        flask.current_app.logger.debug(f"cache hit {key}")
+        return grant
+    except KeyError:
+        docs = [r.doc for r in flask.g.db.view('grants', 'identifier',
+                                               key=gid,
+                                               include_docs=True)]
+        if len(docs) == 1:
+            grant = docs[0]
+            flask.g.cache[key] = grant
+            flask.g.cache[f"grant {grant['proposal']}"] = grant
+            return grant
+        else:
+            return None
 
 def get_grant_proposal(pid):
     """Return the grant dossier for the proposal with the given identifier.
     Return None if not found.
     """
-    # XXX use cache!
-    docs = [r.doc for r in flask.g.db.view('grants', 'proposal',
-                                           key=pid,
-                                           include_docs=True)]
-    if len(docs) == 1:
-        return docs[0]
-    else:
-        return None
+    key = f"grant {pid}"
+    try:
+        grant = flask.g.cache[key]
+        flask.current_app.logger.debug(f"cache hit {key}")
+        return grant
+    except KeyError:
+        docs = [r.doc for r in flask.g.db.view('grants', 'proposal',
+                                               key=pid,
+                                               include_docs=True)]
+        if len(docs) == 1:
+            grant = docs[0]
+            flask.g.cache[key] = grant
+            flask.g.cache[f"grant {grant['identifier']}"] = grant
+            return grant
+        else:
+            return None
 
 def allow_create(proposal):
     "The admin and staff may create a grant dossier."
