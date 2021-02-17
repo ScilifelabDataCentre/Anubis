@@ -66,6 +66,7 @@
 	  {% if g.my_grants_count %}
           <li class="nav-item">
             <a href="{{ url_for('grants.user', username=g.current_user['username']) }}"
+               title="My grants and the grants to which I have access."
 	       class="nav-link">My grants
 	    </a>
           </li>

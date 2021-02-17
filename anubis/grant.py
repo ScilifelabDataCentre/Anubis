@@ -75,17 +75,30 @@ def display(gid):
     if not allow_view(grant):
         return utils.error('You are not allowed to view this grant dossier.',
                            flask.url_for('call.display', cid=grant['call']))
-    proposal = anubis.proposal.get_proposal(grant['proposal'])
-    call = anubis.call.get_call(grant['call'])
-    call_grants_count = utils.get_count('grants', 'call', grant['call'])
-    return flask.render_template('grant/display.html',
-                                 grant=grant,
-                                 proposal=proposal,
-                                 call=call,
-                                 call_grants_count=call_grants_count,
-                                 allow_view=allow_view(grant),
-                                 allow_edit=allow_edit(grant),
-                                 allow_delete=allow_delete(grant))
+    receiver_email = anubis.user.get_user(username=grant['user'])['email']
+    access_emails = []
+    for username in grant.get('access_view', []):
+        user = anubis.user.get_user(username=username)
+        if user:
+            access_emails.append(user['email'])
+    # There may be accounts that have no email!
+    access_emails = [e for e in access_emails if e]
+    all_emails = [receiver_email] + access_emails
+    email_lists = {'Email for grant receiver': receiver_email,
+                   'Emails for persons with access to this grant':
+                   ', '.join(access_emails),
+                   'All emails for involved persons':
+                   ', '.join(all_emails)}
+    return flask.render_template(
+        'grant/display.html',
+        grant=grant,
+        proposal=anubis.proposal.get_proposal(grant['proposal']),
+        call=anubis.call.get_call(grant['call']),
+        call_grants_count=utils.get_call_grants_count(gid),
+        email_lists=email_lists,
+        allow_view=allow_view(grant),
+        allow_edit=allow_edit(grant),
+        allow_delete=allow_delete(grant))
 
 @blueprint.route('/<gid>/edit', methods=["GET", "POST", "DELETE"])
 @utils.login_required
@@ -329,6 +342,7 @@ def get_grant(gid):
     """Return the grant dossier with the given identifier.
     Return None if not found.
     """
+    # XXX use cache!
     docs = [r.doc for r in flask.g.db.view('grants', 'identifier',
                                            key=gid,
                                            include_docs=True)]
@@ -341,6 +355,7 @@ def get_grant_proposal(pid):
     """Return the grant dossier for the proposal with the given identifier.
     Return None if not found.
     """
+    # XXX use cache!
     docs = [r.doc for r in flask.g.db.view('grants', 'proposal',
                                            key=pid,
                                            include_docs=True)]

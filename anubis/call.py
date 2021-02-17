@@ -71,9 +71,8 @@ def display(cid):
     if flask.g.current_user:
         kwargs['my_proposal'] = anubis.proposal.get_call_user_proposal(
             cid, flask.g.current_user['username'])
-        kwargs['my_reviews_count'] = utils.get_count(
-            'reviews', 'call_reviewer',
-            [call['identifier'], flask.g.current_user['username']])
+        kwargs['my_reviews_count'] = utils.get_call_reviewer_reviews_count(
+            cid, flask.g.current_user['username'])
         kwargs['call_proposals_count'] = utils.get_call_proposals_count(cid)
         if call.get('categories'):
             kwargs['call_proposals_category_counts'] = dict(
@@ -955,8 +954,7 @@ def allow_edit(call):
 def allow_delete(call):
     "Allow the admin or call owner to delete a call if it has no proposals."
     if not (flask.g.am_admin or am_call_owner(call)): return False
-    if utils.get_count('proposals', 'call', call['identifier']) == 0:
-        return True
+    if utils.get_call_proposals_count(call['identifier']) == 0: return True
     return False
 
 def allow_proposal(call):

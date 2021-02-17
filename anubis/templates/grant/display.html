@@ -16,9 +16,19 @@
 <a href="{{ url_for('.grant_zip', gid=grant['identifier']) }}"
    title="All documents for the grant."
    class="badge badge-pill badge-dark">Grant documents zip file</a>
+  <a href="#email_lists" data-toggle="collapse"
+     class="badge badge-pill badge-secondary" role="button"
+     aria-expanded="false" aria-controls="email_lists">
+    Email address lists
+  </a>
 {% endblock %}
 
 {% block main %}
+<div class="row">
+  <div class="col-md-10">
+    {% include 'email_lists.html' %}
+  </div>
+</div>
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Grant receiver</div>
   <div class="col-md">{{ get_user(grant['user']) | user_link }}</div>
@@ -109,3 +119,7 @@
   </span>
 </div>
 {% endblock %} {# block info #}
+
+{% block javascript %}
+{% include 'clipboard.html' %}
+{% endblock %}

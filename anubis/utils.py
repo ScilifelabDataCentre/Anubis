@@ -78,9 +78,13 @@ def get_call_reviews_count(cid):
     "Get the count of all reviews in the given call."
     return get_count('reviews', 'call', cid)
 
-def get_call_grants_count(cid):
+def get_call_reviewer_reviews_count(cid, username):
+    "Get the count of all reviews for the reviewer in the given call."
+    return get_count('reviews', 'call_reviewer', [cid, username])
+
+def get_call_grants_count(gid):
     "Get the count for all grants for the given call."
-    return get_count('grants', 'call', cid)
+    return get_count('grants', 'call', gid)
 
 def get_proposal_reviews_count(pid, archived=False):
     """Get the count of all reviews for the given proposal.
@@ -91,9 +95,24 @@ def get_proposal_reviews_count(pid, archived=False):
     else:
         return get_count('reviews', 'proposal', pid)
 
-def get_call_reviewer_reviews_count(cid, username):
-    "Get the count of all reviews for the reviewer in the given call."
-    return get_count('reviews', 'call_reviewer', [cid, username])
+def get_user_calls_count(username):
+    "Return the number of calls owned by the user."
+    return get_count('calls', 'owner', username)
+
+def get_user_proposals_count(username):
+    "Return the number of proposals for the user."
+    return get_count('proposals', 'user', username)
+
+def get_user_reviews_count(username):
+    "Return the number of reviews for the user."
+    return get_count('reviews', 'reviewer', username)
+
+def get_user_grants_count(username):
+    """Return the number of grants for the user,
+    including those she has access to.
+    """
+    return get_count('grants', 'user', username) + \
+           get_count('grants', 'access', username)
 
 def get_docs_view(designname, viewname, key):
     "Get the documents from the view; also put them into the cache."
@@ -509,7 +528,9 @@ def markdown(value):
     return jinja2.utils.Markup(processor.convert(value or ''))
 
 def get_site_text(filename):
-    "Get the Markdown-formatted text from a file in the site directory."
+    """Get the Markdown-formatted text from a file in the site directory.
+    Return None if no such file.
+    """
     try:
         filepath = os.path.normpath(
             os.path.join(flask.current_app.config["ROOT"], "../site", filename))
@@ -536,9 +557,9 @@ def get_logs(docid, cleanup=True):
 
 def delete(doc):
     """Delete the given document and all its log entries.
-    NOTE: This was done by 'purge' before. This should be faster,
-    but leaves the deleted documents in CouchDB.
-    These will be removed when a database compaction is done.
+    NOTE: This was done by 'purge' before. This new implementation
+    should be faster, but leaves the deleted documents in CouchDB.
+    These are removed whenever a database compaction is done.
     """
     for log in get_logs(doc['_id'], cleanup=False):
         flask.g.db.delete(log)
@@ -552,6 +573,6 @@ def send_email(recipients, title, text):
     try:
         MAIL.send(message)
     except (ConnectionRefusedError, smtplib.SMTPAuthenticationError) as error:
-        flash_error("Email has not been properly configured in the Anubis"
-                    " system. No email message was sent.")
+        flash_error("Email has not been properly configured in this system."
+                    " No email message was sent.")
         logging.error(str(error))

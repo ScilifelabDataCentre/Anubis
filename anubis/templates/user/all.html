@@ -11,6 +11,7 @@
       <th>Username</th>
       <th>Proposals</th>
       <th>Reviews</th>
+      <th>Grants</th>
       <th>Email</th>
       <th>Given name</th>
       <th>Family name</th>
@@ -25,16 +26,34 @@
     <tr>
       <td>{{ user | user_link(fullname=False) }}</td>
       <td>
+        {% if user['all_proposals_count'] %}
 	<a href="{{ url_for('proposals.user', username=user['username']) }}">
 	  <span class="badge badge-primary px-3">
             {{ user['all_proposals_count'] }}</span>
 	</a>
+        {% else %}
+        -
+        {% endif %}
       </td>
       <td>
+        {% if user['all_reviews_count'] %}
 	<a href="{{ url_for('reviews.reviewer', username=user['username']) }}">
 	  <span class="badge badge-info px-3">
 	    {{ user['all_reviews_count'] }}</span>
 	</a>
+        {% else %}
+        -
+        {% endif %}
+      </td>
+      <td>
+        {% if user['all_grants_count'] %}
+	<a href="{{ url_for('grants.user', username=user['username']) }}">
+	  <span class="badge badge-success px-3">
+	    {{ user['all_grants_count'] }}</span>
+	</a>
+        {% else %}
+        -
+        {% endif %}
       </td>
       <td>{{ user['email'] or '-' }}</td>
       <td>{{ user.get('givenname') or '-' }}</td>
@@ -63,7 +82,7 @@
     $("#users").DataTable( {
       pagingType: "full_numbers",
       pageLength: 25,
-      order: [[9, "desc"]]
+      order: [[10, "desc"]]
     });
   });
 </script>

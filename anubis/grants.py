@@ -261,7 +261,7 @@ def call_zip(cid):
 @blueprint.route('/user/<username>')
 @utils.login_required
 def user(username):
-    "List all grants for a user."
+    "List all grants for a user, including the grants the user has access to."
     user = anubis.user.get_user(username=username)
     if user is None:
         return utils.error('No such user.', flask.url_for('home'))
@@ -269,4 +269,5 @@ def user(username):
         return utils.error("You may not view the user's grants.",
                            flask.url_for('home'))
     grants = utils.get_docs_view('grants', 'user', user['username'])
+    grants.extend(utils.get_docs_view('grants', 'access', user['username']))
     return flask.render_template('grants/user.html', user=user, grants=grants)

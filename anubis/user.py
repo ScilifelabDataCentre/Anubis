@@ -197,20 +197,19 @@ def display(username):
                       for r in flask.g.db.view('calls', 'reviewer', 
                                                key=user['username'],
                                                reduce=False)]
-    all_calls_count = utils.get_count('calls', 'owner', user['username'])
-    all_proposals_count = utils.get_count('proposals', 'user', user['username'])
-    all_reviews_count = utils.get_count('reviews', 'reviewer', user['username'])
-    return flask.render_template('user/display.html',
-                                 user=user,
-                                 reviewer_calls=reviewer_calls,
-                                 allow_create_call=anubis.call.allow_create(user),
-                                 all_calls_count=all_calls_count,
-                                 all_proposals_count=all_proposals_count,
-                                 all_reviews_count=all_reviews_count,
-                                 allow_enable_disable=allow_enable_disable(user),
-                                 allow_edit=allow_edit(user),
-                                 allow_delete=allow_delete(user),
-                                 gdpr=utils.get_site_text("gdpr.md"))
+    return flask.render_template(
+        'user/display.html',
+        user=user,
+        reviewer_calls=reviewer_calls,
+        allow_create_call=anubis.call.allow_create(user),
+        user_calls_count=utils.get_user_calls_count(user['username']),
+        user_proposals_count=utils.get_user_proposals_count(user['username']),
+        user_reviews_count=utils.get_user_reviews_count(user['username']),
+        user_grants_count=utils.get_user_grants_count(user['username']),
+        allow_enable_disable=allow_enable_disable(user),
+        allow_edit=allow_edit(user),
+        allow_delete=allow_delete(user),
+        gdpr=utils.get_site_text("gdpr.md"))
 
 @blueprint.route('/display/<username>/edit',
                  methods=['GET', 'POST', 'DELETE'])
@@ -292,10 +291,10 @@ def all():
                            flask.url_for('home'))
     users = get_users()
     for user in users:
-        user['all_proposals_count'] = utils.get_count('proposals', 'user',
-                                                      user['username'])
-        user['all_reviews_count'] = utils.get_count('reviews', 'reviewer',
-                                                    user['username'])
+        username = user['username']
+        user['all_proposals_count'] = utils.get_user_proposals_count(username)
+        user['all_reviews_count'] = utils.get_user_reviews_count(username)
+        user['all_grants_count'] = utils.get_user_grants_count(username)
     return flask.render_template('user/all.html', users=users)
 
 @blueprint.route('/pending')

@@ -1,21 +1,25 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Grant dossiers for user {{ user['username'] }}
+Grant dossiers user {{ user['username'] }}
 {% endblock %}
 
 {% block body_title %}
-<small class="text-muted mr-2">Grant dossiers for user</small>
+<small class="text-muted mr-2">Grant dossiers user</small>
 {{ user | user_link }}
 {% endblock %}
 
 {% block supermain %}
+<p class="lead">
+  NOTE: Includes the grant dossiers to which the user has access.
+</p>
 <table id="grants" class="table table-sm table-hover">
   <thead>
     <tr>
       <th>Grant dossier</th>
       <th>Status</th>
       <th>Proposal</th>
+      <th>Submitter</th>
       <th>Call</th>
       <th>Modified</th>
     </tr>
@@ -31,7 +35,9 @@ Grant dossiers for user {{ user['username'] }}
         <span class="badge badge-success">Complete</span>
         {% endif %}
       </td>
-      <td>{{ get_proposal(grant['proposal']) | proposal_link }}</td>
+      {% set proposal = get_proposal(grant['proposal']) %}
+      <td>{{ proposal | proposal_link }}</td>
+      <td>{{ get_user(proposal['user']) | user_link }}</td>
       <td>{{ get_call(grant['call']) | call_link(title=True, proposals_link=False) }}</td>
       <td class="localtime small">{{ grant['modified'] }}</td>
     </tr>

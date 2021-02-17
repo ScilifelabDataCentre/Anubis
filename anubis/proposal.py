@@ -46,9 +46,7 @@ def display(pid):
         return utils.error('No such proposal.', flask.url_for('home'))
     call = anubis.call.get_call(proposal['call'])
     if not allow_view(proposal):
-        return utils.error('You are not allowed to view this proposal.',
-                           flask.url_for('call.display',
-                                         cid=call['identifier']))
+        return utils.error('You are not allowed to view this proposal.')
     am_submitter = flask.g.current_user and \
                    flask.g.current_user['username'] == proposal['user']
     am_reviewer = anubis.call.am_reviewer(call)

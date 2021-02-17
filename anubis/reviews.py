@@ -33,11 +33,9 @@ def call(cid):
         proposal['allow_create_review'] = anubis.review.allow_create(proposal)
     reviews = utils.get_docs_view('reviews', 'call', call['identifier'])
     # For ordinary reviewer, list only finalized reviews.
-    if not (flask.g.am_admin or anubis.call.am_chair(call)):
+    if not (flask.g.am_admin or flask.g.am_staff or anubis.call.am_chair(call)):
         finalized = True
-        reviews = [r for r in reviews
-                   if r['reviewer'] != flask.g.current_user['username'] and 
-                   r.get('finalized')]
+        reviews = [r for r in reviews if r.get('finalized')]
     else:
         finalized = False
     reviews_lookup = {f"{r['proposal']} {r['reviewer']}":r for r in reviews}
