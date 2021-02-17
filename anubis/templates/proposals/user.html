@@ -19,6 +19,7 @@ Proposals by user {{ user['username'] }}
       <th>Call</th>
       <th>Call closes</th>
       <th>Decision</th>
+      <th>Grant</th>
     </tr>
   </thead>
   <tbody class="table-borderless">
@@ -46,6 +47,18 @@ Proposals by user {{ user['username'] }}
         <div class="badge btn-success font-weight-bold">Accepted</div>
         {% else %}
         <div class="badge btn-secondary font-weight-bold">Declined</div>
+        {% endif %}
+        {% else %}
+        -
+        {% endif %}
+      </td>
+      <td>
+        {% set grant = get_grant_proposal(proposal['identifier']) %}
+        {% if grant %}
+        {% if grant.get('errors') %}
+        <span class="badge badge-danger">Incomplete</span>
+        {% else %}
+        <span class="badge badge-success">Complete</span>
         {% endif %}
         {% else %}
         -

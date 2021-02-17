@@ -456,16 +456,21 @@ def decision_link(decision, small=False):
         f'''<a href="{url}" role="button" class="btn {color}">'''
         f"{label}</a>")
 
-def grant_link(grant, small=False):
+def grant_link(grant, small=False, status=False):
     "Template filter: link to grant."
     if not grant: return "-"
     url = flask.url_for("grant.display", gid=grant["identifier"])
     color = "btn-success font-weight-bold"
     if small:
         color += " btn-sm"
-    return jinja2.utils.Markup(
-        f'''<a href="{url}" role="button" class="btn {color} my-1">'''
-        f"Grant {grant['identifier']}</a>")
+    html = f'''<a href="{url}" role="button" class="btn {color} my-1">''' \
+           f"Grant {grant['identifier']}</a>"
+    if status:
+        if grant['errors']:
+            html += ' <span class="badge badge-danger ml-2">Incomplete</span>'
+        else:
+            html += ' <span class="badge badge-success ml-2">Complete</span>'
+    return jinja2.utils.Markup(html)
 
 def boolean_value(value):
     "Output field value boolean."

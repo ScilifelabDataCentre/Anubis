@@ -145,7 +145,7 @@
 {% if allow_link_grant %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Grant</div>
-  <div class="col-md">{{ grant | grant_link() }}</div>
+  <div class="col-md">{{ grant | grant_link(status=True) }}</div>
 </div>
 {% elif allow_create_grant %}
 <div class="row">

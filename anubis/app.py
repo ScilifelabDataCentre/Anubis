@@ -49,7 +49,8 @@ def setup_template_context():
                 get_proposal=anubis.proposal.get_proposal,
                 get_review=anubis.review.get_review,
                 get_decision=anubis.decision.get_decision,
-                get_grant=anubis.grant.get_grant)
+                get_grant=anubis.grant.get_grant,
+                get_grant_proposal=anubis.grant.get_grant_proposal)
 
 @app.before_request
 def prepare():
