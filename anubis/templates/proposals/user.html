@@ -19,7 +19,7 @@ Proposals by user {{ user['username'] }}
       <th>Call</th>
       <th>Call closes</th>
       <th>Decision</th>
-      <th>Grant</th>
+      <th>Grant dossier</th>
     </tr>
   </thead>
   <tbody class="table-borderless">
@@ -53,16 +53,7 @@ Proposals by user {{ user['username'] }}
         {% endif %}
       </td>
       <td>
-        {% set grant = get_grant_proposal(proposal['identifier']) %}
-        {% if grant %}
-        {% if grant.get('errors') %}
-        <span class="badge badge-danger">Incomplete</span>
-        {% else %}
-        <span class="badge badge-success">Complete</span>
-        {% endif %}
-        {% else %}
-        -
-        {% endif %}
+        {{ get_grant_proposal(proposal['identifier']) | grant_link(small=True, status=True) }}
       </td>
     </tr>
     {% endfor %} {# for proposal in proposals #}

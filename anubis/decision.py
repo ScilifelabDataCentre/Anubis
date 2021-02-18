@@ -91,8 +91,7 @@ def edit(iuid):
 
     if utils.http_GET():
         if not allow_edit(decision):
-            return utils.error('You are not allowed to edit this decision.',
-                               flask.url_for('.display', iuid=decision['_id']))
+            return utils.error('You are not allowed to edit this decision.')
         return flask.render_template('decision/edit.html',
                                      decision=decision,
                                      proposal=proposal,
@@ -100,8 +99,7 @@ def edit(iuid):
 
     elif utils.http_POST():
         if not allow_edit(decision):
-            return utils.error('You are not allowed to edit this decision.',
-                               flask.url_for('.display', iuid=decision['_id']))
+            return utils.error('You are not allowed to edit this decision.')
         try:
             with DecisionSaver(doc=decision) as saver:
                 saver.set_verdict(form=flask.request.form)
@@ -114,8 +112,7 @@ def edit(iuid):
 
     elif utils.http_DELETE():
         if not allow_delete(decision):
-            return utils.error('You are not allowed to delete this decision.',
-                               flask.url_for('.display', iuid=decision['_id']))
+            return utils.error('You are not allowed to delete this decision.')
         with anubis.proposal.ProposalSaver(proposal) as saver:
             saver['decision'] = None
         utils.delete(decision)
@@ -132,8 +129,7 @@ def finalize(iuid):
     except KeyError:
         return utils.error('No such decision.', flask.url_for('home'))
     if not allow_finalize(decision):
-        return utils.error('You are not allowed to finalize this decision.',
-                           flask.url_for('.display', iuid=decision['_id']))
+        return utils.error('You are not allowed to finalize this decision.')
 
     if utils.http_POST():
         try:
@@ -152,8 +148,7 @@ def unfinalize(iuid):
     except KeyError:
         return utils.error('No such decision.', flask.url_for('home'))
     if not allow_unfinalize(decision):
-        return utils.error('You are not allowed to unfinalize this decision.',
-                           flask.url_for('.display', iuid=decision['_id']))
+        return utils.error('You are not allowed to unfinalize this decision.')
 
     if utils.http_POST():
         try:
@@ -194,9 +189,7 @@ def document(iuid, fid):
         documentname = decision['values'][fid]
         stub = decision['_attachments'][documentname]
     except KeyError:
-        return utils.error('No such document in decision.',
-                           flask.url_for('.display',
-                                         iuid=decision['identifier']))
+        return utils.error('No such document in decision.')
     # Colon ':' is a problematic character in filenames.
     # Replace it by dash '-'; used as general glue character here.
     pid = decision['proposal'].replace(':', '-')

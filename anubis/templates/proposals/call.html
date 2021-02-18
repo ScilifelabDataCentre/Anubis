@@ -81,6 +81,9 @@
       <th>{{ field['title'] }}</th>
       {% endfor %}
       {% endif %} {# if allow_view_decisions #}
+      {% if allow_view_details %}
+      <th>Grant dossier</th>
+      {% endif %} {# if allow_view_details #}
     </tr>
   </thead>
   <tbody class="table-borderless">
@@ -152,6 +155,11 @@
       {% endfor %} {# for field in ... #}
       {% endif %} {# if decision #}
       {% endif %} {# if allow_view_decisions #}
+      {% if allow_view_details %}
+      <td>
+        {{ get_grant_proposal(proposal['identifier']) | grant_link(small=True, status=True) }}
+      </td>
+      {% endif %} {# if allow_view_details #}
     </tr>
     {% endfor %} {# for proposal in proposals #}
   </tbody>

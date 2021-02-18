@@ -111,9 +111,7 @@ def edit(pid):
 
     elif utils.http_POST():
         if not allow_edit(proposal):
-            return utils.error('You are not allowed to edit this proposal.',
-                               flask.url_for('.display',
-                                             pid=proposal['identifier']))
+            return utils.error('You are not allowed to edit this proposal.')
         try:
             with ProposalSaver(proposal) as saver:
                 saver['title'] = flask.request.form.get('_title') or None
@@ -146,9 +144,7 @@ def edit(pid):
 
     elif utils.http_DELETE():
         if not allow_delete(proposal):
-            return utils.error('You are not allowed to delete this proposal.',
-                               flask.url_for('.display',
-                                             pid=proposal['identifier']))
+            return utils.error('You are not allowed to delete this proposal.')
         decision = anubis.decision.get_decision(proposal.get('decision'))
         if decision:
             utils.delete(decision)
@@ -248,9 +244,7 @@ def access(pid):
     if proposal is None:
         return utils.error('No such proposal.', flask.url_for('home'))
     if not allow_edit(proposal):
-        return utils.error(
-            'You are not allowed to edit this proposal.',
-            flask.url_for('.display', pid=proposal['identifier']))
+        return utils.error('You are not allowed to edit this proposal.')
     call = anubis.call.get_call(proposal['call'])
 
     if utils.http_GET():
@@ -297,8 +291,7 @@ def document(pid, fid):
     try:
         doc = get_document(proposal, fid)
     except KeyError:
-        return utils.error('No such document in proposal.',
-                           flask.url_for('.display',pid=proposal['identifier']))
+        return utils.error('No such document in proposal.')
     response = flask.make_response(doc['content'])
     response.headers.set('Content-Type', doc['content_type'])
     response.headers.set('Content-Disposition',

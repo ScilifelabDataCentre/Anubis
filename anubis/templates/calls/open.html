@@ -58,15 +58,6 @@
 </table>
 {% endblock %} {# block main #}
 
-{% block actions %}
-{% if allow_create %}
-<div class="mt-2">
-  <a href="{{ url_for('call.create') }}"
-     role="button" class="btn btn-primary btn-block">Create</a>
-</div>
-{% endif %} {# if allow_create #}
-{% endblock %} {# block actions #}
-
 {% block javascript %}
 <script>
   $(function() {

@@ -45,7 +45,7 @@ def create(pid):
     "Create a grant dossier for the proposal."
     proposal = anubis.proposal.get_proposal(pid)
     if proposal is None:
-        return utils.error('No such proposal.', flask.url_for('home'))
+        return utils.error('No such proposal.')
     try:
         if not allow_create(proposal):
             raise ValueError('You may not create a grant dossier for the proposal.')
@@ -73,10 +73,9 @@ def display(gid):
     "Display the grant dossier."
     grant = get_grant(gid)
     if grant is None:
-        return utils.error('No such grant dossier.', flask.url_for('home'))
+        return utils.error('No such grant dossier.')
     if not allow_view(grant):
-        return utils.error('You are not allowed to view this grant dossier.',
-                           flask.url_for('call.display', cid=grant['call']))
+        return utils.error('You are not allowed to view this grant dossier.')
     receiver_email = anubis.user.get_user(username=grant['user'])['email']
     access_emails = []
     for username in grant.get('access_view', []):
@@ -86,7 +85,7 @@ def display(gid):
     # There may be accounts that have no email!
     access_emails = [e for e in access_emails if e]
     all_emails = [receiver_email] + access_emails
-    email_lists = {'Grant receiver': receiver_email,
+    email_lists = {'Grant receiver (= proposal submitter)': receiver_email,
                    'Persons with access to this grant':
                    ', '.join(access_emails),
                    'All involved persons': ', '.join(all_emails)}
@@ -99,6 +98,8 @@ def display(gid):
         email_lists=email_lists,
         allow_view=allow_view(grant),
         allow_edit=allow_edit(grant),
+        allow_change_access=allow_change_access(grant),
+        allow_lock=allow_lock(grant),
         allow_delete=allow_delete(grant))
 
 @blueprint.route('/<gid>/edit', methods=["GET", "POST", "DELETE"])
@@ -107,23 +108,19 @@ def edit(gid):
     "Edit the grant record."
     grant = get_grant(gid)
     if grant is None:
-        return utils.error('No such grant.', flask.url_for('home'))
+        return utils.error('No such grant.')
     call = anubis.call.get_call(grant['call'])
 
     if utils.http_GET():
         if not allow_edit(grant):
-            return utils.error(
-                'You are not allowed to edit this grant dossier.',
-                flask.url_for('.display', gid=grant['identifier']))
+            return utils.error('You are not allowed to edit this grant dossier.')
         return flask.render_template('grant/edit.html',
                                      grant=grant,
                                      call=call)
 
     elif utils.http_POST():
         if not allow_edit(grant):
-            return utils.error(
-                'You are not allowed to edit this grant dossier.',
-                flask.url_for('.display', gid=grant['identifier']))
+            return utils.error('You are not allowed to edit this grant dossier.')
         try:
             with GrantSaver(doc=grant) as saver:
                 saver.set_fields_values(call.get('grant', []),
@@ -138,9 +135,7 @@ def edit(gid):
 
     elif utils.http_DELETE():
         if not allow_delete(grant):
-            return utils.error(
-                'You are not allowed to delete this grant dossier.',
-                flask.url_for('.display', gid=grant['identifier']))
+            return utils.error('You are not allowed to delete this grant dossier.')
         proposal = anubis.proposal.get_proposal(grant['proposal'])
         with anubis.proposal.ProposalSaver(proposal) as saver:
             saver['grant'] = None
@@ -155,11 +150,10 @@ def access(gid):
     "Edit the access privileges for the grant record."
     grant = get_grant(gid)
     if grant is None:
-        return utils.error('No such grant.', flask.url_for('home'))
-    if not allow_edit(grant):
-        return utils.error(
-            'You are not allowed to edit this grant dossier.',
-            flask.url_for('.display', gid=grant['identifier']))
+        return utils.error('No such grant.')
+    if not allow_change_access(grant):
+        return utils.error('You are not allowed to change access'
+                           ' for this grant dossier.')
     call = anubis.call.get_call(grant['call'])
 
     if utils.http_GET():
@@ -191,6 +185,42 @@ def access(gid):
             utils.flash_error(error)
         return flask.redirect(flask.url_for('.access', gid=grant['identifier']))
 
+@blueprint.route('/<gid>/lock', methods=['POST'])
+@utils.login_required
+def lock(gid):
+    "Lock the grant dossier to stop edits by the user."
+    grant = get_grant(gid)
+    if grant is None:
+        return utils.error('No such grant.')
+    if not allow_lock(grant):
+        return utils.error('You are not allowed to lock this grant dossier.')
+
+    if utils.http_POST():
+        try:
+            with GrantSaver(doc=grant) as saver:
+                saver['locked'] = utils.get_time()
+        except ValueError as error:
+            utils.flash_error(error)
+        return flask.redirect(flask.url_for('.display',gid=grant['identifier']))
+
+@blueprint.route('/<gid>/unlock', methods=['POST'])
+@utils.login_required
+def unlock(gid):
+    "Unlock the grant dossier to allow edits by the user."
+    grant = get_grant(gid)
+    if grant is None:
+        return utils.error('No such grant.')
+    if not allow_lock(grant):
+        return utils.error('You are not allowed to unlock this grant dossier.')
+
+    if utils.http_POST():
+        try:
+            with GrantSaver(doc=grant) as saver:
+                saver['locked'] = False
+        except ValueError as error:
+            utils.flash_error(error)
+        return flask.redirect(flask.url_for('.display',gid=grant['identifier']))
+
 @blueprint.route('/<gid>/document/<fid>')
 @utils.login_required
 def document(gid, fid):
@@ -198,18 +228,15 @@ def document(gid, fid):
     try:
         grant = get_grant(gid)
     except KeyError:
-        return utils.error('No such grant dossier.', flask.url_for('home'))
+        return utils.error('No such grant dossier.')
     if not allow_view(grant):
-        return utils.error('You are not allowed to read this grant dossier.',
-                           flask.url_for('home'))
+        return utils.error('You are not allowed to read this grant dossier.')
 
     try:
         documentname = grant['values'][fid]
         stub = grant['_attachments'][documentname]
     except KeyError:
-        return utils.error('No such document in grant dossier.',
-                           flask.url_for('.display',
-                                         iuid=grant['identifier']))
+        return utils.error('No such document in grant dossier.')
     # Colon ':' is a problematic character in filenames; replace by dash '-'.
     gid = gid.replace(':', '-')
     ext = os.path.splitext(documentname)[1]
@@ -228,10 +255,9 @@ def grant_zip(gid):
     try:
         grant = get_grant(gid)
     except KeyError:
-        return utils.error('No such grant dossier.', flask.url_for('home'))
+        return utils.error('No such grant dossier.')
     if not allow_view(grant):
-        return utils.error('You are not allowed to read this grant dossier.',
-                           flask.url_for('home'))
+        return utils.error('You are not allowed to read this grant dossier.')
     # Colon ':' is a problematic character in filenames; replace by dash '_'
     gid = gid.replace(':', '-')
     output = io.BytesIO()
@@ -289,10 +315,9 @@ def logs(gid):
     "Display the log records of the given grant dossier."
     grant = get_grant(gid)
     if grant is None:
-        return utils.error('No such grant dossier.', flask.url_for('home'))
+        return utils.error('No such grant dossier.')
     if not allow_view(grant):
-        return utils.error('You are not allowed to read this grant dossier.',
-                           flask.url_for('home'))
+        return utils.error('You are not allowed to read this grant dossier.')
 
     return flask.render_template(
         'logs.html',
@@ -399,16 +424,36 @@ def allow_view(grant):
     return False
 
 def allow_edit(grant):
-    """The admin, staff and proposal user (= grant receiver) may in general
-    edit the grant dossier. Some fields have special edit privileges.
+    """The admin, staff and proposal user (= grant receiver) and accounts
+    with edit access may edit the grant dossier.
     """
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     if flask.g.am_staff: return True
-    # XXX special field privileges!
+    if grant.get('locked'): return False
     if flask.g.current_user['username'] == grant['user']: return True
     if flask.g.current_user['username'] in grant.get('access_edit', []):
         return True
+    return False
+
+def allow_change_access(grant):
+    """The admin, staff and proposal user (= grant receiver) and accounts
+    with edit access may change access for the grant dossier.
+    Lock status does not affect this.
+    """
+    if not flask.g.current_user: return False
+    if flask.g.am_admin: return True
+    if flask.g.am_staff: return True
+    if flask.g.current_user['username'] == grant['user']: return True
+    if flask.g.current_user['username'] in grant.get('access_edit', []):
+        return True
+    return False
+
+def allow_lock(grant):
+    "The admin and staff can lock/unlock the grant whenever."
+    if not flask.g.current_user: return False
+    if flask.g.am_admin: return True
+    if flask.g.am_staff: return True
     return False
 
 def allow_link(grant):

@@ -68,6 +68,11 @@
 </div>
 
 <div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Lock status</div>
+  <div class="col-md">{{ grant.get('locked') and 'Locked' or 'Unlocked' }}</div>
+</div>
+
+<div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Proposal</div>
   <div class="col-md">{{ proposal | proposal_link }}</div>
 </div>
@@ -96,12 +101,34 @@
 <div class="mt-4">
 </div>
 
-{% if allow_edit %}
+{% if allow_change_access %}
 <div class="mt-2">
   <a href="{{ url_for('.access', gid=grant['identifier']) }}"
      role="button" class="btn btn-block btn-sm btn-warning">Change access</a>
 </div>
-{% endif %} {# if allow_edit #}
+{% endif %} {# if allow_change_access #}
+
+{% if allow_lock %}
+<div class="mt-2">
+  {% if grant.get('locked') %}
+  <form action="{{ url_for('.unlock', gid=grant['identifier']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <button type="submit" class="btn btn-sm btn-block btn-warning"
+            title="Unlock the grant dossier to allow edits by the user.">
+      Unlock</button>
+  </form>
+  {% else %}
+  <form action="{{ url_for('.lock', gid=grant['identifier']) }}"
+	method="POST">
+    {{ csrf_token() }}
+    <button type="submit" class="btn btn-sm btn-block btn-warning"
+            title="Lock the grant dossier to stop edits by the user.">
+      Lock</button>
+  </form>
+  {% endif %}
+</div>
+{% endif %} {# if allow_lock #}
 
 {% if allow_delete %}
 <div class="mt-2">

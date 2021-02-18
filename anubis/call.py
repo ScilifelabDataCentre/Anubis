@@ -447,7 +447,8 @@ def reset_counter(cid):
     if not allow_edit(call):
         return utils.error('You are not allowed to edit the call.')
     if utils.get_call_proposals_count(cid) != 0:
-        return utils.error('Cannot reset counter when there are proposals in the call.')
+        return utils.error('Cannot reset counter when there are'
+                           ' proposals in the call.')
 
     with CallSaver(call) as saver:
         saver['counter'] = None
@@ -511,8 +512,7 @@ def create_proposal(cid):
     if not call['tmp']['is_open']:
         return utils.error("The call is not open.")
     if not allow_proposal(call):
-        return utils.error('You may not create a proposal in this call.',
-                           flask.url_for('.display', cid=cid))
+        return utils.error('You may not create a proposal in this call.')
 
     if utils.http_POST():
         proposal = anubis.proposal.get_call_user_proposal(

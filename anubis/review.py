@@ -125,8 +125,7 @@ def edit(iuid):
 
     if utils.http_GET():
         if not allow_edit(review):
-            return utils.error('You are not allowed to edit this review.',
-                               flask.url_for('.display', iuid=review['_id']))
+            return utils.error('You are not allowed to edit this review.')
         return flask.render_template('review/edit.html',
                                      review=review,
                                      proposal=proposal,
@@ -134,8 +133,7 @@ def edit(iuid):
 
     elif utils.http_POST():
         if not allow_edit(review):
-            return utils.error('You are not allowed to edit this review.',
-                               flask.url_for('.display', iuid=review['_id']))
+            return utils.error('You are not allowed to edit this review.')
         try:
             with ReviewSaver(doc=review) as saver:
                 for field in call['review']:
@@ -147,8 +145,7 @@ def edit(iuid):
 
     elif utils.http_DELETE():
         if not allow_delete(review):
-            return utils.error('You are not allowed to delete this review.',
-                               flask.url_for('.display', iuid=review['_id']))
+            return utils.error('You are not allowed to delete this review.')
         utils.delete(review)
         utils.flash_message('Deleted review.')
         return flask.redirect(
@@ -163,8 +160,7 @@ def finalize(iuid):
     except KeyError:
         return utils.error('No such review.', flask.url_for('home'))
     if not allow_finalize(review):
-        return utils.error('You are not allowed to finalize this review.',
-                           flask.url_for('.display', iuid=review['_id']))
+        return utils.error('You are not allowed to finalize this review.')
 
     if utils.http_POST():
         try:
@@ -183,8 +179,7 @@ def unfinalize(iuid):
     except KeyError:
         return utils.error('No such review.', flask.url_for('home'))
     if not allow_unfinalize(review):
-        return utils.error('You are not allowed to unfinalize this review.',
-                           flask.url_for('.display', iuid=review['_id']))
+        return utils.error('You are not allowed to unfinalize this review.')
 
     if utils.http_POST():
         try:
@@ -204,8 +199,7 @@ def archive(iuid):
         return utils.error('No such review.', flask.url_for('home'))
     # In a sense similar to deleting, so requires same priviliege.
     if not allow_delete(review):
-        return utils.error('You are not allowed to archive this review.',
-                           flask.url_for('.display', iuid=review['_id']))
+        return utils.error('You are not allowed to archive this review.')
 
     if utils.http_POST():
         try:
@@ -224,8 +218,7 @@ def unarchive(iuid):
     except KeyError:
         return utils.error('No such archived review.', flask.url_for('home'))
     if not allow_delete(review):
-        return utils.error('You are not allowed to unarchive this review.',
-                           flask.url_for('.display', iuid=review['_id']))
+        return utils.error('You are not allowed to unarchive this review.')
     if get_reviewer_review(anubis.proposal.get_proposal(review['proposal']),
                            anubis.user.get_user(review['reviewer'])):
         return utils.error('Unarchived review exists for proposal and reviewer.')
@@ -269,8 +262,7 @@ def document(iuid, fid):
         documentname = review['values'][fid]
         stub = review['_attachments'][documentname]
     except KeyError:
-        return utils.error('No such document in review.',
-                           flask.url_for('.display', iuid=review['identifier']))
+        return utils.error('No such document in review.')
     # Colon ':' is a problematic character in filenames.
     # Replace it by dash '-'; used as general glue character here.
     pid = review['proposal'].replace(':', '-')

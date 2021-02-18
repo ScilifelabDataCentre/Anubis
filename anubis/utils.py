@@ -160,10 +160,6 @@ def admin_required(f):
         return f(*args, **kwargs)
     return wrap
 
-def referrer_or_home():
-    "Return the URL for the referring page 'referer' or the home page."
-    return flask.request.headers.get('referer') or flask.url_for('home')    
-
 class IuidConverter(werkzeug.routing.BaseConverter):
     "URL route converter for a IUID."
     def to_python(self, value):
@@ -270,6 +266,10 @@ def error(message, url=None):
     """
     flash_error(message)
     return flask.redirect(url or referrer_or_home())
+
+def referrer_or_home():
+    "Return the URL for the referring page 'referer' or the home page."
+    return flask.request.headers.get('referer') or flask.url_for('home')    
 
 def flash_error(msg):
     "Flash error message."
@@ -464,20 +464,18 @@ def decision_link(decision, small=False):
         f"{label}</a>")
 
 def grant_link(grant, small=False, status=False):
-    "Template filter: link to grant."
+    "Template filter: link to grant, optionally with status marker."
     if not grant: return "-"
     url = flask.url_for("grant.display", gid=grant["identifier"])
     color = "btn-success font-weight-bold"
     if small:
         color += " btn-sm"
-    html = f'''<a href="{url}" role="button" class="btn {color} my-1">''' \
-           f"Grant {grant['identifier']}</a>"
+    label = f"Grant {grant['identifier']}"
     if status:
         if grant['errors']:
-            html += ' <span class="badge badge-danger ml-2">Incomplete</span>'
-        else:
-            html += ' <span class="badge badge-success ml-2">Complete</span>'
-    return jinja2.utils.Markup(html)
+            label += ' <span class="badge badge-danger ml-2">Incomplete</span>'
+    return jinja2.utils.Markup(f'<a href="{url}" role="button"'
+                               f' class="btn {color} my-1">{label}</a>')
 
 def boolean_value(value):
     "Output field value boolean."
