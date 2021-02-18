@@ -159,6 +159,9 @@ class FieldMixin:
 
     def set_fields_values(self, fields, form=dict()):
         "Set the values of the fields according to field type."
+        # Remember which fields actually are current.
+        self.current_fields = set()
+
         # First set the non-repeat fields; the number of
         # repeats is determined by fields in that set.
         for field in fields:
@@ -175,12 +178,29 @@ class FieldMixin:
                 fid = f"{field['identifier']}-{n}"
                 self.set_single_field_value(fid, field, form)
 
-    def set_field_value(self, field, form=dict()):
-        "Set the value of the field according to field type."
-        self.set_single_field_value(field['identifier'], field, form)
+        # Remove all data for fields that no longer exist.
+        removed = set()
+        for fid in set(self.doc['values']).difference(self.current_fields):
+            removed.add(self.doc['values'].pop(fid))
+
+        # Delete attachment if it is among the removed values.
+        # This is slightly risky: if a filename happens to be the same
+        # as a removed value originating from another field,
+        # the deletion may be in error. But this should be rare...
+        for filename in self.doc.get('_attachments', {}):
+            if filename in removed:
+                self.delete_attachment(filename)
+
+        # Remove all errors for fields that no longer exist.
+        for fid in set(self.doc['errors']).difference(self.current_fields):
+            self.doc['errors'].pop(fid)
 
     def set_single_field_value(self, fid, field, form, fields=None):
         "Set the single field value."
+        # Remember which fields actually exist right now.
+        self.current_fields.add(fid)
+
+        # Remove any old error message for this field.
         self.doc['errors'].pop(fid, None)
 
         if field['type'] in (constants.TEXT, constants.LINE):
@@ -254,26 +274,11 @@ class FieldMixin:
                 if field['required'] and value:
                     self.doc['errors'][fid] = 'Invalid value.'
                 value = None
-            if value is not None:
-                if field.get('maximum') is not None:
-                    if value > field['maximum']:
-                        self.doc['errors'][fid] = 'Value is too high.'
-            # The number of repeats changed.
-            if not self.doc['errors'].get(fid) and \
-               self.doc['values'].get(fid) != value:
-                # If reduced, remove field values and errors.
-                for f in fields:
-                    if f.get('repeat') != fid: continue
-                    old_value = self.doc['values'].get(fid)
-                    if old_value is None: continue
-                    for n in range(value+1, old_value+1):
-                        id = f"{f['identifier']}-{n}"
-                        # Delete the attachment, if any.
-                        filename = self.doc['values'].pop(id, None)
-                        if f['type'] == constants.DOCUMENT and filename:
-                            self.delete_attachment(filename)
-                        self.doc['errors'].pop(id, None)
-                self.repeat_changed = True
+            if value is not None and \
+               field.get('maximum') is not None and \
+               value > field['maximum']:
+                self.doc['errors'][fid] = 'Value is too high.'
+            self.repeat_changed = self.doc['values'].get(fid) != value
             self.doc['values'][fid] = value
 
         if self.doc['errors'].get(fid): return # Error message already set; skip
@@ -295,7 +300,7 @@ class AccessMixin:
         if user is None:
             raise ValueError("No such user.")
         if form.get('access') == 'view':
-            # Remove edit access if view access specified.
+            # Remove edit access if view access explicitly specified.
             try:
                 self.doc['access_edit'].remove(user['username'])
             except (KeyError, ValueError):

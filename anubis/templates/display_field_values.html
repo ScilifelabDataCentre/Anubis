@@ -8,10 +8,10 @@
 {# Field without repeats. #}
 <div class="row mb-1">
   <div class="col-md-2 font-weight-bold text-right">
-    {{ field1['title'] }}
     {% if field1.get('staffonly') %}
-    <br>
-    <strong class="text-danger">Staff only</strong>
+    <span class="text-muted">{{ field1['title'] }}</span>
+    {% else %}
+    {{ field1['title'] }}
     {% endif %}
   </div>
   {% if entity['errors'].get(field1['identifier']) %}

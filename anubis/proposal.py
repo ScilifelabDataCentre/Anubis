@@ -120,10 +120,16 @@ def edit(pid):
                     saver['category'] = category
                 elif category == '__none__':
                     saver['category'] = None
-                for field in call['proposal']:
-                    saver.set_field_value(field, form=flask.request.form)
+                saver.set_fields_values(call['proposal'],
+                                        form=flask.request.form)
         except ValueError as error:
             return utils.error(error)
+
+        # If a repeat field was changed, then redisplay edit page.
+        if saver.repeat_changed:
+            return flask.redirect(
+                flask.url_for('.edit', pid=proposal['identifier']))
+
         if flask.request.form.get('_save') == 'submit':
             proposal = get_proposal(pid, refresh=True)  # Get up-to-date info.
             try:
@@ -138,7 +144,6 @@ def edit(pid):
         elif allow_submit(proposal) and not proposal.get('submitted'):
             utils.flash_warning('Proposal was saved but not submitted.'
                                 ' You must explicitly submit it!')
-        # NOTE: Repeat field has not been implemented for proposal.
         return flask.redirect(
             flask.url_for('.display', pid=proposal['identifier']))
 

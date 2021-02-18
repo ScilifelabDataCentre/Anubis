@@ -135,12 +135,12 @@ def edit(iuid):
         if not allow_edit(review):
             return utils.error('You are not allowed to edit this review.')
         try:
+            # NOTE: Repeat field has not been implemented for review.
             with ReviewSaver(doc=review) as saver:
-                for field in call['review']:
-                    saver.set_field_value(field, form=flask.request.form)
+                saver.set_fields_values(call['review'],
+                                        form=flask.request.form)
         except ValueError as error:
             return utils.error(error)
-        # NOTE: Repeat field has not been implemented for review.
         return flask.redirect(flask.url_for('.display', iuid=review['_id']))
 
     elif utils.http_DELETE():

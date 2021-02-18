@@ -101,13 +101,13 @@ def edit(iuid):
         if not allow_edit(decision):
             return utils.error('You are not allowed to edit this decision.')
         try:
+            # NOTE: Repeat field has not been implemented for decision.
             with DecisionSaver(doc=decision) as saver:
                 saver.set_verdict(form=flask.request.form)
-                for field in call['decision']:
-                    saver.set_field_value(field, form=flask.request.form)
+                saver.set_fields_values(call['decision'],
+                                        form=flask.request.form)
         except ValueError as error:
             return utils.error(error)
-        # NOTE: Repeat field has not been implemented for decision.
         return flask.redirect(flask.url_for('.display', iuid=decision['_id']))
 
     elif utils.http_DELETE():
