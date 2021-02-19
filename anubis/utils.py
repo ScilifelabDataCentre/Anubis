@@ -304,6 +304,8 @@ def field_value(field, entity, fid=None):
         return float_value(value)
     elif field['type'] == constants.TEXT:
         return markdown(value)
+    elif field['type'] == constants.REPEAT:
+        return value or '-'
     elif field['type'] == constants.DOCUMENT:
         if value:
             if entity['doctype'] == constants.PROPOSAL:
