@@ -105,7 +105,7 @@ def display(gid):
 @blueprint.route('/<gid>/edit', methods=["GET", "POST", "DELETE"])
 @utils.login_required
 def edit(gid):
-    "Edit the grant record."
+    "Edit the grant dossier."
     grant = get_grant(gid)
     if grant is None:
         return utils.error('No such grant.')

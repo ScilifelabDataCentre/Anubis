@@ -274,12 +274,12 @@ class FieldMixin:
                 if field['required'] and value:
                     self.doc['errors'][fid] = 'Invalid value.'
                 value = None
-            print(">>>", value, field.get('maximum'))
             if value is not None and \
                field.get('maximum') is not None and \
                value > field['maximum']:
                 self.doc['errors'][fid] = 'Value is too high.'
-            self.repeat_changed = self.doc['values'].get(fid) != value
+            self.repeat_changed = self.repeat_changed or \
+                                  self.doc['values'].get(fid) != value
             self.doc['values'][fid] = value
 
         if self.doc['errors'].get(fid): return # Error message already set; skip
