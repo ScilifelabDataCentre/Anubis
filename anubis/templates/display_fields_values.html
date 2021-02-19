@@ -12,7 +12,7 @@
     {{ field1['title'] }}
     {% if field1.get('staffonly') %}
     <br>
-    <span class="text-danger">Visible to staff only.</span>
+    <span class="text-danger">(visible to staff only)</span>
     {% endif %}
   </div>
   {% if entity['errors'].get(field1['identifier']) %}
@@ -45,7 +45,7 @@
         {{ field2['title'] }}
         {% if field2.get('staffonly') %}
         <br>
-        <span class="text-danger">Visible to staff only.</span>
+        <span class="text-danger">(visible to staff only)</span>
         {% endif %}
       </div>
       {% if entity['errors'].get(id2) %}
