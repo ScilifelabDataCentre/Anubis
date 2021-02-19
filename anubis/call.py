@@ -691,8 +691,9 @@ class CallSaver(AttachmentSaver):
                 maximum = int(form.get('maximum'))
             except (TypeError, ValueError):
                 maximum = None
-            if maximum is not None and maximum < 0:
-                raise ValueError('Invalid maximum value; must be non-negative.')
+            if maximum is not None and maximum < 2:
+                raise ValueError('Invalid maximum value;'
+                                 ' must be larger than or equal to 2.')
             field['maximum'] = maximum
 
         return field
@@ -793,8 +794,9 @@ class CallSaver(AttachmentSaver):
                 maximum = int(form.get('maximum'))
             except (TypeError, ValueError):
                 maximum = None
-            if maximum is not None and maximum < 0:
-                raise ValueError('Invalid maximum value; must be non-negative.')
+            if maximum is not None and maximum < 2:
+                raise ValueError('Invalid maximum value;'
+                                 ' must be larger than or equal to 2.')
             field['maximum'] = maximum
 
     def add_proposal_field(self, form):

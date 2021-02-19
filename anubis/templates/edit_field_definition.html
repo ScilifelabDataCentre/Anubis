@@ -228,8 +228,8 @@
                    class="col-md-2 col-form-label text-right">
 	      Minimum</label>
 	    <div class="col-md">
-	      <input type="number" name="minimum"
-                     id="{{ field['identifier'] }}-minimum"
+	      <input type="number"
+                     name="minimum" id="{{ field['identifier'] }}-minimum"
                      {% if field['type'] == constants.INTEGER %}
                      step="1"
                      {% endif %}
@@ -247,8 +247,8 @@
                    class="col-md-2 col-form-label text-right">
 	      Maximum</label>
 	    <div class="col-md">
-	      <input type="number" name="maximum"
-                     id="{{ field['identifier'] }}-maximum"
+	      <input type="number" 
+                     name="maximum" id="{{ field['identifier'] }}-maximum"
                      {% if field['type'] == constants.INTEGER %}
                      step="1"
                      {% endif %}
@@ -290,8 +290,8 @@
                    class="col-md-2 col-form-label text-right">
 	      Minimum</label>
 	    <div class="col-md">
-	      <input type="number" name="minimum" step="1"
-                     id="{{ field['identifier'] }}-minimum"
+	      <input type="number" step="1"
+                     name="minimum" id="{{ field['identifier'] }}-minimum"
 		     class="form-control"
 		     aria-describedby="{{ field['identifier'] }}-minimumHelp"
 		     value="{{ field.get('minimum') | none_empty_string }}">
@@ -306,8 +306,8 @@
                    class="col-md-2 col-form-label text-right">
 	      Maximum</label>
 	    <div class="col-md">
-	      <input type="number" name="maximum"
-                     id="{{ field['identifier'] }}-maximum"
+	      <input type="number"
+                     name="maximum" id="{{ field['identifier'] }}-maximum"
                      {% if field['type'] == constants.INTEGER %}
                      step="1"
                      {% endif %}
@@ -351,14 +351,14 @@
                    class="col-md-2 col-form-label text-right">
 	      Maximum</label>
 	    <div class="col-md">
-	      <input type="number" name="maximum" step="1"
-                     id="_{{ field['type'] }}-maximum"
+	      <input type="number" step="1"
+                     name="maximum" id="_{{ field['type'] }}-maximum"
 		     class="form-control"
 		     aria-describedby="_{{ field['type'] }}-maximumHelp"
                      value="{{ field.get('maximum') or '' }}">
 	      <small id="_{{ field['type'] }}-maximumHelp"
                      class="form-text text-muted">
-                Maximum number of repeats.
+                Maximum number of repeats. Must be larger than or equal to 2.
 	      </small>
 	    </div>
 	  </div>	

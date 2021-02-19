@@ -274,6 +274,7 @@ class FieldMixin:
                 if field['required'] and value:
                     self.doc['errors'][fid] = 'Invalid value.'
                 value = None
+            print(">>>", value, field.get('maximum'))
             if value is not None and \
                field.get('maximum') is not None and \
                value > field['maximum']:
