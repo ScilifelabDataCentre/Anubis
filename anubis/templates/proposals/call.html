@@ -10,12 +10,13 @@
 {% block meta %}
 <a href="{{ url_for('proposals.call_xlsx', cid=call['identifier']) }}"
    class="badge badge-pill badge-dark" role="button"
-   title="All proposals in the call">
-  Proposals Excel file</a>
+   title="Excel file of all proposals in the call.">Proposals Excel file</a>
+<a href="{{ url_for('call.call_zip', cid=call['identifier']) }}"
+   title="Excel file and documents for submitted proposals."
+   class="badge badge-pill badge-dark">Submitted proposals zip file</a>
 <a href="#email_lists" data-toggle="collapse"
    class="badge badge-pill badge-secondary" role="button"
-   aria-expanded="false" aria-controls="email_lists">
-  Email address lists
+   aria-expanded="false" aria-controls="email_lists">Email address lists
 </a>
 {% endblock %}
 
