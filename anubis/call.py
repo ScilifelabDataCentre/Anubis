@@ -612,6 +612,8 @@ class CallSaver(AttachmentSaver):
             title = ' '.join([w.capitalize()
                               for w in fid.replace('_', ' ').split()])
         required = bool(form.get('required'))
+        # A staffonly field must not be required. An incomplete grant dossier
+        # due to such a field would be incomprehensible for the user.
         staffonly = bool(form.get('staffonly'))
         if staffonly:
             required = False
@@ -620,6 +622,7 @@ class CallSaver(AttachmentSaver):
                  'title': title,
                  'description': form.get('description') or None,
                  'required': required,
+                 'staff': bool(form.get('staff')),
                  'staffonly': staffonly,
                  'banner': bool(form.get('banner')),
                  'repeat': form.get('repeat') or None
@@ -725,7 +728,10 @@ class CallSaver(AttachmentSaver):
         field['title'] = title
         field['description'] = form.get('description') or None
         field['required'] = bool(form.get('required'))
+        field['staff'] = bool(form.get('staff'))
         field['staffonly'] = bool(form.get('staffonly'))
+        # A staffonly field must not be required. An incomplete grant dossier
+        # due to such a field would be incomprehensible for the user.
         if field['staffonly']:
             field['required'] = False
         field['banner'] = bool(form.get('banner'))

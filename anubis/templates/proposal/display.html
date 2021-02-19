@@ -178,7 +178,7 @@
   <div class="card-body">
     {% set fields = call['decision'] %}
     {% set entity = decision %}
-    {% include 'display_field_values.html' %}
+    {% include 'display_fields_values.html' %}
   </div>
 </div>
 {% endif %} {# if allow_view_decision #}
@@ -189,7 +189,7 @@
   <div class="card-body">
     {% set fields = call['proposal'] %}
     {% set entity = proposal %}
-    {% include 'display_field_values.html' %}
+    {% include 'display_fields_values.html' %}
   </div>
 </div>
 {% endblock %} {# block main #}

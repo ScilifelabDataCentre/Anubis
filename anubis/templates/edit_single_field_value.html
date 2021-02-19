@@ -5,12 +5,19 @@
     {{ field['title'] }}
     {% if field.get('staffonly') %}
     <br>
-    <strong class="text-danger">Staff only</strong>
+    <span class="text-danger">Visible to staff only.</span>
     {% endif %}
   </label>
   <div class="col-md">
 
-    {% if field['type'] == constants.LINE %}
+    {% if field.get('staff') and not (g.am_admin or g.am_staff) %}
+    <input type="text" id="{{ fid }}" name="{{ fid }}"
+           readonly
+	   class="form-control-plaintext"
+	   aria-describedby="{{ fid }}Help"
+	   value="{{ value or '' }}">
+    
+    {% elif field['type'] == constants.LINE %}
     <input type="text" id="{{ fid }}" name="{{ fid }}"
 	   class="form-control"
 	   {% if field.get('maxlength') %}
@@ -198,6 +205,9 @@
 	<div class="col-md-2 text-danger">Error: {{ error }}</div>
         {% endif %}
 	<div class="col-md">
+          {% if field.get('staff') and not (g.am_admin or g.am_staff) %}
+          Can be edited only by staff.
+          {% endif %}
 	  {% if field.get('required') %}
 	  <strong>Required!</strong>
 	  {% endif %}

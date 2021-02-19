@@ -200,6 +200,13 @@ class FieldMixin:
         # Remember which fields actually exist right now.
         self.current_fields.add(fid)
 
+        # Not allowed to edit the value if not staff.
+        # Skipping here implies that an error for the value
+        # in the field cannot be erased by ordinary user.
+        if ((field.get('staff') or field.get('staffonly')) and
+            not (flask.g.am_admin or flask.g.am_staff)):
+            return
+
         # Remove any old error message for this field.
         self.doc['errors'].pop(fid, None)
 

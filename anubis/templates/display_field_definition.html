@@ -19,19 +19,22 @@
     <strong>Required!</strong>
     {% endif %}
     {% if field.get('staffonly') %}
-    <strong class="text-danger">Staff only.</strong>
+    <span class="text-danger">Visible to staff only.</span>
+    {% endif %}
+    {% if field.get('staff') %}
+    Editable only by staff.
     {% endif %}
     {% if field.get('banner') %}
     Banner.
     {% endif %}
     {% if field.get('maxlength') %}
-    Max {{ field['maxlength'] }} characters.
+    Maximum {{ field['maxlength'] }} characters.
     {% endif %}
     {% if field.get('minimum') is not none %}
-    Min {{ field['minimum'] }}.
+    Minimum {{ field['minimum'] }}.
     {% endif %}
     {% if field.get('maximum') is not none %}
-    Max {{ field['maximum'] }}.
+    Maximum {{ field['maximum'] }}.
     {% endif %}
     {% if field.get('slider') is not none %}
     {{ field['slider'] and 'Input using slider.' or 'Input using radio buttons.' }}

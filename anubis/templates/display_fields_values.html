@@ -3,15 +3,16 @@
 #}
 
 {% for field1 in fields if not field1.get('repeat') %}
+
 {% if not field1.get('staffonly') or (g.am_admin or g.am_staff) %}
 
 {# Field without repeats. #}
 <div class="row mb-1">
   <div class="col-md-2 font-weight-bold text-right">
-    {% if field1.get('staffonly') %}
-    <span class="text-muted">{{ field1['title'] }}</span>
-    {% else %}
     {{ field1['title'] }}
+    {% if field1.get('staffonly') %}
+    <br>
+    <span class="text-danger">Visible to staff only.</span>
     {% endif %}
   </div>
   {% if entity['errors'].get(field1['identifier']) %}
@@ -44,7 +45,7 @@
         {{ field2['title'] }}
         {% if field2.get('staffonly') %}
         <br>
-        <strong class="text-danger">Staff only</strong>
+        <span class="text-danger">Visible to staff only.</span>
         {% endif %}
       </div>
       {% if entity['errors'].get(id2) %}

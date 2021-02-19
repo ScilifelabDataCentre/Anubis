@@ -81,8 +81,8 @@
 		   class="col-md-2 col-form-label text-right">
 	      Title</label>
 	    <div class="col-md">
-	      <input type="text" name="title"
-                     id="{{ field['identifier'] }}-title"
+	      <input type="text"
+                     name="title" id="{{ field['identifier'] }}-title"
 		     class="form-control"
 		     aria-describedby="{{ field['identifier'] }}-titleHelp"
 		     value="{{ field.get('title') or '' }}">
@@ -98,8 +98,8 @@
 	      Required</label>
 	    <div class="col-md">
 	      <div class="form-check">
-		<input type="checkbox" name="required"
-                       id="{{ field['identifier'] }}-required"
+		<input type="checkbox"
+                       name="required" id="{{ field['identifier'] }}-required"
 		       class="form-check-input"
 		       aria-describedby="{{ field['identifier'] }}-requiredHelp"
 		       value="true"
@@ -115,13 +115,36 @@
 	    </div>
 	  </div>
 	  <div class="form-group row">
+	    <label for="{{ field['identifier'] }}-staff"
+		   class="col-md-2 col-form-label text-right">
+	      Staff edit</label>
+	    <div class="col-md">
+	      <div class="form-check">
+		<input type="checkbox"
+                       name="staff" id="{{ field['identifier'] }}-staff"
+		       class="form-check-input"
+		       aria-describedby="{{ field['identifier'] }}-staffHelp"
+		       value="true"
+		       {{ field.get('staff') and 'checked' or '' }}>
+		<label class="form-check-label"
+		       for="{{ field['identifier'] }}-staff">
+		  Yes</label>
+	      </div>
+	      <small id="{{ field['identifier'] }}-staffHelp"
+		     class="form-text text-muted">
+                The field is editable only by the staff,
+                but is visible to others.
+	      </small>
+	    </div>
+	  </div>
+	  <div class="form-group row">
 	    <label for="{{ field['identifier'] }}-staffonly"
 		   class="col-md-2 col-form-label text-right">
 	      Staff only</label>
 	    <div class="col-md">
 	      <div class="form-check">
-		<input type="checkbox" name="staffonly"
-                       id="{{ field['identifier'] }}-staffonly"
+		<input type="checkbox"
+                       name="staffonly" id="{{ field['identifier'] }}-staffonly"
 		       class="form-check-input"
 		       aria-describedby="{{ field['identifier'] }}-staffonlyHelp"
 		       value="true"
@@ -132,9 +155,9 @@
 	      </div>
 	      <small id="{{ field['identifier'] }}-staffonlyHelp"
 		     class="form-text text-muted">
-                The field will be visible to staff only.
-                <strong>Note</strong>: The 'Required' flag will not be
-                set if this is used.
+                The field is visible to staff only.
+                <strong>Note</strong>: The 'Required' flag will
+                <strong>not</strong> be set if this is used.
 	      </small>
 	    </div>
 	  </div>
@@ -144,8 +167,8 @@
 	      Banner</label>
 	    <div class="col-md">
 	      <div class="form-check">
-		<input type="checkbox" name="banner"
-                       id="{{ field['identifier'] }}-banner"
+		<input type="checkbox"
+                       name="banner" id="{{ field['identifier'] }}-banner"
 		       class="form-check-input"
 		       aria-describedby="{{ field['identifier'] }}-bannerHelp"
 		       value="true"
@@ -167,8 +190,8 @@
 		   class="col-md-2 col-form-label text-right">
 	      Maxlength</label>
 	    <div class="col-md">
-	      <input type="text" name="maxlength"
-                     id="{{ field['identifier'] }}-maxlength"
+	      <input type="text"
+                     name="maxlength" id="{{ field['identifier'] }}-maxlength"
 		     class="form-control"
 		     aria-describedby="{{ field['identifier'] }}-maxlengthHelp"
 		     value="{{ field.get('maxlength') or '' }}">
@@ -185,8 +208,7 @@
                    class="col-md-2 col-form-label text-right">
 	      Selection values</label>
 	    <div class="col-md">
-	      <textarea name="selection"
-                        id="_{{ field['type'] }}-selection"
+	      <textarea name="selection" id="_{{ field['type'] }}-selection"
 			class="form-control"
 			aria-describedby="_{{ field['type'] }}-selectionHelp"
                         rows="{{ max(2, len(field['selection'])) }}"
@@ -207,8 +229,8 @@
 	      Multiple choice</label>
 	    <div class="col-md">
 	      <div class="form-check">
-		<input type="checkbox" name="multiple"
-                       id="_{{ field['type'] }}-multiple"
+		<input type="checkbox"
+                       name="multiple" id="_{{ field['type'] }}-multiple"
 		       class="form-check-input"
 		       aria-describedby="_{{ field['type'] }}-multipleHelp"
 		       value="true"
@@ -269,8 +291,8 @@
 	      Slider input</label>
 	    <div class="col-md">
 	      <div class="form-check">
-		<input type="checkbox" name="slider"
-                       id="{{ field['identifier'] }}-slider"
+		<input type="checkbox"
+                       name="slider" id="{{ field['identifier'] }}-slider"
 		       class="form-check-input"
 		       aria-describedby="{{ field['identifier'] }}-sliderHelp"
 		       value="true"
@@ -327,8 +349,8 @@
                    class="col-md-2 col-form-label text-right">
 	      Extensions</label>
 	    <div class="col-md">
-	      <input type="text" name="extensions"
-                     id="_{{ field['type'] }}-extensions"
+	      <input type="text"
+                     name="extensions" id="_{{ field['type'] }}-extensions"
 		     class="form-control"
 		     aria-describedby="_{{ field['type'] }}-extensionsHelp"
                      value="{{ ', '.join(field.get('extensions') or []) }}">
