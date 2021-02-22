@@ -119,6 +119,7 @@ def get_call_xlsx(call, submitted=False):
                 if field['identifier'] == id:
                     title = field['title'] or field['identifier'].capitalize()
                     break
+            row.append(f"Reviews {title} N")
             row.append(f"Reviews {title} mean")
             row.append(f"Reviews {title} stdev")
     allow_view_decisions = anubis.call.allow_view_decisions(call)
@@ -179,6 +180,8 @@ def get_call_xlsx(call, submitted=False):
 
         if allow_view_reviews:
             for id in mean_field_ids:
+                ws.write_number(nrow, ncol, proposal['scores'][id]['n'])
+                ncol += 1
                 value = proposal['scores'][id]['mean']
                 if value is None:
                     ws.write_string(nrow, ncol, '')
@@ -258,7 +261,7 @@ def get_user_proposals(username):
 
 def compute_mean_fields(call, proposals):
     """Compute the mean and stdev of numerical banner fields
-    for each proposal. 
+    for each proposal. Store values in the proposal document.
     Return the identifiers of the fields.
     """
     field_ids = [f['identifier'] for f in call['review'] 
@@ -275,12 +278,13 @@ def compute_mean_fields(call, proposals):
         proposal['scores'] = dict()
         for id in field_ids:
             proposal['scores'][id] = d = dict()
+            d['n'] = len(scores[id])
             try:
-                d['mean'] = statistics.mean(scores[id])
+                d['mean'] = round(statistics.mean(scores[id]), 2)
             except statistics.StatisticsError:
                 d['mean'] = None
             try:
-                d['stdev'] = statistics.stdev(scores[id])
+                d['stdev'] = round(statistics.stdev(scores[id]), 2)
             except statistics.StatisticsError:
                 d['stdev'] = None
     return field_ids
