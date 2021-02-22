@@ -124,7 +124,7 @@ def get_call_grants_xlsx(call, grants):
         if field.get('repeat'): continue
         pos += 1
         repeat = [f['title'] or f['identifier'].capitalize()
-                  for f in call['grant'] 
+                  for f in call['grant']
                   if f.get('repeat') == field['identifier']]
         n_repeat = len(repeat)
         if n_repeat:
@@ -138,7 +138,8 @@ def get_call_grants_xlsx(call, grants):
         for field in call['grant']:
             if field['type'] != constants.REPEAT: continue
             try:
-                n_merge = max(n_merge, grant['values'][field['identifier']])
+                n_merge = max(n_merge,
+                              grant['values'][field['identifier']] or 0)
             except KeyError:
                 pass
 
@@ -191,6 +192,7 @@ def get_call_grants_xlsx(call, grants):
             if field.get('repeat'): continue
             if field['type'] == constants.REPEAT:
                 n_repeat = grant['values'][field['identifier']]
+                if not n_repeat: continue
                 col_offset = 0
                 for repeated in call['grant']:
                     if repeated.get('repeat') != field['identifier']:
