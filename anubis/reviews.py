@@ -269,8 +269,14 @@ def get_reviews_xlsx(call, proposals, reviews_lookup):
         row.append('Category')
     row.extend(['Submitter', 'Email', 'Affiliation',
                 'Reviewer', 'Review', 'Finalized'])
+    ncol = len(row)
     for field in call['review']:
         row.append(field['title'] or field['identifier'].capitalize())
+        if field['type'] == constants.LINE:
+            ws.set_column(ncol, ncol, 40, normal_text_format)
+        elif field['type'] == constants.TEXT:
+            ws.set_column(ncol, ncol, 60, normal_text_format)
+        ncol += 1
     ws.write_row(nrow, 0, row)
     nrow += 1
 
