@@ -124,10 +124,12 @@ def get_call_xlsx(call, submitted=False):
             row.append(f"Reviews {title} stdev")
     allow_view_decisions = anubis.call.allow_view_decisions(call)
     if allow_view_decisions:
+        row.append('Decision')
+        row.append('Decision status')
         for field in call['decision']:
             if not field.get('banner'): continue
             title = field['title'] or field['identifier'].capitalize()
-            row.append(f"Decision {title}")
+            row.append(title)
     ws.write_row(nrow, 0, row)
     nrow += 1
 
@@ -197,6 +199,22 @@ def get_call_xlsx(call, submitted=False):
 
         if allow_view_decisions:
             decision = anubis.decision.get_decision(proposal.get('decision')) or {}
+            if decision:
+                verdict = decision.get('verdict')
+                if verdict:
+                    ws.write(nrow, ncol, 'Accepted')
+                elif verdict is None:
+                    ws.write(nrow, ncol, 'Undecided')
+                else:
+                    ws.write(nrow, ncol, 'Declined')
+            else:
+                ws.write(nrow, ncol, '-')
+            ncol += 1
+            if decision.get('finalized'):
+                ws.write(nrow, ncol, 'Finalized')
+            else:
+                ws.write(nrow, ncol, '-')
+            ncol += 1
             for field in call['decision']:
                 if not field.get('banner'): continue
                 if decision.get('finalized'):
