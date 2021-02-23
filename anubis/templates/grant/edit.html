@@ -22,10 +22,13 @@
       <button type="submit" class="btn btn-block btn-primary">Save</button>
     </div>
   </div>
+
+
 </form>
 {% endblock %} {# block main #}
 
 {% block actions %}
+{% include 'info-partial.html' %}
 <div class="mt-2">
   <form action="{{ url_for('.display', gid=grant['identifier']) }}"
 	method="GET">

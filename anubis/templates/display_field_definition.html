@@ -42,7 +42,7 @@
     {% if field.get('extensions') %}
     Uploaded document file must have one of the extensions:
     {% for e in field['extensions'] %}
-    <code>{{ e }}</code>
+    <strong>{{ e }}</strong>
     {% endfor %}
     {% endif %}
     <br>
