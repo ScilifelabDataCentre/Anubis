@@ -194,17 +194,27 @@
     </div>
 
     {% elif field['type'] in constants.REPEAT %}
-    <input type="number" id="{{ fid }}" name="{{ fid }}"
-           step="1" min="0"
-           {% if field.get('maximum') %}
-           max="{{ field['maximum'] }}"
-           {% endif %}
-	   class="form-control"
-           {% if value is not none %}
-	   value="{{ value }}"
-           {% endif %}
-	   aria-describedby="{{ fid }}Help"
-           onchange="this.form.submit()">
+    <div class="row">
+      <div class="col-md-2">
+        <input type="number" id="{{ fid }}" name="{{ fid }}"
+               step="1" min="0"
+               {% if field.get('maximum') %}
+               max="{{ field['maximum'] }}"
+               {% endif %}
+	       class="form-control"
+               {% if value is not none %}
+	       value="{{ value }}"
+               {% endif %}
+	       aria-describedby="{{ fid }}Help"
+               onchange="this.form.submit()">
+      </div>
+      <div class="col-md">
+        <label for="{{ fid }}" class="col-form-label">
+          Fill in the number and then hit &lt;Enter&gt;: The number of
+          sets of fields below will change accordingly.
+        </label>
+      </div>
+    </div>
 
     {% endif %} {# if field['type'] == ... #}
 
