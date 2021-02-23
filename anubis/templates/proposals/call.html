@@ -92,7 +92,7 @@
     <tr>
       <td>{{ proposal | proposal_link }}</td>
       {% for field in utils.get_banner_fields(call['proposal']) %}
-      <td>{{ field | field_value(proposal) }}</td>
+      <td>{{ field | field_value(proposal, truncate_documentname=10) }}</td>
       {% endfor %}
       {% if call.get('categories') and allow_view_details %}
       <td>{{ proposal.get('category') or '-' }}</td>

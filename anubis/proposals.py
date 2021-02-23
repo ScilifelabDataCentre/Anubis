@@ -36,8 +36,8 @@ def call(cid):
         if proposal.get('submitted'):
             submitted_emails.append(user['email'])
     # There may be accounts that have no email!
-    all_emails = [e for e in all_emails if e]
-    submitted_emails = [e for e in submitted_emails if e]
+    all_emails = sorted(set([e for e in all_emails if e]))
+    submitted_emails = sorted(set([e for e in submitted_emails if e]))
     email_lists = {'Emails to for submitted proposals': 
                    ', '.join(submitted_emails),
                    'Emails for all proposals': ', '.join(all_emails)}
@@ -107,7 +107,7 @@ def get_call_xlsx(call, submitted=False):
     ncol = len(row)
     for field in call['proposal']:
         row.append(field['title'] or field['identifier'].capitalize())
-        if field['type'] == constants.LINE:
+        if field['type'] in (constants.LINE, constants.EMAIL):
             ws.set_column(ncol, ncol, 40, normal_text_format)
         elif field['type'] == constants.TEXT:
             ws.set_column(ncol, ncol, 60, normal_text_format)

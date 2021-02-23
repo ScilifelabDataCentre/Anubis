@@ -36,15 +36,28 @@ def call(cid):
     receiver_emails = [g['user']['email'] for g in grants]
     receiver_emails = [e for e in receiver_emails if e]
     access_emails = []
+    field_emails = []
     for grant in grants:
         access_emails.extend([anubis.user.get_user(a)['email']
                               for a in grant.get('access_view', [])])
-    access_emails = [e for e in access_emails if e]
-    all_emails = receiver_emails + access_emails
+        for field in call['grant']:
+            if field['type'] == constants.EMAIL:
+                if field.get('repeat'):
+                    n_repeat = grant['values'].get(field['repeat']) or 0
+                    for n in range(1, n_repeat+1):
+                        key = f"{field['identifier']}-{n}"
+                        field_emails.append(grant['values'].get(key))
+                else:
+                    field_emails.append(grant['values'].get(field['identifier']))
+    field_emails = sorted(set([e for e in field_emails if e]))
+    access_emails = sorted(set([e for e in access_emails if e]))
+    all_emails = set(receiver_emails).union(access_emails)
+    all_emails = sorted(all_emails.union(field_emails))
     email_lists = {'Grant receivers (= proposal submitters)':
                    ', '.join(receiver_emails),
                    'Persons with access to a grant': ', '.join(access_emails),
-                   'All involved persons': ', '.join(all_emails)}
+                   'Emails provided in grant fields': ', '.join(field_emails),
+                   'All emails': ', '.join(all_emails)}
     return flask.render_template('grants/call.html',
                                  call=call,
                                  grants=grants,

@@ -26,6 +26,15 @@
 	   aria-describedby="{{ fid }}Help"
 	   value="{{ value or '' }}">
 
+    {% elif field['type'] == constants.EMAIL %}
+    <input type="email" id="{{ fid }}" name="{{ fid }}"
+	   class="form-control"
+	   {% if field.get('maxlength') %}
+	   maxlength="{{ field['maxlength'] }}"
+	   {% endif %}
+	   aria-describedby="{{ fid }}Help"
+	   value="{{ value or '' }}">
+
     {% elif field['type'] == constants.BOOLEAN %}
     <div class="custom-control custom-radio custom-control-inline"
       aria-describedby="{{ fid }}Help">

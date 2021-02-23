@@ -287,12 +287,12 @@ def get_banner_fields(fields):
     "Return fields flagged as banner fields. Avoid repeated fields."
     return [f for f in fields if f.get('banner') and not f.get('repeat')]
 
-def field_value(field, entity, fid=None):
+def field_value(field, entity, fid=None, truncate_documentname=None):
     "Template filter: Output field value according to its type."
     if not fid:
         fid = field['identifier']
     value = entity.get('values', {}).get(fid)
-    if field['type'] == constants.LINE:
+    if field['type'] in (constants.LINE, constants.EMAIL):
         return value or '-'
     if field['type'] == constants.BOOLEAN:
         return boolean_value(value)
@@ -324,6 +324,9 @@ def field_value(field, entity, fid=None):
                 docurl = flask.url_for('grant.document',
                                        gid=entity['identifier'],
                                        fid=fid)
+            if truncate_documentname:
+                if len(value) > truncate_documentname:
+                    value = value[:truncate_documentname] + '...'
             return jinja2.utils.Markup(
                 f'<i title="File" class="align-top">{value}</i> <a href="{docurl}"'
                 ' role="button" title="Download file"'

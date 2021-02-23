@@ -210,7 +210,7 @@ class FieldMixin:
         # Remove any old error message for this field.
         self.doc['errors'].pop(fid, None)
 
-        if field['type'] in (constants.TEXT, constants.LINE):
+        if field['type'] in (constants.LINE, constants.EMAIL, constants.TEXT):
             self.doc['values'][fid] = form.get(fid) or None
 
         elif field['type'] == constants.BOOLEAN:

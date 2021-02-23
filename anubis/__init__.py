@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '1.2.18'
+__version__ = '1.2.19'
 
 class Constants:
     VERSION     = __version__
@@ -40,6 +40,7 @@ class Constants:
 
     # Input field types
     LINE     = 'line'
+    EMAIL    = 'email'
     BOOLEAN  = 'boolean'
     SELECT   = 'select'
     INTEGER  = 'integer'
@@ -48,7 +49,7 @@ class Constants:
     TEXT     = 'text'
     DOCUMENT = 'document'
     REPEAT   = 'repeat'
-    FIELD_TYPES = (LINE, BOOLEAN, SELECT, INTEGER, FLOAT,
+    FIELD_TYPES = (LINE, EMAIL, BOOLEAN, SELECT, INTEGER, FLOAT,
                    SCORE, TEXT, DOCUMENT, REPEAT)
     NUMERICAL_FIELD_TYPES = (INTEGER, FLOAT, SCORE)
 

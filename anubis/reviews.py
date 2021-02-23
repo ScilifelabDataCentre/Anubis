@@ -272,7 +272,7 @@ def get_reviews_xlsx(call, proposals, reviews_lookup):
     ncol = len(row)
     for field in call['review']:
         row.append(field['title'] or field['identifier'].capitalize())
-        if field['type'] == constants.LINE:
+        if field['type'] in (constants.LINE, constants.EMAIL):
             ws.set_column(ncol, ncol, 40, normal_text_format)
         elif field['type'] == constants.TEXT:
             ws.set_column(ncol, ncol, 60, normal_text_format)
