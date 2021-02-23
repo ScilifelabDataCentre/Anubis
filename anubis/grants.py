@@ -51,8 +51,8 @@ def call(cid):
                     field_emails.append(grant['values'].get(field['identifier']))
     field_emails = sorted(set([e for e in field_emails if e]))
     access_emails = sorted(set([e for e in access_emails if e]))
-    all_emails = set(receiver_emails).union(access_emails)
-    all_emails = sorted(all_emails.union(field_emails))
+    all_emails = sorted(set(receiver_emails).union(access_emails).
+                        union(field_emails))
     email_lists = {'Grant receivers (= proposal submitters)':
                    ', '.join(receiver_emails),
                    'Persons with access to a grant': ', '.join(access_emails),

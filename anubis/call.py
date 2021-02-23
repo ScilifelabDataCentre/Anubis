@@ -67,9 +67,9 @@ def display(cid):
         if allow_view_details(call):
             reviewers = [anubis.user.get_user(r) for r in call['reviewers']]
             reviewers.sort(key=lambda r: (r['familyname'], r['givenname']))
+            kwargs['reviewers'] = reviewers
             emails = [r['email'] for r in reviewers]
             emails = [e for e in emails if e]
-            kwargs['reviewers'] = reviewers
             kwargs['email_lists'] = {'Emails for reviewers': ', '.join(emails)}
         kwargs['my_proposal'] = anubis.proposal.get_call_user_proposal(
             cid, flask.g.current_user['username'])
