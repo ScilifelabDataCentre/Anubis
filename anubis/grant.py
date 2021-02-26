@@ -401,12 +401,10 @@ def get_grant_proposal(pid):
 def allow_create(proposal):
     "The admin and staff may create a grant dossier."
     if not flask.g.current_user: return False
-    if not proposal.get('submitted'): return False  # Sanity check.
-    if not proposal.get('decision'): return False   # Sanity check.
+    if not proposal.get('decision'): return False
     decision = anubis.decision.get_decision(proposal['decision'])
-    if not (decision and decision.get('finalized')):  # Sanity check.
-        return False
-    # Can't check for positive decision, since that encoding is not hard-wired.
+    if not decision.get('finalized'): return False
+    if not decision.get('verdict'): return False
     if flask.g.am_admin: return True
     if flask.g.am_staff: return True
     return False
