@@ -69,6 +69,12 @@
        role="button" class="btn btn-sm btn-info">
       {{ my_reviews_count }} reviews
     </a>
+    {% if my_archived_reviews_count %}
+    <a href="{{ url_for('reviews.call_reviewer_archived', cid=call['identifier'], username=g.current_user['username']) }}"
+       role="button" class="btn btn-sm btn-secondary ml-2">
+      {{ my_archived_reviews_count }} archived reviews
+    </a>
+    {% endif %}
   </div>
 </div>
 {% endif %} {# if am_reviewer #}

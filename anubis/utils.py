@@ -78,9 +78,12 @@ def get_call_reviews_count(cid):
     "Get the count of all reviews in the given call."
     return get_count('reviews', 'call', cid)
 
-def get_call_reviewer_reviews_count(cid, username):
+def get_call_reviewer_reviews_count(cid, username, archived=False):
     "Get the count of all reviews for the reviewer in the given call."
-    return get_count('reviews', 'call_reviewer', [cid, username])
+    if archived:
+        return get_count('reviews', 'call_reviewer_archived', [cid, username])
+    else:
+        return get_count('reviews', 'call_reviewer', [cid, username])
 
 def get_call_grants_count(gid):
     "Get the count for all grants for the given call."

@@ -45,10 +45,10 @@ DESIGN_DOC = {
         'proposal_archived':
         {'reduce': '_count',
          'map': "function(doc) {if (doc.doctype !== 'review' || !doc.archived) return; emit(doc.proposal, null);}"},
-        # Archived reviews for a proposal and reviewer.
-        'proposal_reviewer_archived':
+        # Archived reviews for a call and reviewer.
+        'call_reviewer_archived':
         {'reduce': '_count',
-         'map': "function(doc) {if (doc.doctype !== 'review' || !doc.archived) return; emit([doc.proposal, doc.reviewer], null);}"},
+         'map': "function(doc) {if (doc.doctype !== 'review' || !doc.archived) return; emit([doc.call, doc.reviewer], doc.proposal);}"},
     }
 }
 

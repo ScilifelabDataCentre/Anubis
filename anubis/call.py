@@ -75,6 +75,8 @@ def display(cid):
             cid, flask.g.current_user['username'])
         kwargs['my_reviews_count'] = utils.get_call_reviewer_reviews_count(
             cid, flask.g.current_user['username'])
+        kwargs['my_archived_reviews_count'] = utils.get_call_reviewer_reviews_count(
+            cid, flask.g.current_user['username'], archived=True)
         kwargs['call_proposals_count'] = utils.get_call_proposals_count(cid)
         if call.get('categories'):
             kwargs['call_proposals_category_counts'] = dict(

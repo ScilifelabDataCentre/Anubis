@@ -181,6 +181,34 @@ def proposal_archived(pid):
                                  proposal=proposal,
                                  call=call)
 
+@blueprint.route('/call/<cid>/reviewer/<username>/archived')
+@utils.login_required
+def call_reviewer_archived(cid, username):
+    "List all archived reviews in the call by the reviewer (user)."
+    call = anubis.call.get_call(cid)
+    if call is None:
+        return utils.error('No such call.', flask.url_for('home'))
+    user = anubis.user.get_user(username=username)
+    if user is None:
+        return utils.error('No such user.', flask.url_for('home'))
+    if user['username'] not in call['reviewers']:
+        return utils.error('The user is not a reviewer in the call.',
+                           flask.url_for('home'))
+    if not (user['username'] == flask.g.current_user['username']  or
+            anubis.call.allow_view_reviews(call)):
+        return utils.error("You may not view the user's reviews.",
+                           flask.url_for('call.display',cid=call['identifier']))
+
+    proposals = anubis.proposals.get_call_proposals(call, submitted=True)
+    reviews = utils.get_docs_view('reviews', 'call_reviewer_archived',
+                                  [call['identifier'], user['username']])
+    reviews_lookup = {r['proposal']:r for r in reviews}
+    return flask.render_template('reviews/call_reviewer_archived.html',
+                                 call=call,
+                                 proposals=proposals,
+                                 user=user,
+                                 reviews_lookup=reviews_lookup)
+
 @blueprint.route('/proposal/<pid>.xlsx')
 @utils.login_required
 def proposal_xlsx(pid):
