@@ -181,6 +181,29 @@ def proposal_archived(pid):
                                  proposal=proposal,
                                  call=call)
 
+@blueprint.route('/call/<cid>/archived')
+@utils.login_required
+def call_archived(cid):
+    "List all archived reviews in the call."
+    call = anubis.call.get_call(cid)
+    if call is None:
+        return utils.error('No such call.', flask.url_for('home'))
+    if not anubis.call.allow_view_reviews(call):
+        return utils.error("You may not view the call's reviews.",
+                           flask.url_for('call.display',cid=call['identifier']))
+
+    proposals = anubis.proposals.get_call_proposals(call, submitted=True)
+    reviews = [r.doc for r in flask.g.db.view("reviews", 
+                                              "call_reviewer_archived",
+                                              startkey=[call["identifier"],""],
+                                              endkey=[call["identifier"],"ZZZZZZ"],
+                                              include_docs=True)]
+    reviews_lookup = {r['proposal']:r for r in reviews}
+    return flask.render_template('reviews/call_archived.html',
+                                 call=call,
+                                 proposals=proposals,
+                                 reviews_lookup=reviews_lookup)
+
 @blueprint.route('/call/<cid>/reviewer/<username>/archived')
 @utils.login_required
 def call_reviewer_archived(cid, username):

@@ -20,33 +20,26 @@ def init(app):
 
 DESIGN_DOC = {
     'views': {
-        # Reviews for all proposals in call.
-        'call':
+        'call':  # Reviews for all proposals in call.
         {'reduce': '_count',
          'map': "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit(doc.call, null);}"},
-        # Reviews for a proposal.
-        'proposal':
+        'proposal':  # Reviews for a proposal.
         {'reduce': '_count',
          'map': "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit(doc.proposal, null);}"},
-        # Reviews per reviewer, in any call
-        'reviewer':
+        'reviewer':  # Reviews per reviewer, in any call
         {'reduce': '_count',
          'map': "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit(doc.reviewer, null);}"},
-        # Reviews per call and reviewer.
-        'call_reviewer':
+        'call_reviewer':  # Reviews per call and reviewer.
         {'reduce': '_count',
          'map': "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit([doc.call, doc.reviewer], null);}"},
         'proposal_reviewer': {'map': "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit([doc.proposal, doc.reviewer], null);}"},
-        # Unfinalized reviews by reviewer, in any call.
-        'unfinalized':
+        'unfinalized':  # Unfinalized reviews by reviewer, in any call.
         {'reduce': '_count',
          'map': "function(doc) {if (doc.doctype !== 'review' || doc.finalized || doc.archived) return; emit(doc.reviewer, null);}"},
-        # Archived reviews for a proposal.
-        'proposal_archived':
+        'proposal_archived':  # Archived reviews for a proposal.
         {'reduce': '_count',
          'map': "function(doc) {if (doc.doctype !== 'review' || !doc.archived) return; emit(doc.proposal, null);}"},
-        # Archived reviews for a call and reviewer.
-        'call_reviewer_archived':
+        'call_reviewer_archived':  # Archived reviews for a call and reviewer.
         {'reduce': '_count',
          'map': "function(doc) {if (doc.doctype !== 'review' || !doc.archived) return; emit([doc.call, doc.reviewer], doc.proposal);}"},
     }

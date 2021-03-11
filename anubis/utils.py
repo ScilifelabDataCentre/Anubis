@@ -74,9 +74,19 @@ def get_call_proposals_count(cid, category=None):
     else:
         return get_count('proposals', 'call', cid)
 
-def get_call_reviews_count(cid):
+def get_call_reviews_count(cid, archived=False):
     "Get the count of all reviews in the given call."
-    return get_count('reviews', 'call', cid)
+    if archived:
+        result = flask.g.db.view("reviews", "call_reviewer_archived",
+                                 startkey=[cid, ""],
+                                 endkey=[cid, "ZZZZZZ"],
+                                 reduce=True)
+        if result:
+            return result[0].value
+        else:
+            return 0
+    else:
+        return get_count('reviews', 'call', cid)
 
 def get_call_reviewer_reviews_count(cid, username, archived=False):
     "Get the count of all reviews for the reviewer in the given call."

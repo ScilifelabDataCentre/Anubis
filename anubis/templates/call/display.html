@@ -87,6 +87,13 @@
        role="button" class="btn btn-sm btn-info">
       {{ utils.get_call_reviews_count(call['identifier']) }} reviews
     </a>
+    {% set archived_count = utils.get_call_reviews_count(call['identifier'], archived=True) %}
+    {% if archived_count %}
+    <a href="{{ url_for('reviews.call_archived', cid=call['identifier']) }}"
+       role="button" class="btn btn-sm btn-secondary ml-2">
+      {{ archived_count }} archived reviews
+    </a>
+    {% endif %}
   </div>
 </div>
 {% endif %} {# if allow_view_reviews #}

@@ -1,13 +1,11 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Archived reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
+Archived reviews in call {{ call['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-<small class="text-muted mr-2">Archived reviews by</small>
-{{ user | user_link}}
-<small class="text-muted mx-2">in call</small>
+<small class="text-muted mr-2">Archived reviews in call</small>
 {{ call | call_link }}
 {% endblock %}
 
@@ -15,10 +13,6 @@ Archived reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 <div class="row mb-2">
   <div class="col-md-2 text-right font-weight-bold">Due</div>
   <div class="col-md-8">{{ call.get('reviews_due') | datetimetz(due=True) }}</div>
-  <div class="col-md">
-    <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=user['username']) }}"
-       role="button" class="btn btn-block btn-info">Reviews</a>
-  </div>
 </div>
 
 <table id="reviews" class="table table-sm table-hover">
@@ -28,6 +22,7 @@ Archived reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
       {% for field in utils.get_banner_fields(call['review']) %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
+      <th>Reviewer</th>
       <th>Proposal</th>
       {% if call.get('categories') %}
       <th>Category</th>
@@ -44,6 +39,7 @@ Archived reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
       {% for field in utils.get_banner_fields(call['review']) %}
       <td>{{ field | field_value(review) }}</td>
       {% endfor %}
+      <td>{{ get_user(review['reviewer']) | user_link }}</td>
       <td>{{ proposal | proposal_link(bold=False) }}</td>
       {% if call.get('categories') %}
       <td>{{ proposal.get('category') or '-' }}</td>
