@@ -278,8 +278,8 @@ class FieldMixin:
             try:
                 value = int(value)
             except (TypeError, ValueError):
-                if field['required'] and value:
-                    self.doc['errors'][fid] = 'Invalid value.'
+                if field['required']:
+                    self.doc['errors'][fid] = 'Invalid or missing value.'
                 value = None
             if value is not None and \
                field.get('maximum') is not None and \
