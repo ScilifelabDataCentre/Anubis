@@ -24,9 +24,10 @@ def init(app):
 DESIGN_DOC = {
     'views': {
         'username': {'map': "function(doc) {if (doc.doctype !== 'user') return; emit(doc.username, null);}"},
-        'email': {'map': "function(doc) {if (doc.doctype !== 'user' || !doc.email) return;  emit(doc.email, null);}"},
-        'role': {'map': "function(doc) {if (doc.doctype !== 'user') return;  emit(doc.role, null);}"},
-        'status': {'map': "function(doc) {if (doc.doctype !== 'user') return;  emit(doc.status, null);}"},
+        'email': {'map': "function(doc) {if (doc.doctype !== 'user' || !doc.email) return; emit(doc.email, null);}"},
+        'role': {'map': "function(doc) {if (doc.doctype !== 'user') return; emit(doc.role, doc.username);}"},
+        'status': {'map': "function(doc) {if (doc.doctype !== 'user') return; emit(doc.status, doc.username);}"},
+        'last_login': {'map': "function(doc) {if (doc.doctype !== 'user') return; if (!doc.last_login) return; emit(doc.last_login, doc.username);}"},
     }
 }
 
@@ -405,6 +406,9 @@ class UserSaver(BaseSaver):
         else:
             self.doc['password'] = "code:%s" % utils.get_iuid()
 
+    def set_last_login(self):
+        self.doc['last_login'] = utils.get_time()
+
     def set_gender(self, gender):
         if gender not in flask.current_app.config['USER_GENDERS']:
             gender = None
@@ -506,6 +510,8 @@ def do_login(username, password):
         raise ValueError
     if user['status'] != constants.ENABLED:
         raise ValueError
+    with UserSaver(user) as saver:
+        saver.set_last_login()
     flask.session['username'] = user['username']
     flask.session.permanent = True
 

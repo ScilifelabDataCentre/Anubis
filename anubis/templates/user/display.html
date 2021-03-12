@@ -237,6 +237,14 @@ User {{ user['username'] }}
 <div class="small">
   Modified <span class="localtime">{{ user['modified'] }}</span>
   <span class="ml-4">
+    Last login
+    {% if user.get('last_login') %}
+    <span class="localtime">{{ user['last_login'] }}</span>
+    {% else %}
+    ?
+    {% endif %}
+  </span>
+  <span class="ml-4">
     Created <span class="localtime">{{ user['created'] }}</span>
   </span>
   <span class="ml-4">
