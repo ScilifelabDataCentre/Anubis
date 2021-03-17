@@ -201,7 +201,7 @@ def get_time(offset=None):
     return instant[:17] + "{:06.3f}".format(float(instant[17:])) + "Z"
 
 def normalized_local_now():
-    "Return the current local date and time in normalized form."
+    "Return the current local date and time (hour, minute) in normalized form."
     return datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
 
 def normalize_datetime(dt=None):

@@ -19,6 +19,7 @@
       <th>Role</th>
       <th>Status</th>
       <th>Modified</th>
+      <th>Last login</th>
     </tr>
   </thead>
   <tbody class="table-borderless">
@@ -70,6 +71,13 @@
         {% endif %}
       </td>
       <td class="small localtime">{{ user['modified'] }}</td>
+      <td class="small">
+        {% if user.get('last_login') %}
+        <span class="localtime">{{ user['last_login'] }}</span>
+        {% else %}
+        ?
+        {% endif %}
+      </td>
     </tr>
     {% endfor %}
   </tbody>
