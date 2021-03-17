@@ -277,6 +277,19 @@
   </div>
 </div>
 
+<div class="row mt-4">
+  <div class="col-md-2 font-weight-bold text-right">Grant dossier fields</div>
+  <div class="col-md">
+    <table class="table table-sm">
+      <tbody>
+        {% for field in call.get('grant', []) %}
+        {% include 'display_field_definition.html' %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
 {% endif %} {# if allow_view_details #}
 
 {% endblock %} {# block main #}
