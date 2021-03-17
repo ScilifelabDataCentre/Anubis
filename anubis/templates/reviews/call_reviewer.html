@@ -12,11 +12,12 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 {% endblock %}
 
 {% block meta %}
-<div>
-  <a href="{{ url_for('.call_reviewer_xlsx', cid=call['identifier'], username=user['username']) }}"
-     title="Excel 2007 XLSX file"
-     class="badge badge-pill badge-dark">Reviews Excel file</a>
-</div>
+<a href="{{ url_for('.call_reviewer_xlsx', cid=call['identifier'], username=user['username']) }}"
+   title="Excel 2007 XLSX file"
+   class="badge badge-pill badge-dark">Reviews Excel file</a>
+<a href="{{ url_for('.call_reviewer_zip', cid=call['identifier'], username=user['username']) }}"
+   title="Excel file and documents for proposals to review."
+   class="badge badge-pill badge-dark">Proposals zip file</a>
 {% endblock %}
 
 {% block supermain %}

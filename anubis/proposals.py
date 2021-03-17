@@ -69,13 +69,19 @@ def call_xlsx(cid):
                          filename=f"{call['identifier']}_proposals.xlsx")
     return response
 
-def get_call_xlsx(call, submitted=False):
+def get_call_xlsx(call, submitted=False, proposals=None):
     """Return the content of an XLSX file for all proposals in a call.
     Optionally only the submitted ones.
+    Optionally for the given list proposals.
     """
-    proposals = get_call_proposals(call,
-                                   category=flask.request.args.get('category'),
-                                   submitted=submitted)
+    if proposals is None:
+        title = f"Proposals in call {call['identifier']}"
+        proposals = get_call_proposals(
+            call,
+            category=flask.request.args.get('category'),
+            submitted=submitted)
+    else:
+        title = f"Selected proposals in call {call['identifier']}"
     mean_field_ids = compute_mean_fields(call, proposals)
     output = io.BytesIO()
     wb = xlsxwriter.Workbook(output, {'in_memory': True})
@@ -88,7 +94,7 @@ def get_call_xlsx(call, submitted=False):
     normal_text_format = wb.add_format({'font_size': 14,
                                         'align': 'left',
                                         'valign': 'vcenter'})
-    ws = wb.add_worksheet(f"Proposals in call {call['identifier']}")
+    ws = wb.add_worksheet(title)
     ws.freeze_panes(1, 1)
     ws.set_row(0, 60, head_text_format)
     ws.set_column(1, 1, 40, normal_text_format)

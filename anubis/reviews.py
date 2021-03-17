@@ -1,6 +1,7 @@
 "Reviews lists."
 
 import io
+import zipfile
 
 import flask
 import xlsxwriter
@@ -128,6 +129,56 @@ def call_reviewer_xlsx(cid, username):
     response.headers.set('Content-Type', constants.XLSX_MIMETYPE)
     response.headers.set('Content-Disposition', 'attachment', 
                          filename=f"{cid}_{username}_reviews.xlsx")
+    return response
+
+@blueprint.route('/call/<cid>/reviewer/<username>.zip')
+@utils.login_required
+def call_reviewer_zip(cid, username):
+    """Return a zip file containing the XLSX file of all reviews
+    in the call by the reviewer (user), and all documents for the proposals
+    to be reviewed.
+    """
+    call = anubis.call.get_call(cid)
+    if call is None:
+        return utils.error('No such call.', flask.url_for('home'))
+    user = anubis.user.get_user(username=username)
+    if user is None:
+        return utils.error('No such user.', flask.url_for('home'))
+    if user['username'] not in call['reviewers']:
+        return utils.error('The user is not a reviewer in the call.',
+                           flask.url_for('home'))
+    if not (user['username'] == flask.g.current_user['username']  or
+            anubis.call.allow_view_reviews(call)):
+        return utils.error("You may not view the user's reviews.",
+                           flask.url_for('call.display',cid=call['identifier']))
+
+    proposals = anubis.proposals.get_call_proposals(call, submitted=True)
+    reviews = utils.get_docs_view('reviews', 'call_reviewer',
+                                  [call['identifier'], user['username']])
+    reviews_lookup = {f"{r['proposal']} {username}":r for r in reviews}
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, "w") as zip:
+        zip.writestr(f"{cid}_{username}_reviews.xlsx",
+                     get_reviews_xlsx(call, proposals, reviews_lookup))
+        # Filter away proposals not to be reviewed by the user.
+        proposals = [p for p in proposals
+                     if f"{p['identifier']} {username}" in reviews_lookup]
+        zip.writestr(f"{call['identifier']}_selected_proposals.xlsx",
+                     anubis.proposals.get_call_xlsx(call, proposals=proposals))
+        for proposal in proposals:
+            for field in call['proposal']:
+                if field['type'] == constants.DOCUMENT:
+                    try:
+                        doc = anubis.proposal.get_document(proposal,
+                                                           field['identifier'])
+                    except KeyError:
+                        pass
+                    else:
+                        zip.writestr(doc['filename'], doc['content'])
+    response = flask.make_response(output.getvalue())
+    response.headers.set('Content-Type', constants.ZIP_MIMETYPE)
+    response.headers.set('Content-Disposition', 'attachment', 
+                         filename=f"{call['identifier']}_reviewer_{username}.zip")
     return response
 
 @blueprint.route('/proposal/<pid>')
