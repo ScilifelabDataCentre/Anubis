@@ -5,6 +5,50 @@ Proposal submission and review handling system.
 See [install/README.md](install/README.md) for information on how to install
 this system.
 
+## A typical use case
+
+The currently open calls are displayed on the home page of the Anubis instance.
+A user looks at the call descriptions, which may include links and documents.
+She creates an account in order to create a proposal in a call. A user can
+create at most one proposal in a call.
+
+The proposal contains a number of data fields that the admin of the
+Anubis instance has defined for the call. The user fills in the data
+fields, some of which may be required. This can be done step by step,
+saving the proposal in between sessions. Once the proposal form no
+longer has any issues, such as missing data, the user can submit the
+proposal.
+
+Submission of a proposal has to be done before the closing time of the
+call. Notice that it is the Anubis server which determines the time,
+so the user should submit the proposal with some margin of safety. The
+Anubis system closes the call in an automated fashion.
+
+As long as the call is open, the user may unsubmit a proposal, e.g. to
+improve it in some way. Then it can be submitted again. Once the call
+has closed, it is no longer possible to unsubmit or submit a proposal.
+
+Once the call has closed, the Anubis admin can assign reviewers to the
+proposals. The reviewers must have accounts in the system, and the
+admin can decided to make some reviewers "chair" which means that they
+can monitor the information provided by other reviewers. The admin
+sets up what information the reviewers should provide, e.g. grade,
+comment, or similar. None of this is visible to the proposal author.
+
+Once the reviews have been done, a decision can be made and recorded
+in the Anubis system. Again, the admin decides which information
+should be present in the decision, apart from the verdict field which
+is hardwired to the alternatives "Accepted" or "Declined". Once this
+is done, the admin can flip the switch in the Anubis system to let
+the user see the decision for her proposal.
+
+The Anubis system can be used to set up a grant dossier for an
+accepted proposal. The information fields are set up by the admin. The
+idea is that the user fills in required information, such as a budget
+document, contact persons, collaborators, etc. The staff handling the
+call can then access Anubis to get all information provided from the
+grant holder.
+
 ## Entities
 
 - User
@@ -57,9 +101,9 @@ this system.
   - Admin or chair may create it for a proposal.
 
 - Grant
-  - A dossier for the grant for a proposal which (presumably) got a
-    positive decision. This is intended to store documents and other
-    data related to the handling of a grant.
+  - A dossier for the grant for a proposal which was accepted. This is
+    intended to store documents and other data related to the handling
+    of a grant.
   - Identifier: {call-prefix}-G:{number}, where number is the same as
     the proposal. This implies that the grant numbers are **not**
     consecutive, nor that they necessarily start with 001.
@@ -74,10 +118,10 @@ this system.
   - All reviews for a proposal (also Excel)
   - All reviews from a reviewer in a call (also Excel)
 
-## Workflow
+## System design assumptions
 
-There is no strictly defined workflow, but rather some assumptions implicit
-in the system design.
+There are some assumptions implicit in the system design. Here is a list
+of some of them:
 
 - A call is opened when its opens date is defined, and has passed.
 - It is not possible to create a proposal in a non-opened call.

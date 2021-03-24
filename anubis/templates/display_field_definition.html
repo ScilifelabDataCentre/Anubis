@@ -40,7 +40,7 @@
     {{ field['slider'] and 'Input using slider.' or 'Input using radio buttons.' }}
     {% endif %}
     {% if field.get('extensions') %}
-    Uploaded document file must have one of the extensions:
+    Uploaded document file must have one of the extensions (file types):
     {% for e in field['extensions'] %}
     <strong>{{ e }}</strong>
     {% endfor %}
