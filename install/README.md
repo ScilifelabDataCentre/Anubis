@@ -11,7 +11,7 @@ need to be adapted to your site.
 The source code is available the
 [Anubis GitHub repo](https://github.com/pekrau/Anubis).
 
-Anubis requires Python 3.6 and [CouchDB 2.3.1](https://couchdb.apache.org/);
+Anubis requires Python >= 3.6 and [CouchDB >= 2.3.1](https://couchdb.apache.org/);
 their installation is not documented here.
 
 ### Source code and packages
@@ -39,13 +39,13 @@ for Anubis is not documented here.
 Download and install the required Python packages from PyPi:
 
 ```
-$ workon Anubis  # If not already done
+$ workon Anubis  # Activate the virtual environment
 $ pip install -r requirements.txt
 ```
 
 ### Configuration
 
-The Anubis server `flask` server runs as a `uwsgi` web server. It
+The Anubis `flask` server runs as a `uwsgi` web server. It
 needs to be configured. This is done in a JSON file called
 `settings.json` located in the `site` directory. An example file can
 be found in the `install` directory.
@@ -55,7 +55,7 @@ $ cd Anubis
 $ mkdir site
 $ cp install/settings.json site/settings.json
 $ cd site
-$ chmod go-rw settings.json  # Since it contains passwords
+$ chmod go-rw settings.json  # Since it contains secrets
 $ emacs settings.json  # Ok, ok, vim also works...
 ```
 
@@ -71,10 +71,9 @@ In particular, the following settings should be looked at:
 - `"HOST_LOGO"`: The file name of the site-specific logo image file. It must be locaded in the `SITE_STATIC_DIRPATH`.
 - `"HOST_NAME"`: The name of host of the site; e.g. the institution.
 - `"HOST_URL"`: The URL to the home page of the host.
-- `"MAIL_SERVER"`: The name of the mail server.
-
-There are more settings to define if the mail server cannot be set as
-`localhost`. See the `Anubis/anubis/config.py` file.
+- `"MAIL_SERVER"`: The name of the mail server. There are more
+  settings to define if the mail server cannot be set as
+  `localhost`. See the `Anubis/anubis/config.py` file.
 
 #### CouchDB
 
