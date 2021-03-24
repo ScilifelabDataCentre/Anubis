@@ -5,6 +5,7 @@ import functools
 import http.client
 import logging
 import os.path
+import smtplib
 import time
 import uuid
 
@@ -595,13 +596,19 @@ def delete(doc):
     flask.g.db.delete(doc)
 
 def send_email(recipients, title, text):
-    if isinstance(recipients, str):
-        recipients = [recipients]
-    message = flask_mail.Message(title, recipients=recipients)
-    message.body = text
+    "Send an email, if enabled."
     try:
-        MAIL.send(message)
-    except (ConnectionRefusedError, smtplib.SMTPAuthenticationError) as error:
+        if not flask.current_app.config["MAIL_SERVER"]:
+            raise KeyError
+        if isinstance(recipients, str):
+            recipients = [recipients]
+        message = flask_mail.Message(title, recipients=recipients)
+        message.body = text
+        try:
+            MAIL.send(message)
+        except (ConnectionRefusedError, smtplib.SMTPAuthenticationError) as error:
+            logging.error(str(error))
+            raise KeyError
+    except KeyError:
         flash_error("Email has not been properly configured in this system."
                     " No email message was sent.")
-        logging.error(str(error))

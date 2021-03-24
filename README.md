@@ -8,7 +8,7 @@ this system.
 ## A typical use case
 
 Some of the steps below are illustrated in the screenshots in the accompanying
-[PowerPoint presentation](https://github.com/pekrau/Anubis/raw/master/Anubis-user-scenario.pptx).
+[PowerPoint presentation](https://github.com/pekrau/Anubis/raw/master/Anubis-common-actions.pptx).
 
 The currently open calls are displayed on the home page of the Anubis
 instance.  A user looks at the call descriptions, which may include
