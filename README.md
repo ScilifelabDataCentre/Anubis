@@ -7,10 +7,13 @@ this system.
 
 ## A typical use case
 
-The currently open calls are displayed on the home page of the Anubis instance.
-A user looks at the call descriptions, which may include links and documents.
-She creates an account in order to create a proposal in a call. A user can
-create at most one proposal in a call.
+Some of the steps below are illustrated in the screenshots in the accompanying
+[PowerPoint presentation](Anubis-user-scenario.pptx).
+
+The currently open calls are displayed on the home page of the Anubis
+instance.  A user looks at the call descriptions, which may include
+links and documents.  She creates an account in order to create a
+proposal in a call. A user can create at most one proposal in a call.
 
 The proposal contains a number of data fields that the admin of the
 Anubis instance has defined for the call. The user fills in the data
