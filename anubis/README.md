@@ -3,7 +3,8 @@
 ## General design features
 
 The app uses the standard Flask way of doing things, i.e. it is uses mostly
-functions. Object-oriented programming is used sparingly.
+functions. Object-oriented programming is used mainly for the document saver
+context manager (see below).
 
 Access privileges are checked either by a decorator on the function,
 or as early as possible in the execution using functions named `allow_xxx`.
@@ -43,7 +44,7 @@ The Anubis Flask app main module.
 ## user.py
 
 The user account module. A user is uniquely defined by her account identifier
-and also by her email.
+and also by her email. The most important functions are:
 
 ### URL-mapped functions
 
@@ -67,17 +68,6 @@ and also by her email.
 - `get_users`: Return the users specified by role and optionally by status.
 - `get_current_user`: Return the user for the current session from the
    encrypted session cookie.
-- `do_login`: Set the session cookie if successful login.
-- `send_password_code`: Send an email with the one-time code.
-- `am_admin`: Is the user admin? Be default checks the current user.
-- `am_staff`: Is the user staff? Be default checks the current user.
-- `allow_view`: Is the current user allowed to view the user account?
-- `allow_edit`: Is the current user allowed to edit the user account?
-- `allow_delete`: Can the given user account be deleted?
-- `allow_enable_disable`: Is the current user allowed to enable or disable
-   the given user account?
-- `allow_change_role`: Is the current user allowed to change the role
-   of the current user account?
 
 
 ## call.py
@@ -92,6 +82,8 @@ But beware: if e.g. changing a proposal field from optional to required
 may inadvertenly invalidate some proposals (but not break the system itself).
 Change an open call with care.
 
+The most important functions are:
+
 ### URL-mapped functions
 
 - `create`: Create new a call from scratch.
@@ -105,9 +97,9 @@ Change an open call with care.
 - `reviewers`: Edit the list of reviewers, which must have user accounts.
 - `review`: Display the review field definitions, and add field.
 - `review_field`: Edit or delete the review field definition.
-- `decision': Display the decision field definitions, and add field.
+- `decision`: Display the decision field definitions, and add field.
 - `decision_field`: Edit or delete the decision field definition.
-- `grant': Display the grant field definitions, and add field.
+- `grant`: Display the grant field definitions, and add field.
 - `grant_field`: Edit or delete the grant field definition.
 - `reset_counter`: Reset the proposal counter.
 - `clone`: Clone the call.
@@ -122,23 +114,6 @@ Change an open call with care.
 - `class CallSaver`: CouchDB call document saver context manager. Contains
    functions to set various fields using form input.
 - `get_call`: Return the call with the given identifier.
-- `allow_create`: Is the current user allowed to create a call?
-- `allow_view`: Is the current user allowed to view the given call?
-- `allow_edit`: Is the current user allowed to edit the given call?
-- `allow_delete`: Is the current user allowed to delete the given call?
-- `allow_proposal`: Is the current user allowed to create a proposal
-  in the given call?
-- `allow_view_details`: Is the current user allowed to view the
-  details of the call, including all proposals, reviews and grants?
-- `allow_view_reviews`: Is the current user allowed to view the reviews in
-  the given call?
-- `allow_view_decisions`: Is the current user allowed to view the decisions
-  in the given call?
-- `allow_view_grants`: Is the current user allowed to view the grants
-  in the given call?
-- `am_reviewer`: Is the current user a reviewer in the given call?
-- `am_chair`: Is the current user a review chair in the given call?
-- `am_owner`: Is the current user a reviewer in the given call?
 - `set_tmp`: Set various parameters in the call document which are used
   in other functions, but will not be stored.
 
@@ -166,6 +141,8 @@ A proposal is created from an open call. It must be created by a user account
 in the system. It may be transferred to another user. A user may have at most
 one proposal in a call.
 
+The most important functions are:
+
 ### URL-mapped functions
 
 - `display`: Display the proposal information.
@@ -184,8 +161,6 @@ one proposal in a call.
 
 - `init`: CouchDB index creation (design document) for the proposal
   document type.
-- `send_submission_email`: Send an email to the owner of the proposal
-  confirming the submission.
 - `get_document`: Return a dictionary containing the document in the given
   field in the given proposal.
 - `class ProposalSaver`: CouchDB proposal document saver context manager.
@@ -193,12 +168,7 @@ one proposal in a call.
   errors in input; if any, then the proposal cannot be submitted.
 - `get_proposal`: Return the proposal given its identifier.
 - `get_call_user_proposal`: Return the proposal owned by the user in the call.
-- `allow_view`: Is the current user allowed to view the proposal?
-- `allow_edit`: Is the current user allowed to edit the proposal?
-- `allow_delete`: Is the current user allowed to delete the proposal?
-- `allow_submit`: Is the current user allowed to submit the proposal?
-- `allow_transfer`: Is the current user allowed to transfer the
-  ownership of the proposal?
+
 
 ## proposals.py
 
