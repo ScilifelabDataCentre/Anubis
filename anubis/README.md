@@ -44,7 +44,9 @@ The Anubis Flask app main module.
 ## user.py
 
 The user account module. A user is uniquely defined by her account identifier
-and also by her email. The most important functions are:
+and also by her email.
+
+The most important functions are:
 
 ### URL-mapped functions
 
