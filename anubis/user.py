@@ -284,12 +284,9 @@ def logs(username):
         logs=utils.get_logs(user['_id']))
 
 @blueprint.route('/all')
-@utils.login_required
+@utils.admin_or_staff_required
 def all():
     "Display list of all user accounts."
-    if not (flask.g.am_admin or flask.g.am_staff):
-        return utils.error('You are not allowed to view all users.',
-                           flask.url_for('home'))
     users = get_users()
     for user in users:
         username = user['username']
@@ -299,12 +296,9 @@ def all():
     return flask.render_template('user/all.html', users=users)
 
 @blueprint.route('/pending')
-@utils.login_required
+@utils.admin_or_staff_required
 def pending():
     "Display list of all pending user accounts."
-    if not (flask.g.am_admin or flask.g.am_staff):
-        return utils.error('You are not allowed to view pending users.',
-                           flask.url_for('home'))
     users = get_users(status=constants.PENDING)
     return flask.render_template('user/pending.html', users=users)
 

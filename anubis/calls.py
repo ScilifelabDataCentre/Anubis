@@ -10,14 +10,12 @@ from anubis import utils
 blueprint = flask.Blueprint('calls', __name__)
 
 @blueprint.route('')
-@utils.login_required
+@utils.amin_or_staff_required
 def all():
     """All calls.
     Includes calls that have not been opened,
     and those with neither opens nor closes dates set.
     """
-    if not (flask.g.am_admin or flask.g.am_staff):
-        return utils.error('You are not allowed to view all calls.')
     calls = [anubis.call.set_tmp(r.doc) for r in 
              flask.g.db.view('calls', 'identifier', include_docs=True)]
     return flask.render_template('calls/all.html', calls=calls)
@@ -91,11 +89,9 @@ def get_open_calls():
     return result
 
 @blueprint.route('/grants')
-@utils.login_required
+@utils.admin_or_staff_required
 def grants():
     "All calls with grants."
-    if not (flask.g.am_admin or flask.g.am_staff):
-        return utils.error('You are not allowed to view all calls with grants.')
     calls = set([r.key for r in flask.g.db.view('grants', 'call', reduce=False)])
     calls = [anubis.call.set_tmp(anubis.call.get_call(c)) for c in calls]
     return flask.render_template(

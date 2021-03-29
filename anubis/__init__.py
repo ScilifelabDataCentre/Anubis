@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '1.2.34'
+__version__ = '1.3.0'
 
 class Constants:
     VERSION     = __version__

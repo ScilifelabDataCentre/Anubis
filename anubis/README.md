@@ -33,16 +33,16 @@ The user account module. A user is uniquely defined by her account identifier
 and also by her email.
 
 - `init`: CouchDB index creation (design document) for the user document type.
-- `register`: Account creation.
-- `login`, `logout`: Login or logout the current user.
-- `reset`: Password reset and send email with one-time code.
-- `password`: Password set using one-time code.
-- `display`: Show info page for a user account.
-- `edit`: Edit the information for a user account.
-- `logs`: Display the log records for the given user account.
-- `all`: Display list of all user accounts.
-- `pending`: Display list of all pending user accounts.
-- `enable`, `disable`: Enable or disable the given user account.
+- `register`: Account creation. URL.
+- `login`, `logout`: Login and logout the current user. URL.
+- `reset`: Password reset and send email with one-time code. URL.
+- `password`: Password set using one-time code. URL.
+- `display`: Show info page for a user account. URL.
+- `edit`: Edit the information for a user account. URL.
+- `logs`: Display the log records for the given user account. URL.
+- `all`: Display list of all user accounts. URL.
+- `pending`: Display list of all pending user accounts. URL.
+- `enable`, `disable`: Enable or disable the given user account. URL.
 - `class UserSaver`: User document saver context manager.
 - `get_user`: Return the user for the given username or email.
 - `get_users`: GEt the users specified by role and optionally by status.
