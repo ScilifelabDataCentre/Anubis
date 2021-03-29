@@ -3,7 +3,8 @@
 Proposal submission and review handling system.
 
 See [install/README.md](install/README.md) for information on how to install
-this system.
+this system. See [anubis/README.md](anubis/README.md) for an overview of
+the source code.
 
 ## A typical use case
 

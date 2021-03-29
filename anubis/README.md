@@ -11,7 +11,7 @@ or as early as possible in the execution using functions named `allow_xxx`.
 CouchDB documents are edited using a `with` context manager called `XxxSaver`.
 This takes care of saving the document and the log entry for the edit.
 
-## `\_\_init\_\_.py`
+## `__init__.py`
 
 Version number and various constants.
 
@@ -22,8 +22,8 @@ The Anubis Flask app main module.
 - Import of modules.
 - Read the configuration file and environment variables.
 - Initialize the blueprints.
-- `setup_template_context` does just that.
-- `prepare` sets up the context for each request.
+- `setup_template_context`: Does just that.
+- `prepare`: Set up the context for each request.
 - Setup of URLs; delegation to their respective blueprint.
 - `home`: Display home page.
 
@@ -34,7 +34,7 @@ and also by her email.
 
 - `init`: CouchDB index creation (design document) for the user document type.
 - `register`: Account creation.
-- `login`, `logout`
+- `login`, `logout`: Login or logout the current user.
 - `reset`: Password reset and send email with one-time code.
 - `password`: Password set using one-time code.
 - `display`: Show info page for a user account.
@@ -42,8 +42,7 @@ and also by her email.
 - `logs`: Display the log records for the given user account.
 - `all`: Display list of all user accounts.
 - `pending`: Display list of all pending user accounts.
-- `enable`: Enable the given user account.
-- `disable`: Disable the given user account.
+- `enable`, `disable`: Enable or disable the given user account.
 - `class UserSaver`: User document saver context manager.
 - `get_user`: Return the user for the given username or email.
 - `get_users`: GEt the users specified by role and optionally by status.
