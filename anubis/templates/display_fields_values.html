@@ -32,7 +32,7 @@
   <div class="card-header">
     <div class="row">
       <div class="col-md offset-md-2">
-        {{ field1['title'] }}  number {{ count }}
+        {{ field1.get('blocktitle') or field1['title'] }} number {{ count }}
       </div>
     </div>
   </div>

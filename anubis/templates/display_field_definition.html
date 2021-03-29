@@ -30,6 +30,9 @@
     {% if field.get('maxlength') %}
     Maximum {{ field['maxlength'] }} characters.
     {% endif %}
+    {% if field.get('blocktitle') is not none %}
+    Title of repeated block '{{ field['blocktitle'] }}'.
+    {% endif %}
     {% if field.get('minimum') is not none %}
     Minimum {{ field['minimum'] }}.
     {% endif %}

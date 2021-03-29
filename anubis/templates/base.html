@@ -94,6 +94,8 @@
               {% endif %} {# if g.my_calls_count #}
               {% if g.am_admin or g.am_staff %}
               <a class="dropdown-item"
+                 href="{{ url_for('calls.grants') }}">Calls with grants</a>
+              <a class="dropdown-item"
                  href="{{ url_for('calls.all') }}">All calls</a>
               {% endif %} {# if g.am_admin or g.am_staff #}
             </div>

@@ -50,8 +50,8 @@ def closed():
     return flask.render_template(
         'calls/closed.html',
         calls=calls,
+        # Functions, not values, are passed.
         am_call_owner=anubis.call.am_call_owner,
-        # Function, not value, is passed.
         allow_view_details=anubis.call.allow_view_details)
 
 @blueprint.route('/open')
@@ -89,3 +89,18 @@ def get_open_calls():
         result = limited + open_ended
         result.sort(key=lambda k: k['identifier'])
     return result
+
+@blueprint.route('/grants')
+@utils.login_required
+def grants():
+    "All calls with grants."
+    if not (flask.g.am_admin or flask.g.am_staff):
+        return utils.error('You are not allowed to view all calls with grants.')
+    calls = set([r.key for r in flask.g.db.view('grants', 'call', reduce=False)])
+    calls = [anubis.call.set_tmp(anubis.call.get_call(c)) for c in calls]
+    return flask.render_template(
+        'calls/grants.html',
+        calls=calls,
+        # Functions, not value, are passed.
+        am_call_owner=anubis.call.am_call_owner,
+        allow_view_details=anubis.call.allow_view_details)

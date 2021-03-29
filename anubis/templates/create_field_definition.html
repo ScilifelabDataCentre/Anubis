@@ -331,6 +331,22 @@
 
 	  {% elif field_type == constants.REPEAT %}
 	  <div class="form-group row">
+	    <label for="_{{ field_type }}-blocktitle" 
+                   class="col-md-2 col-form-label text-right">
+	      Title of repeated block</label>
+	    <div class="col-md">
+	      <input type="text"
+                     name="blocktitle" id="_{{ field_type }}-blocktitle"
+		     class="form-control"
+		     aria-describedby="_{{ field_type }}-blocktitleHelp">
+	      <small id="_{{ field_type }}-blocktitleHelp"
+                     class="form-text text-muted">
+		Title of the repeated block of fields.
+                If not set, the title will be used.
+	      </small>
+	    </div>
+	  </div>
+	  <div class="form-group row">
 	    <label for="_{{ field_type }}-minimum"
                    class="col-md-2 col-form-label text-right">
 	      Minimum</label>

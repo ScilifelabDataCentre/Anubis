@@ -708,6 +708,7 @@ class CallSaver(AttachmentSaver):
                 raise ValueError('Invalid maximum value;'
                                  ' must be larger than or equal to 2.')
             field['maximum'] = maximum
+            field['blocktitle'] = form.get('blocktitle')
 
         return field
 
@@ -822,6 +823,7 @@ class CallSaver(AttachmentSaver):
                 raise ValueError('Invalid maximum value;'
                                  ' must be larger than or equal to 2.')
             field['maximum'] = maximum
+            field['blocktitle'] = form.get('blocktitle')
 
     def add_proposal_field(self, form):
         "Add a field to the proposal definition."
