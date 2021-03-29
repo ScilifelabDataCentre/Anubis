@@ -609,107 +609,8 @@ class CallSaver(AttachmentSaver):
         fid = form.get('identifier')
         if not (fid and constants.ID_RX.match(fid)):
             raise ValueError('Invalid field identifier.')
-        title = form.get('title')
-        if not title:
-            title = ' '.join([w.capitalize()
-                              for w in fid.replace('_', ' ').split()])
-        required = bool(form.get('required'))
-        # A staffonly field must not be required. An incomplete grant dossier
-        # due to such a field would be incomprehensible for the user.
-        staffonly = bool(form.get('staffonly'))
-        if staffonly:
-            required = False
-        field = {'type': type,
-                 'identifier': fid,
-                 'title': title,
-                 'description': form.get('description') or None,
-                 'required': required,
-                 'staff': bool(form.get('staff')),
-                 'staffonly': staffonly,
-                 'banner': bool(form.get('banner')),
-                 'repeat': form.get('repeat') or None
-                 }
-
-        if type in (constants.LINE, constants.TEXT):
-            try:
-                maxlength = int(form.get('maxlength'))
-                if maxlength <= 0: raise ValueError
-            except (TypeError, ValueError):
-                maxlength = None
-            field['maxlength'] = maxlength
-
-        elif type == constants.SELECT:
-            field['multiple'] = bool(form.get('multiple'))
-            field['selection'] = [s.strip() for s in
-                                  form.get('selection', '').split('\n')]
-
-        elif type == constants.INTEGER:
-            try:
-                minimum = int(form.get('minimum'))
-            except (TypeError, ValueError):
-                minimum = None
-            try:
-                maximum = int(form.get('maximum'))
-            except (TypeError, ValueError):
-                maximum = None
-            if minimum is not None and maximum is not None and maximum <= minimum:
-                raise ValueError('Invalid score range.')
-            field['minimum'] = minimum
-            field['maximum'] = maximum
-
-        elif type == constants.FLOAT:
-            try:
-                minimum = float(form.get('minimum'))
-            except (TypeError, ValueError):
-                minimum = None
-            try:
-                maximum = float(form.get('maximum'))
-            except (TypeError, ValueError):
-                maximum = None
-            if minimum is not None and maximum is not None and maximum <= minimum:
-                raise ValueError('Invalid score range.')
-            field['minimum'] = minimum
-            field['maximum'] = maximum
-
-        elif type == constants.SCORE:
-            try:
-                minimum = int(form.get('minimum'))
-            except (TypeError, ValueError):
-                minimum = None
-            try:
-                maximum = int(form.get('maximum'))
-            except (TypeError, ValueError):
-                maximum = None
-            if minimum is None or maximum is None or maximum <= minimum:
-                raise ValueError('Invalid score range.')
-            field['minimum'] = minimum
-            field['maximum'] = maximum
-            field['slider'] = utils.to_bool(form.get('slider'))
-
-        elif type == constants.DOCUMENT:
-            extensions = [e.strip().lstrip('.') 
-                          for e in form.get('extensions', '').split(',')]
-            field['extensions'] = [e for e in extensions if e]
-
-        elif type == constants.REPEAT:
-            try:
-                minimum = int(form.get('minimum'))
-            except (TypeError, ValueError):
-                minimum = None
-            if minimum is not None and minimum < 0:
-                raise ValueError('Invalid minimum value;'
-                                 ' must be larger than or equal to 0.')
-            field['minimum'] = minimum
-            try:
-                maximum = int(form.get('maximum'))
-            except (TypeError, ValueError):
-                maximum = None
-            if maximum is not None and maximum < 2:
-                raise ValueError('Invalid maximum value;'
-                                 ' must be larger than or equal to 2.')
-            field['maximum'] = maximum
-            field['blocktitle'] = form.get('blocktitle')
-
+        field = {'type': type, 'identifier': fid}
+        self.edit_field_definition(field, form)
         return field
 
     def edit_field(self, fieldlist, fid, form):
@@ -730,7 +631,7 @@ class CallSaver(AttachmentSaver):
             self.edit_field_definition(field, form)
 
     def edit_field_definition(self, field, form):
-        "Edit the field definition from the form."
+        "Edit the field definition with values from the form."
         title = form.get('title')
         if not title:
             title = ' '.join([w.capitalize() 
@@ -738,13 +639,14 @@ class CallSaver(AttachmentSaver):
                               field['identifier'].replace('_', ' ').split()])
         field['title'] = title
         field['description'] = form.get('description') or None
-        field['required'] = bool(form.get('required'))
         field['staff'] = bool(form.get('staff'))
         field['staffonly'] = bool(form.get('staffonly'))
-        # A staffonly field must not be required. An incomplete grant dossier
+        # A staffonly field must not be required. An incompleteness error
         # due to such a field would be incomprehensible for the user.
         if field['staffonly']:
             field['required'] = False
+        else:
+            field['required'] = bool(form.get('required'))
         field['banner'] = bool(form.get('banner'))
         field['repeat'] = form.get('repeat') or None
 
@@ -772,6 +674,8 @@ class CallSaver(AttachmentSaver):
                 maximum = int(form.get('maximum'))
             except (TypeError, ValueError):
                 maximum = None
+            if minimum is not None and maximum is not None and maximum <= minimum:
+                raise ValueError('Invalid min/max: no value would be valid.')
             field['maximum'] = maximum
 
         elif field['type'] == constants.FLOAT:
@@ -784,6 +688,8 @@ class CallSaver(AttachmentSaver):
                 maximum = float(form.get('maximum'))
             except (TypeError, ValueError):
                 maximum = None
+            if minimum is not None and maximum is not None and maximum <= minimum:
+                raise ValueError('Invalid min/max: no value would be valid.')
             field['maximum'] = maximum
 
         elif field['type'] == constants.SCORE:
@@ -811,9 +717,9 @@ class CallSaver(AttachmentSaver):
                 minimum = int(form.get('minimum'))
             except (TypeError, ValueError):
                 minimum = None
-            if minimum is not None and minimum < 0:
-                raise ValueError('Invalid minimum value;'
-                                 ' must be larger than or equal to 0.')
+            if minimum is not None and minimum < 1:
+                raise ValueError('Invalid minimum value; if given'
+                                 ' must be larger than or equal to 1.')
             field['minimum'] = minimum
             try:
                 maximum = int(form.get('maximum'))
