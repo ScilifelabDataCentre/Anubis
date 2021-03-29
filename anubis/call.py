@@ -85,7 +85,7 @@ def display(cid):
         kwargs['call_grants_count'] = utils.get_call_grants_count(cid)
     return flask.render_template('call/display.html',
                                  call=call,
-                                 am_call_owner=am_call_owner(call),
+                                 am_owner=am_owner(call),
                                  am_reviewer=am_reviewer(call),
                                  allow_edit=allow_edit(call),
                                  allow_delete=allow_delete(call),
@@ -190,7 +190,7 @@ def document(cid, documentname):
 @blueprint.route('/<cid>/proposal', methods=['GET', 'POST'])
 @utils.login_required
 def proposal(cid):
-    "Display proposal fields for delete, and add field."
+    "Display proposal field definitions for delete, and add field."
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
@@ -211,7 +211,7 @@ def proposal(cid):
 @blueprint.route('/<cid>/proposal/<fid>', methods=['POST', 'DELETE'])
 @utils.login_required
 def proposal_field(cid, fid):
-    "Edit or delete the proposal field."
+    "Edit or delete the proposal field definition."
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
@@ -297,7 +297,7 @@ def reviewers(cid):
 @blueprint.route('/<cid>/review', methods=['GET', 'POST'])
 @utils.login_required
 def review(cid):
-    "Display review fields for delete, and add field."
+    "Display review field definitions for delete, and add field."
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
@@ -318,7 +318,7 @@ def review(cid):
 @blueprint.route('/<cid>/review/<fid>', methods=['POST', 'DELETE'])
 @utils.login_required
 def review_field(cid, fid):
-    "Edit or delete the review field."
+    "Edit or delete the review field definition."
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
@@ -344,7 +344,7 @@ def review_field(cid, fid):
 @blueprint.route('/<cid>/decision', methods=['GET', 'POST'])
 @utils.login_required
 def decision(cid):
-    "Display decision fields for delete, and add field."
+    "Display decision field definitions for delete, and add field."
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
@@ -365,7 +365,7 @@ def decision(cid):
 @blueprint.route('/<cid>/decision/<fid>', methods=['POST', 'DELETE'])
 @utils.login_required
 def decision_field(cid, fid):
-    "Edit or delete the decision field."
+    "Edit or delete the decision field definition."
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
@@ -391,7 +391,7 @@ def decision_field(cid, fid):
 @blueprint.route('/<cid>/grant', methods=['GET', 'POST'])
 @utils.login_required
 def grant(cid):
-    "Display grant fields for delete, and add field."
+    "Display grant field definitions for delete, and add field."
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
@@ -416,7 +416,7 @@ def grant(cid):
 @blueprint.route('/<cid>/grant/<fid>', methods=['POST', 'DELETE'])
 @utils.login_required
 def grant_field(cid, fid):
-    "Edit or delete the grant field."
+    "Edit or delete the grant field definition."
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
@@ -495,7 +495,7 @@ def logs(cid):
     if call is None:
         return utils.error('No such call.', flask.url_for('home'))
 
-    if not (flask.g.am_admin or am_call_owner(call)):
+    if not (flask.g.am_admin or am_owner(call)):
         return utils.error('You are not admin or owner of the call.')
 
     return flask.render_template(
@@ -532,7 +532,7 @@ def create_proposal(cid):
 
 @blueprint.route('/<cid>.zip')
 def call_zip(cid):
-    """Return a zip file containing the XLSX for all submitted proposals
+    """Download a zip file containing the XLSX for all submitted proposals
     and all documents attached to those proposals.
     """
     call = get_call(cid)
@@ -877,19 +877,19 @@ def allow_view(call):
     """
     if flask.g.am_admin: return True
     if flask.g.am_staff: return True
-    if am_call_owner(call): return True
+    if am_owner(call): return True
     if call['opens']: return True
     return False
 
 def allow_edit(call):
     "The admin and call owner may edit a call."
     if flask.g.am_admin: return True
-    if am_call_owner(call): return True
+    if am_owner(call): return True
     return False
 
 def allow_delete(call):
     "Allow the admin or call owner to delete a call if it has no proposals."
-    if not (flask.g.am_admin or am_call_owner(call)): return False
+    if not (flask.g.am_admin or am_owner(call)): return False
     if utils.get_call_proposals_count(call['identifier']) == 0: return True
     return False
 
@@ -906,7 +906,7 @@ def allow_view_details(call):
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     if flask.g.am_staff: return True
-    if am_call_owner(call): return True
+    if am_owner(call): return True
     if am_reviewer(call): return True
     return False
 
@@ -918,7 +918,7 @@ def allow_view_reviews(call):
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     if flask.g.am_staff: return True
-    if am_call_owner(call): return True
+    if am_owner(call): return True
     if am_reviewer(call):
         if am_chair(call): return True
         return bool(call['access'].get('allow_reviewer_view_all_reviews'))
@@ -932,7 +932,7 @@ def allow_view_decisions(call):
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     if flask.g.am_staff: return True
-    if am_call_owner(call): return True
+    if am_owner(call): return True
     due = call.get('reviews_due')
     if due:
         return am_reviewer(call) and utils.normalized_local_now() > due
@@ -958,7 +958,7 @@ def am_chair(call):
     if flask.g.current_user['username'] in call['chairs']: return True
     return False
 
-def am_call_owner(call):
+def am_owner(call):
     "Is the current user the owner of the call?"
     if not flask.g.current_user: return False
     if flask.g.current_user['username'] == call['owner']: return True

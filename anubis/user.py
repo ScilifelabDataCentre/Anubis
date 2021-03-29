@@ -461,7 +461,7 @@ def get_user(username=None, email=None):
         return None
 
 def get_users(role=None, status=None, safe=False):
-    "Get the users specified by role and optionally by status."
+    "Return the users specified by role and optionally by status."
     assert role is None or role in constants.USER_ROLES
     assert status is None or status in constants.USER_STATUSES
     if role is None:

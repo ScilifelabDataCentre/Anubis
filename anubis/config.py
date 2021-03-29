@@ -56,9 +56,9 @@ DEFAULT_SETTINGS = dict(
 
 def init(app, filepath=None):
     """Perform the configuration of the Flask app.
-    Set the defaults, and then read the first JSON settings file found:
-    1) the argument to this procedure.
-    2) The environment variable ANUBIS_SETTINGS.
+    Set the defaults, and then modify the values based on:
+    1) The settings file path argument to this procedure.
+    2) The settings file path environment variable ANUBIS_SETTINGS.
     3) The file 'settings.json' in this directory.
     4) The file '../site/settings.json' relative to this directory.
     Check the environment for a specific set of variables and use if defined.

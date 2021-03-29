@@ -10,7 +10,7 @@ from anubis import utils
 blueprint = flask.Blueprint('calls', __name__)
 
 @blueprint.route('')
-@utils.amin_or_staff_required
+@utils.admin_or_staff_required
 def all():
     """All calls.
     Includes calls that have not been opened,
@@ -48,8 +48,7 @@ def closed():
     return flask.render_template(
         'calls/closed.html',
         calls=calls,
-        # Functions, not values, are passed.
-        am_call_owner=anubis.call.am_call_owner,
+        # Function, not value, is passed.
         allow_view_details=anubis.call.allow_view_details)
 
 @blueprint.route('/open')
@@ -57,11 +56,11 @@ def open():
     "Open calls."
     return flask.render_template('calls/open.html',
                                  calls=get_open_calls(),
-                                 am_call_owner=anubis.call.am_call_owner,
+                                 am_owner=anubis.call.am_owner,
                                  allow_create=anubis.call.allow_create())
 
 def get_open_calls():
-    "Return list of open calls, sorted according to configuration."
+    "Return a list of open calls, sorted according to configuration."
     limited = [anubis.call.set_tmp(r.doc)
                for r in flask.g.db.view('calls', 'closes', 
                                         startkey=utils.normalized_local_now(),
@@ -97,6 +96,5 @@ def grants():
     return flask.render_template(
         'calls/grants.html',
         calls=calls,
-        # Functions, not value, are passed.
-        am_call_owner=anubis.call.am_call_owner,
+        # Function, not value, is passed.
         allow_view_details=anubis.call.allow_view_details)

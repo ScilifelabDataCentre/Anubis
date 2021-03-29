@@ -210,7 +210,7 @@ def submit(pid):
         return flask.redirect(flask.url_for('.display', pid=pid))
 
 def send_submission_email(proposal):
-    "Send an email to the user verifying the proposal submission."
+    "Send an email to the owner of the proposal confirming the submission."
     user = anubis.user.get_user(username=proposal['user'])
     if not (user and user['email']): return
     site = flask.current_app.config['SITE_NAME']
@@ -409,6 +409,16 @@ def get_proposal(pid, refresh=False):
         else:
             return None
 
+def get_call_user_proposal(cid, username):
+    "Return the proposal owned by the user in the call."
+    result = [r.doc for r in flask.g.db.view('proposals', 'call_user',
+                                             key=[cid, username],
+                                             include_docs=True)]
+    if len(result) == 1:
+        return result[0]
+    else:
+        return None
+
 def allow_view(proposal):
     """The admin, staff and call owner may view a proposal.
     The user of the proposal may view it.
@@ -418,7 +428,7 @@ def allow_view(proposal):
     if flask.g.am_admin: return True
     if flask.g.am_staff: return True
     call = anubis.call.get_call(proposal['call'])
-    if anubis.call.am_call_owner(call): return True
+    if anubis.call.am_owner(call): return True
     if anubis.call.am_reviewer(call): return bool(proposal.get('submitted'))
     if flask.g.current_user['username'] == proposal['user']: return True
     return False
@@ -430,7 +440,7 @@ def allow_edit(proposal):
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(proposal['call'])
-    if anubis.call.am_call_owner(call): return True
+    if anubis.call.am_owner(call): return True
     if proposal.get('submitted'): return False
     if flask.g.current_user['username'] == proposal['user']: return True
     return False
@@ -442,7 +452,7 @@ def allow_delete(proposal):
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(proposal['call'])
-    if anubis.call.am_call_owner(call): return True
+    if anubis.call.am_owner(call): return True
     if proposal.get('submitted'): return False
     if flask.g.current_user['username'] == proposal['user']: return True
     return False
@@ -456,7 +466,7 @@ def allow_submit(proposal):
     if proposal['errors']: return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(proposal['call'])
-    if anubis.call.am_call_owner(call): return True
+    if anubis.call.am_owner(call): return True
     if flask.g.current_user['username'] == proposal['user'] and \
        call['tmp']['is_open']: return True
     return False
@@ -468,13 +478,3 @@ def allow_transfer(proposal):
     if flask.g.am_admin: return True
     if flask.g.am_staff: return True
     return False
-
-def get_call_user_proposal(cid, username):
-    "Get the proposal created by the user in the call."
-    result = [r.doc for r in flask.g.db.view('proposals', 'call_user',
-                                             key=[cid, username],
-                                             include_docs=True)]
-    if len(result) == 1:
-        return result[0]
-    else:
-        return None

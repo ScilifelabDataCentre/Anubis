@@ -357,7 +357,7 @@ def allow_create(proposal):
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(proposal['call'])
-    if anubis.call.am_chair(call) or anubis.call.am_call_owner(call): 
+    if anubis.call.am_chair(call) or anubis.call.am_owner(call): 
         return True
     return False
 
@@ -373,7 +373,7 @@ def allow_view(review):
     if flask.g.current_user['username'] == review['reviewer']: return True
     call = anubis.call.get_call(review['call'])
     if anubis.call.am_chair(call): return True
-    if anubis.call.am_call_owner(call): return True
+    if anubis.call.am_owner(call): return True
     if anubis.call.allow_view_reviews(call) and review.get('finalized'):
         return True
     return False
@@ -386,7 +386,7 @@ def allow_edit(review):
     if flask.g.am_admin: return True
     if flask.g.current_user['username'] == review['reviewer']: return True
     call = anubis.call.get_call(review['call'])
-    if anubis.call.am_call_owner(call): return True
+    if anubis.call.am_owner(call): return True
     return False
 
 def allow_delete(review):
@@ -394,7 +394,7 @@ def allow_delete(review):
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(review['call'])
-    if anubis.call.am_call_owner(call): return True
+    if anubis.call.am_owner(call): return True
     return False
 
 def allow_finalize(review):
@@ -406,7 +406,7 @@ def allow_finalize(review):
     if flask.g.am_admin: return True
     if flask.g.current_user['username'] == review['reviewer']: return True
     call = anubis.call.get_call(review['call'])
-    if anubis.call.am_call_owner(call): return True
+    if anubis.call.am_owner(call): return True
     return False
 
 def allow_unfinalize(review):
@@ -418,7 +418,7 @@ def allow_unfinalize(review):
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(review['call'])
-    if anubis.call.am_call_owner(call): return True
+    if anubis.call.am_owner(call): return True
     if call.get('reviews_due') and utils.days_remaining(call['reviews_due'])<0:
         return False
     if flask.g.current_user['username'] == review['reviewer']: return True
