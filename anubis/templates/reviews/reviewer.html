@@ -46,7 +46,7 @@ Reviews by user {{ user['username'] }}
     {% set proposal = get_proposal(review['proposal']) %}
     <tr>
       <td>{{ review | review_link }}</td>
-      <td>{{ call.get('reviews_due') | datetimetz(due=True) }}</td>
+      <td>{{ call.get('reviews_due') | datetimetz(due=not review.get('finalized')) }}</td>
       <td>{{ proposal | proposal_link(bold=False) }}</td>
       <td>{{ get_user(proposal['user']) | user_link }}</td>
       <td>{{ call | call_link(title=False) }}</td>
