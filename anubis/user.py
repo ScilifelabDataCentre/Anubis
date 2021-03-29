@@ -271,7 +271,7 @@ def edit(username):
 @blueprint.route('/logs/<username>')
 @utils.login_required
 def logs(username):
-    "Display the log records of the given user."
+    "Display the log records for the given user account."
     user = get_user(username=username)
     if user is None:
         return utils.error('No such user.', flask.url_for('home'))
@@ -286,7 +286,7 @@ def logs(username):
 @blueprint.route('/all')
 @utils.login_required
 def all():
-    "Display list of all users."
+    "Display list of all user accounts."
     if not (flask.g.am_admin or flask.g.am_staff):
         return utils.error('You are not allowed to view all users.',
                            flask.url_for('home'))
@@ -301,7 +301,7 @@ def all():
 @blueprint.route('/pending')
 @utils.login_required
 def pending():
-    "Display list of all users."
+    "Display list of all pending user accounts."
     if not (flask.g.am_admin or flask.g.am_staff):
         return utils.error('You are not allowed to view pending users.',
                            flask.url_for('home'))
@@ -335,7 +335,7 @@ def disable(username):
 
 
 class UserSaver(BaseSaver):
-    "User document saver context."
+    "User document saver context manager."
 
     DOCTYPE = constants.USER
     HIDDEN_FIELDS = ['password']

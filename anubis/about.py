@@ -1,4 +1,4 @@
-"About info HTMl endpoints."
+"Information page endpoints."
 
 import os.path
 import sys
