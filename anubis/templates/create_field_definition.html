@@ -331,6 +331,21 @@
 
 	  {% elif field_type == constants.REPEAT %}
 	  <div class="form-group row">
+	    <label for="_{{ field_type }}-minimum"
+                   class="col-md-2 col-form-label text-right">
+	      Minimum</label>
+	    <div class="col-md">
+	      <input type="number" step="1"
+                     name="minimum" id="_{{ field_type }}-minimum"
+		     class="form-control"
+		     aria-describedby="_{{ field_type }}-minimumHelp">
+	      <small id="_{{ field_type }}-minimumHelp"
+                     class="form-text text-muted">
+                Minimum number of repeats. If given, must be larger than or equal to 0.
+	      </small>
+	    </div>
+	  </div>	
+	  <div class="form-group row">
 	    <label for="_{{ field_type }}-maximum"
                    class="col-md-2 col-form-label text-right">
 	      Maximum</label>
@@ -341,7 +356,7 @@
 		     aria-describedby="_{{ field_type }}-maximumHelp">
 	      <small id="_{{ field_type }}-maximumHelp"
                      class="form-text text-muted">
-                Maximum number of repeats. Must be larger than or equal to 2.
+                Maximum number of repeats. If given, must be larger than or equal to 2.
 	      </small>
 	    </div>
 	  </div>	

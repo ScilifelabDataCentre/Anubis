@@ -319,7 +319,10 @@ def field_value(field, entity, fid=None, truncate_documentname=None):
     elif field['type'] == constants.TEXT:
         return markdown(value)
     elif field['type'] == constants.REPEAT:
-        return value or '-'
+        if value is None:
+            return '-'
+        else:
+            return value
     elif field['type'] == constants.DOCUMENT:
         if value:
             if entity['doctype'] == constants.PROPOSAL:

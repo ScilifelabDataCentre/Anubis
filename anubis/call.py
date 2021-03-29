@@ -693,6 +693,14 @@ class CallSaver(AttachmentSaver):
 
         elif type == constants.REPEAT:
             try:
+                minimum = int(form.get('minimum'))
+            except (TypeError, ValueError):
+                minimum = None
+            if minimum is not None and minimum < 0:
+                raise ValueError('Invalid minimum value;'
+                                 ' must be larger than or equal to 0.')
+            field['minimum'] = minimum
+            try:
                 maximum = int(form.get('maximum'))
             except (TypeError, ValueError):
                 maximum = None
@@ -798,6 +806,14 @@ class CallSaver(AttachmentSaver):
             field['extensions'] = [e for e in extensions if e]
 
         elif field['type'] == constants.REPEAT:
+            try:
+                minimum = int(form.get('minimum'))
+            except (TypeError, ValueError):
+                minimum = None
+            if minimum is not None and minimum < 0:
+                raise ValueError('Invalid minimum value;'
+                                 ' must be larger than or equal to 0.')
+            field['minimum'] = minimum
             try:
                 maximum = int(form.get('maximum'))
             except (TypeError, ValueError):

@@ -285,6 +285,10 @@ class FieldMixin:
                field.get('maximum') is not None and \
                value > field['maximum']:
                 self.doc['errors'][fid] = 'Value is too high.'
+            if value is not None and \
+               field.get('minimum') is not None and \
+               value < field['minimum']:
+                self.doc['errors'][fid] = 'Value is too low.'
             self.repeat_changed = self.repeat_changed or \
                                   self.doc['values'].get(fid) != value
             self.doc['values'][fid] = value
