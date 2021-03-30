@@ -891,11 +891,6 @@ def allow_delete(call):
     if utils.get_call_proposals_count(call['identifier']) == 0: return True
     return False
 
-def allow_proposal(call):
-    "Any logged-in user may create a proposal in a call."
-    if not flask.g.current_user: return False
-    return False
-
 def allow_view_details(call):
     """The admin, staff, call owner and reviewers may view the details
     of the call, including all proposals, reviews and grants.
