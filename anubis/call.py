@@ -89,7 +89,7 @@ def display(cid):
                                  am_reviewer=am_reviewer(call),
                                  allow_edit=allow_edit(call),
                                  allow_delete=allow_delete(call),
-                                 allow_proposal=allow_proposal(call),
+                                 allow_create_proposal=anubis.proposal.allow_create(call),
                                  allow_view_details=allow_view_details(call),
                                  allow_view_reviews=allow_view_reviews(call),
                                  allow_view_grants=allow_view_grants(call),
@@ -511,10 +511,8 @@ def create_proposal(cid):
     call = get_call(cid)
     if call is None:
         return utils.error('No such call.', flask.url_for('home'))
-    if not call['tmp']['is_open']:
-        return utils.error("The call is not open.")
-    if not allow_proposal(call):
-        return utils.error('You may not create a proposal in this call.')
+    if not anubis.proposal.allow_create(call):
+        return utils.error("You may not create a proposal.")
 
     if utils.http_POST():
         proposal = anubis.proposal.get_call_user_proposal(
@@ -524,8 +522,8 @@ def create_proposal(cid):
                                  flask.url_for('proposal.display',
                                                pid=proposal['identifier']))
         else:
-            with anubis.proposal.ProposalSaver(call=call,
-                                               user=flask.g.current_user) as saver:
+            with anubis.proposal.ProposalSaver(
+                    call=call, user=flask.g.current_user) as saver:
                 pass
             return flask.redirect(
                 flask.url_for('proposal.edit', pid=saver.doc['identifier']))
@@ -894,9 +892,8 @@ def allow_delete(call):
     return False
 
 def allow_proposal(call):
-    "Any logged-in user, except reviewer, may create a proposal."
+    "Any logged-in user may create a proposal in a call."
     if not flask.g.current_user: return False
-    if not am_reviewer(call): return True
     return False
 
 def allow_view_details(call):
