@@ -2,15 +2,17 @@
 
 ## General design features
 
-The app uses the standard Flask way of doing things, i.e. it is uses mostly
-functions. Object-oriented programming is used mainly for the document saver
-context manager (see below).
+The app uses the standard Flask way of doing things, i.e. it is uses
+mostly functions. Object-oriented programming is used mainly for the
+document saver context manager (see below).
 
 Access privileges are checked either by a decorator on the function,
-or as early as possible in the execution using functions named `allow_xxx`.
+or as early as possible in the execution using functions named
+`allow_xxx`.
 
-CouchDB documents are edited using a `with` context manager called `XxxSaver`.
-This takes care of saving the document and the log entry for the edit.
+CouchDB documents are edited using a `with` context manager called
+`XxxSaver`.  This takes care of saving the document and the log entry
+for the edit.
 
 
 ## `__init__.py`
@@ -18,7 +20,7 @@ This takes care of saving the document and the log entry for the edit.
 Version number and various constants.
 
 
-## app.py
+## `app.py`
 
 The Anubis Flask app main module.
 
@@ -31,7 +33,7 @@ The Anubis Flask app main module.
 - `home`: Display home page.
 
 
-## config.py
+## `config.py`
 
 - `DEFAULT_SETTINGS`: Dictionary containing all configuration
   variables and their default values.
@@ -41,7 +43,7 @@ The Anubis Flask app main module.
   also check a few hard-wired environment labels.
 
 
-## user.py
+## `user.py`
 
 The user account module. A user is uniquely defined by her account identifier
 and also by her email.
@@ -70,9 +72,10 @@ The most important functions are:
 - `get_users`: Return the users specified by role and optionally by status.
 - `get_current_user`: Return the user for the current session from the
    encrypted session cookie.
+- `allow_XXX`: Access privilege checking functions.
 
 
-## call.py
+## `call.py`
 
 Module for call pages. A call is a container of proposals. It is the
 fundamental entity which all other entities (except user account) must
@@ -118,8 +121,9 @@ The most important functions are:
 - `get_call`: Return the call with the given identifier.
 - `set_tmp`: Set various parameters in the call document which are used
   in other functions, but will not be stored.
+- `allow_XXX`: Access privilege checking functions.
 
-## calls.py
+## `calls.py`
 
 Module for calls lists pages.
 
@@ -137,7 +141,7 @@ Module for calls lists pages.
 - `get_open_calls`: Return a list of all open calls.
 
 
-## proposal.py
+## `proposal.py`
 
 A proposal is created from an open call. It must be created by a user account
 in the system. It may be transferred to another user. A user may have at most
@@ -170,51 +174,52 @@ The most important functions are:
   errors in input; if any, then the proposal cannot be submitted.
 - `get_proposal`: Return the proposal given its identifier.
 - `get_call_user_proposal`: Return the proposal owned by the user in the call.
+- `allow_XXX`: Access privilege checking functions.
 
 
-## proposals.py
-
-### URL-mapped functions
-
-### Other functions
-
-
-## review.py
+## `proposals.py`
 
 ### URL-mapped functions
 
 ### Other functions
 
 
-## reviews.py
+## `review.py`
 
 ### URL-mapped functions
 
 ### Other functions
 
 
-## decision.py
+## `reviews.py`
 
 ### URL-mapped functions
 
 ### Other functions
 
 
-## grant.py
+## `decision.py`
 
 ### URL-mapped functions
 
 ### Other functions
 
 
-## grants.py
+## `grant.py`
 
 ### URL-mapped functions
 
 ### Other functions
 
 
-## about.py
+## `grants.py`
+
+### URL-mapped functions
+
+### Other functions
+
+
+## `about.py`
 
 Information pages endpoints; documentation, contact, gdpr, software info.
 
@@ -223,22 +228,22 @@ Information pages endpoints; documentation, contact, gdpr, software info.
 ### Other functions
 
 
-## site.py
+## `site.py`
 
 
-## saver.py
+## `utils.py`
 
 
-## dump.py
+## `saver.py`
 
 
-## undump.py
+## `dump.py`
 
 
-## utils.py
+## `undump.py`
 
 
-## command_line_tool.py
+## `command_line_tool.py`
 
 
 ## documentation
