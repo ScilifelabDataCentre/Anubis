@@ -17,7 +17,7 @@ blueprint = flask.Blueprint('about', __name__)
 
 @blueprint.route('/documentation/<page>')
 def documentation(page):
-    "Documentation page."
+    "Display the given documentation page."
     try:
         with open(os.path.join(flask.current_app.config['DOC_DIRPATH'],
                                f"{page}.md")) as infile:
@@ -30,19 +30,19 @@ def documentation(page):
 
 @blueprint.route('/contact')
 def contact():
-    "Contact information page."
+    "Display the contact information page."
     return flask.render_template('about/contact.html',
                                  text=utils.get_site_text("contact.md"))
 
 @blueprint.route('/gdpr')
 def gdpr():
-    "Personal data policy page."
+    "Display the personal data policy page."
     return flask.render_template('about/gdpr.html',
                                  text=utils.get_site_text("gdpr.md"))
 
 @blueprint.route('/software')
 def software():
-    "Show software versions."
+    "Show the current software versions."
     return flask.render_template('about/software.html',
                                  software=get_software())
 

@@ -181,42 +181,145 @@ The most important functions are:
 
 ### URL-mapped functions
 
+- `call`: List all proposals in a call. Optionally by category.
+- `call_xlsx`: Produce an XLSX file of all proposals in a call.
+- `user`: List all proposals for a user.
+
 ### Other functions
 
+- `get_call_xlsx`: Return the content of an XLSX file for all
+  proposals in a call.
+- `get_call_proposals`: Get the proposals in the call.
+- `get_user_proposals`: Get all proposals created by the user.
+- `compute_mean_fields`: Compute the mean and stdev of numerical
+    banner fields for each proposal. Store values in the proposal
+    document.
 
 ## `review.py`
 
+There is at most one review per reviewer and proposal. It is possible
+to archive reviews if a review process is to be repeated for the
+proposals in a call.
+
 ### URL-mapped functions
 
+- `create`: Create a new review for the proposal for the given reviewer.
+- `display`: Display the review for the proposal.
+- `edit`: Edit the review for the proposal.
+- `finalize`, `unfinalize`: (Un)finalize the review for the proposal.
+- `archive`, `unarchive`: (Un)archive the review for the proposal. An
+  archived review is not shown in most views, but is reachabel.
+- `logs`: Display the log records for the given review.
+- `document`: Download the review document (attachment file) for the
+  given field id.
+
 ### Other functions
+
+- `init`: CouchDB index creation (design document) for the review
+  document type.
+- `get_review`: Get the review by its iuid.
+- `get_reviewer_review`: Get the review of the proposal by the reviewer.
+- `allow_XXX`: Access privilege checking functions.
 
 
 ## `reviews.py`
 
 ### URL-mapped functions
 
+- `call`: List all reviews for a call.
+- `call_xlsx`: Produce an XLSX file of all reviews for a call.
+- `call_reviewer`: List all reviews in the call by the reviewer (user).
+- `call_reviewer_xlsx`: Produce an XLSX file of all reviews in the
+  call by the reviewer (user).
+- `call_reviewer_zip`: Return a zip file containing the XLSX file of
+  all reviews in the call by the reviewer (user), and all documents
+  for the proposals to be reviewed.
+- `proposal`: List all reviewers and reviews for a proposal.
+- `proposal_archived`: List all archived reviews for a proposal.
+- `call_archived`: List all archived reviews in the call.
+- `call_reviewer_archived`: List all archived reviews in the call by
+  the reviewer (user).
+- `proposal_xlsx`: Produce an XLSX file of all reviewers and reviews
+  for a proposal.
+- `reviewer`: List all reviews by the given reviewer (user).
+
 ### Other functions
+
+- `get_review_xlsx`: Return the content for the XLSX file for the list
+  of reviews.
 
 
 ## `decision.py`
 
+A decision represents the result of the review and decision
+process. It is intended to be shown to the proposer, but this is not
+done until the switch for this is set for the call.
+
+There are no decision lists; the decisions are shown in the proposals lists.
+
 ### URL-mapped functions
 
+- `create`: Create a decision for the proposal.
+- `display`: Display the decision.
+- `edit`: Edit the decision.
+- `finalize`, `unfinalize`: (Un)finalize the decision for the proposal.
+- `logs`: Display the log records for the given decision.
+- `document`: Download the decision document (attachment file) for the
+  given field id.
+
 ### Other functions
+
+- `init`: CouchDB index creation (design document) for the decision
+  document type.
+- `get_decision`: Get the decision by its iuid.
+- `allow_XXX`: Access privilege checking functions.
 
 
 ## `grant.py`
 
+Grants, or grant dossiers, are containers for information and documents
+relating to payment and tracking of grants relating to accepted proposals.
+
 ### URL-mapped functions
 
+- `create`: Create a grant dossier for the proposal.
+- `display`: Display the grant dossier.
+- `edit`: Edit the grant dossier.
+- `access`: Edit the access privileges for the grant record.
+- `lock`, `unlock`: (Un)lock the grant dossier for edits by the user.
+- `document`: Download the grant document (attachment file) for the
+  given field id.
+- `grant_zip`: Return a zip file containing all documents in the grant
+  dossier.
+- `logs`: Display the log records for the given grant.
+
 ### Other functions
+
+- `init`: CouchDB index creation (design document) for the grant
+  document type.
+- `get_grant_documents`: Get all documents in a grant as a list of
+  dict(filename, content).
+- `get_grant`: Return the grant dossier with the given identifier.
+- `get_grant_proposal`: Return the grant dossier for the proposal with
+  the given identifier.
+- `allow_XXX`: Access privilege checking functions.
 
 
 ## `grants.py`
 
 ### URL-mapped functions
 
+- `call`: List all grants for a call.
+- `call_xlsx`: Produce an XLSX file of all grants for a call.
+- `call_zip`: Return a zip file containing the XLSX file of all grants
+  for a call and all documents in all grant dossiers.
+- `user`: List all grants for a user, including the grants the user
+  has access to.
+
 ### Other functions
+
+- `get_call_grants_xlsx`: Return the content for the XLSX file for the
+  list of grants.
 
 
 ## `about.py`
@@ -225,26 +328,53 @@ Information pages endpoints; documentation, contact, gdpr, software info.
 
 ### URL-mapped functions
 
-### Other functions
+- `documentation`: Display the given documentation page.
+- `contact`: Display the contact information page.
+- `gdpr`: Display the personal data policy page.
+- `software`: Show the current software versions.
+- `settings`: Display all configuration settings.
 
 
 ## `site.py`
 
+- `static`: Return the given site-specific static file.
+
 
 ## `utils.py`
 
+Various utility functions used in other modules.
+- Fetching data and counts from the database.
+- Access decorators.
+- Value converters.
+- Date and time functions.
+- Request HTTP method determination.
+- Error messages.
+- HTML template filters.
+- Markdown handling.
+- Email send utilities.
 
 ## `saver.py`
 
+Base classes and mixins for the saver context classes specific to each
+document type.
 
 ## `dump.py`
 
+Script to dump the entire Anubis database into a `tar.gz` file.
 
 ## `undump.py`
 
+Script to retrieve an entire Anubis database from a `tar.gz` file into
+CouchDB. The database itself must have been created in CouchDB. The
+items from the file are added to the database. This means that if
+there are any preexisting contents in the database, it is possible
+that some of it may be overwritten.
 
 ## `command_line_tool.py`
 
+A simple command-line script that allows updating the design documents
+in the CouchDB database, create an admin user, or create an ordinary
+user.
 
 ## documentation
 
