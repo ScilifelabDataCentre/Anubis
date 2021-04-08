@@ -288,11 +288,23 @@ def logs(username):
 def all():
     "Display list of all user accounts."
     users = get_users()
+    result = flask.g.db.view('proposals', 'user', group_level=1, reduce=True)
+    proposals_counts = dict([(r.key, r.value) for r in result])
+    result = flask.g.db.view('reviews', 'reviewer', group_level=1, reduce=True)
+    reviews_counts = dict([(r.key, r.value) for r in result])
+    result = flask.g.db.view('grants', 'user', group_level=1, reduce=True)
+    grants_counts = dict([(r.key, r.value) for r in result])
+    result = flask.g.db.view('grants', 'access', group_level=1, reduce=True)
+    for row in result:
+        try:
+            grants_counts[row.key] += row.value
+        except KeyError:
+            grants_counts[row.key] = row.value
     for user in users:
         username = user['username']
-        user['all_proposals_count'] = utils.get_user_proposals_count(username)
-        user['all_reviews_count'] = utils.get_user_reviews_count(username)
-        user['all_grants_count'] = utils.get_user_grants_count(username)
+        user['all_proposals_count'] = proposals_counts.get(username)
+        user['all_reviews_count'] = reviews_counts.get(username)
+        user['all_grants_count'] = grants_counts.get(username)
     return flask.render_template('user/all.html', users=users)
 
 @blueprint.route('/pending')
