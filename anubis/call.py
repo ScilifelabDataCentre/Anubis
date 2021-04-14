@@ -11,7 +11,7 @@ import anubis.proposals
 import anubis.user
 from anubis import constants
 from anubis import utils
-from anubis.saver import AttachmentSaver
+from anubis.saver import AttachmentSaver, AccessMixin
 
 
 def init(app):
@@ -29,6 +29,8 @@ DESIGN_DOC = {
                   'map': "function (doc) {if (doc.doctype !== 'call') return; emit(doc.owner, doc.identifier);}"},
         'reviewer': {'reduce': '_count',
                      'map': "function (doc) {if (doc.doctype !== 'call') return; for (var i=0; i < doc.reviewers.length; i++) {emit(doc.reviewers[i], doc.identifier); }}"},
+        'access': {'reduce': '_count',
+                   'map': "function (doc) {if (doc.doctype !== 'call') return; for (var i=0; i < doc.access_view.length; i++) {emit(doc.access_view[i], doc.identifier); }}"},
     }
 }
 
@@ -68,9 +70,21 @@ def display(cid):
             reviewers = [anubis.user.get_user(r) for r in call['reviewers']]
             reviewers.sort(key=lambda r: (r['familyname'], r['givenname']))
             kwargs['reviewers'] = reviewers
-            emails = [r['email'] for r in reviewers]
-            emails = [e for e in emails if e]
-            kwargs['email_lists'] = {'Emails for reviewers': ', '.join(emails)}
+            reviewer_emails = [r['email'] for r in reviewers]
+            reviewer_emails = [e for e in reviewer_emails if e]
+            access_emails = []
+            for username in [call['owner']] + call.get('access_view', []):
+                user = anubis.user.get_user(username=username)
+                if user:
+                    access_emails.append(user['email'])
+            # There may be accounts that have no email!
+            access_emails = [e for e in access_emails if e]
+            all_emails = reviewer_emails + access_emails
+            email_lists = {'Emails for reviewers': ', '.join(reviewer_emails),
+                           'Persons with access to this call':
+                           ', '.join(access_emails),
+                           'All involved persons': ', '.join(all_emails)}
+            kwargs['email_lists'] = email_lists
         kwargs['my_proposal'] = anubis.proposal.get_call_user_proposal(
             cid, flask.g.current_user['username'])
         kwargs['my_reviews_count'] = utils.get_call_reviewer_reviews_count(
@@ -89,6 +103,7 @@ def display(cid):
                                  am_reviewer=am_reviewer(call),
                                  allow_edit=allow_edit(call),
                                  allow_delete=allow_delete(call),
+                                 allow_change_access=allow_change_access(call),
                                  allow_create_proposal=anubis.proposal.allow_create(call),
                                  allow_view_details=allow_view_details(call),
                                  allow_view_reviews=allow_view_reviews(call),
@@ -133,6 +148,44 @@ def edit(cid):
         return flask.redirect(
             flask.url_for('calls.owner',
                           username=flask.g.current_user['username']))
+
+@blueprint.route('/<cid>/access', methods=["GET", "POST", "DELETE"])
+@utils.login_required
+def access(cid):
+    "Edit the access privileges for the call record."
+    call = get_call(cid)
+    if call is None:
+        return utils.error('No such call.')
+    if not allow_change_access(call):
+        return utils.error('You are not allowed to change access for this call.')
+    if utils.http_GET():
+        users = {}
+        for user in call.get('access_view', []):
+            users[user] = False
+        for user in call.get('access_edit', []):
+            users[user] = True
+        return flask.render_template(
+            'access.html',
+            title=f"Call {call['identifier']}",
+            url=flask.url_for('.access', cid=call['identifier']),
+            users=users,
+            back=flask.url_for('.display', cid=call['identifier']))
+
+    elif utils.http_POST():
+        try:
+            with CallSaver(doc=call) as saver:
+                saver.set_access(form=flask.request.form)
+        except ValueError as error:
+            utils.flash_error(error)
+        return flask.redirect(flask.url_for('.access', cid=call['identifier']))
+
+    elif utils.http_DELETE():
+        try:
+            with CallSaver(doc=call) as saver:
+                saver.remove_access(form=flask.request.form)
+        except ValueError as error:
+            utils.flash_error(error)
+        return flask.redirect(flask.url_for('.access', cid=call['identifier']))
 
 @blueprint.route('/<cid>/documents', methods=['GET', 'POST'])
 @utils.login_required
@@ -536,8 +589,8 @@ def call_zip(cid):
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
-    if not allow_view_details(call):
-        return utils.error('You are not allowed to view the call details.')
+    if not (allow_view_details(call) or allow_view_grants(call)):
+        return utils.error('You are not allowed to view the call proposals.')
     proposals = anubis.proposals.get_call_proposals(call, submitted=True)
     output = io.BytesIO()
     with zipfile.ZipFile(output, "w") as zip:
@@ -560,7 +613,7 @@ def call_zip(cid):
     return response
 
 
-class CallSaver(AttachmentSaver):
+class CallSaver(AccessMixin, AttachmentSaver):
     "Call document saver context."
 
     DOCTYPE = constants.CALL
@@ -876,13 +929,17 @@ def allow_view(call):
     if flask.g.am_admin: return True
     if flask.g.am_staff: return True
     if am_owner(call): return True
+    if flask.g.current_user['username'] in call.get('access_view', []):
+        return True
     if call['opens']: return True
     return False
 
 def allow_edit(call):
-    "The admin and call owner may edit a call."
+    "The admin and call owner may edit a call, and accounts with edit access."
     if flask.g.am_admin: return True
     if am_owner(call): return True
+    if flask.g.current_user['username'] in call.get('access_edit', []):
+        return True
     return False
 
 def allow_delete(call):
@@ -891,8 +948,20 @@ def allow_delete(call):
     if utils.get_call_proposals_count(call['identifier']) == 0: return True
     return False
 
+def allow_change_access(call):
+    """The admin, staff, call owner and accounts with edit access
+    may change access for the call.
+    """
+    if not flask.g.current_user: return False
+    if flask.g.am_admin: return True
+    if flask.g.am_staff: return True
+    if am_owner(call): return True
+    if flask.g.current_user['username'] in call.get('access_edit', []):
+        return True
+    return False
+
 def allow_view_details(call):
-    """The admin, staff, call owner and reviewers may view the details
+    """The admin, staff, call owner and reviewers may view the details 
     of the call, including all proposals, reviews and grants.
     """
     if not flask.g.current_user: return False
@@ -931,11 +1000,14 @@ def allow_view_decisions(call):
     return False
 
 def allow_view_grants(call):
-    """The admin and staff may view all grants in the call.
+    """The admin, staff and accounts with view access may view 
+    all grants in the call.
     """
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     if flask.g.am_staff: return True
+    if flask.g.current_user['username'] in call.get('access_view', []):
+        return True
     return False
 
 def am_reviewer(call):

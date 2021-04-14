@@ -8,10 +8,12 @@
 {% endblock %}
 
 {% block meta %}
-{% if allow_view_details %}
+{% if allow_view_details or allow_view_grants %}
 <a href="{{ url_for('proposals.call_xlsx', cid=call['identifier']) }}"
    class="badge badge-pill badge-dark" role="button"
    title="All proposals in the call.">Proposals Excel file</a>
+{% endif %} {# if allow_view_details or allow_view_grants #}
+{% if allow_view_details %}
 <a href="{{ url_for('.call_zip', cid=call['identifier']) }}"
    title="Excel file and documents for submitted proposals."
    class="badge badge-pill badge-dark">Submitted proposals zip file</a>
@@ -51,15 +53,54 @@
   <div class="col-md">{{ get_user(call['owner']) | user_link }}</div>
 </div>
 
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">Access</div>
+  <div class="col-md">
+    <table>
+      <tr>
+        <td class="text-right pr-2">View:</td>
+        <td>
+          {% if call.get('access_view') %}
+          {% for username in call['access_view'] %}
+          {{ get_user(username) | user_link }}
+          <span class="px-2"></span>
+          {% endfor %}
+          {% else %}
+          -
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td class="text-right pr-2">Edit:</td>
+        <td>
+          {% if call.get('access_edit') %}
+          {% for username in call['access_edit'] %}
+          {{ get_user(username) | user_link }}
+          <span class="px-2"></span>
+          {% endfor %}
+          {% else %}
+          -
+          {% endif %}
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+{% endif %} {# if allow_view_details #}
+
+{% if allow_view_details or allow_view_grants %}
 <div class="row my-1">
   <div class="col-md-2 font-weight-bold text-right">All proposals</div>
   <div class="col-md">
     <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
        role="button" class="btn btn-sm btn-primary">
       {{ call_proposals_count }} proposals</a>
+    {% if not allow_view_details %}
+    (You are only allowed to view accepted proposals.)
+    {% endif %} {# if not allow_view_details #}
   </div>
 </div>
-{% endif %} {# if allow_view_details #}
+{% endif %} {# if allow_view_details or allow_view_grants #}
 
 {% if am_reviewer %}
 <div class="row my-1">
@@ -334,6 +375,13 @@
 
 <div class="mt-4">
 </div>
+
+{% if allow_change_access %}
+<div class="mt-2">
+  <a href="{{ url_for('.access', cid=call['identifier']) }}"
+     role="button" class="btn btn-block btn-sm btn-warning">Change access</a>
+</div>
+{% endif %} {# if allow_change_access #}
 
 <div class="mt-2">
   <a href="{{ url_for('.reviewers', cid=call['identifier']) }}"

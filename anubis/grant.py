@@ -412,6 +412,7 @@ def allow_create(proposal):
 def allow_view(grant):
     """The admin, staff and proposal user (= grant receiver) may 
     view the grant dossier.
+    An account with view access to the call may also view the grant.
     """
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
@@ -419,6 +420,8 @@ def allow_view(grant):
     if flask.g.current_user['username'] == grant['user']: return True
     if flask.g.current_user['username'] in grant.get('access_view', []):
         return True
+    call = anubis.call.get_call(grant['call'])
+    if anubis.call.allow_view(call): return True
     return False
 
 def allow_edit(grant):

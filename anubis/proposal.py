@@ -432,6 +432,8 @@ def allow_view(proposal):
     """The admin, staff and call owner may view a proposal.
     The user of the proposal may view it.
     The reviewers may view it.
+    An account with view access to the call may also view the proposal,
+    if it has a positive decision.
     """
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
@@ -440,6 +442,9 @@ def allow_view(proposal):
     if anubis.call.am_owner(call): return True
     if anubis.call.am_reviewer(call): return bool(proposal.get('submitted'))
     if flask.g.current_user['username'] == proposal['user']: return True
+    if anubis.call.allow_view(call):
+        decision = anubis.decision.get_decision(proposal.get('decision'))
+        if decision and decision.get('verdict'): return True
     return False
 
 def allow_edit(proposal):
