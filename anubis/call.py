@@ -929,13 +929,14 @@ def allow_view(call):
     if flask.g.am_admin: return True
     if flask.g.am_staff: return True
     if am_owner(call): return True
-    if flask.g.current_user['username'] in call.get('access_view', []):
+    if flask.g.current_user and flask.g.current_user['username'] in call.get('access_view', []):
         return True
     if call['opens']: return True
     return False
 
 def allow_edit(call):
     "The admin and call owner may edit a call, and accounts with edit access."
+    if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     if am_owner(call): return True
     if flask.g.current_user['username'] in call.get('access_edit', []):
