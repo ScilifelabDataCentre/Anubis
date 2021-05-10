@@ -83,6 +83,68 @@ def home():
     return flask.render_template('home.html', 
                                  calls=anubis.calls.get_open_calls(),
                                  allow_create_call=anubis.call.allow_create())
+@app.route("/status")
+def status():
+    "Return JSON for the current status and some counts for the database."
+    result = flask.g.db.view("calls", "owner", reduce=True)
+    if result:
+        n_calls = result[0].value
+    else:
+        n_calls = 0
+    result = flask.g.db.view("users", "username", reduce=True)
+    if result:
+        n_users = result[0].value
+    else:
+        n_users = 0
+    result = flask.g.db.view("proposals", "call", reduce=True)
+    if result:
+        n_proposals = result[0].value
+    else:
+        n_proposals = 0
+    result = flask.g.db.view("reviews", "call", reduce=True)
+    if result:
+        n_reviews = result[0].value
+    else:
+        n_reviews = 0
+    result = flask.g.db.view("grants", "call", reduce=True)
+    if result:
+        n_grants = result[0].value
+    else:
+        n_grants = 0
+    return dict(status="ok",
+                n_calls=n_calls,
+                n_users=n_users,
+                n_proposals=n_proposals,
+                n_reviews=n_reviews,
+                n_grants=n_grants)
+
+@app.route("/sitemap")
+def sitemap():
+    "Return an XML sitemap."
+    pages = [dict(url=flask.url_for("home", _external=True),
+                  changefreq="daily",
+                  priority=1.0),
+             dict(url=flask.url_for("about.contact", _external=True),
+                  changefreq="yearly"),
+             dict(url=flask.url_for("about.software", _external=True),
+                  changefreq="yearly"),
+             dict(url=flask.url_for("calls.open", _external=True),
+                  changefreq="daily",
+                  priority=1.0),
+             dict(url=flask.url_for("calls.closed", _external=True),
+                  changefreq="daily",
+                  priority=0.1)]
+    for call in anubis.calls.get_open_calls():
+        pages.append(dict(url=flask.url_for("call.display",
+                                            cid=call['identifier'],
+                                            _external=True),
+                          changefreq="daily",
+                          priority=0.8))
+    xml = flask.render_template("sitemap.xml", pages=pages)
+    response = flask.current_app.make_response(xml)
+    response.mimetype = constants.XML_MIMETYPE
+    return response
+
 
 # Set up the URL map.
 app.register_blueprint(anubis.user.blueprint, url_prefix='/user')

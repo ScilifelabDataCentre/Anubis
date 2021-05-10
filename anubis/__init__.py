@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '1.3.4'
+__version__ = '1.3.5'
 
 class Constants:
     VERSION     = __version__
@@ -60,6 +60,7 @@ class Constants:
     # MIME types
     XLSX_MIMETYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     ZIP_MIMETYPE = 'application/zip'
+    XML_MIMETYPE = 'text/xml'
 
     def __setattr__(self, key, value):
         raise ValueError('cannot set constant')

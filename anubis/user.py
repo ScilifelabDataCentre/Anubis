@@ -23,7 +23,8 @@ def init(app):
 
 DESIGN_DOC = {
     'views': {
-        'username': {'map': "function(doc) {if (doc.doctype !== 'user') return; emit(doc.username, null);}"},
+        'username': {'reduce': '_count',
+                     'map': "function(doc) {if (doc.doctype !== 'user') return; emit(doc.username, null);}"},
         'email': {'map': "function(doc) {if (doc.doctype !== 'user' || !doc.email) return; emit(doc.email, null);}"},
         'role': {'map': "function(doc) {if (doc.doctype !== 'user') return; emit(doc.role, doc.username);}"},
         'status': {'map': "function(doc) {if (doc.doctype !== 'user') return; emit(doc.status, doc.username);}"},
@@ -113,7 +114,7 @@ def register():
             recipients = [u['email'] for u in admins if u['email']]
             site = flask.current_app.config['SITE_NAME']
             title = f"{site} user account pending"
-            url = utils.url_for('.display', username=user['username'])
+            url = flask.url_for('.display', username=user['username'], _external=True)
             text = f"To enable the user account, go to {url}\n\n" \
                    "/The Anubis system"
             utils.send_email(recipients, title, text)
@@ -528,9 +529,10 @@ def send_password_code(user, action):
     if not user['email']: return
     site = flask.current_app.config['SITE_NAME']
     title = f"{site} user account {action}"
-    url = utils.url_for('.password',
+    url = flask.url_for('.password',
                         username=user['username'],
-                        code=user['password'][len('code:'):])
+                        code=user['password'][len('code:'):],
+                        _external=True)
     if action == 'registration':
         action = 'has been created'
     elif action == 'password reset':

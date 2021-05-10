@@ -240,10 +240,6 @@ def days_remaining(dt):
     remaining = dt - datetime.datetime.now()
     return remaining.total_seconds() / (24* 3600.0)
 
-def url_for(endpoint, **values):
-    "Same as 'flask.url_for', but with '_external' set to True."
-    return flask.url_for(endpoint, _external=True, **values)
-
 def http_GET():
     "Is the HTTP method GET?"
     return flask.request.method == 'GET'

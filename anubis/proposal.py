@@ -215,7 +215,7 @@ def send_submission_email(proposal):
     if not (user and user['email']): return
     site = flask.current_app.config['SITE_NAME']
     title = f"Proposal {proposal['identifier']} has been submitted in {site}"
-    url = utils.url_for('.display', pid=proposal['identifier'])
+    url = flask.url_for('.display', pid=proposal['identifier'], _external=True)
     text = "Your proposal\n\n" \
            f"  {proposal['identifier']} {proposal['title']}\n\n"\
            f"has been submitted in the {site} system.\n\n" \
