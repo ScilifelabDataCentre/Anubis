@@ -30,10 +30,9 @@
 {% if call.get('categories') %}
 <div class="row">
   <div class="offset-md-3 col-md">
-    <form action="{{ url_for('.call', cid=call['identifier']) }}"
-          id="refresh"
-          role="form"
-          class="form-inline"
+    <form id="refresh"
+          action="{{ url_for('.call', cid=call['identifier']) }}"
+          role="form" class="form-inline"
           method="GET">
       <label class="form-input" for="category">Category</label>
       <select name="category" id="category" 

@@ -37,9 +37,7 @@ Transfer ownership of proposal {{ proposal['identifier'] }}
 
 {% block actions %}
 <div class="mt-2">
-  <form action="{{ url_for('.display', pid=proposal['identifier']) }}"
-	method="GET">
-    <button type="submit" class="btn btn-block btn-secondary">Cancel</button>
-  </form>
+  <a href="{{ url_for('.display', pid=proposal['identifier']) }}"
+     role="button" class="btn btn-block btn-secondary">Cancel</a>
 </div>
 {% endblock %}

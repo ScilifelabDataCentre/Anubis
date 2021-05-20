@@ -167,7 +167,7 @@ def access(gid):
             title=f"Grant {grant['identifier']}",
             url=flask.url_for('.access', gid=grant['identifier']),
             users=users,
-            back=flask.url_for('.display', gid=grant['identifier']))
+            back_url=flask.url_for('.display', gid=grant['identifier']))
 
     elif utils.http_POST():
         try:

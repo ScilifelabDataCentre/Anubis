@@ -83,9 +83,7 @@
 
 {% block actions %}
 <div class="mt-2">
-  <form action="{{ back }}"
-	method="GET">
-    <button type="submit" class="btn btn-block btn-secondary">Back</button>
-  </form>
+  <a href="{{ back_url }}"
+     role="button" class="btn btn-block btn-secondary">Back</a>
 </div>
 {% endblock %}

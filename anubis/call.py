@@ -169,7 +169,7 @@ def access(cid):
             title=f"Call {call['identifier']}",
             url=flask.url_for('.access', cid=call['identifier']),
             users=users,
-            back=flask.url_for('.display', cid=call['identifier']))
+            back_url=flask.url_for('.display', cid=call['identifier']))
 
     elif utils.http_POST():
         try:

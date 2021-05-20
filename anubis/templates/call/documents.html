@@ -83,10 +83,8 @@
 
 {% block actions %}
 <div class="mt-2">
-  <form action="{{ url_for('.display', cid=call['identifier']) }}"
-	method="GET">
-    <button type="submit" class="btn btn-block btn-secondary">Back</button>
-  </form>
+  <a href="{{ url_for('.display', cid=call['identifier']) }}"
+     role="button" class="btn btn-block btn-secondary">Back</a>
 </div>
 {% endblock %}
 

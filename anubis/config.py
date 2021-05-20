@@ -1,5 +1,6 @@
 "Configuration."
 
+import json
 import os
 import os.path
 
@@ -38,7 +39,7 @@ DEFAULT_SETTINGS = dict(
     MAIL_USERNAME = None,
     MAIL_PASSWORD = None,
     MAIL_DEFAULT_SENDER = 'anubis@your.org', # Must be changed in settings!
-    CALL_IDENTIFIER_MAXLENGTH = 10,
+    CALL_IDENTIFIER_MAXLENGTH = 16,
     CALL_REMAINING_DANGER = 1.0,
     CALL_REMAINING_WARNING = 7.0,
     CALLS_OPEN_ORDER_KEY = 'closes',
@@ -80,7 +81,7 @@ def init(app, filepath=None):
         filepaths.append(os.path.normpath(os.path.join(ROOT, filepath)))
     for filepath in filepaths:
         try:
-            app.config.from_json(filepath)
+            app.config.from_file(filepath, load=json.load)
         except FileNotFoundError:
             pass
         else:

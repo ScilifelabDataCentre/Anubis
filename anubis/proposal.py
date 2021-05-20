@@ -263,7 +263,7 @@ def access(pid):
             title=f"Proposal {proposal['identifier']}",
             url=flask.url_for('.access', pid=proposal['identifier']),
             users=users,
-            back=flask.url_for('.display', pid=proposal['identifier']))
+            back_url=flask.url_for('.display', pid=proposal['identifier']))
 
     elif utils.http_POST():
         try:
