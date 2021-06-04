@@ -12,13 +12,13 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 # Default configurable values; modified by reading a JSON file in 'init'.
 DEFAULT_SETTINGS = dict(
     ROOT = ROOT,
-    SERVER_NAME = '127.0.0.1:5003',
+    SERVER_NAME = '127.0.0.1:5003', # For URL generation; 'app.run()' in devel.
     SITE_NAME = 'Anubis',
     SITE_STATIC_DIRPATH = None, # Must NOT be same as 'Anubis/site'! Security!
-    SITE_ICON = None,           # Filename, must be in 'SITE_STATIC_DIRPATH'
-    SITE_LOGO = None,           # Filename, must be in 'SITE_STATIC_DIRPATH'
+    SITE_ICON = None,           # Name of file in 'SITE_STATIC_DIRPATH'
+    SITE_LOGO = None,           # Name of file in 'SITE_STATIC_DIRPATH'
     SITE_DESCRIPTION = "Proposal submission and review handling system.",
-    HOST_LOGO = None,           # Filename, must be in 'SITE_STATIC_DIRPATH'
+    HOST_LOGO = None,           # Name of file in 'SITE_STATIC_DIRPATH'
     HOST_NAME = None,
     HOST_URL = None,
     SECRET_KEY = None,          # Must be set in 'settings.json'
