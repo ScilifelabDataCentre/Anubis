@@ -18,7 +18,6 @@ DEFAULT_SETTINGS = dict(
     SITE_ICON = None,           # Filename, must be in 'SITE_STATIC_DIRPATH'
     SITE_LOGO = None,           # Filename, must be in 'SITE_STATIC_DIRPATH'
     SITE_DESCRIPTION = "Proposal submission and review handling system.",
-    DEBUG = False,
     HOST_LOGO = None,           # Filename, must be in 'SITE_STATIC_DIRPATH'
     HOST_NAME = None,
     HOST_URL = None,
@@ -88,8 +87,7 @@ def init(app, filepath=None):
             app.config['SETTINGS_FILE'] = filepath
             break
     # Modify the configuration from environment variables.
-    for key, convert in [('DEBUG', utils.to_bool),
-                         ('SECRET_KEY', str),
+    for key, convert in [('SECRET_KEY', str),
                          ('COUCHDB_URL', str),
                          ('COUCHDB_USERNAME', str),
                          ('COUCHDB_PASSWORD', str),
