@@ -421,12 +421,12 @@ def get_call_user_proposal(cid, username):
 
 def allow_create(call):
     """A logged-in user may create a proposal in a call.
-    If the call is not open, only admin may create a proposal.
+    Admin and staff may always create a proposal.
+    Others may create a proposal only if the call is open and not closed.
     """
     if not flask.g.current_user: return False
-    if call['tmp']['is_closed']:
-        return flask.g.am_admin
-    return True
+    if flask.g.am_admin or flask.g.am_staff: return True
+    return call['tmp']['is_open'] and not call['tmp']['is_closed']
 
 def allow_view(proposal):
     """The admin, staff and call owner may view a proposal.
