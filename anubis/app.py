@@ -62,8 +62,7 @@ def prepare():
     flask.g.am_staff = anubis.user.am_staff()
     if flask.g.current_user:
         username = flask.g.current_user['username']
-        flask.g.my_calls_count = utils.get_count(
-            'calls', 'owner', username)
+        flask.g.allow_create_call = anubis.call.allow_create()
         flask.g.my_proposals_count = utils.get_count(
             'proposals', 'user', username)
         flask.g.my_reviews_count = utils.get_count(

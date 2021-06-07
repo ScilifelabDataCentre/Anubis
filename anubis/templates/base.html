@@ -87,11 +87,11 @@
                  href="{{ url_for('calls.open') }}">Open calls</a>
               <a class="dropdown-item"
                  href="{{ url_for('calls.closed') }}">Closed calls</a>
-              {% if g.my_calls_count %}
+              {% if g.allow_create_call %}
               <a class="dropdown-item"
                  href="{{ url_for('calls.owner', username=g.current_user['username']) }}">
                 My calls</a>
-              {% endif %} {# if g.my_calls_count #}
+              {% endif %} {# if g.allow_create_call #}
               {% if g.am_admin or g.am_staff %}
               <a class="dropdown-item"
                  href="{{ url_for('calls.grants') }}">Calls with grants</a>
@@ -238,7 +238,7 @@
             {% endblock %}
         </div>
         <div class="col-md-3 text-right">
-          <a href="{{ constants.SOURCE_URL }}">
+          <a id="version" href="{{ constants.SOURCE_URL }}">
             <img src="{{ url_for('static', filename='feather-of-maat.png') }}"
 		 width="32" height="32">
 	    {{ constants.SOURCE_NAME }}
