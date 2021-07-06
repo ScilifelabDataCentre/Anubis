@@ -159,7 +159,8 @@ def edit(pid):
             utils.delete(review)
         utils.delete(proposal)
         utils.flash_message(f"Deleted proposal {pid}.")
-        return flask.redirect(flask.url_for('home'))
+        return flask.redirect(
+            flask.url_for('proposals.call', cid=call['identifier']))
 
 @blueprint.route('/<pid>/transfer', methods=['GET', 'POST'])
 @utils.login_required
