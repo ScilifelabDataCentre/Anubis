@@ -177,11 +177,10 @@ def admin_required(f):
 def admin_or_staff_required(f):
     """Resource endpoint decorator for checking if logged in and 'admin'
     or 'staff' role.
-    Otherwise
     """
     @functools.wraps(f)
     def wrap(*args, **kwargs):
-        if not flask.g.am_admin:
+        if not (flask.g.am_admin or flask.g.am_staff):
             return error("Either of roles 'admin' or 'staff' is required.")
         return f(*args, **kwargs)
     return wrap
