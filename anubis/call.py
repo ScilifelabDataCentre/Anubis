@@ -219,8 +219,8 @@ def document(cid, documentname):
         return utils.error('No such call.', flask.url_for('home'))
 
     if utils.http_GET():
-        if not (flask.g.am_admin or call['tmp']['is_published']):
-            return utils.error(f"Call {call['title']} has not been published.")
+        if not allow_view(call):
+            return utils.error(f"You may not view the call {call['title']}.")
         try:
             stub = call['_attachments'][documentname]
         except KeyError:
@@ -233,8 +233,8 @@ def document(cid, documentname):
         return response
 
     elif utils.http_DELETE():
-        if not flask.g.am_admin:
-            return utils.error('You may not delete a document in the call.')
+        if not allow_edit(call):
+            return utils.error('You are not allowed to edit the call.')
         with CallSaver(call) as saver:
             saver.delete_document(documentname)
         return flask.redirect(
