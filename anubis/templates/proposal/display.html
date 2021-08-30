@@ -223,6 +223,12 @@
   </form>
 </div>
 {% endif %} {# if proposal.get('submitted') #}
+{% elif proposal.get('errors') %}
+<div class="card border-success mt-2">
+  <div class="card-body text-danger">
+    A proposal that contains errors cannot be submitted.
+  </div>
+</div>
 {% endif %} {# if allow_submit #}
 
 <div class="mt-4">

@@ -30,6 +30,8 @@ def get_parser():
                     help='Create an admin user.')
     x0.add_argument('-U', '--create_user', action='store_true',
                     help='Create a user.')
+    x0.add_argument('-P', '--password', action='store_true',
+                    help='Set the password for a user.')
     return p
 
 def execute(pargs):
@@ -57,6 +59,13 @@ def execute(pargs):
             saver.set_password(getpass.getpass('password > '))
             saver.set_role(constants.USER)
             saver.set_status(constants.ENABLED)
+    elif pargs.password:
+        user = anubis.user.get_user(input('username > '))
+        if user:
+            with anubis.user.UserSaver(user) as saver:
+                saver.set_password(getpass.getpass('password > '))
+        else:
+            sys.exit("No such user.")
 
 def main():
     "Entry point for command line tool."
