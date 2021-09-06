@@ -260,18 +260,22 @@ class FieldMixin:
                 self.doc['values'][fid] = None
             else:
                 infile = flask.request.files.get(fid)
-                if infile:
+                if infile:      # New document given.
                     if self.doc['values'].get(fid) and \
                        self.doc['values'][fid] != infile.filename:
                         self.delete_attachment(self.doc['values'][fid])
-                    filename = self.add_attachment(infile.filename,
-                                                   infile.read(),
-                                                   infile.mimetype)
+                    filename  = self.add_attachment(infile.filename,
+                                                    infile.read(),
+                                                    infile.mimetype)
                     self.doc['values'][fid] = filename
-                    if field.get('extensions'):
-                        extension = os.path.splitext(filename)[1].lstrip('.')
-                        if extension not in field['extensions']:
-                            self.doc['errors'][fid] = 'Invalid file type.'
+                else:
+                    filename = self.doc['values'].get(fid)
+                if filename and field.get('extensions'):
+                    extension = os.path.splitext(filename)[1].lstrip('.')
+                    if extension not in field['extensions']:
+                        self.doc['errors'][fid] = 'Invalid file type.'
+            if field['required'] and not self.doc['values'].get(fid):
+                self.doc['errors'][fid] = 'Missing document.'
 
         elif field['type'] == constants.REPEAT:
             value = form.get(fid) or None
