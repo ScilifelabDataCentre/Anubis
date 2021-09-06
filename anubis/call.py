@@ -1053,10 +1053,20 @@ def set_tmp(call):
                 tmp['is_closed'] = False
                 tmp['text'] = f"{remaining:.0f} days remaining."
                 tmp['color'] = 'warning'
+            elif remaining >= 5.0 / 24.0:
+                tmp['is_open'] = True
+                tmp['is_closed'] = False
+                tmp['text'] = f"{int(24*remaining):.0f} hours remaining."
+                tmp['color'] = 'danger'
+            elif remaining >= 1.0 / 24.0:
+                tmp['is_open'] = True
+                tmp['is_closed'] = False
+                tmp['text'] = f"{24*remaining:.1f} hours remaining."
+                tmp['color'] = 'danger'
             elif remaining >= 0:
                 tmp['is_open'] = True
                 tmp['is_closed'] = False
-                tmp['text'] = f"{remaining:.1f} days remaining."
+                tmp['text'] = f"{24*60*remaining:.0f} minutes remaining."
                 tmp['color'] = 'danger'
             else:
                 tmp['is_open'] = False
