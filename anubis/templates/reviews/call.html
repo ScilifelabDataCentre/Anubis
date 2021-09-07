@@ -32,6 +32,9 @@ Reviews of proposals in call {{ call['identifier'] }}
       {% endfor %}
       <th>Reviewer</th>
       <th>Proposal</th>
+      {% for field in utils.get_banner_fields(call['proposal']) %}
+      <th>{{ field['title'] }}</th>
+      {% endfor %}
       {% if call.get('categories') %}
       <th>Category</th>
       {% endif %}
@@ -69,6 +72,9 @@ Reviews of proposals in call {{ call['identifier'] }}
       {% endif %} {# if review #}
       <td>{{ get_user(reviewer) | user_link }}</td>
       <td>{{ proposal | proposal_link(bold=False) }}</td>
+      {% for field in utils.get_banner_fields(call['proposal']) %}
+      <td>{{ field | field_value(proposal) }}</td>
+      {% endfor %}
       {% if call.get('categories') %}
       <td>{{ proposal.get('category') or '-' }}</td>
       {% endif %}
