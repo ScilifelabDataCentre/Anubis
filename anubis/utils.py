@@ -319,7 +319,7 @@ def field_value(field, entity, fid=None, truncate_documentname=None):
         return boolean_value(value)
     elif field['type'] == constants.SELECT:
         return select_value(value)
-    elif field['type'] in (constants.INTEGER, constants.SCORE):
+    elif field['type'] in (constants.INTEGER, constants.SCORE, constants.RANK):
         return integer_value(value)
     elif field['type'] == constants.FLOAT:
         return float_value(value)

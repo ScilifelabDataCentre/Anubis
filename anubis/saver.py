@@ -230,7 +230,8 @@ class FieldMixin:
             else:
                 self.doc['values'][fid] = form.get(fid) or None
 
-        elif field['type'] in (constants.INTEGER, constants.FLOAT, constants.SCORE):
+        elif field['type'] in (constants.INTEGER, constants.FLOAT, 
+                               constants.SCORE, constants.RANK):
             if field['type'] == constants.FLOAT:
                 converter = float
             else:

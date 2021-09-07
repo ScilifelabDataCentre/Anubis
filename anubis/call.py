@@ -758,6 +758,9 @@ class CallSaver(AccessMixin, AttachmentSaver):
             field['maximum'] = maximum
             field['slider'] = utils.to_bool(form.get('slider'))
 
+        elif field['type'] == constants.RANK:
+            field['minimum'] = 1
+
         elif field['type'] == constants.DOCUMENT:
             extensions = [e.strip().lstrip('.') 
                           for e in form.get('extensions', '').split(',')]

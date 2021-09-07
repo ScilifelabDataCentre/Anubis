@@ -46,12 +46,13 @@ class Constants:
     INTEGER  = 'integer'
     FLOAT    = 'float'
     SCORE    = 'score'
+    RANK     = 'rank'
     TEXT     = 'text'
     DOCUMENT = 'document'
     REPEAT   = 'repeat'
     FIELD_TYPES = (LINE, EMAIL, BOOLEAN, SELECT, INTEGER, FLOAT,
-                   SCORE, TEXT, DOCUMENT, REPEAT)
-    NUMERICAL_FIELD_TYPES = (INTEGER, FLOAT, SCORE)
+                   SCORE, RANK, TEXT, DOCUMENT, REPEAT)
+    NUMERICAL_FIELD_TYPES = (INTEGER, FLOAT, SCORE, RANK)
 
     # Access flags for each call
     ACCESS = ('allow_reviewer_view_all_reviews',

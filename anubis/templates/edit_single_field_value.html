@@ -161,6 +161,16 @@
     </div>
     {% endif %}
 
+    {% elif field['type'] in constants.RANK %}
+    <div class="form-row">
+      <input type="number" step="1" id="{{ fid }}" name="{{ fid }}"
+             min="1" class="form-control col-md-2"
+             {% if value is not none %}
+	     value="{{ value }}"
+             {% endif %}
+	     aria-describedby="{{ fid }}Help">
+    </div>
+
     {% elif field['type'] == constants.TEXT %}
     <textarea id="{{ fid }}" name="{{ fid }}"
 	      class="form-control" rows="6"
