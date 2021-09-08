@@ -1,8 +1,10 @@
 "Proposal in a call."
 
+import io
 import os.path
 
 import flask
+import xlsxwriter
 
 import anubis.call
 import anubis.user
@@ -92,6 +94,85 @@ def display(pid):
         allow_view_decision=allow_view_decision,
         allow_create_grant=anubis.grant.allow_create(proposal),
         allow_link_grant=anubis.grant.allow_link(grant))
+
+@blueprint.route('/<pid>.xlsx')
+@utils.login_required
+def display_xlsx(pid):
+    "Return an XLSX file containing the proposal information."
+    proposal = get_proposal(pid)
+    if proposal is None:
+        return utils.error('No such proposal.', flask.url_for('home'))
+    if not allow_view(proposal):
+        return utils.error('You are not allowed to view this proposal.')
+    call = anubis.call.get_call(proposal['call'])
+    am_submitter = flask.g.current_user and \
+                   flask.g.current_user['username'] == proposal['user']
+    submitter = anubis.user.get_user(username=proposal['user'])
+    output = io.BytesIO()
+    wb = xlsxwriter.Workbook(output, {'in_memory': True})
+    head_text_format = wb.add_format({'bold': True,
+                                      'text_wrap': True,
+                                      'font_size': 14})
+    normal_text_format = wb.add_format({'font_size': 14,
+                                        'align': 'left',
+                                        'valign': 'vcenter'})
+    ws = wb.add_worksheet(f"Proposal {proposal['identifier'].replace(':','-')}")
+    ws.set_column(0, 0, 20, head_text_format)
+    ws.set_column(1, 1, 60, normal_text_format)
+    ws.set_column(2, 2, 60, normal_text_format)
+    nrow = 0
+    row = ['Proposal', '',  proposal['title']]
+    ws.write_row(nrow, 0, row)
+    ws.write_url(nrow, 1,
+                 flask.url_for('proposal.display',
+                               pid=proposal['identifier'],
+                               _external=True),
+                 string=proposal['identifier'])
+    nrow += 1
+    row = ['Submitter',
+           f"{submitter['givenname']} {submitter['familyname']}",
+           f"{submitter.get('affiliation') or '-'}"]
+    ws.write_row(nrow, 0, row)
+    nrow += 1
+    row = ['Modified', proposal['modified']]
+    ws.write_row(nrow, 0, row)
+    nrow += 1
+    row = ['Call', '', call['title']]
+    ws.write_url(nrow, 1,
+                 flask.url_for('call.display',
+                               cid=call['identifier'],
+                               _external=True),
+                 string=call['identifier'])
+    ws.write_row(nrow, 0, row)
+    nrow += 2
+    for field in call['proposal']:
+        row = [field['title'] or field['identifier'].capitalize()]
+        ws.write_row(nrow, 0, row)
+        value = proposal['values'].get(field['identifier'])
+        if value is None:
+            ws.write_string(nrow, 1, '')
+        elif field['type'] == constants.TEXT:
+            ws.write_string(nrow, 1, value)
+        elif field['type'] == constants.DOCUMENT:
+            documentname = proposal['values'][field['identifier']]
+            pid = proposal['identifier'].replace(':', '-')
+            ext = os.path.splitext(documentname)[1]
+            ws.write_url(nrow, 1,
+                         flask.url_for('proposal.document',
+                                       pid=proposal['identifier'],
+                                       fid=field['identifier'],
+                                       _external=True),
+                         string=f"Download {pid}-{field['identifier']}{ext}")
+        else:
+            ws.write(nrow, 1, value)
+        nrow += 1
+    wb.close()
+    content = output.getvalue()
+    response = flask.make_response(content)
+    response.headers.set('Content-Type', constants.XLSX_MIMETYPE)
+    response.headers.set('Content-Disposition', 'attachment', 
+                         filename=f"{pid.replace(':','-')}.xlsx")
+    return response
 
 @blueprint.route('/<pid>/edit', methods=['GET', 'POST', 'DELETE'])
 @utils.login_required

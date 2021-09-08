@@ -8,6 +8,11 @@
 {% endblock %}
 
 {% block meta %}
+<div>
+  <a href="{{ url_for('proposal.display_xlsx', pid=proposal['identifier']) }}"
+     title="Proposal information"
+     class="badge badge-pill badge-dark">Proposal Excel file</a>
+</div>
 <a href="#email_lists" data-toggle="collapse"
    class="badge badge-pill badge-secondary" role="button"
    aria-expanded="false" aria-controls="email_lists">Email address lists</a>
