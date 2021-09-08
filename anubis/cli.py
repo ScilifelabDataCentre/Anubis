@@ -18,7 +18,7 @@ from anubis import utils
 
 def get_parser():
     "Get the parser for the command line tool."
-    p = argparse.ArgumentParser(prog='command_line_tool.py',
+    p = argparse.ArgumentParser(prog='cli.py',
                                 usage='python %(prog)s [options]',
                                 description='anubis command line tool')
     p.add_argument('-d', '--debug', action='store_true',
