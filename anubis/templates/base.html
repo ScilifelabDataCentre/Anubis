@@ -13,12 +13,10 @@
           href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" 
           integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
           crossorigin="anonymous">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
     <link href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css" 
 	  rel="stylesheet">
-    <style>
-      {% block style %}
-      {% endblock %}
-    </style>
   </head>
   <body>
     <nav class="navbar navbar-expand-md navbar-light"
@@ -38,44 +36,38 @@
         <ul class="navbar-nav mr-auto">
           {% if g.current_user %}
 	  {% if g.my_proposals_count %}
-          <li class="nav-item">
-            <a href="{{ url_for('proposals.user', username=g.current_user['username']) }}"
-	       class="nav-link mr-2">My proposals
-	      {% if g.my_unsubmitted_proposals_count %}
-	      <span class="font-weight-bold px-2 py-1 bg-warning active"
-		    title="You have unsubmitted proposals.">
-                {{ g.my_unsubmitted_proposals_count }}
-              </span>
-	      {% endif %}
-	    </a>
-          </li>
+          <a href="{{ url_for('proposals.user', username=g.current_user['username']) }}"
+	     class="nav-link mr-2">My proposals
+	    {% if g.my_unsubmitted_proposals_count %}
+	    <span class="font-weight-bold px-2 py-1 bg-warning active"
+		  title="You have unsubmitted proposals.">
+              {{ g.my_unsubmitted_proposals_count }}
+            </span>
+	    {% endif %}
+	  </a>
 	  {% endif %}
 	  {% if g.my_reviews_count %}
-          <li class="nav-item">
-            <a href="{{ url_for('reviews.reviewer', username=g.current_user['username']) }}"
-	       class="nav-link mr-2">My reviews
-	      {% if g.my_unfinalized_reviews_count %}
-	      <span class="font-weight-bold px-2 py-1 bg-warning active"
-		    title="You have unfinalized reviews.">
-                {{ g.my_unfinalized_reviews_count }}
-              </span>
-	      {% endif %}
-	    </a>
-          </li>
+          <a href="{{ url_for('reviews.reviewer', username=g.current_user['username']) }}"
+	     class="nav-link mr-2">My reviews
+	    {% if g.my_unfinalized_reviews_count %}
+	    <span class="font-weight-bold px-2 py-1 bg-warning active"
+		  title="You have unfinalized reviews.">
+              {{ g.my_unfinalized_reviews_count }}
+            </span>
+	    {% endif %}
+	  </a>
 	  {% endif %}
 	  {% if g.my_grants_count %}
-          <li class="nav-item mr-2">
-            <a href="{{ url_for('grants.user', username=g.current_user['username']) }}"
-               title="My grants and the grants to which I have access."
-	       class="nav-link">My grants
-	      {% if g.my_incomplete_grants_count %}
-	      <span class="font-weight-bold px-2 py-1 bg-warning active"
-		    title="You have incomplete grant dossiers.">
-                {{ g.my_incomplete_grants_count }}
-              </span>
-	      {% endif %}
-	    </a>
-          </li>
+          <a href="{{ url_for('grants.user', username=g.current_user['username']) }}"
+             title="My grants and the grants to which I have access."
+	     class="nav-link mr-2">My grants
+	    {% if g.my_incomplete_grants_count %}
+	    <span class="font-weight-bold px-2 py-1 bg-warning active"
+		  title="You have incomplete grant dossiers.">
+              {{ g.my_incomplete_grants_count }}
+            </span>
+	    {% endif %}
+	  </a>
 	  {% endif %}
           {% endif %} {# if g.current_user #}
           <li class="nav-item dropdown">
@@ -119,6 +111,18 @@
             </div>
           </li>
           {% endif %} {# if g.am_admin or g.am_staff #}
+          <li class="nav-item dropdown">
+            <a href="#" id="navbarDoc" class="nav-link dropdown-toggle pr-4"
+               role="button" data-toggle="dropdown"
+               aria-haspopup="true" aria-expanded="false">Documentation</a>
+            <div class="dropdown-menu" aria-labelledby="navbarDoc">
+              {% for documentation in constants.DOCUMENTATION %}
+              <a class="nav-link"
+                 target="doc"
+                 href="{{ url_for('about.documentation', page=documentation.replace(' ', '-')) }}">
+                {{ documentation }}</a>
+              {% endfor %}
+          </li>
         </ul>
 
         <ul class="navbar-nav justify-content-end">
@@ -127,19 +131,6 @@
                role="button" data-toggle="dropdown"
                aria-haspopup="true" aria-expanded="false">About</a>
             <div class="dropdown-menu" aria-labelledby="navbarAbout">
-              <a class="nav-link"
-                 target="doc"
-                 href="{{ url_for('about.documentation', page='Basic-concepts') }}">Basic concepts</a>
-              <a class="nav-link"
-                 target="doc"
-                 href="{{ url_for('about.documentation', page='Instructions-for-users') }}">Instructions for users</a>
-              <a class="nav-link"
-                 target="doc"
-                 href="{{ url_for('about.documentation', page='Instructions-for-reviewers') }}">Instructions for reviewers</a>
-              <a class="nav-link"
-                 target="doc"
-                 href="{{ url_for('about.documentation', page='Instructions-for-admins') }}">Instructions for admins</a>
-              <div class="dropdown-divider"></div>
               <a class="nav-link"
                  href="{{ url_for('about.contact') }}">Contact</a>
               <a class="nav-link"
@@ -208,8 +199,6 @@
           <div>
             {% block actions %}
             {% endblock %}
-          </div>
-          <div>
           </div>
         </div>
       </div>

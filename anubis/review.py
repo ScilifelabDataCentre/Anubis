@@ -357,8 +357,8 @@ def allow_create(proposal):
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(proposal['call'])
-    if anubis.call.am_chair(call) or anubis.call.am_owner(call): 
-        return True
+    if anubis.call.am_chair(call): return True
+    if anubis.call.am_owner(call): return True
     return False
 
 def allow_view(review):

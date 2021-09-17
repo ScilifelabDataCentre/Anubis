@@ -4,6 +4,7 @@ import os.path
 
 import flask
 
+import anubis.call
 import anubis.proposal
 from anubis import constants
 from anubis import utils
@@ -266,6 +267,7 @@ def allow_create(proposal):
     if proposal.get('decision'): return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(proposal['call'])
+    if anubis.call.am_owner(call): return True
     if anubis.call.am_chair(call): return True
     return False
 
@@ -277,6 +279,7 @@ def allow_view(decision):
     if flask.g.am_admin: return True
     if flask.g.am_staff: return True
     call = anubis.call.get_call(decision['call'])
+    if anubis.call.am_owner(call): return True
     if not call['access']['allow_submitter_view_decision']: return False
     proposal = anubis.proposal.get_proposal(decision['proposal'])
     if proposal['user'] != flask.g.current_user['username']: return False
@@ -291,6 +294,7 @@ def allow_link(decision):
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(decision['call'])
+    if anubis.call.am_owner(call): return True
     if anubis.call.am_reviewer(call): return True
     return False
 
@@ -300,6 +304,7 @@ def allow_edit(decision):
     if decision.get('finalized'): return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(decision['call'])
+    if anubis.call.am_owner(call): return True
     if anubis.call.am_chair(call): return True
     return False
 
@@ -316,6 +321,7 @@ def allow_finalize(decision):
     if decision.get('verdict') is None: return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(decision['call'])
+    if anubis.call.am_owner(call): return True
     if anubis.call.am_chair(call): return True
     return False
 
@@ -325,5 +331,6 @@ def allow_unfinalize(decision):
     if not decision.get('finalized'): return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(decision['call'])
+    if anubis.call.am_owner(call): return True
     if anubis.call.am_chair(call): return True
     return False

@@ -17,7 +17,7 @@ reviews are done.
    - Until the **due** date for reviews in the call, you may
      **Unfinalize** a review if you wish to resume editing it.
 5. To view the proposal of the review, click the link to the proposal
-   in the title. (Tip: do right-hand click and "Open in new tab".)
+   in the title. (Tip: do right-click and "Open in new tab".)
 6. Before the **due** date, ensure that all your reviews have been
    finalized.
 
@@ -36,7 +36,8 @@ reviews are done.
 ### Reviewer privileges
 
 - The reviewer may view all proposals in the call.
-- The reviewer cannot create or delete review instances, only edit them.
+- The reviewer can edit her review instance.
+- The reviewerscannot create or delete review instances.
 - The chair, if any, of a call may create review instances.
 - A reviewer may view finalized reviews by other reviewers only if the
   admin allows it for the call.
