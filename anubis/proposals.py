@@ -284,13 +284,12 @@ def get_user_proposals(username):
     return result
 
 def compute_mean_fields(call, proposals):
-    """Compute the mean and stdev of numerical banner fields
+    """Compute the mean and stdev of score banner fields
     for each proposal. Store values in the proposal document.
     Return the identifiers of the fields.
     """
     field_ids = [f['identifier'] for f in call['review'] 
-                 if f.get('banner') and
-                 f['type'] in constants.NUMERICAL_FIELD_TYPES]
+                 if f.get('banner') and f['type'] == constants.SCORE]
     for proposal in proposals:
         reviews = utils.get_docs_view('reviews', 'proposal', 
                                       proposal['identifier'])

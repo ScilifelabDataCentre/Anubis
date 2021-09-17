@@ -52,7 +52,6 @@ class Constants:
     REPEAT   = 'repeat'
     FIELD_TYPES = (LINE, EMAIL, BOOLEAN, SELECT, INTEGER, FLOAT,
                    SCORE, RANK, TEXT, DOCUMENT, REPEAT)
-    NUMERICAL_FIELD_TYPES = (INTEGER, FLOAT, SCORE, RANK)
 
     # Access flags for each call
     ACCESS = ('allow_reviewer_view_all_reviews',
