@@ -70,9 +70,11 @@
       {% endif %}
       {% if allow_view_reviews %}
       <th>All reviews</th>
-      {% for id in mean_field_ids %}
+      {% for id in score_field_ids %}
       <th>All reviews: {{ id }} mean</th>
+      {% if len(score_field_ids) == 1 %}
       <th>All reviews: {{ id }} stdev</th>
+      {% endif %}
       {% endfor %}
       {% endif %} {# if allow_view_reviews #}
       {% if allow_view_decisions %}
@@ -117,7 +119,7 @@
           {{ utils.get_proposal_reviews_count(proposal['identifier']) }}
         </a>
       </td>
-      {% for id in mean_field_ids %}
+      {% for id in score_field_ids %}
       <td>
         {% if proposal['scores'][id]['mean'] is none %}
         -
@@ -125,6 +127,7 @@
         {{ "%.1f" % proposal['scores'][id]['mean'] }}
         {% endif %}
       </td>
+      {% if len(score_field_ids) == 1 %}
       <td>
         {% if proposal['scores'][id]['stdev'] is none %}
         -
@@ -132,13 +135,16 @@
         {{ "%.1f" % proposal['scores'][id]['stdev'] }}
         {% endif %}
       </td>
-      {% endfor %} {# for id in mean_field_ids #}
+      {% endif %}
+      {% endfor %} {# for id in score_field_ids #}
       {% else %} {# if proposal.get('submitted') #}
       <td>-</td>
-      {% for id in mean_field_ids %}
+      {% for id in score_field_ids %}
       <td>-</td>
+      {% if len(score_field_ids) == 1 %}
       <td>-</td>
-      {% endfor %} {# for id in mean_field_ids #}
+      {% endif %}
+      {% endfor %} {# for id in score_field_ids #}
       {% endif %} {# if proposal.get('submitted') #}
       {% endif %} {# if allow_view_reviews #}
       {% if allow_view_decisions %}

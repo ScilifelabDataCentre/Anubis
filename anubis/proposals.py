@@ -46,7 +46,7 @@ def call(cid):
         call=call,
         proposals=proposals,
         email_lists=email_lists,
-        mean_field_ids=compute_mean_fields(call, proposals),
+        score_field_ids=compute_score_fields(call, proposals),
         am_reviewer=anubis.call.am_reviewer(call),
         allow_view_reviews=anubis.call.allow_view_reviews(call),
         allow_view_decisions=anubis.call.allow_view_decisions(call),
@@ -82,7 +82,7 @@ def get_call_xlsx(call, submitted=False, proposals=None):
             submitted=submitted)
     else:
         title = f"Selected proposals in call {call['identifier']}"
-    mean_field_ids = compute_mean_fields(call, proposals)
+    score_field_ids = compute_score_fields(call, proposals)
     output = io.BytesIO()
     wb = xlsxwriter.Workbook(output, {'in_memory': True})
     head_text_format = wb.add_format({'bold': True,
@@ -120,7 +120,7 @@ def get_call_xlsx(call, submitted=False, proposals=None):
         ncol += 1
     allow_view_reviews = anubis.call.allow_view_reviews(call)
     if allow_view_reviews:
-        for id in mean_field_ids:
+        for id in score_field_ids:
             for field in call['review']:
                 if field['identifier'] == id:
                     title = field['title'] or field['identifier'].capitalize()
@@ -187,7 +187,7 @@ def get_call_xlsx(call, submitted=False, proposals=None):
             ncol += 1
 
         if allow_view_reviews:
-            for id in mean_field_ids:
+            for id in score_field_ids:
                 ws.write_number(nrow, ncol, proposal['scores'][id]['n'])
                 ncol += 1
                 value = proposal['scores'][id]['mean']
@@ -283,9 +283,12 @@ def get_user_proposals(username):
         flask.g.cache[f"proposal {proposal['identifier']}"] = proposal
     return result
 
-def compute_mean_fields(call, proposals):
-    """Compute the mean and stdev of score banner fields
-    for each proposal. Store values in the proposal document.
+def compute_score_fields(call, proposals):
+    """If there are score banner field(s) in the reviews, then compute their
+    mean and stdev. If there are more than two score banner fields, then
+    also compute the mean of the means, and the stdev of the means.
+    This is done over all reviews for each proposal.
+    Store values in the proposal document.
     Return the identifiers of the fields.
     """
     field_ids = [f['identifier'] for f in call['review'] 
