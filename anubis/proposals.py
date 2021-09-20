@@ -46,7 +46,7 @@ def call(cid):
         call=call,
         proposals=proposals,
         email_lists=email_lists,
-        score_field_ids=compute_score_fields(call, proposals),
+        score_field_ids=get_score_banner_fields(call, proposals),
         am_reviewer=anubis.call.am_reviewer(call),
         allow_view_reviews=anubis.call.allow_view_reviews(call),
         allow_view_decisions=anubis.call.allow_view_decisions(call),
@@ -82,7 +82,7 @@ def get_call_xlsx(call, submitted=False, proposals=None):
             submitted=submitted)
     else:
         title = f"Selected proposals in call {call['identifier']}"
-    score_field_ids = compute_score_fields(call, proposals)
+    score_field_ids = get_score_banner_fields(call, proposals)
     output = io.BytesIO()
     wb = xlsxwriter.Workbook(output, {'in_memory': True})
     head_text_format = wb.add_format({'bold': True,
@@ -120,6 +120,9 @@ def get_call_xlsx(call, submitted=False, proposals=None):
         ncol += 1
     allow_view_reviews = anubis.call.allow_view_reviews(call)
     if allow_view_reviews:
+        if len(score_field_ids) >= 2:
+            row.append("Review mean of means")
+            row.append("Review stdev of means")
         for id in score_field_ids:
             for field in call['review']:
                 if field['identifier'] == id:
@@ -187,6 +190,19 @@ def get_call_xlsx(call, submitted=False, proposals=None):
             ncol += 1
 
         if allow_view_reviews:
+            if len(score_field_ids) >= 2:
+                value = proposal['scores']['__mean__']
+                if value is None:
+                    ws.write_string(nrow, ncol, '')
+                else:
+                    ws.write_number(nrow, ncol, value)
+                ncol += 1
+                value = proposal['scores']['__stdev__']
+                if value is None:
+                    ws.write_string(nrow, ncol, '')
+                else:
+                    ws.write_number(nrow, ncol, value)
+                ncol += 1
             for id in score_field_ids:
                 ws.write_number(nrow, ncol, proposal['scores'][id]['n'])
                 ncol += 1
@@ -283,7 +299,7 @@ def get_user_proposals(username):
         flask.g.cache[f"proposal {proposal['identifier']}"] = proposal
     return result
 
-def compute_score_fields(call, proposals):
+def get_score_banner_fields(call, proposals):
     """If there are score banner field(s) in the reviews, then compute their
     mean and stdev. If there are more than two score banner fields, then
     also compute the mean of the means, and the stdev of the means.
@@ -313,4 +329,18 @@ def compute_score_fields(call, proposals):
                 d['stdev'] = round(statistics.stdev(scores[id]), 2)
             except statistics.StatisticsError:
                 d['stdev'] = None
+        if len(field_ids) >= 2:
+            mean_scores = [d['mean'] for d in proposal['scores'].values()
+                           if d['mean'] is not None]
+            try:
+                mean_means = round(statistics.mean(mean_scores), 2)
+            except statistics.StatisticsError:
+                mean_means = None
+            proposal['scores']['__mean__'] = mean_means
+            try:
+                stdev_means = round(statistics.stdev(mean_scores), 2)
+            except statistics.StatisticsError:
+                stdev_means = None
+            proposal['scores']['__mean__'] = mean_means
+            proposal['scores']['__stdev__'] = stdev_means
     return field_ids

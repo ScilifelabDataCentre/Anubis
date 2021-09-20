@@ -129,9 +129,14 @@ def display_xlsx(pid):
                                _external=True),
                  string=proposal['identifier'])
     nrow += 1
-    row = ['Submitter',
-           f"{submitter['givenname']} {submitter['familyname']}",
-           f"{submitter.get('affiliation') or '-'}"]
+    try:
+        name = f"{submitter['givenname']} {submitter['familyname']}"
+    except KeyError:
+        try:
+            name = submitter['familyname']
+        except KeyError:
+            name = submitter['username']
+    row = ['Submitter', name, f"{submitter.get('affiliation') or '-'}"]
     ws.write_row(nrow, 0, row)
     nrow += 1
     row = ['Modified', proposal['modified']]

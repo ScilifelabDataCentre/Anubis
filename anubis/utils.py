@@ -398,13 +398,14 @@ def user_link(user, fullname=True, chair=False, affiliation=False):
     Optionally output chair flag, or affiliation.
     """
     import anubis.user
-    if fullname and user.get('familyname'):
-        if user.get('givenname'):
+    if fullname:
+        try:
             name = f"{user['givenname']} {user['familyname']}"
-        else:
-            name = user['familyname']
-    else:
-        name = user['username']
+        except KeyError:
+            try:
+                name = user['familyname']
+            except KeyError:
+                name = user['username']
     if chair:
         name += " [<strong>chair</strong>]"
     if affiliation:

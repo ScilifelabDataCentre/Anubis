@@ -354,7 +354,7 @@ class UserSaver(BaseSaver):
         else:
             self.doc['status'] = constants.PENDING
 
-    def finalize(self):
+    def finish(self):
         "Check that required fields have been set."
         for key in ['username', 'role', 'status']:
             if not self.doc.get(key):

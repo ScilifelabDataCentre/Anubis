@@ -70,6 +70,10 @@
       {% endif %}
       {% if allow_view_reviews %}
       <th>All reviews</th>
+      {% if len(score_field_ids) >= 2 %}
+      <th>All reviews: mean of means</th>
+      <th>All reviews: stdev of means</th>
+      {% endif %}
       {% for id in score_field_ids %}
       <th>All reviews: {{ id }} mean</th>
       {% if len(score_field_ids) == 1 %}
@@ -119,6 +123,22 @@
           {{ utils.get_proposal_reviews_count(proposal['identifier']) }}
         </a>
       </td>
+      {% if len(score_field_ids) >= 2 %}
+      <td>
+        {% if proposal['scores']['__mean__'] is none %}
+        -
+        {% else %}
+        {{ "%.1f" % proposal['scores']['__mean__'] }}
+        {% endif %}
+      </td>
+      <td>
+        {% if proposal['scores']['__stdev__'] is none %}
+        -
+        {% else %}
+        {{ "%.1f" % proposal['scores']['__stdev__'] }}
+        {% endif %}
+      </td>
+      {% endif %}
       {% for id in score_field_ids %}
       <td>
         {% if proposal['scores'][id]['mean'] is none %}
