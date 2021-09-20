@@ -84,6 +84,7 @@ def get_call_xlsx(call, submitted=False, proposals=None):
     else:
         title = f"Selected proposals in call {call['identifier']}"
     score_field_ids = get_review_score_field_ids(call, proposals)
+    rank_field_ids = get_review_rank_field_ids(call, proposals)
     output = io.BytesIO()
     wb = xlsxwriter.Workbook(output, {'in_memory': True})
     head_text_format = wb.add_format({'bold': True,
@@ -121,9 +122,12 @@ def get_call_xlsx(call, submitted=False, proposals=None):
         ncol += 1
     allow_view_reviews = anubis.call.allow_view_reviews(call)
     if allow_view_reviews:
+        for id in rank_field_ids:
+            row.append(f"Reviews {id}: ranking factor")
+            row.append(f"Reviews {id}: stdev")
         if len(score_field_ids) >= 2:
-            row.append("All reviews scores: mean of means")
-            row.append("All reviews scores: stdev of means")
+            row.append("Reviews all scores: mean of means")
+            row.append("Reviews all scores: stdev of means")
         for id in score_field_ids:
             for field in call['review']:
                 if field['identifier'] == id:
@@ -189,6 +193,19 @@ def get_call_xlsx(call, submitted=False, proposals=None):
             ncol += 1
 
         if allow_view_reviews:
+            for id in rank_field_ids:
+                value = proposal['ranking'][id]['factor']
+                if value is None:
+                    ws.write_number(nrow, ncol, '')
+                else:
+                    ws.write_number(nrow, ncol, value)
+                ncol += 1
+                value = proposal['ranking'][id]['stdev']
+                if value is None:
+                    ws.write_number(nrow, ncol, '')
+                else:
+                    ws.write_number(nrow, ncol, value)
+                ncol += 1
             if len(score_field_ids) >= 2:
                 value = proposal['scores']['__mean__']
                 if value is None:
@@ -302,7 +319,7 @@ def get_review_score_field_ids(call, proposals):
     """Return a list of identifiers for the score banner fields in the reviews.
     Compute the score means and stdevs. If there are more than two score
     fields, then also compute the mean of the means and the stdev of the means.
-    This is done over all reviews for each proposal.
+    This is done over all finalized reviews for each proposal.
     Store the values in the proposal document.
     """
     field_ids = [f['identifier'] for f in call['review'] 
@@ -310,6 +327,7 @@ def get_review_score_field_ids(call, proposals):
     for proposal in proposals:
         reviews = utils.get_docs_view('reviews', 'proposal', 
                                       proposal['identifier'])
+        # Only include finalized reviews in the calculation.
         reviews = [r for r in reviews if r.get('finalized')]
         scores = dict([(field_id, list()) for field_id in field_ids])
         for review in reviews:
@@ -321,23 +339,23 @@ def get_review_score_field_ids(call, proposals):
             proposal['scores'][field_id] = d = dict()
             d['n'] = len(scores[field_id])
             try:
-                d['mean'] = round(statistics.mean(scores[field_id]), 2)
+                d['mean'] = round(statistics.mean(scores[field_id]), 1)
             except statistics.StatisticsError:
                 d['mean'] = None
             try:
-                d['stdev'] = round(statistics.stdev(scores[field_id]), 2)
+                d['stdev'] = round(statistics.stdev(scores[field_id]), 1)
             except statistics.StatisticsError:
                 d['stdev'] = None
         if len(field_ids) >= 2:
             mean_scores = [d['mean'] for d in proposal['scores'].values()
                            if d['mean'] is not None]
             try:
-                mean_means = round(statistics.mean(mean_scores), 2)
+                mean_means = round(statistics.mean(mean_scores), 1)
             except statistics.StatisticsError:
                 mean_means = None
             proposal['scores']['__mean__'] = mean_means
             try:
-                stdev_means = round(statistics.stdev(mean_scores), 2)
+                stdev_means = round(statistics.stdev(mean_scores), 1)
             except statistics.StatisticsError:
                 stdev_means = None
             proposal['scores']['__mean__'] = mean_means
@@ -346,9 +364,8 @@ def get_review_score_field_ids(call, proposals):
 
 def get_review_rank_field_ids(call, proposals):
     """Return a list of identifiers for the rank banner fields in the reviews.
-    Compute the ranking factors of each proposal.
+    Compute the ranking factors of each proposal from all finalized reviews.
     """
-    import json
     field_ids = [f['identifier'] for f in call['review']
                  if f.get('banner') and f['type'] == constants.RANK]
     for field_id in field_ids:
@@ -356,6 +373,7 @@ def get_review_rank_field_ids(call, proposals):
         for proposal in proposals:
             reviews = utils.get_docs_view('reviews', 'proposal', 
                                           proposal['identifier'])
+            # Only include finalized reviews in the calculation.
             reviews = [r for r in reviews if r.get('finalized')]
             for review in reviews:
                 try:
@@ -366,9 +384,6 @@ def get_review_rank_field_ids(call, proposals):
                 else:
                     d = ranks.setdefault(review['reviewer'], dict())
                     d[proposal['identifier']] = value
-        print(json.dumps(ranks, indent=2))
-        a = dict([(reviewer, len(ranks[reviewer])) for reviewer in ranks])
-        print(json.dumps(a, indent=2))
         ranking_factors = dict()
         for proposal in proposals:
             factors = []
@@ -379,8 +394,14 @@ def get_review_rank_field_ids(call, proposals):
                     pass
                 else:
                     factors.append(float(len(values) - value + 1) / len(values))
-            print(proposal['identifier'], factors)
-            rf = proposal.setdefault('ranking_factor', dict())
-            rf[field_id] = 10.0 * statistics.mean(factors)
-            print(rf[field_id])
+            rf = proposal.setdefault('ranking', dict())
+            rf[field_id] = dict()
+            try:
+                rf[field_id]['factor'] = round(10.0*statistics.mean(factors), 1)
+            except statistics.StatisticsError:
+                rf[field_id]['factor'] = None
+            try:
+                rf[field_id]['stdev'] = round(10.0*statistics.stdev(factors), 1)
+            except statistics.StatisticsError:
+                rf[field_id]['stdev'] = None
     return field_ids

@@ -70,9 +70,13 @@
       {% endif %}
       {% if allow_view_reviews %}
       <th>All reviews</th>
+      {% for id in review_rank_field_ids %}
+      <th>Reviews {{ id }}: ranking factor</th>
+      <th>Reviews {{ id }}: stdev</th>
+      {% endfor %}
       {% if len(review_score_field_ids) >= 2 %}
-      <th>All reviews scores: mean of means</th>
-      <th>All reviews scores: stdev of means</th>
+      <th>Reviews all scores: mean of means</th>
+      <th>Reviews all scores: stdev of means</th>
       {% endif %}
       {% for id in review_score_field_ids %}
       <th>Reviews {{ id }}: mean</th>
@@ -123,19 +127,23 @@
           {{ utils.get_proposal_reviews_count(proposal['identifier']) }}
         </a>
       </td>
+      {% for id in review_rank_field_ids %}
+      <td>{{ proposal['ranking'][id]['factor'] }}</td>
+      <td>{{ proposal['ranking'][id]['stdev'] }}</td>
+      {% endfor %}
       {% if len(review_score_field_ids) >= 2 %}
       <td>
         {% if proposal['scores']['__mean__'] is none %}
         -
         {% else %}
-        {{ "%.1f" % proposal['scores']['__mean__'] }}
+        {{ proposal['scores']['__mean__'] }}
         {% endif %}
       </td>
       <td>
         {% if proposal['scores']['__stdev__'] is none %}
         -
         {% else %}
-        {{ "%.1f" % proposal['scores']['__stdev__'] }}
+        {{ proposal['scores']['__stdev__'] }}
         {% endif %}
       </td>
       {% endif %} {# if len(review_score_field_ids) >= 2 #}
@@ -145,7 +153,7 @@
         {% if proposal['scores'][id]['mean'] is none %}
         -
         {% else %}
-        {{ "%.1f" % proposal['scores'][id]['mean'] }}
+        {{ proposal['scores'][id]['mean'] }}
         {% endif %}
       </td>
       {% if len(review_score_field_ids) == 1 %}
@@ -153,7 +161,7 @@
         {% if proposal['scores'][id]['stdev'] is none %}
         -
         {% else %}
-        {{ "%.1f" % proposal['scores'][id]['stdev'] }}
+        {{ proposal['scores'][id]['stdev'] }}
         {% endif %}
       </td>
       {% endif %}
