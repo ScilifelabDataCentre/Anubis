@@ -288,6 +288,24 @@ class ReviewSaver(FieldMixin, AttachmentSaver):
         self['values'] = {}
         self['errors'] = {}
 
+    def finish(self):
+        "Check rank fields for conflicts with other reviews in same call."
+        call = anubis.call.get_call(self['call'])
+        proposal = anubis.proposal.get_proposal(self['proposal'])
+        reviewer = anubis.user.get_user(self['reviewer'])
+        reviews = utils.get_docs_view('reviews', 'call_reviewer',
+                                      [call['identifier'], 
+                                       reviewer['username']])
+        for field in call['review']:
+            if field['type'] != constants.RANK: continue
+            value = self['values'].get(field['identifier'])
+            if value is None: continue
+            for review in reviews:
+                if self.doc['_id'] == review['_id']: continue
+                if review['values'].get(field['identifier']) == value:
+                    self['errors'][field['identifier']] = 'Rank value conflict'
+                    break
+
     def set_proposal(self, proposal):
         "Set the proposal for the review; must be called when creating."
         if self.doc.get('proposal'):
