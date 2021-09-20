@@ -158,9 +158,7 @@ def get_call_xlsx(call, submitted=False, proposals=None):
         ws.write_string(nrow, ncol, proposal.get('submitted') and 'yes' or 'no')
         ncol += 1
         user = anubis.user.get_user(username=proposal['user'])
-        ws.write_string(
-            nrow, ncol,
-            f"{user.get('familyname') or '-'}, {user.get('givenname') or '-'}")
+        ws.write_string(nrow, ncol, utils.get_fullname(user))
         ncol += 1
         ws.write_string(nrow, ncol, user.get('email') or '')
         ncol += 1

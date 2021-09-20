@@ -188,9 +188,7 @@ def get_call_grants_xlsx(call, grants):
         user = anubis.user.get_user(username=proposal['user'])
         if n_merge > 1:
             ws.merge_range(nrow, ncol, nrow+n_merge-1, ncol, '')
-        ws.write_string(
-            nrow, ncol,
-            f"{user.get('familyname') or '-'}, {user.get('givenname') or '-'}")
+        ws.write_string(nrow, ncol, utils.get_fullname(user))
         ncol += 1
         if n_merge > 1:
             ws.merge_range(nrow, ncol, nrow+n_merge-1, ncol, '')

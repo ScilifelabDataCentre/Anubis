@@ -400,9 +400,7 @@ def get_reviews_xlsx(call, proposals, reviews_lookup):
             if call.get('categories'):
                 ws.write_string(nrow, ncol, proposal.get('category') or '')
                 ncol += 1
-            ws.write_string(
-                nrow, ncol,
-                f"{user.get('familyname') or '-'}, {user.get('givenname') or '-'}")
+            ws.write_string(nrow, ncol, utils.get_fullname(user))
             ncol += 1
             ws.write_string(nrow, ncol, user.get('email') or '')
             ncol += 1

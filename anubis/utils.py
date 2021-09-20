@@ -398,15 +398,10 @@ def user_link(user, fullname=True, chair=False, affiliation=False):
     Optionally output chair flag, or affiliation.
     """
     import anubis.user
-    name = user['username']
     if fullname:
-        try:
-            name = f"{user['givenname']} {user['familyname']}"
-        except KeyError:
-            try:
-                name = user['familyname']
-            except KeyError:
-                pass
+        name = get_fullname(user)
+    else:
+        name = user['username']
     if chair:
         name += " [<strong>chair</strong>]"
     if affiliation:
@@ -543,6 +538,15 @@ def float_value(value):
         return '%.2f' % float(value)
     else:
         return '?'
+
+def get_fullname(user):
+    "Return full name of user, or family name, or user name."
+    if user.get('familyname'):
+        name = user['familyname']
+        if user.get('givenname'):
+            return f"{user['givenname']} {name}"
+        return name
+    return user['username']
 
 class HtmlRenderer(marko.html_renderer.HTMLRenderer):
     """Extension of HTML renderer to allow setting <a> attribute '_target'
