@@ -151,7 +151,8 @@
               {% endif %}
             </a>
             {% else %}
-            <form action="{{ url_for('user.login') }}"
+            <form id="login-form"
+                  action="{{ url_for('user.login') }}"
                   class="form-inline my-2 my-sm-0"
                   method="GET">
               <input type="hidden" name="next" value="{{ request.url }}">
@@ -227,12 +228,12 @@
             {% endblock %}
         </div>
         <div class="col-md-3 text-right">
-          <a id="version" href="{{ constants.SOURCE_URL }}">
+          <a href="{{ constants.SOURCE_URL }}">
             <img src="{{ url_for('static', filename='feather-of-maat.png') }}"
 		 width="32" height="32">
 	    {{ constants.SOURCE_NAME }}
 	  </a>
-	  {{ constants.VERSION }}
+	  <span id="version">{{ constants.VERSION }}</span>
         </div>
       </div>
       {% endblock %} {# block footer #}
