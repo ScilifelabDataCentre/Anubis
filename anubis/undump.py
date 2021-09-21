@@ -12,7 +12,6 @@ import argparse
 import json
 import os
 import tarfile
-import time
 
 import flask
 

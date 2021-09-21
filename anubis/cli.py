@@ -1,4 +1,4 @@
-"Command-line tool."
+"Command-line interface."
 
 import json
 
