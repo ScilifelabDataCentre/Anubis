@@ -41,13 +41,17 @@ def call(cid):
     email_lists = {'Emails to for submitted proposals': 
                    ', '.join(submitted_emails),
                    'Emails for all proposals': ', '.join(all_emails)}
+    rank_fields, rank_errors = get_review_rank_fields_errors(call, proposals)
+    for error in rank_errors:
+        utils.flash_warning(error)
     return flask.render_template(
         'proposals/call.html', 
         call=call,
         proposals=proposals,
         email_lists=email_lists,
         review_score_fields=get_review_score_fields(call, proposals),
-        review_rank_fields=get_review_rank_fields(call, proposals),
+        review_rank_fields=rank_fields,
+        review_rank_errors=rank_errors,
         am_reviewer=anubis.call.am_reviewer(call),
         allow_view_reviews=anubis.call.allow_view_reviews(call),
         allow_view_decisions=anubis.call.allow_view_decisions(call),
@@ -84,7 +88,7 @@ def get_call_xlsx(call, submitted=False, proposals=None):
     else:
         title = f"Selected proposals in call {call['identifier']}"
     score_fields = get_review_score_fields(call, proposals)
-    rank_fields = get_review_rank_fields(call, proposals)
+    rank_fields, rank_errors = get_review_rank_fields_errors(call, proposals)
     output = io.BytesIO()
     wb = xlsxwriter.Workbook(output, {'in_memory': True})
     head_text_format = wb.add_format({'bold': True,
@@ -359,13 +363,16 @@ def get_review_score_fields(call, proposals):
             proposal['scores']['__stdev__'] = stdev_means
     return fields
 
-def get_review_rank_fields(call, proposals):
-    """Return a dictionary of the rank banner fields in the reviews.
+def get_review_rank_fields_errors(call, proposals):
+    """Return a tuple containing a dictionary of the rank banner fields
+    in the reviews and a list of errors.
     Compute the ranking factors of each proposal from all finalized reviews.
+    Check that the ranks are consecutive for all reviewers.
     """
     fields = dict([(f['identifier'], f)
                    for f in call['review']
                    if f.get('banner') and f['type'] == constants.RANK])
+    errors = []
     for id in fields.keys():
         ranks = dict()          # key: reviewer, value: dict(proposal: rank)
         for proposal in proposals:
@@ -382,12 +389,20 @@ def get_review_rank_fields(call, proposals):
                 else:
                     d = ranks.setdefault(review['reviewer'], dict())
                     d[proposal['identifier']] = value
-        ranking_factors = dict()
+        for reviewer, values in ranks.items():
+            series = list(values.values())
+            if series:
+                user = anubis.user.get_user(reviewer)
+                name = utils.get_fullname(user)
+                if min(series) != 1:
+                    errors.append(f"{name} reviews '{id}' do not start with 1.")
+                elif set(series) != set(range(1, max(series)+1)):
+                    errors.append(f"{name} reviews '{id}' are not consecutive.")
         for proposal in proposals:
             factors = []
             for reviewer, values in ranks.items():
                 try:
-                    value = ranks[reviewer][proposal['identifier']]
+                    value = values[proposal['identifier']]
                 except KeyError:
                     pass
                 else:
@@ -402,4 +417,4 @@ def get_review_rank_fields(call, proposals):
                 rf[id]['stdev'] = round(10.0 * statistics.stdev(factors), 1)
             except statistics.StatisticsError:
                 rf[id]['stdev'] = None
-    return fields
+    return fields, errors

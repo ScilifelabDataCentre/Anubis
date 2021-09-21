@@ -296,14 +296,14 @@ class ReviewSaver(FieldMixin, AttachmentSaver):
         reviews = utils.get_docs_view('reviews', 'call_reviewer',
                                       [call['identifier'], 
                                        reviewer['username']])
-        for field in call['review']:
-            if field['type'] != constants.RANK: continue
+        rank_fields = [f for f in call['review'] if f['type'] == constants.RANK]
+        for field in rank_fields:
             value = self['values'].get(field['identifier'])
             if value is None: continue
             for review in reviews:
                 if self.doc['_id'] == review['_id']: continue
                 if review['values'].get(field['identifier']) == value:
-                    self['errors'][field['identifier']] = 'Rank value conflict'
+                    self['errors'][field['identifier']] = 'Invalid: same value as in another review.'
                     break
 
     def set_proposal(self, proposal):
