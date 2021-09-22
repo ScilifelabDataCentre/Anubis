@@ -129,3 +129,15 @@ A multiline text which may use Markdown formatting.
   A simple-minded mechanism to restrict the allowed types of files.
 
 ## Repeat field
+
+This solves the problem when the number of input fields depends on a number
+that the user must input. If the user has e.g. three collaborators, the user
+should then add the name, affiliation and email address in three copies.
+
+After having defined a repeat field, the other fields that should be repeated
+need be associated with it.
+
+When the user inputs a number in a repeat field, the system brings up that
+number of copies of the other fields that have been associated with.
+
+**NOTE**: This is currently implemented only for grants.
