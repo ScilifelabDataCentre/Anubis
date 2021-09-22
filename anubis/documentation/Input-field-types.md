@@ -5,25 +5,94 @@ can store.
 
 ## Available input field types
 
-- **Line**: One single line of text, such as a name or title.
-  May contain any text.
-- **Email**: One single email address, which must look like a proper email
-  address. However, its actual validity is not checked.
-- **Boolean**: A Yes/No question.
-- **Select**: Choose among a set of given options defined on setup.
-- **Integer**: A number that is a whole integer.
-- **Float**: A number that may contain fractions.
-- **Score**: A number in the range if integer values defined on setup.
-- **Rank**: A number in the series 1, 2, 3,...
-- **Text**: A multiline text which may use Markdown formatting.
-- **Document**: An attached file.
+- **Line**. One single line of text, such as a name or title.
+- **Email**. One single email address.
+- **Boolean**. A selection between Yes and No.
+- **Select**. A choice among a set of text given values.
+- **Integer**. A number that is a whole integer.
+- **Float**. A number that may contain fractions.
+- **Score**. A number in the range of integer values defined on setup.
+- **Rank**. A number in the series 1, 2, 3,...
+- **Text**. A multiline text which may use Markdown formatting.
+- **Document**. An attached file.
 
-## Common options for all input field types
+## Common settings for all input field types
 
-All input field types have a number of options that can be set at creation
+All input field types have a number of settings that can be set at creation
 or modified later. These are:
 
-## Rank
+- **Identifier**. The internal name of the field, which must be unique within
+  the form. It must begin with a letter and continue with letters,
+  numbers or underscores.
+
+- **Title**. The name of the field as shown to the user.
+  Defaults to the identifier capitalized.
+
+- **Required**. Is a value required in this field for the form to be valid?
+
+- **Staff edit**. Only the staff may edit the field. The user will see it.
+
+- **Staff only**. Only the staff may edit and view the field.
+  It is not visible to the user.
+
+- **Banner**. The field will be shown in various tables.
+
+- **Description**. The help text displayed for the field.
+   May contain Markdown formatting.
+
+## Line field
+
+One single line of text, such as a name or title. May contain any text.
+
+- **Maxlength**. The maximum number of characters allowed in the
+  field, blanks included.
+
+## Email field
+
+One single email address, which must look like a proper email
+address. However, its actual validity is not checked.
+
+## Boolean field
+
+A selection between Yes and No. If it is not required, then also "No
+value" will be allowed.
+
+## Select field
+
+A choice among a set of given text values.
+
+- **Selection values**.  The values to let the user choose from. Give
+  the values as text where each line is one value.
+
+- **Multiple choice**. Is the user allowed to choose more than one value?
+
+## Integer field
+
+A number that is a whole integer.
+
+- **Minimum**: An optional lower limit for the value given by the user.
+
+- **Maximum**: An optional upper limit for the value given by the user.
+
+## Float field
+
+A number that may contain fractions, i.e. a decimal point.
+
+- **Minimum**: An optional lower limit for the value given by the user.
+
+- **Maximum**: An optional upper limit for the value given by the user.
+
+## Score field
+
+A number in the range of integer values defined on setup. The choice
+of value is presented as a set of buttons, or optionally by input from
+a slider.
+
+- **Minimum**: The lower limit for the value given by the user.
+
+- **Maximum**: The upper limit for the value given by the user.
+
+## Rank field
 
 A field of type rank is intended for reviews. The reviewer must assign
 a value to the field of each of her reviews in a call such that the
@@ -44,3 +113,19 @@ reviews in that call. The formula is:
 For a proposal which has been ranked 1 by all reviewers of it, this will produce
 a ranking factor of 10, which is the maximum. If a reviewer has ranked it at,
 say, 3, then the ranking factor will become slightly less than 10.
+
+## Text field
+
+A multiline text which may use Markdown formatting.
+
+- **Maxlength**. The maximum number of characters allowed in the
+  field, blanks included.
+
+## Document field
+
+ An attached file.
+
+- **Extensions**. A list of allowed extensions for the attached file.
+  A simple-minded mechanism to restrict the allowed types of files.
+
+## Repeat field

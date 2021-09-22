@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '1.3.18'
+__version__ = '1.3.19'
 
 class Constants:
     VERSION     = __version__
@@ -50,9 +50,11 @@ class Constants:
     TEXT     = 'text'
     DOCUMENT = 'document'
     REPEAT   = 'repeat'
-    # Exclude RANK (not meaningful).
+    FIELD_TYPES = (LINE, EMAIL, BOOLEAN, SELECT, INTEGER, FLOAT,
+                   SCORE, RANK, TEXT, DOCUMENT, REPEAT)
+    # Exclude RANK (not meaningful) and REPEAT (not yet implemented).
     PROPOSAL_FIELD_TYPES = (LINE, EMAIL, BOOLEAN, SELECT, INTEGER, FLOAT,
-                            SCORE, TEXT, DOCUMENT, REPEAT)
+                            SCORE, TEXT, DOCUMENT)
     # Exclude REPEAT (not yet implemented).
     REVIEW_FIELD_TYPES = (LINE, EMAIL, BOOLEAN, SELECT, INTEGER, FLOAT,
                           SCORE, RANK, TEXT, DOCUMENT)
