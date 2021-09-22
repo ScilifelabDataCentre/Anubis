@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '1.3.17'
+__version__ = '1.3.18'
 
 class Constants:
     VERSION     = __version__
@@ -50,8 +50,18 @@ class Constants:
     TEXT     = 'text'
     DOCUMENT = 'document'
     REPEAT   = 'repeat'
-    FIELD_TYPES = (LINE, EMAIL, BOOLEAN, SELECT, INTEGER, FLOAT,
-                   SCORE, RANK, TEXT, DOCUMENT, REPEAT)
+    # Exclude RANK (not meaningful).
+    PROPOSAL_FIELD_TYPES = (LINE, EMAIL, BOOLEAN, SELECT, INTEGER, FLOAT,
+                            SCORE, TEXT, DOCUMENT, REPEAT)
+    # Exclude REPEAT (not yet implemented).
+    REVIEW_FIELD_TYPES = (LINE, EMAIL, BOOLEAN, SELECT, INTEGER, FLOAT,
+                          SCORE, RANK, TEXT, DOCUMENT)
+    # Exclude RANK (not meaningful) and REPEAT (not yet implemented).
+    DECISION_FIELD_TYPES = (LINE, EMAIL, BOOLEAN, SELECT, INTEGER, FLOAT,
+                            SCORE, TEXT, DOCUMENT)
+    # Exclude RANK (not meaningful).
+    GRANT_FIELD_TYPES = (LINE, EMAIL, BOOLEAN, SELECT, INTEGER, FLOAT,
+                         SCORE, TEXT, DOCUMENT, REPEAT)
 
     # Access flags for each call
     ACCESS = ('allow_reviewer_view_all_reviews',
@@ -66,6 +76,7 @@ class Constants:
                      "Instructions for users",
                      "Instructions for reviewers",
                      "Instructions for admins",
+                     "Input field types",
                      "Privileges")
 
 

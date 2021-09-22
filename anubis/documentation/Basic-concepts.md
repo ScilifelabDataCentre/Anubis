@@ -1,11 +1,9 @@
-Basic concepts
-==============
+# Basic concepts
 
 The basic concepts used in the Anubis system are described briefly
 here.
 
-Call
-----
+## Call
 
 A **call** in the Anubis system is a call for proposals. It contains a
 description of the call, optionally with documents such as PDFs. It
@@ -22,8 +20,7 @@ After the **closes** date of a call, if defined, a user can no longer
 create or submit a proposal in it. A call that does not have a
 **closes** date is open indefinitely.
 
-Proposal
---------
+## Proposal
 
 A proposal is created within an open call by a user. Only one proposal
 in each call can be created by any given user. The user fills in the
@@ -33,8 +30,7 @@ When all required input fields have been filled in, the user may
 submit the proposal. If the call has been closed, it is no longer
 possible to submit a proposal.
 
-Review
-------
+## Review
 
 A review is an evaluation by a reviewer of a specific proposal. Review
 instance are created by the admin. A reviewer can only edit her
@@ -48,8 +44,7 @@ Review instances have input fields defined by the admin, similar to
 how a proposal is defined. All reviews within a call have the same
 input fields.
 
-Decision
---------
+## Decision
 
 A decision is created by the admin for each proposal. The admin or the
 chair (a special reviewer) may edit and finalize the decision.
@@ -59,8 +54,7 @@ respective submitter by setting an access flag in the call. Currently,
 no email is automatically sent by the system to the submitter when
 this is done.
 
-User
-----
+## User
 
 A user of the system must register an account, and each user must have
 a valid email account to which emails with instructions on how to set
@@ -77,8 +71,7 @@ The admin may allow a user to create calls. A user who has created a
 call becomes the administrator of it, and can deal with nearly all
 aspects of it.
 
-Reviewer
---------
+## Reviewer
 
 A reviewer is a user account who has been designated as a reviewer in
 a specific call by the admin. A reviewer is not allowed to have a
@@ -89,15 +82,13 @@ in any other call. This makes it possible for a user to be an ordinary
 submitter of a proposal in one call, while being a reviewer in another
 call.
 
-Chair
------
+## Chair
 
 A chair is a special kind of reviewer, who has the privilege to create
 and delete review instances within the call. The chair can also view
 the reviews of all reviewers in that call.
 
-Admin
------
+## Admin
 
 An admin is a user that has privileges to perform any action in the
 web interface of the Anubis system.

@@ -25,12 +25,12 @@ Edit grant fields for call {{ call['identifier'] }}
 
 <hr>
 <div class="m-4">
-  {% for field_type in constants.FIELD_TYPES %}
+  {% for field_type in constants.GRANT_FIELD_TYPES %}
   <button type="button" class="btn btn-primary mr-2 mb-2"
 	  data-toggle="modal" data-target="#_{{ field_type }}Modal">
     Add {{ field_type }} field
   </button>
-  {% endfor %} {# for field_type in constants.FIELD_TYPES #}
+  {% endfor %}
 </div>
 
 {% endblock %} {# block main #}
@@ -40,12 +40,18 @@ Edit grant fields for call {{ call['identifier'] }}
   <a href="{{ url_for('.display', cid=call['identifier']) }}"
      role="button" class="btn btn-block btn-secondary">Back</a>
 </div>
+<div class="mt-2">
+  <a href="{{ url_for('about.documentation', page='Input-field-types') }}"
+     role="button" class="btn btn-block btn-outline-secondary"
+     target="_blank">
+    Input field types</a>
+</div>
 {% endblock %}
 
 {% block modals %}
 
 {% set post_url = url_for('.grant', cid=call['identifier']) %}
-{% for field_type in constants.FIELD_TYPES %}
+{% for field_type in constants.GRANT_FIELD_TYPES %}
 {% include 'create_field_definition.html' %}
 {% endfor %}
 

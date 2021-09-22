@@ -27,15 +27,12 @@ Edit proposal fields for call {{ call['identifier'] }}
 
 <hr>
 <div class="m-4">
-  {% for field_type in constants.FIELD_TYPES %}
-  {# Exclude repeat field; not implemented yet for proposal! #}
-  {% if field_type != constants.REPEAT %}
+  {% for field_type in constants.PROPOSAL_FIELD_TYPES %}
   <button type="button" class="btn btn-primary mr-2 mb-2"
 	  data-toggle="modal" data-target="#_{{ field_type }}Modal">
     Add {{ field_type }} field
   </button>
-  {% endif %}
-  {% endfor %} {# for field_type in constants.FIELD_TYPES #}
+  {% endfor %}
 </div>
 
 {% endblock %} {# block main #}
@@ -45,16 +42,19 @@ Edit proposal fields for call {{ call['identifier'] }}
   <a href="{{ url_for('.display', cid=call['identifier']) }}"
      role="button" class="btn btn-block btn-secondary">Back</a>
 </div>
+<div class="mt-2">
+  <a href="{{ url_for('about.documentation', page='Input-field-types') }}"
+     role="button" class="btn btn-block btn-outline-secondary"
+     target="_blank">
+    Input field types</a>
+</div>
 {% endblock %}
 
 {% block modals %}
 
 {% set post_url = url_for('.proposal', cid=call['identifier']) %}
-{% for field_type in constants.FIELD_TYPES %}
-{# Exclude repeat field; not implemented yet for proposal! #}
-{% if field_type != constants.REPEAT %}
+{% for field_type in constants.PROPOSAL_FIELD_TYPES %}
 {% include 'create_field_definition.html' %}
-{% endif %}
 {% endfor %}
 
 {% for field in call['proposal'] %}
