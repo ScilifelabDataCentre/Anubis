@@ -29,7 +29,7 @@ def init(app):
     MAIL.init_app(app)
     app.add_template_filter(markdown)
     app.add_template_filter(field_value)
-    app.add_template_filter(none_empty_string)
+    app.add_template_filter(value_or_none)
     app.add_template_filter(datetimetz)
     app.add_template_filter(boolean_value)
     app.add_template_filter(user_link)
@@ -360,10 +360,10 @@ def field_value(field, entity, fid=None, truncate_documentname=None):
     else:
         return value
 
-def none_empty_string(value):
-    "If the value is None, then return empty string, else the value."
+def value_or_none(value, default="-"):
+    "Display the value if not None, else the default."
     if value is None:
-        return ''
+        return default
     else:
         return value
 

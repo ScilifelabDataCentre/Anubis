@@ -37,7 +37,7 @@ reviews are done.
 
 - The reviewer may view all proposals in the call.
 - The reviewer can edit her review instance.
-- The reviewerscannot create or delete review instances.
+- The reviewers cannot create or delete review instances.
 - The chair, if any, of a call may create review instances.
 - A reviewer may view finalized reviews by other reviewers only if the
   admin allows it for the call.

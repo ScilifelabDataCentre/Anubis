@@ -128,42 +128,18 @@
         </a>
       </td>
       {% for id in review_rank_fields.keys() %}
-      <td>{{ proposal['ranking'][id]['factor'] }}</td>
-      <td>{{ proposal['ranking'][id]['stdev'] }}</td>
+      <td>{{ proposal['ranking'][id]['factor'] | value_or_none }}</td>
+      <td>{{ proposal['ranking'][id]['stdev'] | value_or_none }}</td>
       {% endfor %}
       {% if len(review_score_fields) >= 2 %}
-      <td>
-        {% if proposal['scores']['__mean__'] is none %}
-        -
-        {% else %}
-        {{ proposal['scores']['__mean__'] }}
-        {% endif %}
-      </td>
-      <td>
-        {% if proposal['scores']['__stdev__'] is none %}
-        -
-        {% else %}
-        {{ proposal['scores']['__stdev__'] }}
-        {% endif %}
-      </td>
+      <td>{{ proposal['scores']['__mean__'] | value_or_none }}</td>
+      <td>{{ proposal['scores']['__stdev__'] | value_or_none }}</td>
       {% endif %} {# if len(review_score_fields) >= 2 #}
 
       {% for id in review_score_fields %}
-      <td>
-        {% if proposal['scores'][id]['mean'] is none %}
-        -
-        {% else %}
-        {{ proposal['scores'][id]['mean'] }}
-        {% endif %}
-      </td>
+      <td>{{ proposal['scores'][id]['mean'] | value_or_none }}</td>
       {% if len(review_score_fields) == 1 %}
-      <td>
-        {% if proposal['scores'][id]['stdev'] is none %}
-        -
-        {% else %}
-        {{ proposal['scores'][id]['stdev'] }}
-        {% endif %}
-      </td>
+      <td>{{ proposal['scores'][id]['stdev'] | value_or_none }}</td>
       {% endif %}
       {% endfor %} {# for id in review_score_fields #}
 
