@@ -375,7 +375,8 @@ def allow_create(proposal):
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True
     call = anubis.call.get_call(proposal['call'])
-    if anubis.call.am_chair(call): return True
+    if anubis.call.am_chair(call) and \
+       call['access'].get('allow_chair_create_reviews'): return True
     if anubis.call.am_owner(call): return True
     return False
 

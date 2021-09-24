@@ -18,7 +18,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
 {% endblock %}
 
 {% block supermain %}
-{% if finalized %}
+{% if only_finalized %}
 <p class="lead">
   NOTE: Only finalized reviews are listed.
 </p>
@@ -41,29 +41,30 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
   <tbody class="table-borderless">
     {% for reviewer in reviewers %}
     {% set review = reviews_lookup.get(reviewer) %}
+    {% if review is none and not allow_create_review %}
+    {% continue %}
+    {% endif %}
     <tr>
       {% if review %}
       <td>{{ review | review_link }}</td>
       {% for field in utils.get_banner_fields(call['review']) %}
       <td>{{ field | field_value(review) }}</td>
       {% endfor %}
+
       {% else %}
       <td>
-	{% if allow_create_review %}
 	<form action="{{ url_for('review.create', pid=proposal['identifier'], username=reviewer) }}"
 	      method="POST">
 	  {{ csrf_token() }}
 	  <button type="submit" class="btn btn-sm btn-info py-0">
             Create review</button>
 	</form>
-	{% else %}
-	-
-	{% endif %} {# if allow_create_review #}
       </td>
       {% for field in utils.get_banner_fields(call['review']) %}
       <td>-</td>
       {% endfor %} {# for field in ... #}
       {% endif %} {# if review #}
+
       <td>{{ get_user(reviewer) | user_link }}</td>
     </tr>
     {% endfor %}

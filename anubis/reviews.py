@@ -34,17 +34,17 @@ def call(cid):
         proposal['allow_create_review'] = anubis.review.allow_create(proposal)
     reviews = utils.get_docs_view('reviews', 'call', call['identifier'])
     # For ordinary reviewer, list only finalized reviews.
-    if not (flask.g.am_admin or flask.g.am_staff or anubis.call.am_chair(call)):
-        finalized = True
-        reviews = [r for r in reviews if r.get('finalized')]
+    if flask.g.am_admin or flask.g.am_staff or anubis.call.am_chair(call):
+        only_finalized = False
     else:
-        finalized = False
+        only_finalized = True
+        reviews = [r for r in reviews if r.get('finalized')]
     reviews_lookup = {f"{r['proposal']} {r['reviewer']}":r for r in reviews}
     return flask.render_template('reviews/call.html',
                                  call=call,
                                  proposals=proposals,
                                  reviews_lookup=reviews_lookup,
-                                 finalized=finalized)
+                                 only_finalized=only_finalized)
 
 @blueprint.route('/call/<cid>.xlsx')
 @utils.login_required
@@ -195,13 +195,12 @@ def proposal(pid):
                            flask.url_for('call.display',cid=call['identifier']))
 
     reviews = utils.get_docs_view('reviews', 'proposal', proposal['identifier'])
-    if not (flask.g.am_admin or anubis.call.am_chair(call)):
-        finalized = True
-        reviews = [r for r in reviews
-                   if r['reviewer'] != flask.g.current_user['username'] and 
-                   r.get('finalized')]
+    # For ordinary reviewer, list only finalized reviews.
+    if flask.g.am_admin or flask.g.am_staff or anubis.call.am_chair(call):
+        only_finalized = False
     else:
-        finalized = False
+        only_finalized = True
+        reviews = [r for r in reviews if r.get('finalized')]
     allow_create_review = anubis.review.allow_create(proposal)
     reviews_lookup = {r['reviewer']:r for r in reviews}
     return flask.render_template('reviews/proposal.html',
@@ -210,7 +209,7 @@ def proposal(pid):
                                  allow_create_review=allow_create_review,
                                  reviewers=call['reviewers'],
                                  reviews_lookup=reviews_lookup,
-                                 finalized=finalized)
+                                 only_finalized=only_finalized)
 
 @blueprint.route('/proposal/<pid>/archived')
 @utils.login_required

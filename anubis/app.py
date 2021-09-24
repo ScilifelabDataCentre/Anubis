@@ -20,6 +20,7 @@ from anubis import constants
 from anubis import utils
 
 app = flask.Flask(__name__)
+app.jinja_env.add_extension("jinja2.ext.loopcontrols")
 
 # Get the configuration and initialize modules.
 anubis.config.init(app)
