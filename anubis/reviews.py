@@ -352,7 +352,7 @@ def get_reviews_xlsx(call, proposals, reviews_lookup):
     normal_text_format = wb.add_format({'font_size': 14,
                                         'align': 'left',
                                         'valign': 'vcenter'})
-    ws = wb.add_worksheet(f"Reviews in call {call['identifier']}")
+    ws = wb.add_worksheet(f"Reviews in call {call['identifier']}"[:31])
     ws.freeze_panes(1, 1)
     ws.set_row(0, 60, head_text_format)
     ws.set_column(1, 1, 40, normal_text_format)

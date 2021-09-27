@@ -116,7 +116,7 @@ def display_xlsx(pid):
     normal_text_format = wb.add_format({'font_size': 14,
                                         'align': 'left',
                                         'valign': 'vcenter'})
-    ws = wb.add_worksheet(f"Proposal {proposal['identifier'].replace(':','-')}")
+    ws = wb.add_worksheet(f"Proposal {proposal['identifier'].replace(':','-')}"[:31])
     ws.set_column(0, 0, 20, head_text_format)
     ws.set_column(1, 1, 60, normal_text_format)
     ws.set_column(2, 2, 60, normal_text_format)

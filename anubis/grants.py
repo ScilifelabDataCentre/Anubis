@@ -98,7 +98,7 @@ def get_call_grants_xlsx(call, grants):
     normal_text_format = wb.add_format({'font_size': 14,
                                         'align': 'left',
                                         'valign': 'vcenter'})
-    ws = wb.add_worksheet(f"Grants in call {call['identifier']}")
+    ws = wb.add_worksheet(f"Grants in call {call['identifier']}"[:31])
     ws.freeze_panes(2, 1)
     ws.set_row(0, 60, head_text_format)
     ws.set_row(1, 60, head_text_format)
