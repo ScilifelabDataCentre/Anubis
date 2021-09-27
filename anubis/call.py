@@ -65,39 +65,38 @@ def display(cid):
     if not allow_view(call):
         return utils.error('You are not allowed to view the call.')
     kwargs = {}
-    if flask.g.current_user:
-        if allow_view_details(call):
-            reviewers = [anubis.user.get_user(r) for r in call['reviewers']]
-            reviewers.sort(key=lambda r: (r.get('familyname') or '-',
-                                          r.get('givenname') or '-'))
-            kwargs['reviewers'] = reviewers
-            reviewer_emails = [r['email'] for r in reviewers]
-            reviewer_emails = [e for e in reviewer_emails if e]
-            access_emails = []
-            for username in [call['owner']] + call.get('access_view', []):
-                user = anubis.user.get_user(username=username)
-                if user:
-                    access_emails.append(user['email'])
-            # There may be accounts that have no email!
-            access_emails = [e for e in access_emails if e]
-            all_emails = reviewer_emails + access_emails
-            email_lists = {'Emails for reviewers': ', '.join(reviewer_emails),
-                           'Persons with access to this call':
-                           ', '.join(access_emails),
-                           'All involved persons': ', '.join(all_emails)}
-            kwargs['email_lists'] = email_lists
-        kwargs['my_proposal'] = anubis.proposal.get_call_user_proposal(
-            cid, flask.g.current_user['username'])
-        kwargs['my_reviews_count'] = utils.get_call_reviewer_reviews_count(
-            cid, flask.g.current_user['username'])
-        kwargs['my_archived_reviews_count'] = utils.get_call_reviewer_reviews_count(
-            cid, flask.g.current_user['username'], archived=True)
-        kwargs['call_proposals_count'] = utils.get_call_proposals_count(cid)
-        if call.get('categories'):
-            kwargs['call_proposals_category_counts'] = dict(
-                [(c, utils.get_call_proposals_count(cid, c))
-                 for c in sorted(call.get('categories'))])
-        kwargs['call_grants_count'] = utils.get_call_grants_count(cid)
+    if allow_view_details(call):
+        reviewers = [anubis.user.get_user(r) for r in call['reviewers']]
+        reviewers.sort(key=lambda r: (r.get('familyname') or '-',
+                                      r.get('givenname') or '-'))
+        kwargs['reviewers'] = reviewers
+        reviewer_emails = [r['email'] for r in reviewers]
+        reviewer_emails = [e for e in reviewer_emails if e]
+        access_emails = []
+        for username in [call['owner']] + call.get('access_view', []):
+            user = anubis.user.get_user(username=username)
+            if user:
+                access_emails.append(user['email'])
+        # There may be accounts that have no email!
+        access_emails = [e for e in access_emails if e]
+        all_emails = reviewer_emails + access_emails
+        email_lists = {'Emails for reviewers': ', '.join(reviewer_emails),
+                       'Persons with access to this call':
+                       ', '.join(access_emails),
+                       'All involved persons': ', '.join(all_emails)}
+        kwargs['email_lists'] = email_lists
+    kwargs['my_proposal'] = anubis.proposal.get_call_user_proposal(
+        cid, flask.g.current_user['username'])
+    kwargs['my_reviews_count'] = utils.get_call_reviewer_reviews_count(
+        cid, flask.g.current_user['username'])
+    kwargs['my_archived_reviews_count'] = utils.get_call_reviewer_reviews_count(
+        cid, flask.g.current_user['username'], archived=True)
+    kwargs['call_proposals_count'] = utils.get_call_proposals_count(cid)
+    if call.get('categories'):
+        kwargs['call_proposals_category_counts'] = dict(
+            [(c, utils.get_call_proposals_count(cid, c))
+             for c in sorted(call.get('categories'))])
+    kwargs['call_grants_count'] = utils.get_call_grants_count(cid)
     return flask.render_template('call/display.html',
                                  call=call,
                                  am_owner=am_owner(call),

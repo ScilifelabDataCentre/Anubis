@@ -100,7 +100,7 @@ def get_call_xlsx(call, submitted=False, proposals=None):
     normal_text_format = wb.add_format({'font_size': 14,
                                         'align': 'left',
                                         'valign': 'vcenter'})
-    ws = wb.add_worksheet(title)
+    ws = wb.add_worksheet(title[:31])
     ws.freeze_panes(1, 1)
     ws.set_row(0, 60, head_text_format)
     ws.set_column(1, 1, 40, normal_text_format)
