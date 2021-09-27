@@ -48,8 +48,10 @@ def closed():
     return flask.render_template(
         'calls/closed.html',
         calls=calls,
-        # Function, not value, is passed.
-        allow_view_details=anubis.call.allow_view_details)
+        # Functions, not values, are passed.
+        allow_view_proposals=anubis.call.allow_view_proposals,
+        allow_view_reviews=anubis.call.allow_view_reviews,
+        allow_view_grants=anubis.call.allow_view_grants)
 
 @blueprint.route('/open')
 def open():
@@ -96,5 +98,7 @@ def grants():
     return flask.render_template(
         'calls/grants.html',
         calls=calls,
-        # Function, not value, is passed.
-        allow_view_details=anubis.call.allow_view_details)
+        # Functions, not values, are passed.
+        allow_view_proposals=anubis.call.allow_view_proposals,
+        allow_view_reviews=anubis.call.allow_view_reviews,
+        allow_view_grants=anubis.call.allow_view_grants)

@@ -106,6 +106,7 @@ def display(cid):
                                  allow_change_access=allow_change_access(call),
                                  allow_create_proposal=anubis.proposal.allow_create(call),
                                  allow_view_details=allow_view_details(call),
+                                 allow_view_proposals=allow_view_proposals(call),
                                  allow_view_reviews=allow_view_reviews(call),
                                  allow_view_grants=allow_view_grants(call),
                                  **kwargs)
@@ -964,7 +965,18 @@ def allow_change_access(call):
 
 def allow_view_details(call):
     """The admin, staff, call owner and reviewers may view the details 
-    of the call, including all proposals, reviews and grants.
+    of the call, such as reviewers and access flags.
+    """
+    if not flask.g.current_user: return False
+    if flask.g.am_admin: return True
+    if flask.g.am_staff: return True
+    if am_owner(call): return True
+    if am_reviewer(call): return True
+    return False
+
+def allow_view_proposals(call):
+    """The admin, staff, call owner and reviewers may view all proposals
+    of the call.
     """
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True

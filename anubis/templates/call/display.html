@@ -8,19 +8,19 @@
 {% endblock %}
 
 {% block meta %}
-{% if allow_view_details or allow_view_grants %}
+{% if allow_view_proposals or allow_view_grants %}
 <a href="{{ url_for('proposals.call_xlsx', cid=call['identifier']) }}"
    class="badge badge-pill badge-dark" role="button"
    title="All proposals in the call.">Proposals Excel file</a>
-{% endif %} {# if allow_view_details or allow_view_grants #}
-{% if allow_view_details %}
+{% endif %} {# if allow_view_proposals or allow_view_grants #}
+{% if allow_view_proposals %}
 <a href="{{ url_for('.call_zip', cid=call['identifier']) }}"
    title="Excel file and documents for submitted proposals."
    class="badge badge-pill badge-dark">Submitted proposals zip file</a>
 <a href="#email_lists" data-toggle="collapse"
    class="badge badge-pill badge-secondary" role="button"
    aria-expanded="false" aria-controls="email_lists">Email address lists</a>
-{% endif %} {# if allow_view_details #}
+{% endif %} {# if allow_view_proposals #}
 {% endblock %}
 
 {% block main %}
@@ -88,19 +88,16 @@
 </div>
 {% endif %} {# if allow_view_details #}
 
-{% if allow_view_details or allow_view_grants %}
+{% if allow_view_proposals or allow_view_grants %}
 <div class="row my-1">
   <div class="col-md-2 font-weight-bold text-right">All proposals</div>
   <div class="col-md">
     <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
        role="button" class="btn btn-sm btn-primary">
       {{ call_proposals_count }} proposals</a>
-    {% if not allow_view_details %}
-    (You are only allowed to view accepted proposals.)
-    {% endif %} {# if not allow_view_details #}
   </div>
 </div>
-{% endif %} {# if allow_view_details or allow_view_grants #}
+{% endif %} {# if allow_view_proposals or allow_view_grants #}
 
 {% if am_reviewer %}
 <div class="row my-1">
@@ -245,7 +242,7 @@
   </div>
 </div>
 
-{% if g.am_admin or g.am_staff or am_owner or am_reviewer %}
+{% if allow_view_details %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Access</div>
   <div class="col-md-5">
@@ -263,7 +260,7 @@
     </table>
   </div>
 </div>
-{% endif %} {# if g.am_admin or g.am_staff or am_owner or am_reviewer #}
+{% endif %} {# if allow_view_details #}
 
 {% if allow_view_details %}
 

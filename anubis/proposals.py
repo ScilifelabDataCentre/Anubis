@@ -53,9 +53,10 @@ def call(cid):
         review_rank_fields=rank_fields,
         review_rank_errors=rank_errors,
         am_reviewer=anubis.call.am_reviewer(call),
+        allow_view_details=anubis.call.allow_view_details(call),
         allow_view_reviews=anubis.call.allow_view_reviews(call),
         allow_view_decisions=anubis.call.allow_view_decisions(call),
-        allow_view_details=anubis.call.allow_view_details(call),
+        allow_view_grants=anubis.call.allow_view_grants(call),
         category=category,
         get_reviewer_review=anubis.review.get_reviewer_review)
 
