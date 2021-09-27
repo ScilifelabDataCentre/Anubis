@@ -86,7 +86,7 @@ def get_call_xlsx(call, submitted=False, proposals=None):
             category=flask.request.args.get('category'),
             submitted=submitted)
     else:
-        title = f"Selected proposals in call {call['identifier']}"
+        title = f"Selected proposals in {call['identifier']}"
     score_fields = get_review_score_fields(call, proposals)
     rank_fields, rank_errors = get_review_rank_fields_errors(call, proposals)
     output = io.BytesIO()
