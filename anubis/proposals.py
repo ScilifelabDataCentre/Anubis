@@ -196,13 +196,13 @@ def get_call_xlsx(call, submitted=False, proposals=None):
             for id in rank_fields.keys():
                 value = proposal['ranking'][id]['factor']
                 if value is None:
-                    ws.write_number(nrow, ncol, '')
+                    ws.write_string(nrow, ncol, '')
                 else:
                     ws.write_number(nrow, ncol, value)
                 ncol += 1
                 value = proposal['ranking'][id]['stdev']
                 if value is None:
-                    ws.write_number(nrow, ncol, '')
+                    ws.write_string(nrow, ncol, '')
                 else:
                     ws.write_number(nrow, ncol, value)
                 ncol += 1
