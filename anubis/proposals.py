@@ -80,7 +80,7 @@ def get_call_xlsx(call, submitted=False, proposals=None):
     Optionally for the given list proposals.
     """
     if proposals is None:
-        title = f"Proposals in call {call['identifier']}"
+        title = f"Proposals in {call['identifier']}"
         proposals = get_call_proposals(
             call,
             category=flask.request.args.get('category'),

@@ -437,9 +437,7 @@ def get_user(username=None, email=None):
     if username:
         key = f"username {username}"
         try:
-            user = flask.g.cache[key]
-            flask.current_app.logger.debug(f"cache hit {key}")
-            return user
+            return flask.g.cache[key]
         except KeyError:
             docs = [r.doc for r in flask.g.db.view('users', 'username', 
                                                    key=username,
@@ -456,9 +454,7 @@ def get_user(username=None, email=None):
         email = email.lower()
         key = f"email {email}"
         try:
-            user = flask.g.cache[key]
-            flask.current_app.logger.debug(f"cache hit {key}")
-            return user
+            return flask.g.cache[key]
         except KeyError:
             docs = [r.doc for r in flask.g.db.view('users', 'email',
                                                    key=email,

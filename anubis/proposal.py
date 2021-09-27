@@ -477,9 +477,7 @@ def get_proposal(pid, refresh=False):
     key = f"proposal {pid}"
     try:
         if refresh: raise KeyError
-        proposal = flask.g.cache[key]
-        flask.current_app.logger.debug(f"cache hit {key}")
-        return proposal
+        return flask.g.cache[key]
     except KeyError:
         docs = [r.doc for r in flask.g.db.view('proposals', 'identifier',
                                                key=pid,

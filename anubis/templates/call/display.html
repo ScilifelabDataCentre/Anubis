@@ -245,7 +245,7 @@
   </div>
 </div>
 
-{% if allow_view_details %}
+{% if g.am_admin or g.am_staff or am_owner or am_reviewer %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Access</div>
   <div class="col-md-5">
@@ -263,7 +263,7 @@
     </table>
   </div>
 </div>
-{% endif %} {# if allow_view_details #}
+{% endif %} {# if g.am_admin or g.am_staff or am_owner or am_reviewer #}
 
 {% if allow_view_details %}
 

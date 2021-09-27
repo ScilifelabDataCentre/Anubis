@@ -248,9 +248,7 @@ def get_decision(iuid):
     if not iuid: return None
     key = f"decision {iuid}"
     try:
-        decision = flask.g.cache[key]
-        flask.current_app.logger.debug(f"cache hit {key}")
-        return decision
+        return flask.g.cache[key]
     except KeyError:
         try:
             decision = flask.g.db[iuid]

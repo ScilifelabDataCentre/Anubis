@@ -341,9 +341,7 @@ def get_review(iuid):
     if not iuid: return None
     key = f"review {iuid}"
     try:
-        review = flask.g.cache[key]
-        flask.current_app.logger.debug(f"cache hit {key}")
-        return review
+        return flask.g.cache[key]
     except KeyError:
         try:
             review = flask.g.db[iuid]

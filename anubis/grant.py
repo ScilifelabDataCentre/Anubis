@@ -362,9 +362,7 @@ def get_grant(gid):
     """
     key = f"grant {gid}"
     try:
-        grant = flask.g.cache[key]
-        flask.current_app.logger.debug(f"cache hit {key}")
-        return grant
+        return flask.g.cache[key]
     except KeyError:
         docs = [r.doc for r in flask.g.db.view('grants', 'identifier',
                                                key=gid,
@@ -383,9 +381,7 @@ def get_grant_proposal(pid):
     """
     key = f"grant {pid}"
     try:
-        grant = flask.g.cache[key]
-        flask.current_app.logger.debug(f"cache hit {key}")
-        return grant
+        return flask.g.cache[key]
     except KeyError:
         docs = [r.doc for r in flask.g.db.view('grants', 'proposal',
                                                key=pid,
