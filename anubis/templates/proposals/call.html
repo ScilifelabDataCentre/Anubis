@@ -123,7 +123,7 @@
       {% if proposal.get('submitted') %}
       <td>
         <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
-           role="button" class="btn btn-sm btn-info px-3">
+           role="button" class="btn btn-sm btn-info">
           {{ utils.get_proposal_reviews_count(proposal['identifier']) }}
         </a>
       </td>

@@ -27,6 +27,10 @@ def owner(username):
     Includes calls that have not been opened,
     and those with neither opens nor closes dates set.
     """
+    if not (flask.g.am_admin or flask.g.am_staff or flask.g.current_user["username"] == username):
+        return utils.error("Either of roles 'admin' or 'staff' is required.",
+                           home=True)
+
     calls = [anubis.call.set_tmp(r.doc) for r in 
              flask.g.db.view('calls', 'owner',
                              key=username,
@@ -59,7 +63,9 @@ def open():
     return flask.render_template('calls/open.html',
                                  calls=get_open_calls(),
                                  am_owner=anubis.call.am_owner,
-                                 allow_create=anubis.call.allow_create())
+                                 allow_create=anubis.call.allow_create(),
+                                 # Function, not value, is passed.
+                                 allow_view_proposals=anubis.call.allow_view_proposals)
 
 def get_open_calls():
     "Return a list of open calls, sorted according to configuration."

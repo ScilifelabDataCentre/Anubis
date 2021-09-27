@@ -13,8 +13,7 @@
       <th>Closes</th>
       <th></th>
       {% if allow_create %}
-      <th title="Includes only proposals marked by the user as 'submitted'.">
-	Proposals</th>
+      <th>Proposals</th>
       <th>Reviews</a>
       {% endif %} {# if allow_create #}
     </tr>
@@ -30,27 +29,8 @@
           {{ call['tmp']['text'] }}</span>
       </td>
       {% if allow_create %}
-      {% if g.am_admin or am_owner(call) %}
-      <td>
-        <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
-           role="button" class="btn btn-sm btn-primary px-3">
-          {{ utils.get_call_proposals_count(call['identifier']) }}
-        </a>
-      </td>
-      <td>
-        <a href="{{ url_for('reviews.call', cid=call['identifier']) }}"
-           role="button" class="btn btn-sm btn-info px-3">
-          {{ utils.get_call_reviews_count(call['identifier']) }}
-        </a>
-      </td>
-      {% else %}
-      <td>
-        <i>N/A</i>
-      </td>
-      <td>
-        <i>N/A</i>
-      </td>
-      {% endif %} {# if g.am_admin or am_owner(call) #}
+      <td>{{ call | call_proposals_link }}</td>
+      <td>{{ call | call_reviews_link }}</td>
       {% endif %} {# if allow_create #}
     </tr>
     {% endfor %} {# for call in calls #}

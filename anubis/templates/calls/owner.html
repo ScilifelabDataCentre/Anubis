@@ -32,34 +32,9 @@ Calls by {{ get_user(username) | user_link }}
         <span class="badge badge-pill badge-{{ call['tmp']['color'] }}">
           {{ call['tmp']['text'] }}</span>
       </td>
-      <td>
-        {% set count = utils.get_call_proposals_count(call['identifier']) %}
-        {% if count %}
-        <a href="{{ url_for('proposals.call', cid=call['identifier']) }}"
-           role="button" class="btn btn-sm btn-primary px-3">{{ count }}</a>
-        {% else %}
-        -
-        {% endif %}
-      </td>
-      <td>
-        {% set count = utils.get_call_reviews_count(call['identifier']) %}
-        {% if count %}
-        <a href="{{ url_for('reviews.call', cid=call['identifier']) }}"
-           role="button" class="btn btn-sm btn-info px-3">{{ count }}</a>
-        
-        {% else %}
-        -
-        {% endif %}
-      </td>
-      <td>
-        {% set count = utils.get_call_grants_count(call['identifier']) %}
-        {% if count %}
-        <a href="{{ url_for('grants.call', cid=call['identifier']) }}"
-           role="button" class="btn btn-sm btn-success px-3">{{ count }}</a>
-        {% else %}
-        -
-        {% endif %}
-      </td>
+      <td>{{ call | call_proposals_link }}</td>
+      <td>{{ call | call_reviews_link }}</td>
+      <td>{{ call | call_grants_link }}</td>
     </tr>
     {% endfor %} {# for call in calls #}
   </tbody>

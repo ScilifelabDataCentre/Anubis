@@ -34,6 +34,9 @@ def init(app):
     app.add_template_filter(boolean_value)
     app.add_template_filter(user_link)
     app.add_template_filter(call_link)
+    app.add_template_filter(call_proposals_link)
+    app.add_template_filter(call_reviews_link)
+    app.add_template_filter(call_grants_link)
     app.add_template_filter(proposal_link)
     app.add_template_filter(review_link)
     app.add_template_filter(decision_link)
@@ -75,30 +78,12 @@ def get_call_proposals_count(cid, category=None):
     else:
         return get_count('proposals', 'call', cid)
 
-def get_call_reviews_count(cid, archived=False):
-    "Get the count of all reviews in the given call."
-    if archived:
-        result = flask.g.db.view("reviews", "call_reviewer_archived",
-                                 startkey=[cid, ""],
-                                 endkey=[cid, "ZZZZZZ"],
-                                 reduce=True)
-        if result:
-            return result[0].value
-        else:
-            return 0
-    else:
-        return get_count('reviews', 'call', cid)
-
 def get_call_reviewer_reviews_count(cid, username, archived=False):
     "Get the count of all reviews for the reviewer in the given call."
     if archived:
         return get_count('reviews', 'call_reviewer_archived', [cid, username])
     else:
         return get_count('reviews', 'call_reviewer', [cid, username])
-
-def get_call_grants_count(gid):
-    "Get the count for all grants for the given call."
-    return get_count('grants', 'call', gid)
 
 def get_proposal_reviews_count(pid, archived=False):
     """Get the count of all reviews for the given proposal.
@@ -108,19 +93,6 @@ def get_proposal_reviews_count(pid, archived=False):
         return get_count('reviews', 'proposal_archived', pid)
     else:
         return get_count('reviews', 'proposal', pid)
-
-def get_user_calls_count(username):
-    "Return the number of calls owned by the user."
-    return get_count('calls', 'owner', username)
-
-def get_user_proposals_count(username):
-    "Return the number of proposals for the user."
-    return get_count('proposals', 'user', username) + \
-           get_count('proposals', 'access', username)
-
-def get_user_reviews_count(username):
-    "Return the number of reviews for the user."
-    return get_count('reviews', 'reviewer', username)
 
 def get_user_grants_count(username):
     """Return the number of grants for the user,
@@ -281,16 +253,21 @@ def check_csrf_token():
     if not token or token != flask.request.form.get('_csrf_token'):
         flask.abort(http.client.BAD_REQUEST)
 
-def error(message, url=None):
+def error(message, url=None, home=False):
     """"Return redirect response to the given URL, or referrer, or home page.
     Flash the given message.
     """
     flash_error(message)
-    return flask.redirect(url or referrer_or_home())
+    if url:
+        return flask.redirect(url)
+    elif home:
+        return flask.redirect(flask.url_for('home'))
+    else:
+        return flask.redirect(url or referrer_or_home())
 
 def referrer_or_home():
     "Return the URL for the referring page 'referer' or the home page."
-    return flask.request.headers.get('referer') or flask.url_for('home')    
+    return flask.request.headers.get('referer') or flask.url_for('home')
 
 def flash_error(msg):
     "Flash error message."
@@ -414,8 +391,8 @@ def user_link(user, fullname=True, chair=False, affiliation=False):
 
 def call_link(call, identifier=True, title=False,
               proposals_link=True, grants_link=False):
-    """Template filter: Link to call and optionally links to all its proposals
-    and grants.
+    """Template filter: Link to call and optionally links to
+    all its proposals and grants.
     """
     label = []
     if identifier:
@@ -430,10 +407,59 @@ def call_link(call, identifier=True, title=False,
         url = flask.url_for("proposals.call", cid=call["identifier"])
         html += f' <a href="{url}" class="badge badge-primary mx-2">{count} proposals</a>'
     if grants_link:
-        count = get_call_grants_count(call['identifier'])
+        count = get_count('grants', 'call', call['identifier'])
         url = flask.url_for("grants.call", cid=call["identifier"])
         html += f' <a href="{url}" class="badge badge-success mx-2">{count} grants</a>'
     return jinja2.utils.Markup(html)
+
+def call_proposals_link(call, category=None, full=False):
+    "Button with link to the page of all proposals in the call."
+    import anubis.call
+    if not anubis.call.allow_view_proposals(call):
+        return ""
+    if category:
+        count = get_count('proposals', 'call_category',
+                          [call["identifier"], category])
+    else:
+        count = get_count('proposals', 'call', call["identifier"])
+    if count:
+        url = flask.url_for("proposals.call", cid=call["identifier"])
+        html = f' <a href="{url}" role="button" class="btn btn-sm btn-primary">{count} {full and "proposals" or "" }</a>'
+        return jinja2.utils.Markup(html)
+    elif full:
+        return "0 proposals"
+    else:
+        return "0"
+
+def call_reviews_link(call, full=False):
+    "Button with link to the page of all reviews in the call."
+    import anubis.call
+    if not anubis.call.allow_view_reviews(call):
+        return ""
+    count = get_count('reviews', 'call', call["identifier"])
+    if count:
+        url = flask.url_for("reviews.call", cid=call["identifier"])
+        html = f' <a href="{url}" role="button" class="btn btn-sm btn-info">{count} {full and "reviews" or ""}</a>'
+        return jinja2.utils.Markup(html)
+    elif full:
+        return "0 reviews"
+    else:
+        return "0"
+
+def call_grants_link(call, full=False):
+    "Button with link to the page of all grants in the call."
+    import anubis.call
+    if not anubis.call.allow_view_grants(call):
+        return ""
+    count = get_count('grants', 'call', call["identifier"])
+    if count:
+        url = flask.url_for("grants.call", cid=call["identifier"])
+        html = f' <a href="{url}" role="button" class="btn btn-sm btn-success">{count} {full and "grants" or ""}</a>'
+        return jinja2.utils.Markup(html)
+    elif full:
+        return "0 grants"
+    else:
+        return "0"
 
 def proposal_link(proposal, bold=True):
     "Template filter: link to proposal."

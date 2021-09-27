@@ -96,7 +96,12 @@ def display(cid):
         kwargs['call_proposals_category_counts'] = dict(
             [(c, utils.get_call_proposals_count(cid, c))
              for c in sorted(call.get('categories'))])
-    kwargs['call_grants_count'] = utils.get_call_grants_count(cid)
+    # Number of archived reviews for the call.
+    result = flask.g.db.view("reviews", "call_reviewer_archived",
+                             startkey=[call['identifier'], ""],
+                             endkey=[call['identifier'], "ZZZZZZ"],
+                             reduce=True)
+    kwargs['archived_reviews_count'] = result and result[0].value or 0
     return flask.render_template('call/display.html',
                                  call=call,
                                  am_owner=am_owner(call),
