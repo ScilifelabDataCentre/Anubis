@@ -49,7 +49,7 @@
     {% endfor %}
     {% endif %}
     <br>
-    {{ field.get('description') | markdown }}
+    {{ field.get('description') | display_markdown }}
   </td>
   {% if post_url %}
   <td>

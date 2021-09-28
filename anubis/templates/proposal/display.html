@@ -4,7 +4,7 @@
 
 {% block body_title %}
 <small class="text-muted mr-3">Proposal</small>
-{{ proposal['identifier'] }} {{ proposal.get('title') or '[No title]' }}
+{{ proposal['identifier'] }} {{ proposal.get('title') | display_value('[No title]') }}
 {% endblock %}
 
 {% block meta %}
@@ -36,7 +36,7 @@
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Call closes</div>
   <div class="col-md">
-    <span class="mr-4">{{ call['closes'] | datetimetz }}</span>
+    <span class="mr-4">{{ call['closes'] | display_datetime_local_server }}</span>
     <span class="badge badge-pill badge-{{ call['tmp']['color'] }}">
       {{ call['tmp']['text'] }}</span>
   </div>
@@ -98,7 +98,7 @@
 {% if call.get('categories') and (am_reviewer or g.am_admin or g.am_staff) %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Category</div>
-  <div class="col-md">{{ proposal.get('category') or '-' }}</div>
+  <div class="col-md">{{ proposal.get('category') | display_value }}</div>
 </div>
 {% endif %} {# if call.get('categories') and ... #}
 

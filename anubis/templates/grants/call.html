@@ -47,7 +47,7 @@ Grant dossiers in call {{ call['identifier'] }}
     <tr>
       <td>{{ grant | grant_link(small=True) }}</td>
       {% for field in utils.get_banner_fields(call['grant']) %}
-      <td>{{ field | field_value(grant) }}</td>
+      <td>{{ field | display_field_value(grant) }}</td>
       {% endfor %}
       <td>
         {% if grant.get('errors') %}

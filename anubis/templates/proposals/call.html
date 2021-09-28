@@ -101,10 +101,10 @@
     <tr>
       <td>{{ proposal | proposal_link }}</td>
       {% for field in utils.get_banner_fields(call['proposal']) %}
-      <td>{{ field | field_value(proposal, truncate_documentname=10) }}</td>
+      <td>{{ field | display_field_value(proposal, truncate_documentname=10) }}</td>
       {% endfor %}
       {% if call.get('categories') and allow_view_details %}
-      <td>{{ proposal.get('category') or '-' }}</td>
+      <td>{{ proposal.get('category') | display_value }}</td>
       {% endif %} {# if call.get('categories') and allow_view_details #}
       {% if g.am_admin %}
       <td>
@@ -128,18 +128,18 @@
         </a>
       </td>
       {% for id in review_rank_fields.keys() %}
-      <td>{{ proposal['ranking'][id]['factor'] | value_or_none }}</td>
-      <td>{{ proposal['ranking'][id]['stdev'] | value_or_none }}</td>
+      <td>{{ proposal['ranking'][id]['factor'] | display_value }}</td>
+      <td>{{ proposal['ranking'][id]['stdev'] | display_value }}</td>
       {% endfor %}
       {% if len(review_score_fields) >= 2 %}
-      <td>{{ proposal['scores']['__mean__'] | value_or_none }}</td>
-      <td>{{ proposal['scores']['__stdev__'] | value_or_none }}</td>
+      <td>{{ proposal['scores']['__mean__'] | display_value }}</td>
+      <td>{{ proposal['scores']['__stdev__'] | display_value }}</td>
       {% endif %} {# if len(review_score_fields) >= 2 #}
 
       {% for id in review_score_fields %}
-      <td>{{ proposal['scores'][id]['mean'] | value_or_none }}</td>
+      <td>{{ proposal['scores'][id]['mean'] | display_value }}</td>
       {% if len(review_score_fields) == 1 %}
-      <td>{{ proposal['scores'][id]['stdev'] | value_or_none }}</td>
+      <td>{{ proposal['scores'][id]['stdev'] | display_value }}</td>
       {% endif %}
       {% endfor %} {# for id in review_score_fields #}
 
@@ -161,7 +161,7 @@
       {% if decision %}
       <td>{{ decision | decision_link(small=True) }}</td>
       {% for field in utils.get_banner_fields(call['decision']) %}
-      <td>{{ field | field_value(decision) }}</td>
+      <td>{{ field | display_field_value(decision) }}</td>
       {% endfor %}
       {% else %} {# if decision #}
       <td>-</td>

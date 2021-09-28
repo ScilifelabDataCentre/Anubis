@@ -33,7 +33,7 @@ Archived reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] o
           {% for field in utils.get_banner_fields(review['fields']) %}
           <tr>
             <th>{{ field['identifier'] }}</th>
-            <td>{{ field | field_value(review) }}</td>
+            <td>{{ field | display_field_value(review) }}</td>
           </tr>
           {% endfor %}
         </table>

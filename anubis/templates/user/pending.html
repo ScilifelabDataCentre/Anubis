@@ -20,10 +20,10 @@
     {% for user in users %}
     <tr>
       <td>{{ user | user_link(fullname=False) }}</td>
-      <td>{{ user['email'] or '-' }}</td>
-      <td>{{ user.get('givenname') or '-' }}</td>
-      <td>{{ user.get('familyname') or '-' }}</td>
-      <td>{{ user.get('affiliation') or '-' }}</td>
+      <td>{{ user['email'] | display_value }}</td>
+      <td>{{ user.get('givenname') | display_value }}</td>
+      <td>{{ user.get('familyname') | display_value }}</td>
+      <td>{{ user.get('affiliation') | display_value }}</td>
       <td class="small localtime">{{ user['modified'] }}</td>
     </tr>
     {% endfor %}

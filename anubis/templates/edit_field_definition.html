@@ -85,7 +85,7 @@
                      name="title" id="{{ field['identifier'] }}-title"
 		     class="form-control"
 		     aria-describedby="{{ field['identifier'] }}-titleHelp"
-		     value="{{ field.get('title') | value_or_none('') }}">
+		     value="{{ field.get('title') | display_value('') }}">
 	      <small id="{{ field['identifier'] }}-titleHelp"
 		     class="form-text text-muted">
 		Descriptive title. If not set, the identifier will be used.
@@ -194,7 +194,7 @@
                      name="maxlength" id="{{ field['identifier'] }}-maxlength"
 		     class="form-control"
 		     aria-describedby="{{ field['identifier'] }}-maxlengthHelp"
-		     value="{{ field.get('maxlength') | value_or_none('') }}">
+		     value="{{ field.get('maxlength') | display_value('') }}">
 	      <small id="{{ field['identifier'] }}-maxlengthHelp"
 		     class="form-text text-muted">
 		Max number of characters.
@@ -257,7 +257,7 @@
                      {% endif %}
 		     class="form-control"
 		     aria-describedby="{{ field['identifier'] }}-minimumHelp"
-		     value="{{ field.get('minimum') | value_or_none('') }}">
+		     value="{{ field.get('minimum') | display_value('') }}">
 	      <small id="{{ field['identifier'] }}-minimumHelp" 
                      class="form-text text-muted">
                 Minimum value allowed, if any.
@@ -276,7 +276,7 @@
                      {% endif %}
 		     class="form-control"
 		     aria-describedby="{{ field['identifier'] }}-maximumHelp"
-		     value="{{ field.get('maximum') | value_or_none('') }}">
+		     value="{{ field.get('maximum') | display_value('') }}">
 	      <small id="{{ field['identifier'] }}-maximumHelp" 
                      class="form-text text-muted">
                 Maximum value allowed, if any.
@@ -316,7 +316,7 @@
                      name="minimum" id="{{ field['identifier'] }}-minimum"
 		     class="form-control"
 		     aria-describedby="{{ field['identifier'] }}-minimumHelp"
-		     value="{{ field.get('minimum') | value_or_none('') }}">
+		     value="{{ field.get('minimum') | display_value('') }}">
 	      <small id="{{ field['identifier'] }}-minimumHelp"
                      class="form-text text-muted">
                 Minimum score value.
@@ -335,7 +335,7 @@
                      {% endif %}
 		     class="form-control"
 		     aria-describedby="{{ field['identifier'] }}-maximumHelp"
-		     value="{{ field.get('maximum') | value_or_none('') }}">
+		     value="{{ field.get('maximum') | display_value('') }}">
 	      <small id="{{ field['identifier'] }}-maximumHelp" 
                      class="form-text text-muted">
                 Maximum score value.
@@ -377,7 +377,7 @@
                      name="blocktitle" id="{{ field['identifier'] }}-blocktitle"
 		     class="form-control"
 		     aria-describedby="{{ field['identifier'] }}-blocktitleHelp"
-		     value="{{ field.get('blocktitle') | value_or_none('') }}">
+		     value="{{ field.get('blocktitle') | display_value('') }}">
 	      <small id="{{ field['identifier'] }}-blocktitleHelp"
 		     class="form-text text-muted">
 		Title of the repeated block of fields.
@@ -394,7 +394,7 @@
                      name="minimum" id="_{{ field['type'] }}-minimum"
 		     class="form-control"
 		     aria-describedby="_{{ field['type'] }}-minimumHelp"
-                     value="{{ field.get('minimum') | value_or_none('') }}">
+                     value="{{ field.get('minimum') | display_value('') }}">
 	      <small id="_{{ field['type'] }}-minimumHelp"
                      class="form-text text-muted">
                 Minimum number of repeats. Must be larger than or equal to 0.
@@ -410,7 +410,7 @@
                      name="maximum" id="_{{ field['type'] }}-maximum"
 		     class="form-control"
 		     aria-describedby="_{{ field['type'] }}-maximumHelp"
-                     value="{{ field.get('maximum') | value_or_none('') }}">
+                     value="{{ field.get('maximum') | display_value('') }}">
 	      <small id="_{{ field['type'] }}-maximumHelp"
                      class="form-text text-muted">
                 Maximum number of repeats. Must be larger than or equal to 2.
@@ -428,7 +428,7 @@
                         id="{{ field['identifier'] }}-description"
 			class="form-control"
 			aria-describedby="{{ field['identifier'] }}-descriptionHelp"
-		>{{ field.get('description') | value_or_none('') }}</textarea>
+		>{{ field.get('description') | display_value('') }}</textarea>
 	      <small id="{{ field['identifier'] }}-descriptionHelp" 
 		     class="form-text text-muted">
 		<div class="row">

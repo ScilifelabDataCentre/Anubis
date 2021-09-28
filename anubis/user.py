@@ -56,7 +56,7 @@ def login():
                 return flask.redirect(next)
         except ValueError:
             return utils.error('Invalid user or password, or account disabled.',
-                               flask.url_for('.login'))
+                               url=flask.url_for('.login'))
 
 @blueprint.route('/logout', methods=['POST'])
 def logout():

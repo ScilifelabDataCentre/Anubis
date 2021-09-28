@@ -23,7 +23,7 @@
           <td>
             {{ call['_attachments'][document['name']]['length'] | filesizeformat }}
           </td>
-          <td>{{ document.get('description') | markdown }}</td>
+          <td>{{ document.get('description') | display_markdown }}</td>
           <td>
             <form action="{{ url_for('.document', cid=call['identifier'], documentname=document['name']) }}"
 	          method="POST">

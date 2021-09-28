@@ -78,7 +78,7 @@ User {{ user['username'] }}
   {% endif %} {# if user_grants_count #}
   <tr>
     <th class="text-right">Email</th>
-    <td>{{ user['email'] or '-' }}</td>
+    <td>{{ user['email'] | display_value }}</td>
   </tr>
   <tr>
     <th class="text-right">Status</th>
@@ -102,50 +102,52 @@ User {{ user['username'] }}
   {% endif %}
   <tr>
     <th class="text-right">May create calls</th>
-    <td>{{ (user.get('call_creator', False) or user['role'] == constants.ADMIN) | boolean_value }}</td>
+    <td>
+      {{ (user.get('call_creator', False) or user['role'] == constants.ADMIN) | display_boolean }}
+    </td>
   </tr>
   <tr>
     <th class="text-right">Given name</th>
-    <td>{{ user.get('givenname') or '-' }}</td>
+    <td>{{ user.get('givenname') | display_value }}</td>
   </tr>
   <tr>
     <th class="text-right">Family name</th>
-    <td>{{ user.get('familyname') or '-' }}</td>
+    <td>{{ user.get('familyname') | display_value }}</td>
   </tr>
   {% if config['USER_GENDERS'] %}
   <tr>
     <th class="text-right">Gender</th>
-    <td>{{ (user.get('gender') or '-').capitalize() }}</td>
+    <td>{{ user.get('gender') | display_value | capitalize }}</td>
   </tr>
   {% endif %}
   {% if config['USER_BIRTHDATE'] %}
   <tr>
     <th class="text-right">Birth date</th>
-    <td>{{ user.get('birthdate') or '-' }}</td>
+    <td>{{ user.get('birthdate') | display_value }}</td>
   </tr>
   {% endif %}
   {% if config['USER_TITLE'] %}
   <tr>
     <th class="text-right">Title</th>
-    <td>{{ user.get('title') or '-' }}</td>
+    <td>{{ user.get('title') | display_value }}</td>
   </tr>
   {% endif %}
   {% if config['USER_AFFILIATION'] %}
   <tr>
     <th class="text-right">Affiliation</th>
-    <td>{{ user.get('affiliation') or '-' }}</td>
+    <td>{{ user.get('affiliation') | display_value }}</td>
   </tr>
   {% endif %}
   {% if config['USER_POSTAL_ADDRESS'] %}
   <tr>
     <th class="text-right">Postal address</th>
-    <td><pre>{{ user.get('postaladdress') or '-' }}</pre></td>
+    <td><pre>{{ user.get('postaladdress') | display_value }}</pre></td>
   </tr>
   {% endif %}
   {% if config['USER_PHONE'] %}
   <tr>
     <th class="text-right">Phone</th>
-    <td>{{ user.get('phone') or '-' }}</td>
+    <td>{{ user.get('phone') | display_value }}</td>
   </tr>
   {% endif %}
 </table>
@@ -157,7 +159,7 @@ User {{ user['username'] }}
       <div class="card-header">
         <h4 class="card-title">Personal data policy</h4>
       </div>
-      <div class="card-body">{{ gdpr | markdown }}</div>
+      <div class="card-body">{{ gdpr | display_markdown }}</div>
     </div>
   </div>
 </div>

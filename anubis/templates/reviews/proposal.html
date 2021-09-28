@@ -48,7 +48,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
       {% if review %}
       <td>{{ review | review_link }}</td>
       {% for field in utils.get_banner_fields(call['review']) %}
-      <td>{{ field | field_value(review) }}</td>
+      <td>{{ field | display_field_value(review) }}</td>
       {% endfor %}
 
       {% else %}

@@ -27,11 +27,11 @@ def init(app):
     - Update CouchDB design documents.
     """
     MAIL.init_app(app)
-    app.add_template_filter(markdown)
-    app.add_template_filter(field_value)
-    app.add_template_filter(value_or_none)
-    app.add_template_filter(datetimetz)
-    app.add_template_filter(boolean_value)
+    app.add_template_filter(display_markdown)
+    app.add_template_filter(display_field_value)
+    app.add_template_filter(display_value)
+    app.add_template_filter(display_datetime_local_server)
+    app.add_template_filter(display_boolean)
     app.add_template_filter(user_link)
     app.add_template_filter(call_link)
     app.add_template_filter(call_proposals_link)
@@ -209,7 +209,7 @@ def days_remaining(dt):
     "Return the number of days remaining for the given local datetime string."
     dt = datetime.datetime.strptime(dt, '%Y-%m-%d %H:%M')
     remaining = dt - datetime.datetime.now()
-    return remaining.total_seconds() / (24* 3600.0)
+    return remaining.total_seconds() / (24 * 3600.0)
 
 def http_GET():
     "Is the HTTP method GET?"
@@ -285,23 +285,39 @@ def get_banner_fields(fields):
     "Return fields flagged as banner fields. Avoid repeated fields."
     return [f for f in fields if f.get('banner') and not f.get('repeat')]
 
-def field_value(field, entity, fid=None, truncate_documentname=None):
-    "Template filter: Output field value according to its type."
+def display_field_value(field, entity, fid=None, truncate_documentname=None):
+    "Template filter: Display field value according to its type."
+    # Repeated field needs to pass its actual id explicitly.
     if not fid:
         fid = field['identifier']
     value = entity.get('values', {}).get(fid)
     if field['type'] in (constants.LINE, constants.EMAIL):
         return value or '-'
     if field['type'] == constants.BOOLEAN:
-        return boolean_value(value)
+        return display_boolean(value)
     elif field['type'] == constants.SELECT:
-        return select_value(value)
+        if value is None:
+            return '-'
+        elif isinstance(value, list):
+            return '; '.join(value)
+        else:
+            return value
     elif field['type'] in (constants.INTEGER, constants.SCORE, constants.RANK):
-        return integer_value(value)
+        if value is None:
+            return '-'
+        elif isinstance(value, int):
+            return '{:,}'.format(value) # Thousands marker.
+        else:
+            return '?'
     elif field['type'] == constants.FLOAT:
-        return float_value(value)
+        if value is None:
+            return '-'
+        elif isinstance(value, (int, float)):
+            return '%.2f' % float(value)
+        else:
+            return '?'
     elif field['type'] == constants.TEXT:
-        return markdown(value)
+        return display_markdown(value)
     elif field['type'] == constants.REPEAT:
         if value is None:
             return '-'
@@ -337,14 +353,14 @@ def field_value(field, entity, fid=None, truncate_documentname=None):
     else:
         return value
 
-def value_or_none(value, default="-"):
-    "Display the value if not None, else the default."
+def display_value(value, default="-"):
+    "Template filter: Display the value if not None, else the default."
     if value is None:
         return default
     else:
         return value
 
-def datetimetz(value, due=False):
+def display_datetime_local_server(value, due=False):
     """Template filter: datetime with server local timezone.
     Optionally output warning for approaching due date.
     """
@@ -369,6 +385,15 @@ def datetimetz(value, due=False):
             return dtz
     else:
         return '-'
+
+def display_boolean(value):
+    "Display field value boolean."
+    if value is None:
+        return '-'
+    elif value:
+        return 'Yes'
+    else:
+        return 'No'
 
 def user_link(user, fullname=True, chair=False, affiliation=False):
     """Template filter: user by name, with link if allowed to view.
@@ -413,7 +438,7 @@ def call_link(call, identifier=True, title=False,
     return jinja2.utils.Markup(html)
 
 def call_proposals_link(call, category=None, full=False):
-    "Button with link to the page of all proposals in the call."
+    "Template filter: Button with link to the page of all proposals in the call."
     import anubis.call
     if not anubis.call.allow_view_proposals(call):
         return ""
@@ -432,7 +457,7 @@ def call_proposals_link(call, category=None, full=False):
         return "0"
 
 def call_reviews_link(call, full=False):
-    "Button with link to the page of all reviews in the call."
+    "Template filter: Button with link to the page of all reviews in the call."
     import anubis.call
     if not anubis.call.allow_view_reviews(call):
         return ""
@@ -447,7 +472,7 @@ def call_reviews_link(call, full=False):
         return "0"
 
 def call_grants_link(call, full=False):
-    "Button with link to the page of all grants in the call."
+    "Template filter: Button with link to the page of all grants in the call."
     import anubis.call
     if not anubis.call.allow_view_grants(call):
         return ""
@@ -529,42 +554,6 @@ def grant_link(grant, small=False, status=False):
     return jinja2.utils.Markup(f'<a href="{url}" role="button"'
                                f' class="btn {color} my-1">{label}</a>')
 
-def boolean_value(value):
-    "Output field value boolean."
-    if value is None:
-        return '-'
-    elif value:
-        return 'Yes'
-    else:
-        return 'No'
-
-def select_value(value):
-    "Output field value(s) for select."
-    if value is None:
-        return '-'
-    elif isinstance(value, list):
-        return '; '.join(value)
-    else:
-        return value
-
-def integer_value(value):
-    "Output field value integer."
-    if value is None:
-        return '-'
-    elif isinstance(value, int):
-        return '{:,}'.format(value)
-    else:
-        return '?'
-
-def float_value(value):
-    "Output field value float."
-    if value is None:
-        return '-'
-    elif isinstance(value, (int, float)):
-        return '%.2f' % float(value)
-    else:
-        return '?'
-
 def get_fullname(user):
     "Return full name of user, or family name, or user name."
     if user.get('familyname'):
@@ -594,7 +583,7 @@ class HtmlRenderer(marko.html_renderer.HTMLRenderer):
         body = self.render_children(element)
         return template.format(url, title, body)
 
-def markdown(value):
+def display_markdown(value):
     "Process the value using Marko markdown."
     processor = marko.Markdown(renderer=HtmlRenderer)
     return jinja2.utils.Markup(processor.convert(value or ''))

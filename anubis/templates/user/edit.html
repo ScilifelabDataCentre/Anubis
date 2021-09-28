@@ -16,12 +16,12 @@
           {% if g.am_admin %}
           <input type="email" id="email" name="email"
                  class="form-control"
-                 value="{{ user['email'] or '' }}">
+                 value="{{ user['email'] | display_value('') }}">
           {% else %}
           <input type="email" readonly
                  class="form-control"
                  aria-describedby="emailHelp"
-	         placeholder="{{ user['email'] or '-' }}">
+	         placeholder="{{ user['email'] | display_value }}">
           {% endif %} {# if g.am_admin #}
         </div>
       </div>
@@ -80,7 +80,7 @@
           <input type="text" id="givenname" name="givenname"
                  class="form-control"
                  aria-describedby="givennameHelp"
-	         value="{{ user.get('givenname') or '' }}">
+	         value="{{ user.get('givenname') | display_value('') }}">
         </div>
       </div>
       <small id="givennameHelp" class="form-text text-muted">
@@ -97,7 +97,7 @@
           <input type="text" id="familyname" name="familyname"
                  class="form-control"
                  aria-describedby="familynameHelp"
-	         value="{{ user.get('familyname') or '' }}">
+	         value="{{ user.get('familyname') | display_value('') }}">
         </div>
       </div>
       <small id="familynameHelp" class="form-text text-muted">
@@ -133,7 +133,7 @@
           <input type="text" id="birthdate" name="birthdate"
                  class="form-control" 
                  aria-describedby="birthdateHelp"
-	         value="{{ user.get('birthdate') or '' }}">
+	         value="{{ user.get('birthdate') | display_value('') }}">
         </div>
       </div>
       <small id="birthdateHelp" class="form-text text-muted">
@@ -152,7 +152,7 @@
           <input type="text" id="title" name="title"
                  class="form-control"
                  aria-describedby="titleHelp"
-	         value="{{ user.get('title') or '' }}">
+	         value="{{ user.get('title') | display_value('') }}">
         </div>
       </div>
       <small id="titleHelp" class="form-text text-muted">
@@ -171,7 +171,7 @@
           <input type="text" id="affiliation" name="affiliation"
                  class="form-control"
                  aria-describedby="affiliationHelp"
-	         value="{{ user.get('affiliation') or '' }}">
+	         value="{{ user.get('affiliation') | display_value('') }}">
         </div>
       </div>
       <small id="affiliationHelp" class="form-text text-muted">
@@ -190,7 +190,7 @@
           <textarea id="postaladdress" name="postaladdress"
                     class="form-control" rows="4"
                     aria-describedby="postaladdressHelp"
-                    >{{ user.get('postaladdress') or '' }}</textarea>
+                    >{{ user.get('postaladdress') | display_value('') }}</textarea>
         </div>
       </div>
       <small id="postaladdressHelp" class="form-text text-muted">
@@ -209,7 +209,7 @@
           <input type="tel" id="phone" name="phone"
                  class="form-control" 
                  aria-describedby="phoneHelp"
-                 value="{{ user.get('phone') or '' }}">
+                 value="{{ user.get('phone') | display_value('') }}">
         </div>
       </div>
       <small id="phoneHelp" class="form-text text-muted">

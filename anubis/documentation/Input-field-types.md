@@ -114,6 +114,9 @@ For a proposal which has been ranked 1 by all reviewers of it, this will produce
 a ranking factor of 10, which is the maximum. If a reviewer has ranked it at,
 say, 3, then the ranking factor will become slightly less than 10.
 
+**NOTE**: This is currently implemented only for reviews; it is not
+very meaningful for other entities.
+
 ## Text field
 
 A multiline text which may use Markdown formatting.
@@ -130,14 +133,18 @@ A multiline text which may use Markdown formatting.
 
 ## Repeat field
 
-This solves the problem when the number of input fields depends on a number
-that the user must input. If the user has e.g. three collaborators, the user
-should then add the name, affiliation and email address in three copies.
+This fiel solves the problem when the number of input fields depends
+on a number that the user must input. If the user has e.g. three
+collaborators, the user should then add the name, affiliation and
+email address in three copies.
 
-After having defined a repeat field, the other fields that should be repeated
-need be associated with it.
+When the user inputs a number in a repeat field, the system brings up
+that number of copies of the other fields that have been associated
+with.
 
-When the user inputs a number in a repeat field, the system brings up that
-number of copies of the other fields that have been associated with.
+After having defined a repeat field, the other fields that should be
+repeated need be associated with it. When creating a new field, there
+will be a select list field to specify whether that field is repeated
+by a previously defined repeat field.
 
 **NOTE**: This is currently implemented only for grants.

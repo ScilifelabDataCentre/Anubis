@@ -21,7 +21,7 @@
   </div>
   {% endif %}
   <div class="col-md text-break">
-    {{ field1 | field_value(entity) }}
+    {{ field1 | display_field_value(entity) }}
   </div>
 </div>
 
@@ -54,7 +54,7 @@
       </div>
       {% endif %}
       <div class="col-md text-break">
-        {{ field2 | field_value(entity, fid=id2) }}
+        {{ field2 | display_field_value(entity, fid=id2) }}
       </div>
     </div>
     {% endif %} {# if not field2.get('staffonly') ... #}

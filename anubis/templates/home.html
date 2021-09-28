@@ -33,7 +33,7 @@
     </table>
   </div>
   <div class="card-body pb-0">
-    {{ call.get('description') | markdown }}
+    {{ call.get('description') | display_markdown }}
   </div>
 </div>
 {% endfor %} {# for call in calls #}

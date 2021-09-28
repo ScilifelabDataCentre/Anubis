@@ -12,7 +12,7 @@ Archived reviews in call {{ call['identifier'] }}
 {% block supermain %}
 <div class="row mb-2">
   <div class="col-md-2 text-right font-weight-bold">Due</div>
-  <div class="col-md-8">{{ call.get('reviews_due') | datetimetz(due=True) }}</div>
+  <div class="col-md-8">{{ call.get('reviews_due') | display_datetime_local_server(due=True) }}</div>
 </div>
 
 <table id="reviews" class="table table-sm table-hover">
@@ -37,12 +37,12 @@ Archived reviews in call {{ call['identifier'] }}
     <tr>
       <td>{{ review | review_link }}</td>
       {% for field in utils.get_banner_fields(call['review']) %}
-      <td>{{ field | field_value(review) }}</td>
+      <td>{{ field | display_field_value(review) }}</td>
       {% endfor %}
       <td>{{ get_user(review['reviewer']) | user_link }}</td>
       <td>{{ proposal | proposal_link(bold=False) }}</td>
       {% if call.get('categories') %}
-      <td>{{ proposal.get('category') or '-' }}</td>
+      <td>{{ proposal.get('category') | display_value }}</td>
       {% endif %}
       <td>{{ get_user(proposal['user']) | user_link }}</td>
     </tr>
