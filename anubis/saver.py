@@ -211,7 +211,10 @@ class FieldMixin:
         self.doc['errors'].pop(fid, None)
 
         if field['type'] in (constants.LINE, constants.EMAIL, constants.TEXT):
-            self.doc['values'][fid] = form.get(fid) or None
+            text = form.get(fid)
+            if text:
+                text = text.replace("\r\n", "\n")
+            self.doc['values'][fid] = text or None
 
         elif field['type'] == constants.BOOLEAN:
             value = form.get(fid) or None

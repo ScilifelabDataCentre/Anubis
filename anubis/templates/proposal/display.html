@@ -48,7 +48,7 @@
   <div class="col-md">{{ get_user(proposal['user']) | user_link }}</div>
 </div>
 
-<div class="row mb-2">
+<div class="row mb-2 d-print-none">
   <div class="col-md-2 font-weight-bold text-right">Access</div>
   <div class="col-md">
     <table>
@@ -105,7 +105,7 @@
 {% if proposal.get('submitted') %}
 
 {% if allow_view_reviews %}
-<div class="row">
+<div class="row d-print-none">
   <div class="col-md-2 font-weight-bold text-right">
     Reviews</div>
   <div class="col-md">
@@ -122,19 +122,19 @@
 {% endif %} {# if allow_view_reviews #}
 
 {% if my_review %}
-<div class="row">
+<div class="row d-print-none">
   <div class="col-md-2 font-weight-bold text-right">My review</div>
   <div class="col-md">{{ my_review | review_link }}</div>
 </div>
 {% endif %} {# if my_review #}
 
 {% if allow_link_decision %}
-<div class="row">
+<div class="row d-print-none">
   <div class="col-md-2 font-weight-bold text-right">Decision</div>
   <div class="col-md">{{ decision | decision_link() }}</div>
 </div>
 {% elif allow_create_decision %}
-<div class="row">
+<div class="row d-print-none">
   <div class="col-md-2 font-weight-bold text-right">Decision</div>
   <div class="col-md">
     <form action="{{ url_for('decision.create', pid=proposal['identifier']) }}"
@@ -148,12 +148,12 @@
 {% endif %} {# if allow_link_decision #}
 
 {% if allow_link_grant %}
-<div class="row">
+<div class="row d-print-none">
   <div class="col-md-2 font-weight-bold text-right">Grant</div>
   <div class="col-md">{{ grant | grant_link(status=True) }}</div>
 </div>
 {% elif allow_create_grant %}
-<div class="row">
+<div class="row d-print-none">
   <div class="col-md-2 font-weight-bold text-right">Grant</div>
   <div class="col-md">
     <form action="{{ url_for('grant.create', pid=proposal['identifier']) }}"
