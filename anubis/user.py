@@ -44,19 +44,15 @@ def login():
         username = flask.request.form.get('username')
         password = flask.request.form.get('password')
         try:
-            if username and password:
-                do_login(username, password)
-            else:
-                raise ValueError
-            try:
-                next = flask.request.form['next']
-            except KeyError:
-                return flask.redirect(flask.url_for('home'))
-            else:
-                return flask.redirect(next)
+            do_login(username, password)
         except ValueError:
             return utils.error('Invalid user or password, or account disabled.',
                                url=flask.url_for('.login'))
+        try:
+            next = flask.request.form['next']
+        except KeyError:
+            next = flask.url_for('home')
+        return flask.redirect(next)
 
 @blueprint.route('/logout', methods=['POST'])
 def logout():
@@ -510,7 +506,8 @@ def do_login(username, password):
     Raise ValueError if some problem.
     """
     user = get_user(username=username)
-    if user is None: raise ValueError
+    if not user: raise ValueError
+    if not password: raise ValueError
     if not werkzeug.security.check_password_hash(user['password'], password):
         raise ValueError
     if user['status'] != constants.ENABLED:
