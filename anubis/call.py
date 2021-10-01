@@ -85,6 +85,7 @@ def display(cid):
                        ', '.join(access_emails),
                        'All involved persons': ', '.join(all_emails)}
         kwargs['email_lists'] = email_lists
+    if flask.g.current_user:
         kwargs['my_proposal'] = anubis.proposal.get_call_user_proposal(
             cid, flask.g.current_user['username'])
         kwargs['my_reviews_count'] = utils.get_call_reviewer_reviews_count(
