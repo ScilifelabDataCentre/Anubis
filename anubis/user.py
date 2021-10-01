@@ -49,10 +49,11 @@ def login():
             return utils.error('Invalid user or password, or account disabled.',
                                url=flask.url_for('.login'))
         try:
-            next = flask.request.form['next']
+            return flask.redirect(flask.request.form['next'])
         except KeyError:
-            next = flask.url_for('home')
-        return flask.redirect(next)
+            pass
+
+    return flask.redirect(flask.url_for('home'))
 
 @blueprint.route('/logout', methods=['POST'])
 def logout():
