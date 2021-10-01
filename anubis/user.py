@@ -52,8 +52,10 @@ def login():
             return flask.redirect(flask.request.form['next'])
         except KeyError:
             pass
+        return flask.redirect(flask.url_for('home'))
 
-    return flask.redirect(flask.url_for('home'))
+    # HEAD request gets here: return No_Content
+    return '', 204
 
 @blueprint.route('/logout', methods=['POST'])
 def logout():
