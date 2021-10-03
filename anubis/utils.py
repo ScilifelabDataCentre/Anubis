@@ -395,17 +395,15 @@ def display_boolean(value):
     else:
         return 'No'
 
-def user_link(user, fullname=True, chair=False, affiliation=False):
+def user_link(user, fullname=True, affiliation=False):
     """Template filter: user by name, with link if allowed to view.
-    Optionally output chair flag, or affiliation.
+    Optionally output affiliation.
     """
     import anubis.user
     if fullname:
         name = get_fullname(user)
     else:
         name = user['username']
-    if chair:
-        name += " [<strong>chair</strong>]"
     if affiliation:
         name += f" [{user.get('affiliation') or '-'}]"
     if anubis.user.allow_view(user):

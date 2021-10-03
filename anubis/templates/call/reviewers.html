@@ -1,48 +1,83 @@
 {% extends 'base.html' %}
 
 {% block head_title %}
-Edit reviewers for call {{ call['identifier'] }}
+Reviewers for call {{ call['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-Edit reviewers for call {{ call['identifier'] }}
+Reviewers for call {{ call['identifier'] }}
+{% endblock %}
+
+{% block meta %}
+<a href="#email_lists" data-toggle="collapse"
+   class="badge badge-pill badge-secondary" role="button"
+   aria-expanded="false" aria-controls="email_lists">Email address lists</a>
 {% endblock %}
 
 {% block main %}
+{% include 'email_lists.html' %}
+
 <div class="form-group row">
-  <label for="reviewers"
+  <label for="show_reviewer" 
 	 class="col-md-2 col-form-label text-right font-weight-bold">
     Reviewers</label>
-  <div class="col-md" id="reviewers">
-    {% if call['reviewers'] %}
-    <table class="table table-sm table-hover table-borderless">
-      {% for username in sorted(call['reviewers']) %}
-      <tr>
-        <td class="align-middle">
-          {{ get_user(username) | user_link(chair=username in call['chairs']) }}
-        </td>
-        <td>
-          <form action="{{ url_for('.reviewers', cid=call['identifier']) }}"
-	        method="POST">
-	    {{ csrf_token() }}
-            <input type="hidden" name="_http_method" value="DELETE">
-            <input type="hidden" name="reviewer" value="{{ username }}">
-	    <button type="submit" class="btn btn-sm btn-danger">Remove</button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
+  <div class="col-md" id="show_reviewers">
+    <table id="reviewers" class="table table-sm table-hover ">
+      <thead>
+        <tr>
+          <th>Reviewer</th>
+          <th>Chair</th>
+          {% if allow_view_reviews %}
+          <th>Reviews</th>
+          {% endif %} {# if allow_view_reviews #}
+          {% if allow_edit %}
+          <th>Action</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for reviewer in reviewers %}
+        <tr>
+          <td class="align-middle">
+            {{ reviewer | user_link }}
+          </td>
+          <td>
+            {% if reviewer['username'] in call['chairs'] %}
+            Chair
+            {% endif %}
+          </td>
+          {% if allow_view_reviews %}
+          <td>
+            <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=reviewer['username']) }}"
+               role="button" class="btn btn-sm btn-info mr-2">
+              {{ utils.get_call_reviewer_reviews_count(call['identifier'], reviewer['username']) }} reviews
+            </a>
+          </td>
+          {% endif %} {# if allow_view_reviews #}
+          {% if allow_edit %}
+          <td>
+            <form action="{{ url_for('.reviewers', cid=call['identifier']) }}"
+	          method="POST">
+	      {{ csrf_token() }}
+              <input type="hidden" name="_http_method" value="DELETE">
+              <input type="hidden" name="reviewer" value="{{ reviewer['username'] }}">
+	      <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+            </form>
+          </td>
+          {% endif %} {# if allow_edit #}
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
-    {% else %}
-    -
-    {% endif %}
   </div>
 </div>
+
+{% if allow_edit %}
 <div class="form-group row">
   <label for="add_reviewer" 
 	 class="col-md-2 col-form-label text-right font-weight-bold">
     Add reviewer</label>
-  <div class="col-md">
+  <div class="col-md" id="add_reviewer">
     <form action="{{ url_for('.reviewers', cid=call['identifier']) }}"
 	  method="POST">
       {{ csrf_token() }}
@@ -70,6 +105,7 @@ Edit reviewers for call {{ call['identifier'] }}
     </form>
   </div>
 </div>
+{% endif %} {# if allow_edit #}
 {% endblock %} {# block main #}
 
 {% block actions %}
@@ -77,4 +113,20 @@ Edit reviewers for call {{ call['identifier'] }}
   <a href="{{ url_for('.display', cid=call['identifier']) }}"
      role="button" class="btn btn-block btn-secondary">Back</a>
 </div>
+{% endblock %}
+
+{% block javascript %}
+{% include 'clipboard.html' %}
+<script>
+  $(function() {
+    $(".refresh").change(function () {
+      $("#refresh").submit();
+    });
+    $("#reviewers").DataTable( {
+      pagingType: "full_numbers",
+      pageLength: 10,
+      order: [[0, "asc"]]
+    });
+  });
+</script>
 {% endblock %}

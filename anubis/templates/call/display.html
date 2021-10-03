@@ -142,14 +142,9 @@
 {% if allow_view_details %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Reviewers</div>
-  <div class="col-md-8">
-    {% for reviewer in reviewers %}
-    {{ reviewer | user_link(chair=reviewer['username'] in call['chairs']) }}
-    {% if allow_view_reviews %}
-    (<a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=reviewer['username']) }}">reviews</a>)
-    {% endif %}
-    <span class="px-2"></span>
-    {% endfor %} {# for reviewer in reviewers #}
+  <div class="col-md">
+    <a href="{{ url_for('.reviewers', cid=call['identifier']) }}"
+       role="button" class="btn btn-primary btn-sm px-3">Reviewers</a>
   </div>
 </div>
 {% endif %} {# if allow_view_details #}
@@ -157,7 +152,7 @@
 {% if allow_view_grants %}
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Grants</div>
-  <div class="col-md">
+  <div class="col-md-8">
     {{ call | call_grants_link(full=True) }}
   </div>
 </div>
@@ -368,14 +363,10 @@
 {% if allow_change_access %}
 <div class="mt-2">
   <a href="{{ url_for('.access', cid=call['identifier']) }}"
-     role="button" class="btn btn-block btn-sm btn-warning">Change access</a>
+     role="button" class="btn btn-block btn-warning">Change access</a>
 </div>
 {% endif %} {# if allow_change_access #}
 
-<div class="mt-2">
-  <a href="{{ url_for('.reviewers', cid=call['identifier']) }}"
-     role="button" class="btn btn-primary btn-block">Edit reviewers</a>
-</div>
 <div class="mt-4">
   <a href="{{ url_for('.clone', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Clone</a>

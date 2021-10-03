@@ -67,11 +67,7 @@ def display(cid):
     kwargs = {}
     if allow_view_details(call):
         reviewers = [anubis.user.get_user(r) for r in call['reviewers']]
-        reviewers.sort(key=lambda r: (r.get('familyname') or '-',
-                                      r.get('givenname') or '-'))
-        kwargs['reviewers'] = reviewers
-        reviewer_emails = [r['email'] for r in reviewers]
-        reviewer_emails = [e for e in reviewer_emails if e]
+        reviewer_emails = [r['email'] for r in reviewers if r['email']]
         access_emails = []
         for username in [call['owner']] + call.get('access_view', []):
             user = anubis.user.get_user(username=username)
@@ -80,9 +76,9 @@ def display(cid):
         # There may be accounts that have no email!
         access_emails = [e for e in access_emails if e]
         all_emails = reviewer_emails + access_emails
-        email_lists = {'Emails for reviewers': ', '.join(reviewer_emails),
-                       'Persons with access to this call':
+        email_lists = {'Persons with access to this call':
                        ', '.join(access_emails),
+                       'Emails for reviewers': ', '.join(reviewer_emails),
                        'All involved persons': ', '.join(all_emails)}
         kwargs['email_lists'] = email_lists
     if flask.g.current_user:
@@ -301,13 +297,23 @@ def reviewers(cid):
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
-    if not allow_edit(call):
-        return utils.error('You are not allowed to edit the call.')
 
     if utils.http_GET():
-        return flask.render_template('call/reviewers.html', call=call)
+        if not allow_view_details(call):
+            return utils.error('You are not allowed to edit the reviewers of the call.')
+        reviewers = [anubis.user.get_user(r) for r in call['reviewers']]
+        reviewer_emails = [r['email'] for r in reviewers if r['email']]
+        email_lists = {'Emails for reviewers': ', '.join(reviewer_emails)}
+        return flask.render_template('call/reviewers.html',
+                                     call=call,
+                                     reviewers=reviewers,
+                                     email_lists=email_lists,
+                                     allow_edit=allow_edit(call),
+                                     allow_view_reviews=allow_view_reviews(call))
 
     elif utils.http_POST():
+        if not allow_edit(call):
+            return utils.error('You are not allowed to edit the call.')
         reviewer = flask.request.form.get('reviewer')
         if not reviewer:
             return flask.redirect(flask.url_for('.display', cid=cid))
@@ -319,7 +325,6 @@ def reviewers(cid):
         if anubis.proposal.get_call_user_proposal(cid, user['username']):
             utils.flash_warning('User has a proposal in the call. Allowing'
                                 ' her to be a reviewer is questionable.')
-
         with CallSaver(call) as saver:
             try:
                 saver['reviewers'].remove(user['username'])
@@ -336,6 +341,8 @@ def reviewers(cid):
             flask.url_for('.reviewers', cid=call['identifier']))
 
     elif utils.http_DELETE():
+        if not allow_edit(call):
+            return utils.error('You are not allowed to edit the call.')
         reviewer = flask.request.form.get('reviewer')
         if utils.get_docs_view('reviews', 'call_reviewer',
                                   [call['identifier'], reviewer]):
@@ -970,7 +977,7 @@ def allow_change_access(call):
     return False
 
 def allow_view_details(call):
-    """The admin, staff, call owner and reviewers may view the details 
+    """The admin, staff, call owner and reviewers may view certain details 
     of the call, such as reviewers and access flags.
     """
     if not flask.g.current_user: return False
