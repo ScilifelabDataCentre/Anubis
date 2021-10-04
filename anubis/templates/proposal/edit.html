@@ -25,31 +25,6 @@
     </div>
   </div>
 
-  {% if call.get('categories') %}
-  <div class="form-group row">
-    <label for="_category"
-	   class="col-md-2 col-form-label text-right font-weight-bold">
-      Category</label>
-    <div class="col-md">
-      <select name="_category" class="custom-select"
-              aria-describedby="_categoryHelp">
-        {% for category in call['categories'] %}
-        <option {{ proposal.get('category') == category and 'selected' or '' }}>
-          {{ category }}
-        </option>
-        {% endfor %} {# for category ... #}
-        <option value="__none__"
-                {{ not proposal.get('category') and 'selected' or '' }}>
-          [none]
-        </option>
-      </select>
-      <small id="_categoryHelp" class="form-text">
-        Category of the proposal.
-      </small>
-    </div>
-  </div>
-  {% endif %} {# if call.get('categories') #}
-
   {% set fields = call['proposal'] %}
   {% set values = proposal['values'] %}
   {% set errors = proposal['errors'] %}

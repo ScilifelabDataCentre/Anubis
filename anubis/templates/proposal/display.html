@@ -95,13 +95,6 @@
 </div>
 {% endif %} {# if not am_reviewer #}
 
-{% if call.get('categories') and (am_reviewer or g.am_admin or g.am_staff) %}
-<div class="row">
-  <div class="col-md-2 font-weight-bold text-right">Category</div>
-  <div class="col-md">{{ proposal.get('category') | display_value }}</div>
-</div>
-{% endif %} {# if call.get('categories') and ... #}
-
 {% if proposal.get('submitted') %}
 
 {% if allow_view_reviews %}

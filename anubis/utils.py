@@ -69,14 +69,9 @@ def get_count(designname, viewname, key):
     else:
         return 0
 
-def get_call_proposals_count(cid, category=None):
-    """Get the count for all proposals in the given call.
-    Optionally filtered by category.
-    """
-    if category:
-        return get_count('proposals', 'call_category', [cid, category])
-    else:
-        return get_count('proposals', 'call', cid)
+def get_call_proposals_count(cid):
+    "Get the count for all proposals in the given call."
+    return get_count('proposals', 'call', cid)
 
 def get_call_reviewer_reviews_count(cid, username, archived=False):
     "Get the count of all reviews for the reviewer in the given call."
@@ -435,16 +430,12 @@ def call_link(call, identifier=True, title=False,
         html += f' <a href="{url}" class="badge badge-success mx-2">{count} grants</a>'
     return jinja2.utils.Markup(html)
 
-def call_proposals_link(call, category=None, full=False):
+def call_proposals_link(call, full=False):
     "Template filter: Button with link to the page of all proposals in the call."
     import anubis.call
     if not anubis.call.allow_view_proposals(call):
         return ""
-    if category:
-        count = get_count('proposals', 'call_category',
-                          [call["identifier"], category])
-    else:
-        count = get_count('proposals', 'call', call["identifier"])
+    count = get_count('proposals', 'call', call["identifier"])
     if count:
         url = flask.url_for("proposals.call", cid=call["identifier"])
         html = f' <a href="{url}" role="button" class="btn btn-sm btn-primary">{count} {full and "proposals" or "" }</a>'

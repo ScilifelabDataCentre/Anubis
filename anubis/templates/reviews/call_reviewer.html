@@ -44,9 +44,6 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
       {% for field in utils.get_banner_fields(call['proposal']) %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
-      {% if call.get('categories') %}
-      <th>Category</th>
-      {% endif %}
       <th>Submitter</th>
     </tr>
   </thead>
@@ -63,9 +60,6 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
       {% for field in utils.get_banner_fields(call['proposal']) %}
       <td>{{ field | display_field_value(proposal) }}</td>
       {% endfor %}
-      {% if call.get('categories') %}
-      <td>{{ proposal.get('category') | display_value }}</td>
-      {% endif %}
       <td>{{ get_user(proposal['user']) | user_link }}</td>
     </tr>
     {% endif %}

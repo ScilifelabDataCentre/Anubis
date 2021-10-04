@@ -32,8 +32,6 @@ DESIGN_DOC = {
         'call_user': {'map': "function (doc) {if (doc.doctype !== 'proposal') return; emit([doc.call, doc.user], doc.identifier);}"},
         'unsubmitted': {'reduce': '_count',
                         'map': "function (doc) {if (doc.doctype !== 'proposal' || doc.submitted) return; emit(doc.user, doc.identifier);}"},
-        'call_category': {'reduce': '_count',
-                          'map': "function (doc) {if (doc.doctype !== 'proposal' || !doc.category) return; emit([doc.call, doc.category], doc.identifier);}"},
         'access': {'reduce': '_count',
                    'map': "function (doc) {if (doc.doctype !== 'proposal') return; for (var i=0; i < doc.access_view.length; i++) {emit(doc.access_view[i], doc.identifier); }}"},
     }
@@ -200,11 +198,6 @@ def edit(pid):
         try:
             with ProposalSaver(proposal) as saver:
                 saver['title'] = flask.request.form.get('_title') or None
-                category = flask.request.form.get('_category')
-                if category in call.get('categories', []):
-                    saver['category'] = category
-                elif category == '__none__':
-                    saver['category'] = None
                 saver.set_fields_values(call['proposal'],
                                         form=flask.request.form)
         except ValueError as error:

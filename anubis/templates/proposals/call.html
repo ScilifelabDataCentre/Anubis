@@ -27,30 +27,6 @@
   </div>
 </div>
 
-{% if call.get('categories') %}
-<div class="row">
-  <div class="offset-md-3 col-md">
-    <form id="refresh"
-          action="{{ url_for('.call', cid=call['identifier']) }}"
-          role="form" class="form-inline"
-          method="GET">
-      <label class="form-input" for="category">Category</label>
-      <select name="category" id="category" 
-              class="custom-select refresh ml-2">
-        <option value="" {{ not category and 'selected' or '' }}>
-          [any]
-        </option>
-        {% for cat in call['categories'] %}
-        <option {{ category == cat and 'selected' or '' }}>
-          {{ cat }}
-        </option>
-        {% endfor %} {# for cat ... #}
-      </select>
-    </form>
-  </div>
-</div>
-{% endif %}
-
 <table id="proposals" class="table table-sm table-hover">
   <thead>
     <tr>
@@ -58,9 +34,6 @@
       {% for field in utils.get_banner_fields(call['proposal']) %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
-      {% if call.get('categories') and allow_view_details %}
-      <th>Category</th>
-      {% endif %} {# if call.get('categories') and allow_view_details #}
       {% if g.am_admin %}
       <th>Submitted</th>
       {% endif %}
@@ -103,9 +76,6 @@
       {% for field in utils.get_banner_fields(call['proposal']) %}
       <td>{{ field | display_field_value(proposal, truncate_documentname=10) }}</td>
       {% endfor %}
-      {% if call.get('categories') and allow_view_details %}
-      <td>{{ proposal.get('category') | display_value }}</td>
-      {% endif %} {# if call.get('categories') and allow_view_details #}
       {% if g.am_admin %}
       <td>
         {% if proposal.get('submitted') %}

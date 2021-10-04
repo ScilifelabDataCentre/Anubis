@@ -19,14 +19,13 @@ blueprint = flask.Blueprint('proposals', __name__)
 @blueprint.route('/call/<cid>')
 @utils.login_required
 def call(cid):
-    "List all proposals in a call. Optionally by category."
+    "List all proposals in a call."
     call = anubis.call.get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))
     if not anubis.call.allow_view(call):
         return utils.error('You may not view the call.', flask.url_for('home'))
-    category = flask.request.args.get('category')
-    proposals = get_call_proposals(call, category)
+    proposals = get_call_proposals(call)
     all_emails = []
     submitted_emails = []
     for proposal in proposals:
@@ -57,7 +56,6 @@ def call(cid):
         allow_view_reviews=anubis.call.allow_view_reviews(call),
         allow_view_decisions=anubis.call.allow_view_decisions(call),
         allow_view_grants=anubis.call.allow_view_grants(call),
-        category=category,
         get_reviewer_review=anubis.review.get_reviewer_review)
 
 @blueprint.route('/call/<cid>.xlsx')
@@ -82,10 +80,7 @@ def get_call_xlsx(call, submitted=False, proposals=None):
     """
     if proposals is None:
         title = f"Proposals in {call['identifier']}"
-        proposals = get_call_proposals(
-            call,
-            category=flask.request.args.get('category'),
-            submitted=submitted)
+        proposals = get_call_proposals(call, submitted=submitted)
     else:
         title = f"Selected proposals in {call['identifier']}"
     score_fields = get_review_score_fields(call, proposals)
@@ -105,17 +100,11 @@ def get_call_xlsx(call, submitted=False, proposals=None):
     ws.freeze_panes(1, 1)
     ws.set_row(0, 60, head_text_format)
     ws.set_column(1, 1, 40, normal_text_format)
-    if call.get('categories'):
-        ws.set_column(2, 3, 10, normal_text_format)
-        ws.set_column(4, 5, 20, normal_text_format)
-    else:
-        ws.set_column(2, 2, 10, normal_text_format)
-        ws.set_column(3, 4, 20, normal_text_format)
+    ws.set_column(2, 2, 10, normal_text_format)
+    ws.set_column(3, 4, 20, normal_text_format)
 
     nrow = 0
     row = ['Proposal', 'Proposal title']
-    if call.get('categories'):
-        row.append('Category')
     row.extend(['Submitted', 'Submitter', 'Email', 'Affiliation'])
     ncol = len(row)
     for field in call['proposal']:
@@ -158,9 +147,6 @@ def get_call_xlsx(call, submitted=False, proposals=None):
         ncol += 1
         ws.write_string(nrow, ncol, proposal.get('title') or '')
         ncol += 1
-        if call.get('categories'):
-            ws.write_string(nrow, ncol, proposal.get('category') or '')
-            ncol += 1
         ws.write_string(nrow, ncol, proposal.get('submitted') and 'yes' or 'no')
         ncol += 1
         user = anubis.user.get_user(username=proposal['user'])
@@ -285,10 +271,9 @@ def user(username):
                                  proposals=proposals,
                                  allow_view_decision=anubis.decision.allow_view)
 
-def get_call_proposals(call, category=None, submitted=False):
+def get_call_proposals(call, submitted=False):
     """Get the proposals in the call.
     Only include those allowed to view.
-    Optionally only those with the given category.
     Optionally only the submitted ones.
     """
     result = [i.doc for i in flask.g.db.view('proposals', 'call',
@@ -296,8 +281,6 @@ def get_call_proposals(call, category=None, submitted=False):
                                              reduce=False,
                                              include_docs=True)]
     result = [p for p in result if anubis.proposal.allow_view(p)]
-    if category:
-        result = [p for p in result if p.get('category') == category]
     if submitted:
         result = [p for p in result if p.get('submitted')]
     result.sort(key=lambda p: p['identifier'])

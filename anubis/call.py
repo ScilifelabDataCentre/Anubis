@@ -89,10 +89,6 @@ def display(cid):
         kwargs['my_archived_reviews_count'] = utils.get_call_reviewer_reviews_count(
             cid, flask.g.current_user['username'], archived=True)
     kwargs['call_proposals_count'] = utils.get_call_proposals_count(cid)
-    if call.get('categories'):
-        kwargs['call_proposals_category_counts'] = dict(
-            [(c, utils.get_call_proposals_count(cid, c))
-             for c in sorted(call.get('categories'))])
     # Number of archived reviews for the call.
     result = flask.g.db.view("reviews", "call_reviewer_archived",
                              startkey=[call['identifier'], ""],
@@ -138,7 +134,6 @@ def edit(cid):
                 saver['reviews_due'] = utils.normalize_datetime(
                     flask.request.form.get('reviews_due'))
                 saver.edit_access(flask.request.form)
-                saver.set_categories(flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
         return flask.redirect(flask.url_for('.display', cid=call['identifier']))
@@ -905,12 +900,6 @@ class CallSaver(AccessMixin, AttachmentSaver):
         for flag in constants.ACCESS:
             self.doc['access'][flag] = utils.to_bool(form.get(flag))
 
-    def set_categories(self, form):
-        "Set the categories for the proposals in the call."
-        values = [v.strip() for v in form.get("categories").split("\n")]
-        values = [v for v in values if v]
-        self.doc["categories"] = values
-
 
 def get_call(cid):
     "Return the call with the given identifier."
@@ -978,7 +967,8 @@ def allow_change_access(call):
 
 def allow_view_details(call):
     """The admin, staff, call owner and reviewers may view certain details 
-    of the call, such as reviewers and access flags.
+    of the call, such as call field definitions, call owner, reviewers
+    and access flags.
     """
     if not flask.g.current_user: return False
     if flask.g.am_admin: return True

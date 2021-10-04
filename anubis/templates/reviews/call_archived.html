@@ -24,9 +24,6 @@ Archived reviews in call {{ call['identifier'] }}
       {% endfor %}
       <th>Reviewer</th>
       <th>Proposal</th>
-      {% if call.get('categories') %}
-      <th>Category</th>
-      {% endif %}
       <th>Submitter</th>
     </tr>
   </thead>
@@ -41,9 +38,6 @@ Archived reviews in call {{ call['identifier'] }}
       {% endfor %}
       <td>{{ get_user(review['reviewer']) | user_link }}</td>
       <td>{{ proposal | proposal_link(bold=False) }}</td>
-      {% if call.get('categories') %}
-      <td>{{ proposal.get('category') | display_value }}</td>
-      {% endif %}
       <td>{{ get_user(proposal['user']) | user_link }}</td>
     </tr>
     {% endif %}
