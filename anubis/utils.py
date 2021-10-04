@@ -436,14 +436,9 @@ def call_proposals_link(call, full=False):
     if not anubis.call.allow_view_proposals(call):
         return ""
     count = get_count('proposals', 'call', call["identifier"])
-    if count:
-        url = flask.url_for("proposals.call", cid=call["identifier"])
-        html = f' <a href="{url}" role="button" class="btn btn-sm btn-primary">{count} {full and "proposals" or "" }</a>'
-        return jinja2.utils.Markup(html)
-    elif full:
-        return "0 proposals"
-    else:
-        return "0"
+    url = flask.url_for("proposals.call", cid=call["identifier"])
+    html = f' <a href="{url}" role="button" class="btn btn-sm btn-primary">{count} {full and "proposals" or "" }</a>'
+    return jinja2.utils.Markup(html)
 
 def call_reviews_link(call, full=False):
     "Template filter: Button with link to the page of all reviews in the call."
@@ -451,14 +446,9 @@ def call_reviews_link(call, full=False):
     if not anubis.call.allow_view_reviews(call):
         return ""
     count = get_count('reviews', 'call', call["identifier"])
-    if count:
-        url = flask.url_for("reviews.call", cid=call["identifier"])
-        html = f' <a href="{url}" role="button" class="btn btn-sm btn-info">{count} {full and "reviews" or ""}</a>'
-        return jinja2.utils.Markup(html)
-    elif full:
-        return "0 reviews"
-    else:
-        return "0"
+    url = flask.url_for("reviews.call", cid=call["identifier"])
+    html = f' <a href="{url}" role="button" class="btn btn-sm btn-info">{count} {full and "reviews" or ""}</a>'
+    return jinja2.utils.Markup(html)
 
 def call_grants_link(call, full=False):
     "Template filter: Button with link to the page of all grants in the call."
@@ -466,14 +456,9 @@ def call_grants_link(call, full=False):
     if not anubis.call.allow_view_grants(call):
         return ""
     count = get_count('grants', 'call', call["identifier"])
-    if count:
-        url = flask.url_for("grants.call", cid=call["identifier"])
-        html = f' <a href="{url}" role="button" class="btn btn-sm btn-success">{count} {full and "grants" or ""}</a>'
-        return jinja2.utils.Markup(html)
-    elif full:
-        return "0 grants"
-    else:
-        return "0"
+    url = flask.url_for("grants.call", cid=call["identifier"])
+    html = f' <a href="{url}" role="button" class="btn btn-sm btn-success">{count} {full and "grants" or ""}</a>'
+    return jinja2.utils.Markup(html)
 
 def proposal_link(proposal, bold=True):
     "Template filter: link to proposal."
