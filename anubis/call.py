@@ -592,8 +592,8 @@ def create_proposal(cid):
 
 @blueprint.route('/<cid>.zip')
 def call_zip(cid):
-    """Download a zip file containing the XLSX for all submitted proposals
-    and all documents attached to those proposals.
+    """Download a zip file containing the XLSX for all submitted proposals,
+    the DOCX for each proposal, and all documents attached to those proposals.
     """
     call = get_call(cid)
     if not call:
@@ -606,6 +606,9 @@ def call_zip(cid):
         zip.writestr(f"{call['identifier']}_proposals.xlsx",
                      anubis.proposals.get_call_xlsx(call, submitted=True))
         for proposal in proposals:
+            content = anubis.proposal.get_proposal_docx(proposal)
+            filename = f"{proposal['identifier'].replace(':','-')}.docx"
+            zip.writestr(filename, content.getvalue())
             for field in call['proposal']:
                 if field['type'] == constants.DOCUMENT:
                     try:

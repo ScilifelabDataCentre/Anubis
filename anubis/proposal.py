@@ -3,6 +3,7 @@
 import io
 import os.path
 
+import docx
 import flask
 import xlsxwriter
 
@@ -93,6 +94,22 @@ def display(pid):
         allow_create_grant=anubis.grant.allow_create(proposal),
         allow_link_grant=anubis.grant.allow_link(grant))
 
+@blueprint.route('/<pid>.docx')
+@utils.login_required
+def display_docx(pid):
+    "Return a DOCX file containing the proposal information."
+    proposal = get_proposal(pid)
+    if proposal is None:
+        return utils.error('No such proposal.', flask.url_for('home'))
+    if not allow_view(proposal):
+        return utils.error('You are not allowed to view this proposal.')
+    content = get_proposal_docx(proposal).getvalue()
+    response = flask.make_response(content)
+    response.headers.set('Content-Type', constants.DOCX_MIMETYPE)
+    response.headers.set('Content-Disposition', 'attachment', 
+                         filename=f"{pid.replace(':','-')}.docx")
+    return response
+
 @blueprint.route('/<pid>.xlsx')
 @utils.login_required
 def display_xlsx(pid):
@@ -102,74 +119,7 @@ def display_xlsx(pid):
         return utils.error('No such proposal.', flask.url_for('home'))
     if not allow_view(proposal):
         return utils.error('You are not allowed to view this proposal.')
-    call = anubis.call.get_call(proposal['call'])
-    am_submitter = flask.g.current_user and \
-                   flask.g.current_user['username'] == proposal['user']
-    submitter = anubis.user.get_user(username=proposal['user'])
-    output = io.BytesIO()
-    wb = xlsxwriter.Workbook(output, {'in_memory': True})
-    head_text_format = wb.add_format({'bold': True,
-                                      'text_wrap': True,
-                                      'font_size': 14,
-                                      'align': 'top'})
-    normal_text_format = wb.add_format({'font_size': 14,
-                                        'align': 'left'})
-    wrap_text_format = wb.add_format({'font_size': 14,
-                                      'text_wrap': True,
-                                      'align': 'vjustify'})
-
-    ws = wb.add_worksheet(f"Proposal {proposal['identifier'].replace(':','-')}"[:31])
-    ws.set_column(0, 0, 20, head_text_format)
-    ws.set_column(1, 1, 80, normal_text_format)
-    ws.set_column(2, 2, 60, normal_text_format)
-    nrow = 0
-    row = ['Proposal', '',  proposal['title']]
-    ws.write_row(nrow, 0, row)
-    ws.write_url(nrow, 1,
-                 flask.url_for('proposal.display',
-                               pid=proposal['identifier'],
-                               _external=True),
-                 string=proposal['identifier'])
-    nrow += 1
-    row = ['Submitter',
-           utils.get_fullname(submitter),
-           f"{submitter.get('affiliation') or '-'}"]
-    ws.write_row(nrow, 0, row)
-    nrow += 1
-    row = ['Modified', proposal['modified']]
-    ws.write_row(nrow, 0, row)
-    nrow += 1
-    row = ['Call', '', call['title']]
-    ws.write_url(nrow, 1,
-                 flask.url_for('call.display',
-                               cid=call['identifier'],
-                               _external=True),
-                 string=call['identifier'])
-    ws.write_row(nrow, 0, row)
-    nrow += 2
-    for field in call['proposal']:
-        row = [field['title'] or field['identifier'].capitalize()]
-        ws.write_row(nrow, 0, row)
-        value = proposal['values'].get(field['identifier'])
-        if value is None:
-            ws.write_string(nrow, 1, '')
-        elif field['type'] == constants.TEXT:
-            ws.write_string(nrow, 1, value, wrap_text_format)
-        elif field['type'] == constants.DOCUMENT:
-            documentname = proposal['values'][field['identifier']]
-            pid = proposal['identifier'].replace(':', '-')
-            ext = os.path.splitext(documentname)[1]
-            ws.write_url(nrow, 1,
-                         flask.url_for('proposal.document',
-                                       pid=proposal['identifier'],
-                                       fid=field['identifier'],
-                                       _external=True),
-                         string=f"Download {pid}-{field['identifier']}{ext}")
-        else:
-            ws.write(nrow, 1, value)
-        nrow += 1
-    wb.close()
-    content = output.getvalue()
+    content = get_proposal_xlsx(proposal).getvalue()
     response = flask.make_response(content)
     response.headers.set('Content-Type', constants.XLSX_MIMETYPE)
     response.headers.set('Content-Disposition', 'attachment', 
@@ -495,6 +445,124 @@ def get_call_user_proposal(cid, username):
         return result[0]
     else:
         return None
+
+def get_proposal_docx(proposal):
+    "Return the proposal as a io.BytesIO instance containing the DOCX file."
+    call = anubis.call.get_call(proposal['call'])
+    am_submitter = flask.g.current_user and \
+                   flask.g.current_user['username'] == proposal['user']
+    submitter = anubis.user.get_user(username=proposal['user'])
+    doc = docx.Document()
+    doc.add_heading(f"Proposal {proposal['identifier']}", 0)
+    doc.add_heading(proposal['title'], 1)
+    para = doc.add_paragraph()
+    para.paragraph_format.space_before = docx.shared.Pt(20)
+    para.add_run("Submitter: ").bold = True
+    para.add_run(utils.get_fullname(submitter))
+    para.add_run(f" (Anubis user name: {submitter['username']})")
+    para = doc.add_paragraph()
+    para.add_run("Affiliation: ").bold = True
+    para.add_run(submitter.get("affiliation") or "-")
+    para = doc.add_paragraph()
+    para.add_run("Modified: ").bold = True
+    para.add_run(proposal["modified"])
+    para = doc.add_paragraph()
+    para.add_run("Call: ").bold = True
+    para.add_run(f"{call['identifier']}: {call['title']}")
+    para = doc.add_paragraph()
+    para.add_run("Proposal URL: ").bold = True
+    para.add_run(flask.url_for("proposal.display", pid=proposal["identifier"], _external=True))
+    for field in call['proposal']:
+        doc.add_heading(field["title"] or field["identifier"].capitalize(), 2)
+        value = proposal['values'].get(field['identifier'])
+        if value is None:
+            doc.add_paragraph("-")
+        elif field['type'] == constants.TEXT:
+            doc.add_paragraph(value) # Markdown as-is; not a disaster.
+        elif field['type'] == constants.DOCUMENT:
+            para = doc.add_paragraph()
+            para.add_run("Document: ").bold = True
+            documentname = proposal['values'][field['identifier']]
+            pid = proposal['identifier'].replace(':', '-')
+            ext = os.path.splitext(documentname)[1]
+            para.add_run(f"{pid}-{field['identifier']}{ext}")
+            para.add_run(f' (originally: "{documentname}")')
+        else:
+            ws.write(nrow, 1, value)
+    result = io.BytesIO()
+    doc.save(result)
+    return result
+
+def get_proposal_xlsx(proposal):
+    "Return the proposal as a io.BytesIO instance containing the XLSX file."
+    call = anubis.call.get_call(proposal['call'])
+    am_submitter = flask.g.current_user and \
+                   flask.g.current_user['username'] == proposal['user']
+    submitter = anubis.user.get_user(username=proposal['user'])
+    result = io.BytesIO()
+    wb = xlsxwriter.Workbook(result, {'in_memory': True})
+    head_text_format = wb.add_format({'bold': True,
+                                      'text_wrap': True,
+                                      'font_size': 14,
+                                      'align': 'top'})
+    normal_text_format = wb.add_format({'font_size': 14,
+                                        'align': 'left'})
+    wrap_text_format = wb.add_format({'font_size': 14,
+                                      'text_wrap': True,
+                                      'align': 'vjustify'})
+
+    ws = wb.add_worksheet(f"Proposal {proposal['identifier'].replace(':','-')}"[:31])
+    ws.set_column(0, 0, 20, head_text_format)
+    ws.set_column(1, 1, 80, normal_text_format)
+    ws.set_column(2, 2, 60, normal_text_format)
+    nrow = 0
+    row = ['Proposal', '',  proposal['title']]
+    ws.write_row(nrow, 0, row)
+    ws.write_url(nrow, 1,
+                 flask.url_for('proposal.display',
+                               pid=proposal['identifier'],
+                               _external=True),
+                 string=proposal['identifier'])
+    nrow += 1
+    row = ['Submitter',
+           utils.get_fullname(submitter),
+           f"{submitter.get('affiliation') or '-'}"]
+    ws.write_row(nrow, 0, row)
+    nrow += 1
+    row = ['Modified', proposal['modified']]
+    ws.write_row(nrow, 0, row)
+    nrow += 1
+    row = ['Call', '', call['title']]
+    ws.write_url(nrow, 1,
+                 flask.url_for('call.display',
+                               cid=call['identifier'],
+                               _external=True),
+                 string=call['identifier'])
+    ws.write_row(nrow, 0, row)
+    nrow += 2
+    for field in call['proposal']:
+        row = [field['title'] or field['identifier'].capitalize()]
+        ws.write_row(nrow, 0, row)
+        value = proposal['values'].get(field['identifier'])
+        if value is None:
+            ws.write_string(nrow, 1, '')
+        elif field['type'] == constants.TEXT:
+            ws.write_string(nrow, 1, value, wrap_text_format)
+        elif field['type'] == constants.DOCUMENT:
+            documentname = proposal['values'][field['identifier']]
+            pid = proposal['identifier'].replace(':', '-')
+            ext = os.path.splitext(documentname)[1]
+            ws.write_url(nrow, 1,
+                         flask.url_for('proposal.document',
+                                       pid=proposal['identifier'],
+                                       fid=field['identifier'],
+                                       _external=True),
+                         string=f"Download {pid}-{field['identifier']}{ext}")
+        else:
+            ws.write(nrow, 1, value)
+        nrow += 1
+    wb.close()
+    return result
 
 def allow_create(call):
     """A logged-in user may create a proposal in a call.

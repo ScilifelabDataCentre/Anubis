@@ -137,8 +137,16 @@ of some of them:
 
 ## Built on
 
-Python3, Flask, CouchDB server, CouchDB2 (Python module),
-Bootstrap, jQuery, DataTables.
+- Python3
+- Flask, Flask-Mail
+- CouchDB server
+- CouchDB2 (Python module; interface to CouchDB)
+- Marko (Python package)
+- XlsxWriter (Python package)
+- python-docx (Python package)
+- Bootstrap 4
+- jQuery
+- DataTables
 
 The icon "Feather of Ma'at" was made by
 [freepik at flaticon.com](https://www.flaticon.com/authors/freepik).

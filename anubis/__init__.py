@@ -2,7 +2,7 @@
 
 import re
 
-__version__ = '1.4.1'
+__version__ = '1.5.0'
 
 class Constants:
     VERSION     = __version__
@@ -71,6 +71,7 @@ class Constants:
               'allow_chair_create_reviews')
 
     # MIME types
+    DOCX_MIMETYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     XLSX_MIMETYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     ZIP_MIMETYPE = 'application/zip'
     XML_MIMETYPE = 'text/xml'

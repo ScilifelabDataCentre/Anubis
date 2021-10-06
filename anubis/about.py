@@ -6,6 +6,7 @@ import sys
 import couchdb2
 import flask
 import jinja2
+import marko
 import xlsxwriter
 
 import anubis
@@ -59,6 +60,7 @@ def get_software():
          'https://pypi.org/project/couchdb2'),
         ('XslxWriter', xlsxwriter.__version__,
          'https://xlsxwriter.readthedocs.io/'),
+        ('Marko', marko.__version__, 'https://pypi.org/project/marko/'),
         ('Bootstrap', constants.BOOTSTRAP_VERSION, 'https://getbootstrap.com/'),
         ('jQuery', constants.JQUERY_VERSION, 'https://jquery.com/'),
         ('DataTables', constants.DATATABLES_VERSION, 'https://datatables.net/'),

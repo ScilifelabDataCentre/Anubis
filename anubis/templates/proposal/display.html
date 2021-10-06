@@ -9,6 +9,11 @@
 
 {% block meta %}
 <div>
+  <a href="{{ url_for('proposal.display_docx', pid=proposal['identifier']) }}"
+     title="Proposal information"
+     class="badge badge-pill badge-dark">Proposal DOCX file</a>
+</div>
+<div>
   <a href="{{ url_for('proposal.display_xlsx', pid=proposal['identifier']) }}"
      title="Proposal information"
      class="badge badge-pill badge-dark">Proposal Excel file</a>
