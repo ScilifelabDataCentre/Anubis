@@ -557,10 +557,13 @@ class HtmlRenderer(marko.html_renderer.HTMLRenderer):
         body = self.render_children(element)
         return template.format(url, title, body)
 
+def markdown2html(value):
+    "Process the value from Markdown to HTML."
+    return marko.Markdown(renderer=HtmlRenderer).convert(value or '')
+
 def display_markdown(value):
-    "Process the value using Marko markdown."
-    processor = marko.Markdown(renderer=HtmlRenderer)
-    return jinja2.utils.Markup(processor.convert(value or ''))
+    "Process the value from Markdown tp HTML for display in a template."
+    return jinja2.utils.Markup(markdown2html(value))
 
 def get_site_text(filename):
     """Get the Markdown-formatted text from a file in the site directory.

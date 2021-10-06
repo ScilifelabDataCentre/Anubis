@@ -5,6 +5,7 @@ import os.path
 
 import docx
 import flask
+import htmldocx
 import xlsxwriter
 
 import anubis.call
@@ -477,8 +478,14 @@ def get_proposal_docx(proposal):
         value = proposal['values'].get(field['identifier'])
         if value is None:
             doc.add_paragraph("-")
+        elif field['type'] in (constants.INTEGER, constants.FLOAT,
+                               constants.SCORE, constants.RANK):
+            doc.add_paragraph(str(value))
+        elif field['type'] == constants.BOOLEAN:
+            doc.add_paragraph(utils.display_boolean(value))
         elif field['type'] == constants.TEXT:
-            doc.add_paragraph(value) # Markdown as-is; not a disaster.
+            converter = htmldocx.HtmlToDocx()
+            converter.add_html_to_document(utils.markdown2html(value), doc)
         elif field['type'] == constants.DOCUMENT:
             para = doc.add_paragraph()
             para.add_run("Document: ").bold = True
@@ -488,7 +495,7 @@ def get_proposal_docx(proposal):
             para.add_run(f"{pid}-{field['identifier']}{ext}")
             para.add_run(f' (originally: "{documentname}")')
         else:
-            ws.write(nrow, 1, value)
+            pass                # Ignore unimplemented field types.
     result = io.BytesIO()
     doc.save(result)
     return result
@@ -546,6 +553,11 @@ def get_proposal_xlsx(proposal):
         value = proposal['values'].get(field['identifier'])
         if value is None:
             ws.write_string(nrow, 1, '')
+        elif field['type'] in (constants.INTEGER, constants.FLOAT,
+                               constants.SCORE, constants.RANK):
+            ws.write(nrow, 1, value)
+        elif field['type'] == constants.BOOLEAN:
+            ws.write(nrow, 1, utils.display_boolean(value))
         elif field['type'] == constants.TEXT:
             ws.write_string(nrow, 1, value, wrap_text_format)
         elif field['type'] == constants.DOCUMENT:
@@ -559,7 +571,7 @@ def get_proposal_xlsx(proposal):
                                        _external=True),
                          string=f"Download {pid}-{field['identifier']}{ext}")
         else:
-            ws.write(nrow, 1, value)
+            pass                # Ignore unimplemented field types.
         nrow += 1
     wb.close()
     return result
