@@ -2,12 +2,6 @@
 
 Proposal submission and review handling system.
 
-See [install/README.md](install/README.md) for information on how to install
-this system.
-
-See [anubis/README.md](anubis/README.md) for an overview of
-the source code.
-
 - [A typical use case](#a-typical-use-case)
 - [Important changes](#important-changes)
 - [Entities](#entities)
@@ -15,6 +9,12 @@ the source code.
 - [Command-line interface](#command-line-interface)
 - [Implementation](#implementation)
 - [Example instance](#example-instance)
+
+See [install/README.md](install/README.md) for information on how to install
+this system.
+
+See [anubis/README.md](anubis/README.md) for an overview of
+the source code.
 
 ## A typical use case
 
@@ -65,7 +65,7 @@ grant holder.
 
 ## Important changes
 
-- Since version 1.6, the scripts ´dump.py` and `undump.py` have been removed
+- Since version 1.6, the scripts `dump.py` and `undump.py` have been removed
   The same functionality is available in the `cli.py` script.
 
 ## Entities
