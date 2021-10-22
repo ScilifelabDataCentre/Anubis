@@ -54,13 +54,12 @@ DEFAULT_SETTINGS = dict(
 )
 
 
-def init(app, filepath=None):
+def init(app):
     """Perform the configuration of the Flask app.
     Set the defaults, and then modify the values based on:
-    1) The settings file path argument to this procedure.
-    2) The settings file path environment variable ANUBIS_SETTINGS.
-    3) The file 'settings.json' in this directory.
-    4) The file '../site/settings.json' relative to this directory.
+    1) The settings file path environment variable ANUBIS_SETTINGS.
+    2) The file 'settings.json' in this directory.
+    3) The file '../site/settings.json' relative to this directory.
     Check the environment for a specific set of variables and use if defined.
     Raise IOError if settings file could not be read.
     Raise KeyError if a settings variable is missing.
@@ -70,8 +69,6 @@ def init(app, filepath=None):
     app.config.from_mapping(DEFAULT_SETTINGS)
     # Modify the configuration from a JSON settings file.
     filepaths = []
-    if filepath:
-        filepaths.append(filepath)
     try:
         filepaths.append(os.environ['ANUBIS_SETTINGS'])
     except KeyError:

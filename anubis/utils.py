@@ -41,9 +41,7 @@ def init(app):
     app.add_template_filter(review_link)
     app.add_template_filter(decision_link)
     app.add_template_filter(grant_link)
-
-    db = get_db(app=app)
-    if db.put_design('logs', DESIGN_DOC):
+    if get_db(app=app).put_design('logs', DESIGN_DOC):
         app.logger.info('Updated logs design document.')
 
 DESIGN_DOC = {
@@ -51,6 +49,11 @@ DESIGN_DOC = {
         'doc': {'map': "function (doc) {if (doc.doctype !== 'log') return; emit([doc.docid, doc.timestamp], null);}"}
     }
 }
+
+def set_db(app=None):
+    "Sets the database connection and creates the document cache."
+    flask.g.db = get_db(app=app)
+    flask.g.cache = {}          # key: id, value: doc.
 
 def get_db(app=None):
     "Get a connection to the database."
@@ -61,9 +64,12 @@ def get_db(app=None):
                              password=app.config['COUCHDB_PASSWORD'])
     return server[app.config['COUCHDB_DBNAME']]
 
-def get_count(designname, viewname, key):
+def get_count(designname, viewname, key=None):
     "Get the count for the given view and key."
-    result = flask.g.db.view(designname, viewname, key=key, reduce=True)
+    if key is None:
+        result = flask.g.db.view(designname, viewname, reduce=True)
+    else:
+        result = flask.g.db.view(designname, viewname, key=key, reduce=True)
     if result:
         return result[0].value
     else:

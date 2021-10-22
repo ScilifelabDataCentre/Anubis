@@ -373,6 +373,7 @@ def get_review_rank_fields_errors(call, proposals):
                 else:
                     d = ranks.setdefault(review['reviewer'], dict())
                     d[proposal['identifier']] = value
+        # Check that ranking values start with 1 and are consecutiive.
         for reviewer, values in ranks.items():
             series = list(values.values())
             if series:
@@ -382,6 +383,7 @@ def get_review_rank_fields_errors(call, proposals):
                     errors.append(f"{name} reviews '{id}' do not start with 1.")
                 elif set(series) != set(range(1, max(series)+1)):
                     errors.append(f"{name} reviews '{id}' are not consecutive.")
+        # For each proposal, compute ranking factor.
         for proposal in proposals:
             factors = []
             for reviewer, values in ranks.items():

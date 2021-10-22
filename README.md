@@ -3,8 +3,18 @@
 Proposal submission and review handling system.
 
 See [install/README.md](install/README.md) for information on how to install
-this system. See [anubis/README.md](anubis/README.md) for an overview of
+this system.
+
+See [anubis/README.md](anubis/README.md) for an overview of
 the source code.
+
+- [A typical use case](#a-typical-use-case)
+- [Important changes](#important-changes)
+- [Entities](#entities)
+- [System design assumptions](#system-design-assumptions)
+- [Command-line interface](#command-line-interface)
+- [Implementation](#implementation)
+- [Example instance](#example-instance)
 
 ## A typical use case
 
@@ -52,6 +62,11 @@ idea is that the user fills in required information, such as a budget
 document, contact persons, collaborators, etc. The staff handling the
 call can then access Anubis to get all information provided from the
 grant holder.
+
+## Important changes
+
+- Since version 1.6, the scripts ´dump.py` and `undump.py` have been removed
+  The same functionality is available in the `cli.py` script.
 
 ## Entities
 
@@ -135,7 +150,31 @@ of some of them:
 - Decisions are not visible to the review chair until the reviews due date
   has passed.
 
-## Built on
+
+## Command line interface
+
+There is a command-line interface (CLI) for admin work on the machine the system is running on. See its help texts. The top-level help text is:
+
+```
+$ python cli.py --help
+Usage: cli.py [OPTIONS] COMMAND [ARGS]...
+
+  Command line interface for operations on the Anubis database.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  admin     Create a new admin account.
+  counts    Output counts of database entities.
+  dump      Dump all data in the database to a .tar.gz dump file.
+  password  Set the password for a user account.
+  show      Show the JSON for the item given by the identifier.
+  undump    Load an Anubis database .tar.gz dump file.
+  user      Create a new user account.
+```
+
+## Implementation
 
 - Python3
 - Flask, Flask-Mail
@@ -150,3 +189,9 @@ of some of them:
 
 The icon "Feather of Ma'at" was made by
 [freepik at flaticon.com](https://www.flaticon.com/authors/freepik).
+
+
+Example instance
+----------------
+
+- [SciLifeLab Anubis System for grant applications](https://anubis.scilifelab.se/)

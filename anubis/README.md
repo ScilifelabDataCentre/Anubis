@@ -353,28 +353,17 @@ Various utility functions used in other modules.
 - Markdown handling.
 - Email send utilities.
 
+
 ## `saver.py`
 
 Base classes and mixins for the saver context classes specific to each
 document type.
 
-## `dump.py`
 
-Script to dump the entire Anubis database into a `tar.gz` file.
+## `cli.py`
 
-## `undump.py`
+A simple command-line tool; see its help text output.
 
-Script to retrieve an entire Anubis database from a `tar.gz` file into
-CouchDB. The database itself must have been created in CouchDB. The
-items from the file are added to the database. This means that if
-there are any preexisting contents in the database, it is possible
-that some of it may be overwritten.
-
-## `command_line_tool.py`
-
-A simple command-line script that allows updating the design documents
-in the CouchDB database, create an admin user, or create an ordinary
-user.
 
 ## documentation
 

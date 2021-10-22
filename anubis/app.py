@@ -55,9 +55,8 @@ def setup_template_context():
 
 @app.before_request
 def prepare():
-    "Open the database connection, create the doc cache, get the current user."
-    flask.g.db = utils.get_db()
-    flask.g.cache = {}          # id or key -> document
+    "Set the database connection, get the current user."
+    utils.set_db()
     flask.g.current_user = anubis.user.get_current_user()
     flask.g.am_admin = anubis.user.am_admin()
     flask.g.am_staff = anubis.user.am_staff()
@@ -86,7 +85,7 @@ def home():
 @app.route("/status")
 def status():
     "Return JSON for the current status and some counts for the database."
-    result = flask.g.db.view("calls", "owner", reduce=True)
+    result = flask.g.db("calls", "owner", reduce=True)
     if result:
         n_calls = result[0].value
     else:
