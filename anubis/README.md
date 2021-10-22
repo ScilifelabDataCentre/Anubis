@@ -2,16 +2,17 @@
 
 ## General design features
 
-The app uses the standard Flask way of doing things, i.e. it is uses
-mostly functions. Object-oriented programming is used mainly for the
-document saver context manager (see below).
+The app tries to use the standard Flask way of doing things, i.e. it
+uses functions for dealing with HTTP requests. Object-oriented
+programming is used mainly for the document saver context manager (see
+below).
 
 Access privileges are checked either by a decorator on the function,
-or as early as possible in the execution using functions named
+or as early as possible in the request handling using functions named
 `allow_xxx`.
 
 CouchDB documents are edited using a `with` context manager called
-`XxxSaver`.  This takes care of saving the document and the log entry
+`XxxSaver`.  It takes care of saving the document and the log entry
 for the edit.
 
 
@@ -39,14 +40,14 @@ The Anubis Flask app main module.
   variables and their default values.
 - `init`: Setup of the configuration for this instance of
   Anubis. Starting with the default values, check for settings file
-  using argument, environment label and two hard-wired locations. Then
-  also check a few hard-wired environment labels.
+  using environment label and two hard-wired locations. It checks
+  the sanity of a few settings.
 
 
 ## `user.py`
 
-The user account module. A user is uniquely defined by her account identifier
-and also by her email.
+The user account module. A user is uniquely defined by her account
+identifier and also by her email.
 
 The most important functions are:
 
