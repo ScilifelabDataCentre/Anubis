@@ -150,7 +150,7 @@ def edit(cid):
 @blueprint.route('/<cid>/access', methods=["GET", "POST", "DELETE"])
 @utils.login_required
 def access(cid):
-    "Edit the access privileges for the call record."
+    "Edit the access privileges for the call."
     call = get_call(cid)
     if call is None:
         return utils.error('No such call.')
@@ -241,7 +241,7 @@ def document(cid, documentname):
 @blueprint.route('/<cid>/proposal', methods=['GET', 'POST'])
 @utils.login_required
 def proposal(cid):
-    "Display proposal field definitions for delete, and add field."
+    "Display proposal field definitions for edit, delete, or add field."
     call = get_call(cid)
     if not call:
         return utils.error('No such call.', flask.url_for('home'))

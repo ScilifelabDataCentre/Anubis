@@ -32,6 +32,8 @@ The Anubis Flask app main module.
 - `prepare`: Set up the context for each request.
 - Setup of URLs; delegation to their respective blueprint.
 - `home`: Display home page.
+- `status`: Return JSON for the current status.
+- `sitemap`: Return an XML sitemap.
 
 
 ## `config.py`
@@ -67,8 +69,8 @@ The most important functions are:
 ### Other functions
 
 - `init`: CouchDB index creation (design document) for the user document type.
-- `class UserSaver`: CouchDB user document saver context manager. Contains
-   functions to set various fields using form input.
+- `class UserSaver`: CouchDB document saver context manager.
+  Contains functions to set various fields using form input.
 - `get_user`: Return the user for the given username or email.
 - `get_users`: Return the users specified by role and optionally by status.
 - `get_current_user`: Return the user for the current session from the
@@ -79,8 +81,8 @@ The most important functions are:
 ## `call.py`
 
 Module for call pages. A call is a container of proposals. It is the
-fundamental entity which all other entities (except user account) must
-refer. It contains all field definitions for the other entities
+fundamental entity which all other entities (except user account)
+depend on. It contains all field definitions for the other entities:
 proposal, review, decision and grant.
 
 The different sets of fields of a call may be changed at any time.
@@ -96,16 +98,17 @@ The most important functions are:
 - `display`: Display the call information.
 - `edit`: Edit the top-level information for the call; title, description,
   open and close dates, access, etc.
+- `access`: Edit the access privileges for the call.
 - `documents`: Edit the documents attached to a call.
 - `document`: Download the specified document attached to a call.
-- `proposal`: Display the proposal field definitions, and add field.
+- `proposal`: Display the proposal field definitions, for edit, delete or add.
 - `proposal_field`: Edit or delete the proposal field definition.
 - `reviewers`: Edit the list of reviewers, which must have user accounts.
-- `review`: Display the review field definitions, and add field.
+- `review`: Display the review field definitions, for edit, delete or add.
 - `review_field`: Edit or delete the review field definition.
-- `decision`: Display the decision field definitions, and add field.
+- `decision`: Display the decision field definitions, for edit, delete or add.
 - `decision_field`: Edit or delete the decision field definition.
-- `grant`: Display the grant field definitions, and add field.
+- `grant`: Display the grant field definitions, for edit, delete or add.
 - `grant_field`: Edit or delete the grant field definition.
 - `reset_counter`: Reset the proposal counter.
 - `clone`: Clone the call.
@@ -117,11 +120,11 @@ The most important functions are:
 ### Other functions
 
 - `init`: CouchDB index creation (design document) for the call document type.
-- `class CallSaver`: CouchDB call document saver context manager. Contains
-   functions to set various fields using form input.
+- `class CallSaver`: CouchDB document saver context manager.
+  Contains functions to set various fields using form input.
 - `get_call`: Return the call with the given identifier.
-- `set_tmp`: Set various parameters in the call document which are used
-  in other functions, but will not be stored.
+- `set_tmp`: Set various non-saved parameters in the call document which
+  are used in other functions.
 - `allow_XXX`: Access privilege checking functions.
 
 ## `calls.py`
@@ -153,6 +156,8 @@ The most important functions are:
 ### URL-mapped functions
 
 - `display`: Display the proposal information.
+- `display_docx`: Return a DOCX file containing the proposal information.
+- `display_xlsx`: Return an XLSX file containing the proposal information.
 - `edit`: Edit the proposal information, such as title and category.
 - `transfer`: Change ownership of the proposal to another user account.
 - `submit`: Submit the proposal. This can be done only if the call is still
@@ -168,13 +173,16 @@ The most important functions are:
 
 - `init`: CouchDB index creation (design document) for the proposal
   document type.
+- `send_submission_email`: Send an email confirming the submission.
 - `get_document`: Return a dictionary containing the document in the given
   field in the given proposal.
-- `class ProposalSaver`: CouchDB proposal document saver context manager.
+- `class ProposalSaver`: CouchDB document saver context manager.
   Contains functions to set various fields using form input. Checks for
   errors in input; if any, then the proposal cannot be submitted.
 - `get_proposal`: Return the proposal given its identifier.
 - `get_call_user_proposal`: Return the proposal owned by the user in the call.
+- `get_proposal_docx`: Return the proposal as a DOCX file.
+- `get_proposal_xlsx`: Return the proposal as a XLSX file.
 - `allow_XXX`: Access privilege checking functions.
 
 
@@ -192,9 +200,8 @@ The most important functions are:
   proposals in a call.
 - `get_call_proposals`: Get the proposals in the call.
 - `get_user_proposals`: Get all proposals created by the user.
-- `compute_mean_fields`: Compute the mean and stdev of numerical
-    banner fields for each proposal. Store values in the proposal
-    document.
+- `get_review_scoren_fields`: Compute and return score banner field info.
+- `get_review_rank_field_errors`: Compute and return rank banner field info.
 
 ## `review.py`
 
@@ -209,7 +216,7 @@ proposals in a call.
 - `edit`: Edit the review for the proposal.
 - `finalize`, `unfinalize`: (Un)finalize the review for the proposal.
 - `archive`, `unarchive`: (Un)archive the review for the proposal. An
-  archived review is not shown in most views, but is reachabel.
+  archived review is not shown in most views, but is reachable.
 - `logs`: Display the log records for the given review.
 - `document`: Download the review document (attachment file) for the
   given field id.
@@ -218,6 +225,8 @@ proposals in a call.
 
 - `init`: CouchDB index creation (design document) for the review
   document type.
+- `class ReviewSaver`: CouchDB document saver context manager.
+  Contains functions to set various fields using form input.
 - `get_review`: Get the review by its iuid.
 - `get_reviewer_review`: Get the review of the proposal by the reviewer.
 - `allow_XXX`: Access privilege checking functions.
@@ -272,6 +281,7 @@ There are no decision lists; the decisions are shown in the proposals lists.
 
 - `init`: CouchDB index creation (design document) for the decision
   document type.
+- `class DecisionSaver`: CouchDB document saver context manager.
 - `get_decision`: Get the decision by its iuid.
 - `allow_XXX`: Access privilege checking functions.
 
@@ -300,6 +310,7 @@ relating to payment and tracking of grants relating to accepted proposals.
   document type.
 - `get_grant_documents`: Get all documents in a grant as a list of
   dict(filename, content).
+- `class GrantSaver`: CouchDB document saver context manager.
 - `get_grant`: Return the grant dossier with the given identifier.
 - `get_grant_proposal`: Return the grant dossier for the proposal with
   the given identifier.
@@ -363,7 +374,7 @@ document type.
 
 ## `cli.py`
 
-A simple command-line tool; see its help text output.
+A simple command-line interface; see its help text output.
 
 
 ## documentation
