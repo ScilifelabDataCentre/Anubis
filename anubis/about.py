@@ -20,7 +20,7 @@ blueprint = flask.Blueprint('about', __name__)
 def documentation(page):
     "Display the given documentation page."
     try:
-        with open(os.path.join(flask.current_app.config['DOC_DIRPATH'],
+        with open(os.path.join(flask.current_app.config['DOC_DIR'],
                                f"{page}.md")) as infile:
             text = infile.read()
     except (OSError, IOError):

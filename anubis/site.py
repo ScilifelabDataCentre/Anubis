@@ -11,9 +11,9 @@ blueprint = flask.Blueprint('site', __name__)
 @blueprint.route('/static/<filename>')
 def static(filename):
     "Return the given site-specific static file."
-    dirpath = flask.current_app.config['SITE_STATIC_DIRPATH']
+    dirpath = flask.current_app.config['SITE_STATIC_DIR']
     if not dirpath:
-        raise ValueError('misconfiguration: no SITE_STATIC_DIRPATH set')
+        raise ValueError('misconfiguration: SITE_STATIC_DIR not set')
     dirpath = os.path.expandvars(os.path.expanduser(dirpath))
     if dirpath:
         return flask.send_from_directory(dirpath, filename)
