@@ -17,8 +17,8 @@ class Homepage(utils.BrowserTestCase):
         self.driver.get(self.settings["BASE_URL"])
 
         # Software versions displayed in footer in every page.
-        elem = self.driver.find_element_by_id("version")
-        self.assertGreaterEqual(elem.text, "1.3.17")
+        elem = self.driver.find_element("id", "version")
+        self.assertEqual(elem.text, self.settings["VERSION"])
 
 
 if __name__ == "__main__":
