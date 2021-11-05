@@ -12,7 +12,7 @@ The source code is available the
 [Anubis GitHub repo](https://github.com/pekrau/Anubis).
 
 Anubis requires Python >= 3.6 and [CouchDB >= 2.3.1](https://couchdb.apache.org/);
-their installation is not documented here.
+installation of those systems is not documented here.
 
 ### Source code and packages
 
@@ -26,10 +26,10 @@ $ git clone https://github.com/pekrau/Anubis.git
 It is recommended to set up a virtual environment for Anubis. On my
 development machine, I am using the `virtualenv` system:
 
-```
+```bash
 $ mkvirtualenv -p /usr/bin/python3 Anubis
 $ cd Anubis
-$ add2virtualenv  # To add the top Anubis dir to Python path
+$ add2virtualenv        # To add the top Anubis dir to Python path
 $ setvirtualenvproject  # To make this dir the default when doing 'workon'
 ```
 
@@ -38,7 +38,7 @@ for Anubis is not documented here.
 
 Download and install the required Python packages from PyPi:
 
-```
+```bash
 $ workon Anubis  # Activate the virtual environment
 $ pip install -r requirements.txt
 ```
@@ -50,7 +50,7 @@ needs to be configured. This is done in a JSON file called
 `settings.json` located in the `site` directory. An example file can
 be found in the `install` directory.
 
-```
+```bash
 $ cd Anubis
 $ mkdir site
 $ cp install/settings.json site/settings.json
@@ -97,7 +97,7 @@ located in the directory `/etc/systemd/system`.
 
 Useful `systemctl` commands are:
 
-```
+```bash
 $ sudo systemctl status anubis
 $ sudo systemctl start anubis
 $ sudo systemctl restart anubis
@@ -107,7 +107,7 @@ $ sudo systemctl stop anubis
 There is also a updating script `Anubis/install/deploy_anubis.bash` to
 be located in a site-dependent directory and run like so:
 
-```
+```bash
 $ sudo /etc/scripts/deploy_anubis.bash
 ```
 

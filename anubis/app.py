@@ -1,4 +1,4 @@
-"Proposal review handling system."
+"Flask app setup and creation; main entry point.."
 
 import flask
 

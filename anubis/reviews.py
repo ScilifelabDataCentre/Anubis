@@ -1,4 +1,4 @@
-"Reviews lists."
+"Lists of reviews."
 
 import io
 import zipfile

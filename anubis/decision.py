@@ -1,4 +1,13 @@
-"Decision regarding a proposal."
+"""Decision create, display end edit.
+
+A decision represents the result of the review and decision
+process. It is intended to be shown to the proposer, but this is not
+done until the switch for this is set for the call.
+
+There are no decision lists; the decisions are shown in the proposals lists.
+
+A decision is defined by the decision fields in the call.
+"""
 
 import os.path
 

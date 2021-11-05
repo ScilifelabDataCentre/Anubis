@@ -1,4 +1,11 @@
-"Review of a proposal. Created from the proposal fields in the call."
+"""Review create, display, edit.
+
+There is at most one review per reviewer and proposal. It is possible
+to archive reviews if a review process is to be repeated for the
+proposals in a call.
+
+A review is defined by the review fields in the call.
+"""
 
 import os.path
 

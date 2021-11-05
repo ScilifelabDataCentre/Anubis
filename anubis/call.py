@@ -1,4 +1,15 @@
-"Call for proposals."
+"""Call creation, display, edit; field definitions.
+
+A call is a container of proposals. It is the fundamental entity which
+all other entities (except user account) depend on. It contains all
+field definitions for the other entities: proposal, review, decision
+and grant.
+
+The different sets of fields of a call may be changed at any time.
+But beware: if e.g. changing a proposal field from optional to
+required may inadvertenly invalidate some proposals (but not break the
+system itself).  Change an open call with care.
+"""
 
 import copy
 import io

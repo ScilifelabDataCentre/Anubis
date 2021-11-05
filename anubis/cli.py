@@ -1,4 +1,4 @@
-"Command-line interface."
+"Command-line interface for admin operations."
 
 import io
 import json

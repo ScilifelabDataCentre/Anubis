@@ -1,4 +1,9 @@
-"Grant dossier based on a proposal, which (presumably) got a positive decision."
+"""Grant creation, display and edit.
+
+A grant is dossier based on a proposal, which (presumably) got a
+positive decision. It may contain information and documents relating
+to the payment and tracking of the grant.
+"""
 
 import io
 import os.path

@@ -13,9 +13,6 @@ Proposal submission and review handling system.
 See [install/README.md](install/README.md) for information on how to install
 this system.
 
-See [anubis/README.md](anubis/README.md) for an overview of
-the source code.
-
 ## A typical use case
 
 Some of the steps below are illustrated in the screenshots in the accompanying
@@ -174,6 +171,53 @@ Commands:
   user      Create a new user account.
 ```
 
+## Source code
+
+The Anubis source code is structures according to the standard Flask
+way of doing things, i.e. it uses functions for dealing with HTTP
+requests. Object-oriented programming is used mainly for the document
+saver context manager.
+
+Access privileges are checked either by a decorator on the function,
+or as early as possible in the request handling using functions named
+`allow_xxx`.
+
+CouchDB documents are edited using a `with` context manager called
+`XxxSaver`, which are subclasses of the general `BaseSaver`. The
+context manager takes care of saving the document and the log entry
+for the edit.
+
+The CouchDB design documents (indexes) are defined in `init` functions
+of the relevant source code file, which are called from `app` at
+startup.
+
+Source code files:
+
+- `__init__.py`: Source code version number and various constants.
+- `app.py`: Main Flask app setup and creation; main entry point.
+- `config.py`: Configuration of the instance: default settings and
+  reading of settings file.
+- `user.py`: User creation, display, edit. Login/logout endpoints.
+- `call.py`: Call creation, display, edit; field definitions. Proposal create.
+- `calls.py`: Lists of calls.
+- `proposal.py`: Proposal display and edit.
+- `proposals.py`: Lists of proposals.
+- `review.py`: Review create, display, edit.
+- `reviews.py`: Lists of reviews.
+- `decision.py`: Decision create, display end edit.
+- `grant.py`: Grant creation, display and edit.
+- `grants.py`: Lists of grants.
+- `about.py`: Information page endpoints.
+- `site.py`: Endpoint for site-specific static files.
+- `utils.py`: Various utility functions and classes.
+- `saver.py`: Base document saver context classes.
+- `cli.py`: Command-line interface for admin operations.
+- `documentation`: Directory containing documentation files to display
+  within the app.
+- `static`: Directory for static resources; `robots.txt`, logo, local
+  JavaScript files.
+- `templates`: Directory containing Flask/Jinja2 HTML templates.
+
 ## Implementation
 
 - Python3
@@ -183,6 +227,7 @@ Commands:
 - Marko (Python package)
 - XlsxWriter (Python package)
 - python-docx (Python package)
+- htmldocx (Python package)
 - Bootstrap 4
 - jQuery
 - DataTables

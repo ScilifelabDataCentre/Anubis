@@ -1,4 +1,4 @@
-"Lists of calls for proposals."
+"Lists of calls."
 
 import flask
 

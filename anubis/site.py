@@ -1,4 +1,4 @@
-"Site HTML endpoints."
+"Endpoint for site-specific static files."
 
 import http.client
 import os.path

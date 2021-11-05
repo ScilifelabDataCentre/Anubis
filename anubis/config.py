@@ -1,4 +1,4 @@
-"Configuration."
+"Configuration of the instance: default settings and reading of settings file."
 
 import json
 import os

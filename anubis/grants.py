@@ -1,4 +1,4 @@
-"Grants dossier lists."
+"Lists of grants."
 
 import io
 import zipfile

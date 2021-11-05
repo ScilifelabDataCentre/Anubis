@@ -1,4 +1,11 @@
-"Proposal in a call."
+"""Proposal display and edit.
+
+A proposal is created from an open call. It must be created by a user
+account in the system. It may be transferred to another user. A user
+may have at most one proposal in a call.
+
+A proposal is defined by the proposal fields in the call.
+"""
 
 import io
 import os.path

@@ -1,4 +1,4 @@
-"User display and login/logout HTMl endpoints."
+"User creation, display, edit. Login/logout endpoints."
 
 import datetime
 import fnmatch
