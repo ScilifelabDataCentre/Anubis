@@ -184,9 +184,8 @@ or as early as possible in the request handling using functions named
 `allow_xxx`.
 
 CouchDB documents are edited using a `with` context manager called
-`XxxSaver`, which are subclasses of the general `BaseSaver`. The
-context manager takes care of saving the document and the log entry
-for the edit.
+`XxxSaver`, which is a subclass of `BaseSaver`. The context manager
+takes care of saving the document and the log entry for the edit.
 
 The CouchDB design documents (indexes) are defined in `init` functions
 of the relevant source code file, which are called from `app` at
