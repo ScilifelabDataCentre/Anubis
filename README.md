@@ -7,6 +7,7 @@ Proposal submission and review handling system.
 - [Entities](#entities)
 - [System design assumptions](#system-design-assumptions)
 - [Command-line interface](#command-line-interface)
+- [Source code](#source-code)
 - [Implementation](#implementation)
 - [Example instance](#example-instance)
 
