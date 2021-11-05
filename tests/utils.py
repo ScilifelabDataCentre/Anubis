@@ -15,6 +15,7 @@ class BrowserTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.driver.close()
+        self.driver.quit()
 
 
 class ApiMixin:
@@ -33,6 +34,7 @@ def get_settings():
     result = {
         "BROWSER": "Chrome",
         "BASE_URL": "http://127.0.0.1:5003/",
+        "VERSION": "1.6.2",
         "USERNAME": None,
         "PASSWORD": None
     }
