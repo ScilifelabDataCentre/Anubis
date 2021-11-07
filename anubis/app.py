@@ -82,6 +82,7 @@ def home():
     return flask.render_template('home.html', 
                                  calls=anubis.calls.get_open_calls(),
                                  allow_create_call=anubis.call.allow_create())
+
 @app.route("/status")
 def status():
     "Return JSON for the current status and some counts for the database."

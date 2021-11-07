@@ -11,7 +11,6 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # Default configurable values; modified by reading a JSON file in 'init'.
 DEFAULT_SETTINGS = dict(
-    ROOT = ROOT,
     SERVER_NAME = '127.0.0.1:5003', # For URL generation; 'app.run()' in devel.
     SITE_NAME = 'Anubis',
     SITE_STATIC_DIR = os.path.normpath(os.path.join(ROOT, "../site/static")),
@@ -84,21 +83,24 @@ def init(app):
             app.config['SETTINGS_FILE'] = filepath
             break
     # Modify the configuration from environment variables.
-    for key, convert in [('SECRET_KEY', str),
-                         ('COUCHDB_URL', str),
-                         ('COUCHDB_USERNAME', str),
-                         ('COUCHDB_PASSWORD', str),
-                         ('MAIL_SERVER', str),
-                         ('MAIL_SERVER', str),
-                         ('MAIL_USE_TLS', utils.to_bool),
-                         ('MAIL_USERNAME', str),
-                         ('MAIL_PASSWORD', str),
-                         ('MAIL_DEFAULT_SENDER', str)]:
+    for key, value in DEFAULT_SETTINGS.items():
         try:
-            app.config[key] = convert(os.environ[key])
-        except (KeyError, TypeError, ValueError):
+            new = os.environ[key]
+        except KeyError:
             pass
-    # Sanity check; should not execute if this fails.
-    assert app.config['SECRET_KEY']
-    assert app.config['SALT_LENGTH'] > 6
-    assert app.config['MIN_PASSWORD_LENGTH'] > 4
+        else:                   # Do NOT catch any exception! Means bad setup.
+            if isinstance(value, int):
+                app.config[key] = int(new)
+            elif isinstance(value, bool):
+                app.config[key] = bool(new)
+            else:
+                app.config[key] = new
+    # Sanity checks. Exception means bad setup.
+    if not app.config['SECRET_KEY']:
+        raise ValueError("SECRET_KEY not set")
+    if app.config['SALT_LENGTH'] <= 6:
+        raise ValueError("SALT_LENGTH is too short")
+    if app.config['MIN_PASSWORD_LENGTH'] <= 4:
+        raise ValueError("MIN_PASSWORD_LENGTH is too short")
+    # Hard-wired.
+    app.config["ROOT"] = ROOT
