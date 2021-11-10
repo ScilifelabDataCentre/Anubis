@@ -47,13 +47,11 @@ $ pip install -r requirements.txt
 
 The Anubis `flask` server runs as a `uwsgi` web server. It
 needs to be configured. This is done in a JSON file called
-`settings.json` located in the `site` directory. An example file can
-be found in the `install` directory.
+`settings.json` located in the `site` directory.
 
 ```bash
 $ cd Anubis
-$ mkdir site
-$ cp install/settings.json site/settings.json
+$ cp -r site_template site
 $ cd site
 $ chmod go-rw settings.json  # Since it contains secrets
 $ emacs settings.json  # Ok, ok, vim also works...
@@ -62,18 +60,25 @@ $ emacs settings.json  # Ok, ok, vim also works...
 In particular, the following settings should be looked at:
 
 - `"DEBUG": "true"` Web server debug mode: should be "false" in production.
-- `"SECRET_KEY": "long-string-of-random-chars"` Needed for proper session handling.
+- `"SECRET_KEY": "long-string-of-random-chars"` Needed for proper
+  session handling.
 - `"COUCHDB_URL"` The URL to the CouchDB instance.
 - `"COUCHDB_DATABASE"` The name of the CouchDB database for Anubis.
-- `"COUCHDB_USERNAME"` The name of the user account with read/write access to the CouchDB database.
+- `"COUCHDB_USERNAME"` The name of the user account with read/write
+  access to the CouchDB database.
 - `"COUCHDB_PASSWORD"` The password for the user account.
-- `"SITE_STATIC_DIRPATH"`: The full path to the directory containing site-specific files, such as logo image files.
-- `"HOST_LOGO"`: The file name of the site-specific logo image file. It must be locaded in the `SITE_STATIC_DIRPATH`.
+- `"SITE_STATIC_DIRPATH"`: The full path to the directory containing
+  site-specific files, such as logo image files.
+- `"HOST_LOGO"`: The file name of the site-specific logo image
+  file. It must be locaded in the `SITE_STATIC_DIRPATH`.
 - `"HOST_NAME"`: The name of host of the site; e.g. the institution.
 - `"HOST_URL"`: The URL to the home page of the host.
 - `"MAIL_SERVER"`: The name of the mail server. There are more
   settings to define if the mail server cannot be set as
   `localhost`. See the `Anubis/anubis/config.py` file.
+
+Place any image files defined in the `settings.json` file in the
+`site/static` directory.
 
 #### CouchDB
 
