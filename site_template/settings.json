@@ -1,0 +1,13 @@
+{
+    "DEBUG": true,
+    "SECRET_KEY": "you need to change this string value",
+    "SITE_STATIC_DIRPATH": "~/Anubis/site/static",
+    "SITE_NAME": "Anubis-dev",
+    "COUCHDB_USERNAME": "username",
+    "COUCHDB_PASSWORD": "password",
+    "SITE_LOGO": None,
+    "HOST_LOGO": None,
+    "HOST_NAME": None,
+    "HOST_URL": None,
+    "MAIL_DEFAULT_SENDER": "must-be-set@your.org"
+}
