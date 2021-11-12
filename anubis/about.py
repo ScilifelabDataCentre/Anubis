@@ -79,6 +79,7 @@ def settings():
         return utils.error('You are not allowed to view configuration settings.',
                            flask.url_for('home'))
     config = flask.current_app.config.copy()
+    config["ROOT"] = constants.ROOT
     for key in ['SECRET_KEY', 'COUCHDB_PASSWORD', 'MAIL_PASSWORD']:
         if config[key]:
             config[key] = '<hidden>'

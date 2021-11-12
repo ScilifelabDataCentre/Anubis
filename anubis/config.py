@@ -7,20 +7,20 @@ import os.path
 from anubis import constants
 from anubis import utils
 
-ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # Default configurable values; modified by reading a JSON file in 'init'.
 DEFAULT_SETTINGS = dict(
-    SERVER_NAME = '127.0.0.1:5003', # For URL generation; 'app.run()' in devel.
+    SERVER_NAME = '127.0.0.1:5000', # For URL generation.
     SITE_NAME = 'Anubis',
-    SITE_STATIC_DIR = os.path.normpath(os.path.join(ROOT, "../site/static")),
-    SITE_ICON = None,           # Name of file in 'SITE_STATIC_DIR'
-    SITE_LOGO = None,           # Name of file in 'SITE_STATIC_DIR'
+    SITE_STATIC_DIR = os.path.normpath(
+        os.path.join(constants.ROOT, "../site/static")),
+    SITE_ICON = None,           # Name of file in 'SITE_STATIC_DIR'.
+    SITE_LOGO = None,           # Name of file in 'SITE_STATIC_DIR'.
     SITE_DESCRIPTION = "Proposal submission and review handling system.",
-    HOST_LOGO = None,           # Name of file in 'SITE_STATIC_DIR'
+    HOST_LOGO = None,           # Name of file in 'SITE_STATIC_DIR'.
     HOST_NAME = None,
     HOST_URL = None,
-    SECRET_KEY = None,          # Must be set in 'settings.json'
+    SECRET_KEY = None,          # Must be set in 'settings.json'.
     SALT_LENGTH = 12,
     COUCHDB_URL = 'http://127.0.0.1:5984/',
     COUCHDB_USERNAME = None,
@@ -29,8 +29,8 @@ DEFAULT_SETTINGS = dict(
     JSON_AS_ASCII = False,
     JSON_SORT_KEYS = False,
     MIN_PASSWORD_LENGTH = 6,
-    PERMANENT_SESSION_LIFETIME = 7 * 24 * 60 * 60, # seconds; 1 week
-    DOC_DIR = os.path.join(ROOT, 'documentation'),
+    PERMANENT_SESSION_LIFETIME = 7 * 24 * 60 * 60, # In seconds; 1 week.
+    DOC_DIR = os.path.join(constants.ROOT, 'documentation'),
     MAIL_SERVER = 'localhost',
     MAIL_PORT = 25,
     MAIL_USE_TLS = False,
@@ -73,7 +73,8 @@ def init(app):
     except KeyError:
         pass
     for filepath in ['settings.json', '../site/settings.json']:
-        filepaths.append(os.path.normpath(os.path.join(ROOT, filepath)))
+        filepaths.append(
+            os.path.normpath(os.path.join(constants.ROOT, filepath)))
     for filepath in filepaths:
         try:
             app.config.from_file(filepath, load=json.load)
@@ -102,5 +103,3 @@ def init(app):
         raise ValueError("SALT_LENGTH is too short")
     if app.config['MIN_PASSWORD_LENGTH'] <= 4:
         raise ValueError("MIN_PASSWORD_LENGTH is too short")
-    # Hard-wired.
-    app.config["ROOT"] = ROOT

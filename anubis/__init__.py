@@ -1,11 +1,14 @@
 "System to handle calls, proposals, reviews, decisions, grants."
 
 import re
+import os.path
 
-__version__ = '1.6.6'
+__version__ = '1.6.7'
 
 class Constants:
-    VERSION     = __version__
+    VERSION = __version__
+    ROOT    = os.path.dirname(os.path.abspath(__file__))
+
     SOURCE_NAME = 'Anubis'
     SOURCE_URL  = 'https://github.com/pekrau/Anubis'
 
