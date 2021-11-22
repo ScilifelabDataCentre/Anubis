@@ -25,7 +25,7 @@ def cli():
 
 @cli.command()
 def counts():
-    "Output counts of database entities."
+    "Output counts of entities in the system."
     with anubis.app.app.app_context():
         utils.set_db()
         click.echo(f"{utils.get_count('calls', 'owner'):>5} calls")
@@ -42,7 +42,7 @@ def counts():
               prompt=True)
 @click.option("--password", help="Password for the new admin account.",
               prompt=True, hide_input=True)
-def admin(username, email, password):
+def create_admin(username, email, password):
     "Create a new admin account."
     with anubis.app.app.app_context():
         utils.set_db()
@@ -63,7 +63,7 @@ def admin(username, email, password):
               prompt=True)
 @click.option("--password", help="Password for the new user account.",
               prompt=True, hide_input=True)
-def user(username, email, password):
+def create_user(username, email, password):
     "Create a new user account."
     with anubis.app.app.app_context():
         utils.set_db()
@@ -111,7 +111,7 @@ def show(identifier):
 
 @cli.command()
 @click.argument("username")
-def show_user(username):
+def user(username):
     "Show the JSON for the user given by username or email."
     with anubis.app.app.app_context():
         utils.set_db()
