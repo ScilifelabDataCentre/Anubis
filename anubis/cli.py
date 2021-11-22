@@ -99,9 +99,7 @@ def show(identifier):
     "Show the JSON for the item given by the identifier."
     with anubis.app.app.app_context():
         utils.set_db()
-        for item in [anubis.user.get_user(username=identifier),
-                     anubis.user.get_user(email=identifier),
-                     anubis.call.get_call(identifier),
+        for item in [anubis.call.get_call(identifier),
                      anubis.proposal.get_proposal(identifier),
                      anubis.grant.get_grant(identifier),
                      flask.g.db.get(identifier)]:
@@ -110,6 +108,20 @@ def show(identifier):
                 break
         else:
             raise click.ClickException("No such item.")
+
+@cli.command()
+@click.argument("username")
+def show_user(username):
+    "Show the JSON for the user given by username or email."
+    with anubis.app.app.app_context():
+        utils.set_db()
+        for item in [anubis.user.get_user(username=username),
+                     anubis.user.get_user(email=username)]:
+            if item:
+                click.echo(json.dumps(item, indent=2))
+                break
+        else:
+            raise click.ClickException("No such user.")
 
 @cli.command()
 @click.option("-d", "--dumpfile", type=str,
