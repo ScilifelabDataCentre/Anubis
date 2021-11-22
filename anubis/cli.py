@@ -22,6 +22,7 @@ from anubis import utils
 @click.group()
 def cli():
     "Command line interface for operations on the Anubis database."
+    pass
 
 @cli.command()
 def counts():
