@@ -1,7 +1,6 @@
 "Information page endpoints."
 
 import os.path
-import sys
 
 import couchdb2
 import flask
@@ -48,22 +47,21 @@ def software():
                                  software=get_software())
 
 def get_software():
-    v = sys.version_info
     return [
-        (constants.SOURCE_NAME, anubis.__version__, constants.SOURCE_URL),
-        ('Python', f"{v.major}.{v.minor}.{v.micro}", 'https://www.python.org/'),
-        ('Flask', flask.__version__, 'http://flask.pocoo.org/'),
-        ('Jinja2', jinja2.__version__, 'https://pypi.org/project/Jinja2/'),
-        ('CouchDB server', flask.g.db.server.version, 'https://couchdb.apache.org/'),
-        ('CouchDB2 interface', couchdb2.__version__, 'https://pypi.org/project/couchdb2'),
-        ('XslxWriter', xlsxwriter.__version__, 'https://xlsxwriter.readthedocs.io/'),
-        ('Marko', marko.__version__, 'https://pypi.org/project/marko/'),
+        ('Anubis', anubis.__version__, constants.SOURCE_URL),
+        ('Python', constants.PYTHON_VERSION, constants.PYTHON_URL),
+        ('Flask', flask.__version__, constants.FLASK_URL),
+        ('Jinja2', jinja2.__version__, constants.JINJA2_URL),
+        ('CouchDB server', flask.g.db.server.version, constants.COUCHDB_URL),
+        ('CouchDB2 interface', couchdb2.__version__, constants.COUCHDB2_URL),
+        ('XslxWriter', xlsxwriter.__version__, constants.XLSXWRITER_URL),
+        ('Marko', marko.__version__, constants.MARKO_URL),
         ('Bootstrap', constants.BOOTSTRAP_VERSION, constants.BOOTSTRAP_URL),
         ('jQuery', constants.JQUERY_VERSION, constants.JQUERY_URL),
-        ('jQuery.localtime', '0.9.1', 'https://plugins.jquery.com/jquery.localtime/'),
+        ('jQuery.localtime', constants.JQUERY_LOCALTIME_VERSION, constants.JQUERY_LOCALTIME_URL),
         ('DataTables', constants.DATATABLES_VERSION, constants.DATATABLES_URL),
-        ('clipboard.js', '2.0.6', 'https://clipboardjs.com/'),
-        ("Feather of Ma'at icon", '-', 'https://www.flaticon.com/authors/freepik'),
+        ('clipboard.js', constants.CLIPBOARD_VERSION, constants.CLIPBOARD_URL),
+        ("Feather of Ma'at icon", constants.MAAT_VERSION, constants.MAAT_URL),
     ]
 
 @blueprint.route('/settings')

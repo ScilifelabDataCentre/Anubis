@@ -228,11 +228,9 @@
             {% endblock %}
         </div>
         <div class="col-md-3 text-right">
-          <a href="{{ constants.SOURCE_URL }}">
-            <img src="{{ url_for('static', filename='feather-of-maat.png') }}"
-		 width="32" height="32">
-	    {{ constants.SOURCE_NAME }}
-	  </a>
+          <img src="{{ url_for('static', filename='feather-of-maat.png') }}"
+	       width="32" height="32">
+          <a href="{{ constants.SOURCE_URL }}">Anubis</a>
 	  <span id="version">{{ constants.VERSION }}</span>
         </div>
       </div>
@@ -250,7 +248,7 @@
             crossorigin="anonymous"></script>
     <script src="{{ constants.DATATABLES_JQUERY_JS_URL }}"></script>
     <script src="{{ constants.DATATABLES_BOOTSTRAP_JS_URL }}"></script>
-    <script src="{{ url_for('static', filename='jquery.localtime-0.9.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename=constants.JQUERY_LOCALTIME_FILENAME) }}"></script>
     {% block javascript %}
     {% endblock %}
   </body>
