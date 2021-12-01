@@ -1,20 +1,54 @@
-"System to handle calls, proposals, reviews, decisions, grants."
+"Anubis: System to handle calls, proposals, reviews, decisions, grants."
 
-import re
 import os.path
+import re
+import sys
 
-__version__ = '1.7.1'
+__version__ = '1.7.2'
 
 class Constants:
     VERSION = __version__
-    ROOT    = os.path.dirname(os.path.abspath(__file__))
-
-    SOURCE_NAME = 'Anubis'
     SOURCE_URL  = 'https://github.com/pekrau/Anubis'
+    ROOT = os.path.dirname(os.path.abspath(__file__))
 
-    BOOTSTRAP_VERSION  = '4.6.0'
+    PYTHON_VERSION = ".".join([str(i) for i in sys.version_info[0:3]])
+    PYTHON_URL = 'https://www.python.org/'
+
+    FLASK_URL = 'https://pypi.org/project/Flask/'
+    JINJA2_URL = 'https://pypi.org/project/Jinja2/'
+    COUCHDB_URL = 'https://couchdb.apache.org/'
+    COUCHDB2_URL = 'https://pypi.org/project/couchdb2'
+    XLSXWRITER_URL = 'https://pypi.org/project/XlsxWriter/'
+    MARKO_URL = 'https://pypi.org/project/marko/'
+
+    BOOTSTRAP_VERSION  = '4.6.1'
+    BOOTSTRAP_URL = "https://getbootstrap.com/"
+    BOOTSTRAP_CSS_URL = "https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+    BOOTSTRAP_CSS_INTEGRITY = "sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn"
+    BOOTSTRAP_JS_URL = "https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"
+    BOOTSTRAP_JS_INTEGRITY = "sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF"
+
     JQUERY_VERSION     = '3.5.1'
-    DATATABLES_VERSION = '1.10.23'
+    JQUERY_URL = "https://jquery.com/"
+    JQUERY_JS_URL = "https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    JQUERY_JS_INTEGRITY = "sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+
+    JQUERY_LOCALTIME_URL = 'https://plugins.jquery.com/jquery.localtime/'
+    JQUERY_LOCALTIME_VERSION = '0.9.1'
+    JQUERY_LOCALTIME_FILENAME = 'jquery.localtime-0.9.1.min.js'
+
+    DATATABLES_VERSION = "1.10.24"
+    DATATABLES_URL = "https://datatables.net/"
+    DATATABLES_CSS_URL = "https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css"
+    DATATABLES_JQUERY_JS_URL = "https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"
+    DATATABLES_BOOTSTRAP_JS_URL = "https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"
+
+    CLIPBOARD_URL = 'https://clipboardjs.com/'
+    CLIPBOARD_VERSION = '2.0.6'
+    CLIPBOARD_FILENAME = 'clipboard.min.js'
+
+    MAAT_URL = 'https://www.flaticon.com/authors/freepik'
+    MAAT_VERSION = '-'
 
     ID_RX    = re.compile(r'^[a-z][a-z0-9_]*$', re.I)
     IUID_RX  = re.compile(r'^[a-f0-9]{32,32}$', re.I)
