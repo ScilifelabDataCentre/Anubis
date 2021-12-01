@@ -9,14 +9,10 @@
     {% else %}
     <link rel="icon" href="{{ url_for('static', filename='feather-of-maat.png') }}">
     {% endif %}
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" 
-          integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
-          crossorigin="anonymous">
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
-    <link href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css" 
-	  rel="stylesheet">
+    <link rel="stylesheet" crossorigin="anonymous"
+          href="{{ constants.BOOTSTRAP_CSS_URL }}"
+          integrity="{{ constants.BOOTSTRAP_CSS_INTEGRITY }}">
+    <link rel="stylesheet" href="{{ constants.DATATABLES_CSS_URL }}">
   </head>
   <body>
     <nav class="navbar navbar-expand-md navbar-light"
@@ -34,6 +30,7 @@
       </button>
       <div class="collapse navbar-collapse" id="top_navbar">
         <ul class="navbar-nav mr-auto">
+
           {% if g.current_user %}
 	  {% if g.my_proposals_count %}
           <a href="{{ url_for('proposals.user', username=g.current_user['username']) }}"
@@ -57,6 +54,7 @@
 	    {% endif %}
 	  </a>
 	  {% endif %}
+
 	  {% if g.my_grants_count %}
           <a href="{{ url_for('grants.user', username=g.current_user['username']) }}"
              title="My grants and the grants to which I have access."
@@ -70,6 +68,7 @@
 	  </a>
 	  {% endif %}
           {% endif %} {# if g.current_user #}
+
           <li class="nav-item dropdown">
             <a href="#" id="navbarCalls" class="nav-link dropdown-toggle pr-4"
                role="button" data-toggle="dropdown"
@@ -92,6 +91,7 @@
               {% endif %} {# if g.am_admin or g.am_staff #}
             </div>
           </li>
+
           {% if g.am_admin or g.am_staff %}
           <li class="nav-item dropdown">
             <a href="#" id="navbarAdmin" class="nav-link dropdown-toggle pr-4"
@@ -111,6 +111,7 @@
             </div>
           </li>
           {% endif %} {# if g.am_admin or g.am_staff #}
+
           <li class="nav-item dropdown">
             <a href="#" id="navbarDoc" class="nav-link dropdown-toggle pr-4"
                role="button" data-toggle="dropdown"
@@ -123,9 +124,7 @@
                 {{ documentation }}</a>
               {% endfor %}
           </li>
-        </ul>
 
-        <ul class="navbar-nav justify-content-end">
           <li class="nav-item dropdown mr-3">
             <a href="#" id="navbarAbout" class="nav-link dropdown-toggle"
                role="button" data-toggle="dropdown"
@@ -139,6 +138,9 @@
                  href="{{ url_for('about.software') }}">Software</a>
 	    </div>
           </li>
+        </ul>
+
+        <ul class="navbar-nav justify-content-end">
           <li>
             {% if g.current_user %}
             <a href="{{ url_for('user.display', username=g.current_user['username']) }}"
@@ -240,14 +242,14 @@
     {% block modals %}
     {% endblock %}
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    <script src="{{ constants.JQUERY_URL }}"
+            integrity="{{ constants.JQUERY_INTEGRITY }}"
             crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns"
+    <script src="{{ constants.BOOTSTRAP_JS_URL }}"
+            integrity="{{ constants.BOOTSTRAP_JS_INTEGRITY }}"
             crossorigin="anonymous"></script>
-    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+    <script src="{{ constants.DATATABLES_JQUERY_JS_URL }}"></script>
+    <script src="{{ constants.DATATABLES_BOOTSTRAP_JS_URL }}"></script>
     <script src="{{ url_for('static', filename='jquery.localtime-0.9.1.min.js') }}"></script>
     {% block javascript %}
     {% endblock %}
