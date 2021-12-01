@@ -159,3 +159,8 @@ app.register_blueprint(anubis.grant.blueprint, url_prefix='/grant')
 app.register_blueprint(anubis.grants.blueprint, url_prefix='/grants')
 app.register_blueprint(anubis.about.blueprint, url_prefix='/about')
 app.register_blueprint(anubis.site.blueprint, url_prefix='/site')
+
+
+# This code is used only during development.
+if __name__ == "__main__":
+    app.run()

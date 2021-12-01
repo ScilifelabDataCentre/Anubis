@@ -126,9 +126,9 @@ def user(username):
 
 @cli.command()
 @click.option("-d", "--dumpfile", type=str,
-                help="The path of the Publications database dump file.")
+                help="The path of the Anubis database dump file.")
 @click.option("-D", "--dumpdir", type=str,
-                help="The directory to write the dump file in, using the standard name.")
+                help="The directory to write the dump file in, using the default name.")
 @click.option("--progressbar/--no-progressbar", default=True,
               help="Display a progressbar.")
 def dump(dumpfile, dumpdir, progressbar):
@@ -149,7 +149,7 @@ def dump(dumpfile, dumpdir, progressbar):
 @click.option("--progressbar/--no-progressbar", default=True,
               help="Display a progressbar.")
 def undump(dumpfile, progressbar):
-    "Load an Anubis database .tar.gz dump file. The database must be empty."
+    "Load an Anubis database dump file. The database must be empty."
     with anubis.app.app.app_context():
         utils.set_db()
         if utils.get_count( 'users', 'username') != 0:

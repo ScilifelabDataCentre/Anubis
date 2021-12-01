@@ -10,7 +10,7 @@ from anubis import utils
 
 # Default configurable values; modified by reading a JSON file in 'init'.
 DEFAULT_SETTINGS = dict(
-    SERVER_NAME = '127.0.0.1:5000', # For URL generation.
+    SERVER_NAME = '127.0.0.1:5002', # For URL generation; app.run() in devel.
     SITE_NAME = 'Anubis',
     SITE_STATIC_DIR = os.path.normpath(
         os.path.join(constants.ROOT, "../site/static")),
@@ -56,20 +56,21 @@ DEFAULT_SETTINGS = dict(
 def init(app):
     """Perform the configuration of the Flask app.
     Set the defaults, and then modify the values based on:
-    1) The settings file path environment variable ANUBIS_SETTINGS.
+    1) The settings file path environment variable ANUBIS_SETTINGS_FILEPATH.
     2) The file 'settings.json' in this directory.
     3) The file '../site/settings.json' relative to this directory.
-    Check the environment for a specific set of variables and use if defined.
+    Check the environment for variables and use if defined.
     Raise IOError if settings file could not be read.
     Raise KeyError if a settings variable is missing.
     Raise ValueError if a settings variable value is invalid.
     """
     # Set the defaults specified above.
     app.config.from_mapping(DEFAULT_SETTINGS)
+
     # Modify the configuration from a JSON settings file.
     filepaths = []
     try:
-        filepaths.append(os.environ['ANUBIS_SETTINGS'])
+        filepaths.append(os.environ['ANUBIS_SETTINGS_FILEPATH'])
     except KeyError:
         pass
     for filepath in ['settings.json', '../site/settings.json']:
@@ -83,6 +84,7 @@ def init(app):
         else:
             app.config['SETTINGS_FILE'] = filepath
             break
+
     # Modify the configuration from environment variables.
     for key, value in DEFAULT_SETTINGS.items():
         try:
@@ -96,6 +98,7 @@ def init(app):
                 app.config[key] = bool(new)
             else:
                 app.config[key] = new
+
     # Sanity checks. Exception means bad setup.
     if not app.config['SECRET_KEY']:
         raise ValueError("SECRET_KEY not set")
