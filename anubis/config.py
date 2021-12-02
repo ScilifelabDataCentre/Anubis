@@ -10,11 +10,7 @@ from anubis import utils
 
 # Default configurable values; modified by reading a JSON file in 'init'.
 DEFAULT_SETTINGS = dict(
-<<<<<<< HEAD
     SERVER_NAME = '127.0.0.1:5002', # For URL generation; app.run() in devel.
-=======
-    SERVER_NAME = '127.0.0.1:5000', # For URL generation; app.run() in devel.
->>>>>>> 0128c2b41bc45fd5028c6911ca0537755eaa95b3
     SITE_NAME = 'Anubis',
     SITE_STATIC_DIR = os.path.normpath(
         os.path.join(constants.ROOT, "../site/static")),

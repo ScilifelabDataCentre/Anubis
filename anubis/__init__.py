@@ -4,9 +4,14 @@ import os.path
 import re
 import sys
 
-__version__ = '1.7.2'
+__version__ = '1.7.3'
+
 
 class Constants:
+
+    def __setattr__(self, key, value):
+        raise ValueError('cannot set constant')
+
     VERSION = __version__
     SOURCE_URL  = 'https://github.com/pekrau/Anubis'
     ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -119,10 +124,5 @@ class Constants:
                      "Instructions for admins",
                      "Input field types",
                      "Privileges")
-
-
-    def __setattr__(self, key, value):
-        raise ValueError('cannot set constant')
-
 
 constants = Constants()

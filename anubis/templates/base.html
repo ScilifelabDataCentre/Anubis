@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block head_title %}{{ config['SITE_NAME'] }}{% endblock %}</title>
     {% if config['SITE_ICON'] %}
-    <link rel="icon" href="{{ url_for('site.static', filename=config['SITE_ICON']) }}">
+    <link rel="shortcut icon"
+          href="{{ url_for('site.static', filename=config['SITE_ICON']) }}">
     {% else %}
-    <link rel="icon" href="{{ url_for('static', filename='feather-of-maat.png') }}">
+    <link rel="icon" href="{{ url_for('static', filename='logo32.png') }}">
     {% endif %}
     <link rel="stylesheet" crossorigin="anonymous"
           href="{{ constants.BOOTSTRAP_CSS_URL }}"
@@ -18,9 +19,8 @@
     <nav class="navbar navbar-expand-md navbar-light"
          style="background-color: #e8e8e8;">
       <a class="navbar-brand" href="{{ url_for('home') }}">
-        <img src="{{ url_for('static', filename='feather-of-maat.png') }}"
-	     width="32" height="32" class="d-inline-block align-top"
-	     title="{{ config['SITE_NAME'] }}" alt="{{ config['SITE_NAME'] }}">
+        <img src="{{ url_for('static', filename='logo32.png') }}"
+	     class="d-inline-block align-top">
         {{ config['SITE_NAME'] }}</a>
       <button type="button" class="navbar-toggler navbar-toggler-right"
               data-toggle="collapse" data-target="#top_navbar"
@@ -228,8 +228,7 @@
             {% endblock %}
         </div>
         <div class="col-md-3 text-right">
-          <img src="{{ url_for('static', filename='feather-of-maat.png') }}"
-	       width="32" height="32">
+          <img src="{{ url_for('static', filename='logo32.png') }}">
           <a href="{{ constants.SOURCE_URL }}">Anubis</a>
 	  <span id="version">{{ constants.VERSION }}</span>
         </div>
