@@ -8,7 +8,6 @@ import jinja2
 import marko
 import xlsxwriter
 
-import anubis
 from anubis import constants
 from anubis import utils
 
@@ -48,7 +47,7 @@ def software():
 
 def get_software():
     return [
-        ('Anubis', anubis.__version__, constants.SOURCE_URL),
+        ('Anubis', constants.VERSION, constants.URL),
         ('Python', constants.PYTHON_VERSION, constants.PYTHON_URL),
         ('Flask', flask.__version__, constants.FLASK_URL),
         ('Jinja2', jinja2.__version__, constants.JINJA2_URL),

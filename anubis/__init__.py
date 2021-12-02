@@ -13,7 +13,7 @@ class Constants:
         raise ValueError('cannot set constant')
 
     VERSION = __version__
-    SOURCE_URL  = 'https://github.com/pekrau/Anubis'
+    URL  = 'https://github.com/pekrau/Anubis'
     ROOT = os.path.dirname(os.path.abspath(__file__))
 
     PYTHON_VERSION = ".".join([str(i) for i in sys.version_info[0:3]])
