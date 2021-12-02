@@ -66,7 +66,6 @@ def init(app):
     """
     # Set the defaults specified above.
     app.config.from_mapping(DEFAULT_SETTINGS)
-    app.config.from_mapping(dict(ROOT=constants.ROOT))
 
     # Modify the configuration from a JSON settings file.
     filepaths = []

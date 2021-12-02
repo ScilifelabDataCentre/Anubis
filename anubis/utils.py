@@ -577,7 +577,7 @@ def get_site_text(filename):
     """
     try:
         filepath = os.path.normpath(
-            os.path.join(flask.current_app.config["ROOT"], "../site", filename))
+            os.path.join(constants.ROOT, "../site", filename))
         with open(filepath) as infile:
             return infile.read()
     except (OSError, IOError):
