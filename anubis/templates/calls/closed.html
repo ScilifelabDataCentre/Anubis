@@ -11,9 +11,11 @@
       <th>Call id</th>
       <th>Call title</th>
       <th>Closed</th>
+      {% if current_user %}
       <th>Proposals</th>
       <th>Reviews</a>
       <th>Grants</a>
+      {% endif %}
     </tr>
   </thead>
   <tbody class="table-borderless">
@@ -22,9 +24,11 @@
       <td>{{ call | call_link(proposals_link=False) }}</td>
       <td>{{ call.get('title') or '[No title]' }}</td>
       <td class="text-nowrap pl-2">{{ call['closes'] | display_datetime_local_server }}</td>
+      {% if current_user %}
       <td>{{ call | call_proposals_link }}</td>
       <td>{{ call | call_reviews_link }}</td>
       <td>{{ call | call_grants_link }}</td>
+      {% endif %}
     </tr>
     {% endfor %} {# for call in calls #}
   </tbody>

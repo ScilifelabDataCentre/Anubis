@@ -248,6 +248,8 @@
     <script src="{{ constants.DATATABLES_JQUERY_JS_URL }}"></script>
     <script src="{{ constants.DATATABLES_BOOTSTRAP_JS_URL }}"></script>
     <script src="{{ url_for('static', filename=constants.JQUERY_LOCALTIME_FILENAME) }}"></script>
+    <script src="{{ url_for('static', filename=constants.CLIPBOARD_FILENAME) }}"></script>
+    <script>var clipboard = new ClipboardJS('.clipboard');</script>
     {% block javascript %}
     {% endblock %}
   </body>
