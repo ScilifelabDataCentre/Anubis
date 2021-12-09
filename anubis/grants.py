@@ -105,6 +105,7 @@ def get_call_grants_xlsx(call, grants):
     ws.set_column(0, 2, 10, normal_text_format)
     ws.set_column(3, 3, 40, normal_text_format)
     ws.set_column(4, 6, 20, normal_text_format)
+    # More set below, after grant fields (including repeats)
 
     nrow = 0
     row = ['Grant', 'Status', 'Proposal', 'Proposal title', 
@@ -197,6 +198,7 @@ def get_call_grants_xlsx(call, grants):
         if n_merge > 1:
             ws.merge_range(nrow, ncol, nrow+n_merge-1, ncol, '')
         ws.write_string(nrow, ncol, user.get('affiliation') or '')
+        max_ncol = ncol
         ncol += 1
 
         for field in call['grant']:
@@ -217,6 +219,7 @@ def get_call_grants_xlsx(call, grants):
                                    repeated['type'],
                                    grant['identifier'],
                                    fid)
+                        max_ncol = max(max_ncol, ncol + col_offset)
                     col_offset += 1
             else:
                 if n_merge > 1:
@@ -228,9 +231,14 @@ def get_call_grants_xlsx(call, grants):
                            field['type'],
                            grant['identifier'],
                            field['identifier'])
+                max_ncol = max(max_ncol, ncol)
             ncol += 1
 
         nrow += n_merge
+
+    # Set formatting for additional columns.
+    if max_ncol > 6:
+        ws.set_column(6+1, max_ncol, 20, normal_text_format)
 
     wb.close()
     return output.getvalue()

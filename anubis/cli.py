@@ -103,6 +103,8 @@ def show(identifier):
         for item in [anubis.call.get_call(identifier),
                      anubis.proposal.get_proposal(identifier),
                      anubis.grant.get_grant(identifier),
+                     anubis.user.get_user(username=identifier),
+                     anubis.user.get_user(email=identifier),
                      flask.g.db.get(identifier)]:
             if item:
                 click.echo(json.dumps(item, indent=2))
