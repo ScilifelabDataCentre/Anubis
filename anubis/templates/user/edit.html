@@ -166,16 +166,42 @@
     <label for="affiliation" class="col-md-2 col-form-label text-right">
       Affiliation</label>
     <div class="col-md">
-      <div class="row">
+      <div id="affiliation" class="row">
+        {% if config['UNIVERSITIES'] %}
         <div class="col-md-6">
-          <input type="text" id="affiliation" name="affiliation"
+          <select name="affiliation" id="affiliation"
+                  class="form-control"
+                  aria-describedby="affiliationHelp">
+            <option value="">[select]</option>
+            {% for university in config['UNIVERSITIES'] %}
+            {% if university == user.get('affiliation') %}
+            <option selected>{{ university }}</option>
+            {% else %}
+            <option>{{ university }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+          {{ affiliation }}
+        </div>
+        {% if user.get('affiliation') in config['UNIVERSITIES'] %}
+        {% set affiliation = '' %}
+        {% else %}
+        {% set affiliation = user.get('affiliation') %}
+        {% endif %}
+        {% else %}
+        {% set affiliation = user.get('affiliation') %}
+        {% endif %}
+        <div class="col-md-6">
+          <input type="text" id="affiliation_other" name="affiliation_other"
                  class="form-control"
                  aria-describedby="affiliationHelp"
-	         value="{{ user.get('affiliation') | display_value('') }}">
+	         value="{{ affiliation | display_value('') }}">
         </div>
       </div>
       <small id="affiliationHelp" class="form-text text-muted">
-        Name of the university, company or organisation of the user.
+        Name of the university; select from drop-down menu.  If not
+        present in the menu, write abbreviated name of international
+        university or company.
       </small>
     </div>
   </div>

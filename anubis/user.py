@@ -75,25 +75,20 @@ def register():
             with UserSaver() as saver:
                 saver.set_username(flask.request.form.get('username'))
                 saver.set_email(flask.request.form.get('email'))
-                if flask.g.am_admin and utils.to_bool(flask.request.form.get('enable')):
+                if utils.to_bool(flask.request.form.get('enable')):
                     saver.set_status(constants.ENABLED)
-                saver['givenname'] = flask.request.form.get('givenname') or None
-                saver['familyname'] = flask.request.form.get('familyname') or None
-                if flask.current_app.config['USER_GENDERS']:
-                    saver.set_gender(flask.request.form.get('gender'))
-                if flask.current_app.config['USER_BIRTHDATE']:
-                    saver.set_birthdate(flask.request.form.get('birthdate'))
-                if flask.current_app.config['USER_TITLE']:
-                    saver['title'] = flask.request.form.get('title') or None
-                if flask.current_app.config['USER_AFFILIATION']:
-                    saver['affiliation'] = flask.request.form.get('affiliation') or None
-                if flask.current_app.config['USER_POSTAL_ADDRESS']:
-                    saver['postaladdress'] = flask.request.form.get('postaladdress') or None
-                if flask.current_app.config['USER_PHONE']:
-                    saver['phone'] = flask.request.form.get('phone') or None
                 saver.set_role(constants.USER)
                 saver.set_call_creator(False)
-                saver.set_password()
+                saver.set_password() # Sets code.
+                saver.set_givenname(flask.request.form.get('givenname'))
+                saver.set_familyname(flask.request.form.get('familyname'))
+                saver.set_gender(flask.request.form.get('gender'))
+                saver.set_birthdate(flask.request.form.get('birthdate'))
+                saver.set_title(flask.request.form.get('title'))
+                saver.set_affiliation(flask.request.form.get('affiliation') or
+                                      flask.request.form.get('affiliation_other'))
+                saver.set_postaladdress(flask.request.form.get('postaladdress'))
+                saver.set_phone(flask.request.form.get('phone'))
             user = saver.doc
         except ValueError as error:
             return utils.error(error, flask.url_for('.register'))
@@ -236,24 +231,19 @@ def edit(username):
                 if flask.g.am_admin:
                     email = flask.request.form.get('email')
                     saver.set_email(email, require=bool(email))
-                saver['givenname'] = flask.request.form.get('givenname') or None
-                saver['familyname'] = flask.request.form.get('familyname') or None
-                if flask.current_app.config['USER_GENDERS']:
-                    saver.set_gender(flask.request.form.get('gender'))
-                if flask.current_app.config['USER_BIRTHDATE']:
-                    saver.set_birthdate(flask.request.form.get('birthdate'))
-                if flask.current_app.config['USER_TITLE']:
-                    saver['title'] = flask.request.form.get('title') or None
-                if flask.current_app.config['USER_AFFILIATION']:
-                    saver['affiliation'] = flask.request.form.get('affiliation') or None
-                if flask.current_app.config['USER_POSTAL_ADDRESS']:
-                    saver['postaladdress'] = flask.request.form.get('postaladdress') or None
-                if flask.current_app.config['USER_PHONE']:
-                    saver['phone'] = flask.request.form.get('phone') or None
                 if allow_change_role(user):
                     saver.set_role(flask.request.form.get('role'))
                     saver.set_call_creator(
                         utils.to_bool(flask.request.form.get('call_creator')))
+                saver.set_givenname(flask.request.form.get('givenname'))
+                saver.set_familyname(flask.request.form.get('familyname'))
+                saver.set_gender(flask.request.form.get('gender'))
+                saver.set_birthdate(flask.request.form.get('birthdate'))
+                saver.set_title(flask.request.form.get('title'))
+                saver.set_affiliation(flask.request.form.get('affiliation') or
+                                      flask.request.form.get('affiliation_other'))
+                saver.set_postaladdress(flask.request.form.get('postaladdress'))
+                saver.set_phone(flask.request.form.get('phone'))
         except ValueError as error:
             utils.flash_error(error)
         return flask.redirect(
@@ -391,6 +381,7 @@ class UserSaver(BaseSaver):
             self.doc['email'] = None
 
     def set_status(self, status):
+        if not flask.g.am_admin: return
         if status not in constants.USER_STATUSES:
             raise ValueError('invalid status')
         self.doc['status'] = status
@@ -402,6 +393,43 @@ class UserSaver(BaseSaver):
 
     def set_call_creator(self, yes):
         self.doc['call_creator'] = bool(yes)
+
+    def set_givenname(self, givenname):
+        self.doc['givenname'] = givenname or None
+
+    def set_familyname(self, familyname):
+        self.doc['familyname'] = familyname or None
+
+    def set_gender(self, gender):
+        if not flask.current_app.config['USER_GENDERS']: return
+        if gender not in flask.current_app.config['USER_GENDERS']:
+            gender = None
+        self.doc['gender'] = gender
+
+    def set_birthdate(self, birthdate):
+        if not flask.current_app.config['USER_BIRTHDATE']: return
+        if birthdate:
+            try:
+                datetime.datetime.strptime(birthdate, "%Y-%m-%d")
+            except ValueError:
+                birthdate = None
+        self.doc['birthdate'] = birthdate
+
+    def set_title(self, title):
+        if not flask.current_app.config['USER_TITLE']: return
+        self.doc['title'] = title or None
+
+    def set_affiliation(self, affiliation):
+        if not flask.current_app.config['USER_AFFILIATION']: return
+        self.doc['affiliation'] = affiliation or None
+
+    def set_postaladdress(self, postaladdress):
+        if not flask.current_app.config['USER_POSTALADDRESS']: return
+        self.doc['postaladdress'] = postaladdress or None
+
+    def set_phone(self, phone):
+        if not flask.current_app.config['USER_PHONE']: return
+        self.doc['phone'] = phone or None
 
     def set_password(self, password=None):
         "Set the password; a one-time code if no password provided."
@@ -416,19 +444,6 @@ class UserSaver(BaseSaver):
 
     def set_last_login(self):
         self.doc['last_login'] = utils.get_time()
-
-    def set_gender(self, gender):
-        if gender not in flask.current_app.config['USER_GENDERS']:
-            gender = None
-        self.doc['gender'] = gender
-
-    def set_birthdate(self, birthdate):
-        if birthdate:
-            try:
-                datetime.datetime.strptime(birthdate, "%Y-%m-%d")
-            except ValueError:
-                birthdate = None
-        self.doc['birthdate'] = birthdate
 
 
 def get_user(username=None, email=None):

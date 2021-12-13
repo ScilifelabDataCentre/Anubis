@@ -45,10 +45,11 @@ DEFAULT_SETTINGS = dict(
     USER_BIRTHDATE = True,
     USER_TITLE = True,
     USER_AFFILIATION = True,
-    USER_POSTAL_ADDRESS = True,
+    USER_POSTALADDRESS = True,
     USER_PHONE = True,
     USER_ENABLE_IMMEDIATELY = False,
     USER_ENABLE_EMAIL_WHITELIST = [], # List of fnmatch patterns, not regexp's!
+    UNIVERSITIES = [],
     MARKDOWN_URL = 'https://daringfireball.net/projects/markdown/syntax',
 )
 
