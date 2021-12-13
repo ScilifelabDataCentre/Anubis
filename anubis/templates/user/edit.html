@@ -166,7 +166,7 @@
     <label for="affiliation" class="col-md-2 col-form-label text-right">
       Affiliation</label>
     <div class="col-md">
-      <div id="affiliation" class="row">
+       <div id="affiliation" class="row">
         {% if config['UNIVERSITIES'] %}
         <div class="col-md-6">
           <select name="affiliation" id="affiliation"
@@ -181,7 +181,6 @@
             {% endif %}
             {% endfor %}
           </select>
-          {{ affiliation }}
         </div>
         {% if user.get('affiliation') in config['UNIVERSITIES'] %}
         {% set affiliation = '' %}
@@ -199,7 +198,7 @@
         </div>
       </div>
       <small id="affiliationHelp" class="form-text text-muted">
-        Name of the university; select from drop-down menu.  If not
+        Name of the university; select from the drop-down menu. If not
         present in the menu, write abbreviated name of international
         university or company.
       </small>
