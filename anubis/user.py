@@ -361,6 +361,7 @@ class UserSaver(BaseSaver):
         self.doc['username'] = username
 
     def set_email(self, email, require=True):
+        "Set the email address of the account. Enable if in whitelist."
         if email:
             if email == self.doc.get('email'): return
             email = email.lower()
@@ -381,7 +382,6 @@ class UserSaver(BaseSaver):
             self.doc['email'] = None
 
     def set_status(self, status):
-        if not flask.g.am_admin: return
         if status not in constants.USER_STATUSES:
             raise ValueError('invalid status')
         self.doc['status'] = status
