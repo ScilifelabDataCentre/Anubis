@@ -1,4 +1,4 @@
-# Anubis
+# ![Anubis logo](https://github.com/pekrau/Anubis/raw/master/anubis/static/logo32.png) Anubis
 
 Proposal submission and review handling system.
 
