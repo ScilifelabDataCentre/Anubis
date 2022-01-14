@@ -785,7 +785,7 @@ class CallSaver(AccessMixin, AttachmentSaver):
             field['minimum'] = 1
 
         elif field['type'] == constants.DOCUMENT:
-            extensions = [e.strip().lstrip('.') 
+            extensions = [e.strip().lstrip('.').lower() 
                           for e in form.get('extensions', '').split(',')]
             field['extensions'] = [e for e in extensions if e]
 

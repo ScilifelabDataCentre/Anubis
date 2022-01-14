@@ -254,9 +254,7 @@
           {% endif %}
           {% if field.get('extensions') %}
           Uploaded document file must have one of the extensions (file types):
-          {% for e in field['extensions'] %}
-          <strong>{{ e }}</strong>
-          {% endfor %}
+          <code>{{ ', '.join(field['extensions']) }}</code>
           {% endif %}
 	  {{ field.get('description') | display_markdown }}
 	</div>

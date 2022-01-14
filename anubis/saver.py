@@ -275,7 +275,7 @@ class FieldMixin:
                 else:
                     filename = self.doc['values'].get(fid)
                 if filename and field.get('extensions'):
-                    extension = os.path.splitext(filename)[1].lstrip('.')
+                    extension = os.path.splitext(filename)[1].lstrip('.').lower()
                     if extension not in field['extensions']:
                         self.doc['errors'][fid] = 'Invalid file type.'
             if field['required'] and not self.doc['values'].get(fid):
