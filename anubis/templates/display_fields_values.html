@@ -54,7 +54,7 @@
       </div>
       {% endif %}
       <div class="col-md text-break">
-        {{ field2 | display_field_value(entity, fid=id2) }}
+        {{ field2 | display_field_value(entity, fid=id2, show_user=True) }}
       </div>
     </div>
     {% endif %} {# if not field2.get('staffonly') ... #}

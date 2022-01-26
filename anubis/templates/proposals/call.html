@@ -74,7 +74,7 @@
     <tr>
       <td>{{ proposal | proposal_link }}</td>
       {% for field in utils.get_banner_fields(call['proposal']) %}
-      <td>{{ field | display_field_value(proposal, truncate_documentname=10) }}</td>
+      <td>{{ field | display_field_value(proposal, max_length=10) }}</td>
       {% endfor %}
       {% if g.am_admin %}
       <td>

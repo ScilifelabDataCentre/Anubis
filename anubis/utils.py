@@ -286,15 +286,26 @@ def get_banner_fields(fields):
     "Return fields flagged as banner fields. Avoid repeated fields."
     return [f for f in fields if f.get('banner') and not f.get('repeat')]
 
-def display_field_value(field, entity, fid=None, truncate_documentname=None):
-    "Template filter: Display field value according to its type."
+def display_field_value(field, entity, fid=None, max_length=None, show_user=False):
+    """Template filter: Display field value according to its type.
+    max_length: Truncate document name to given number of characters.
+    show_user: Show user link if email address is an account, and admin or staff.
+    """
+    import anubis.user
     # Repeated field needs to pass its actual id explicitly.
     if not fid:
         fid = field['identifier']
     value = entity.get('values', {}).get(fid)
-    if field['type'] in (constants.LINE, constants.EMAIL):
+    if field['type'] == constants.LINE:
         return value or '-'
-    if field['type'] == constants.BOOLEAN:
+    elif field['type'] == constants.EMAIL:
+        if not value: return '-'
+        if show_user and (flask.g.am_admin or flask.g.am_staff):
+            user = anubis.user.get_user(email=value)
+            if user:
+                return value + " (" + user_link(user) + ")"
+        return value
+    elif field['type'] == constants.BOOLEAN:
         return display_boolean(value)
     elif field['type'] == constants.SELECT:
         if value is None:
@@ -319,11 +330,6 @@ def display_field_value(field, entity, fid=None, truncate_documentname=None):
             return '?'
     elif field['type'] == constants.TEXT:
         return display_markdown(value)
-    elif field['type'] == constants.REPEAT:
-        if value is None:
-            return '-'
-        else:
-            return value
     elif field['type'] == constants.DOCUMENT:
         if value:
             if entity['doctype'] == constants.PROPOSAL:
@@ -342,17 +348,22 @@ def display_field_value(field, entity, fid=None, truncate_documentname=None):
                 docurl = flask.url_for('grant.document',
                                        gid=entity['identifier'],
                                        fid=fid)
-            if truncate_documentname:
-                if len(value) > truncate_documentname:
-                    value = value[:truncate_documentname] + '...'
+            if max_length:
+                if len(value) > max_length:
+                    value = value[:max_length] + '...'
             return jinja2.utils.Markup(
                 f'<i title="File" class="align-top">{value}</i> <a href="{docurl}"'
                 ' role="button" title="Download file"'
                 ' class="btn btn-dark btn-sm ml-4">Download</a>')
         else:
             return '-'
+    elif field['type'] == constants.REPEAT:
+        if value is None:
+            return '-'
+        else:
+            return value
     else:
-        return value
+        raise ValueError(f"unknown field type: {field['type']}")
 
 def display_value(value, default="-"):
     "Template filter: Display the value if not None, else the default."
