@@ -119,7 +119,6 @@
             <div class="dropdown-menu" aria-labelledby="navbarDoc">
               {% for documentation in constants.DOCUMENTATION %}
               <a class="nav-link"
-                 target="doc"
                  href="{{ url_for('about.documentation', page=documentation.replace(' ', '-')) }}">
                 {{ documentation }}</a>
               {% endfor %}

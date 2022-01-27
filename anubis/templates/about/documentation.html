@@ -15,8 +15,7 @@
 <ul class="list-group">
   {% for documentation in constants.DOCUMENTATION %}
   <li class="list-group-item }}">
-    <a target="doc"
-       href="{{ url_for('about.documentation', page=documentation.replace(' ', '-')) }}">
+    <a href="{{ url_for('about.documentation', page=documentation.replace(' ', '-')) }}">
       {{ documentation }}</a>
   </li>
   {% endfor %}
