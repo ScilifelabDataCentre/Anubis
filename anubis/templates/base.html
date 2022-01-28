@@ -152,8 +152,7 @@
               {% endif %}
             </a>
             {% else %}
-            <form id="login-form"
-                  action="{{ url_for('user.login') }}"
+            <form action="{{ url_for('user.login') }}"
                   class="form-inline my-2 my-sm-0"
                   method="GET">
               <input type="hidden" name="next" value="{{ request.url }}">
