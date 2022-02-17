@@ -23,9 +23,7 @@ def settings():
     1) defaults
     2) file 'settings.json' in this directory
     """
-    result = {                  # Default values
-        "BASE_URL": "http://localhost:5002",
-    }
+    result = {"BASE_URL": "http://localhost:5002"}  # Default values
 
     try:
         with open("settings.json", "rb") as infile:
@@ -39,17 +37,18 @@ def settings():
     result["BASE_URL"] = result["BASE_URL"].rstrip("/")
     return result
 
+
 def login(settings, page):
     "Login to the system."
-    page.goto(settings['BASE_URL'])
+    page.goto(settings["BASE_URL"])
     page.click("text=Login")
     assert page.url.split("?")[0] == f"{settings['BASE_URL']}/user/login"
-    page.click("input[name=\"username\"]")
-    page.fill("input[name=\"username\"]", settings["ADMIN_USERNAME"])
-    page.press("input[name=\"username\"]", "Tab")
-    page.fill("input[name=\"password\"]", settings["ADMIN_PASSWORD"])
+    page.click('input[name="username"]')
+    page.fill('input[name="username"]', settings["ADMIN_USERNAME"])
+    page.press('input[name="username"]', "Tab")
+    page.fill('input[name="password"]', settings["ADMIN_PASSWORD"])
     page.click("id=login")
-    assert page.url.rstrip("/") == settings['BASE_URL']
+    assert page.url.rstrip("/") == settings["BASE_URL"]
 
 
 def test_create_call(settings, page):
@@ -57,31 +56,31 @@ def test_create_call(settings, page):
     login(settings, page)
 
     # Create a call.
-    page.goto(settings['BASE_URL'])
+    page.goto(settings["BASE_URL"])
     page.click("text=Calls")
     page.click("text=My calls")
     assert page.url == f"http://localhost:5002/calls/owner/{settings['ADMIN_USERNAME']}"
     page.click("text=Create")
     assert page.url == "http://localhost:5002/call/"
-    page.click("input[name=\"title\"]")
-    page.fill("input[name=\"title\"]", "Test call")
-    page.click("input[name=\"identifier\"]")
-    page.fill("input[name=\"identifier\"]", "TEST")
+    page.click('input[name="title"]')
+    page.fill('input[name="title"]', "Test call")
+    page.click('input[name="identifier"]')
+    page.fill('input[name="identifier"]', "TEST")
     page.click("#create")
     assert page.url == "http://localhost:5002/call/TEST/edit"
-    page.click("textarea[name=\"description\"]")
-    page.fill("textarea[name=\"description\"]", "This is a test call.")
+    page.click('textarea[name="description"]')
+    page.fill('textarea[name="description"]', "This is a test call.")
     page.click("text=Save")
     assert page.url == "http://localhost:5002/call/TEST"
 
     # Delete the call.
-    page.goto(settings['BASE_URL'])
+    page.goto(settings["BASE_URL"])
     page.click("text=Calls")
     page.click("text=My calls")
     assert page.url == f"http://localhost:5002/calls/owner/{settings['ADMIN_USERNAME']}"
     page.click("text=TEST")
     assert page.url == "http://localhost:5002/call/TEST"
-    page.once("dialog", lambda dialog: dialog.accept()) # Callback for next click.
+    page.once("dialog", lambda dialog: dialog.accept())  # Callback for next click.
     page.click("text=Delete")
     assert page.url == f"http://localhost:5002/calls/owner/{settings['ADMIN_USERNAME']}"
 
