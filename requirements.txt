@@ -29,7 +29,7 @@ more-itertools==7.2.0
 openpyxl==3.0.2
 outcome==1.1.0
 packaging==21.3
-Pillow==8.3.2
+Pillow==9.0.0
 playwright==1.18.2
 pluggy==1.0.0
 py==1.11.0
