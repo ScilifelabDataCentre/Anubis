@@ -447,8 +447,7 @@ def allow_create(proposal):
 
 
 def allow_view(grant):
-    """The admin, staff and proposal user (= grant receiver) may
-    view the grant dossier.
+    """The admin, staff and proposal user (= grant receiver) may view the grant dossier.
     An account with view access to the call may also view the grant.
     """
     if not flask.g.current_user:

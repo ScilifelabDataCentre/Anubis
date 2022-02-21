@@ -66,7 +66,8 @@ def login():
         try:
             url = flask.session["login_target_url"]
             flask.session.pop("login_target_url")
-            if not url: raise KeyError
+            if not url:
+                raise KeyError
         except KeyError:
             url = flask.url_for("home")
         return flask.redirect(url)
