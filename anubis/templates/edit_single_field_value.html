@@ -61,6 +61,18 @@
     </div>
 
     {% elif field['type'] == constants.SELECT %}
+    {% if field.get('menu') %}
+    <select class="form-control" name="{{ fid }}" id="{{ fid }}"
+            aria-describedby="{{ fid }}Help"
+            {{ field.get('multiple') and 'multiple' or '' }}>
+      <option value="" {{ not value and 'selected' }}>[Select a menu option]</option>
+      {% for select in field['selection'] %}
+      <option {{ value == select and 'selected' }}>{{ select }}</option>
+      {% endfor %} {# for select in field['selection'] #}
+    </select>
+
+    {% else %} {# if field.get('menu') #} {# Default is radio or checkbox. #}
+
     {% if field.get('multiple') %}
     {% for select in field['selection'] %}
     <div class="custom-control custom-checkbox">
@@ -73,7 +85,7 @@
         {{ select }}</label>
     </div>
     {% endfor %} {# for select in field['selection'] #}
-    {% else %}
+    {% else %} {# if field.get('multiple') #}
     {% for select in field['selection'] %}
     <div class="custom-control custom-radio">
       <input type="radio" id="{{ fid }}_{{ select }}" name="{{ fid }}"
@@ -86,6 +98,8 @@
     </div>
     {% endfor %} {# for select in field['selection'] #}
     {% endif %} {# if field.get('multiple') #}
+
+    {% endif %} {# if field.get('menu') #}
 
     {% elif field['type'] in constants.INTEGER %}
     <input type="number" step="1" id="{{ fid }}" name="{{ fid }}"
@@ -242,6 +256,9 @@
 	  {% endif %}
           {% if field['type'] in (constants.INTEGER, constants.REPEAT) %}
           Do <strong>not</strong> use commas or dots in the integer value.
+          {% endif %}
+          {% if field['type'] == constants.SELECT and field.get('menu') %}
+          Select a menu option.
           {% endif %}
 	  {% if field.get('maxlength') %}
 	  Maximum {{ field['maxlength'] }} characters.

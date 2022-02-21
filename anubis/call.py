@@ -792,6 +792,7 @@ class CallSaver(AccessMixin, AttachmentSaver):
             field["maxlength"] = maxlength
 
         elif field["type"] == constants.SELECT:
+            field["menu"] = bool(form.get("menu"))
             field["multiple"] = bool(form.get("multiple"))
             selection = [s.strip() for s in form.get("selection", "").split("\n")]
             field["selection"] = [s for s in selection if s]

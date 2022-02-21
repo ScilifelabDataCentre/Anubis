@@ -12,6 +12,13 @@
     {% if field.get('repeat') %}
     Repeated by <strong>{{ field['repeat'] }}</strong>.<br>
     {% endif %}
+    {% if field['type'] == constants.SELECT %}
+    {% if field.get('menu') %}
+    Options displayed in a menu.
+    {% else %}
+    Options displayed using tick boxes.
+    {% endif %}
+    {% endif %} {# if field['type'] == constants.SELECT #}
     {% if field.get('multiple') %}
     Multiple allowed.
     {% endif %}
