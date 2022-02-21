@@ -54,6 +54,18 @@ respective submitter by setting an access flag in the call. Currently,
 no email is automatically sent by the system to the submitter when
 this is done.
 
+## Grant dossier
+
+A grant dossier contains information about the grant which is the result of
+positive decision for the proposal. It may contain information about the grant
+and documents provided by the grant giver, or by the grantee, for example grant
+conditions, budget, agreement, and similar.
+
+A grant dossier which has valid values in all required fields is set as complete.
+
+A grant dossier is created by the admin or staff. The proposal owner (which
+presumably is the grant receiver) can view and edit it.
+
 ## User
 
 A user of the system must register an account, and each user must have
