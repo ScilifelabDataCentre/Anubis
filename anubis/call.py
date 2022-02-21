@@ -1016,9 +1016,7 @@ def allow_view(call):
         return True
     if am_owner(call):
         return True
-    if flask.g.current_user and flask.g.current_user["username"] in call.get(
-        "access_view", []
-    ):
+    if has_access_view(call):
         return True
     if call["opens"]:
         return True
@@ -1033,7 +1031,7 @@ def allow_edit(call):
         return True
     if am_owner(call):
         return True
-    if flask.g.current_user["username"] in call.get("access_edit", []):
+    if has_access_edit(call):
         return True
     return False
 
@@ -1059,15 +1057,15 @@ def allow_change_access(call):
         return True
     if am_owner(call):
         return True
-    if flask.g.current_user["username"] in call.get("access_edit", []):
+    if has_access_edit(call):
         return True
     return False
 
 
 def allow_view_details(call):
-    """The admin, staff, call owner and reviewers may view certain details 
-    of the call, such as call field definitions, call owner, reviewers
-    and access flags.
+    """The admin, staff, call owner, reviewers and accounts with view access 
+    may view certain details of the call, such as call field definitions,
+    call owner, reviewers and access flags.
     """
     if not flask.g.current_user:
         return False
@@ -1078,6 +1076,8 @@ def allow_view_details(call):
     if am_owner(call):
         return True
     if am_reviewer(call):
+        return True
+    if has_access_view(call):
         return True
     return False
 
@@ -1148,7 +1148,7 @@ def allow_view_grants(call):
         return True
     if flask.g.am_staff:
         return True
-    if flask.g.current_user["username"] in call.get("access_view", []):
+    if has_access_view(call):
         return True
     return False
 
@@ -1176,6 +1176,24 @@ def am_owner(call):
     if not flask.g.current_user:
         return False
     if flask.g.current_user["username"] == call["owner"]:
+        return True
+    return False
+
+
+def has_access_view(call):
+    "Does the current user have explicit view access to the call?"
+    if not flask.g.current_user:
+        return False
+    if flask.g.current_user["username"] in call.get("access_view", []):
+        return True
+    return False
+
+
+def has_access_edit(call):
+    "Does the current user have explicit edit access to the call?"
+    if not flask.g.current_user:
+        return False
+    if flask.g.current_user["username"] in call.get("access_edit", []):
         return True
     return False
 
