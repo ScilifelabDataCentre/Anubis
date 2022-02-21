@@ -16,7 +16,12 @@
     {% if field.get('menu') %}
     Options displayed in a menu.
     {% else %}
-    Options displayed using tick boxes.
+    Options displayed using
+    {% if field.get('multiple') %}
+    check boxes.
+    {% else %}
+    radio buttons.
+    {% endif %}
     {% endif %}
     {% endif %} {# if field['type'] == constants.SELECT #}
     {% if field.get('multiple') %}
