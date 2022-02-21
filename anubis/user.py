@@ -675,7 +675,7 @@ def allow_edit(user):
 
 
 def allow_delete(user):
-    """Can the the given user account be deleted? 
+    """Can the the given user account be deleted?
     Only when user is not admin, and has no proposals and no reviews,
     and is not reviewer in any call.
     Note that the user herself may be able to delete the account.

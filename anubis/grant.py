@@ -450,7 +450,7 @@ def allow_create(proposal):
 
 
 def allow_view(grant):
-    """The admin, staff and proposal user (= grant receiver) may 
+    """The admin, staff and proposal user (= grant receiver) may
     view the grant dossier.
     An account with view access to the call may also view the grant.
     """

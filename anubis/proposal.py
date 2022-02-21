@@ -746,8 +746,7 @@ def allow_submit(proposal):
 
 
 def allow_transfer(proposal):
-    """The admin and staff may transfer ownership of a proposal.
-    """
+    """The admin and staff may transfer ownership of a proposal."""
     if not flask.g.current_user:
         return False
     if flask.g.am_admin:

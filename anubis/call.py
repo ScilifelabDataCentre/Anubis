@@ -517,7 +517,10 @@ def grant(cid):
             f for f in call.get("grant", []) if f["type"] == constants.REPEAT
         ]
         return flask.render_template(
-            "call/grant.html", call=call, repeat_fields=repeat_fields
+            "call/grant.html",
+            call=call,
+            repeat_fields=repeat_fields,
+            reviews_count=utils.get_count("reviews", "call", call["identifier"]),
         )
 
     elif utils.http_POST():
@@ -1063,7 +1066,7 @@ def allow_change_access(call):
 
 
 def allow_view_details(call):
-    """The admin, staff, call owner, reviewers and accounts with view access 
+    """The admin, staff, call owner, reviewers and accounts with view access
     may view certain details of the call, such as call field definitions,
     call owner, reviewers and access flags.
     """
@@ -1139,7 +1142,7 @@ def allow_view_decisions(call):
 
 
 def allow_view_grants(call):
-    """The admin, staff and accounts with view access may view 
+    """The admin, staff and accounts with view access may view
     all grants in the call.
     """
     if not flask.g.current_user:

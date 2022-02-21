@@ -9,10 +9,12 @@ Edit grant fields for call {{ call['identifier'] }}
 {% endblock %}
 
 {% block main %}
+{% if reviews_count %}
 <div class="alert alert-warning" role="alert">
   <strong>Warning:</strong> Edit with care! Changing grant fields may
   invalidate current grant dossiers.
 </div>
+{% endif %}
 
 <table class="table table-hover">
   <tbody>

@@ -301,7 +301,7 @@ def check_csrf_token():
 
 
 def error(message, url=None, home=False):
-    """"Return redirect response to the given URL, or referrer, or home page.
+    """Return redirect response to the given URL, or referrer, or home page.
     Flash the given message.
     """
     flash_error(message)
