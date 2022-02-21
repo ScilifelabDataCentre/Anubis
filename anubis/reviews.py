@@ -110,6 +110,8 @@ def call_reviewer(cid, username):
         )
 
     proposals = anubis.proposals.get_call_proposals(call, submitted=True)
+    for proposal in proposals:
+        proposal["allow_create_review"] = anubis.review.allow_create(proposal)
     reviews = utils.get_docs_view(
         "reviews", "call_reviewer", [call["identifier"], user["username"]]
     )
