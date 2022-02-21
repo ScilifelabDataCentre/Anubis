@@ -224,6 +224,27 @@
 	    </div>
 	  </div>
 	  <div class="form-group row">
+	    <label for="_{{ field['type'] }}-menu"
+                   class="col-md-2 col-form-label text-right">
+	      Menu display</label>
+	    <div class="col-md">
+	      <div class="form-check">
+		<input type="checkbox"
+                       name="menu" id="_{{ field['type'] }}-menu"
+		       class="form-check-input"
+		       aria-describedby="_{{ field['type'] }}-menuHelp"
+		       value="true"
+                       {{ field.get('menu') and 'checked' }}>
+		<label class="form-check-label"
+                       for="_{{ field['type'] }}-menu">Yes</label>
+	      </div>
+	      <small id="_{{ field['type'] }}-menuHelp"
+                     class="form-text text-muted">
+                Display input options as a menu, otherwise as tick boxes.
+	      </small>
+	    </div>
+	  </div>
+	  <div class="form-group row">
 	    <label for="_{{ field['type'] }}-multiple"
                    class="col-md-2 col-form-label text-right">
 	      Multiple choice</label>
@@ -238,7 +259,8 @@
 		<label class="form-check-label" 
                        for="_{{ field['type'] }}-multiple">Yes</label>
 	      </div>
-	      <small id="sliderHelp" class="form-text text-muted">
+	      <small id="_{{ field['type'] }}-multipleHelp"
+                     class="form-text text-muted">
                 Allow selection of multiple values.
 	      </small>
 	    </div>

@@ -196,6 +196,26 @@
 	    </div>
 	  </div>
 	  <div class="form-group row">
+	    <label for="_{{ field_type }}-menu"
+                   class="col-md-2 col-form-label text-right">
+	      Menu display</label>
+	    <div class="col-md">
+	      <div class="form-check">
+		<input type="checkbox"
+                       name="menu" id="_{{ field_type }}-menu"
+		       class="form-check-input"
+		       aria-describedby="_{{ field_type }}-menuHelp"
+		       value="true">
+		<label class="form-check-label"
+                       for="_{{ field_type }}-menu">Yes</label>
+	      </div>
+	      <small id="_{{ field_type }}-menuHelp"
+                     class="form-text text-muted">
+                Display input options as a menu, otherwise as tick boxes.
+	      </small>
+	    </div>
+	  </div>
+	  <div class="form-group row">
 	    <label for="_{{ field_type }}-multiple"
                    class="col-md-2 col-form-label text-right">
 	      Multiple choice</label>
