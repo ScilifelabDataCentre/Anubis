@@ -92,11 +92,10 @@ def create(pid, username):
             pass
     except ValueError as error:
         utils.flash_error(error)
-    try:
-        url = flask.request.form["_next"]
-    except KeyError:
-        url = flask.url_for("reviews.proposal", pid=proposal["identifier"])
-    return flask.redirect(url)
+    return flask.redirect(
+        flask.url_for("reviews.call_reviewer",
+                      cid=proposal["call"],
+                      username=username))
 
 
 @blueprint.route("/<iuid:iuid>")
@@ -410,9 +409,7 @@ def get_reviewer_review(proposal, reviewer=None):
 
 
 def allow_create(proposal):
-    """The admin, call owner and chair may create a review
-    for a submitted proposal.
-    """
+    "The admin, call owner and chair may create a review for a submitted proposal."
     if not proposal.get("submitted"):
         return False
     if not flask.g.current_user:

@@ -142,14 +142,14 @@ def get_docs_view(designname, viewname, key):
 
 def login_required(f):
     """Resource endpoint decorator for checking if logged in.
-    Send to login page if not.
+    Send to login page if not, recording the origin URL.
     """
 
     @functools.wraps(f)
     def wrap(*args, **kwargs):
         if not flask.g.current_user:
-            url = flask.url_for("user.login", next=flask.request.base_url)
-            return flask.redirect(url)
+            flask.session["login_target_url"] = flask.request.base_url
+            return flask.redirect(flask.url_for("user.login"))
         return f(*args, **kwargs)
 
     return wrap
@@ -301,7 +301,7 @@ def check_csrf_token():
 
 
 def error(message, url=None, home=False):
-    """"Return redirect response to the given URL, or referrer, or home page.
+    """Return redirect response to the given URL, or referrer, or home page.
     Flash the given message.
     """
     flash_error(message)

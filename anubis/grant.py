@@ -79,10 +79,7 @@ def create(pid):
             saver["grant"] = grant["identifier"]
     except ValueError as error:
         utils.flash_error(error)
-    try:
-        return flask.redirect(flask.request.form["_next"])
-    except KeyError:
-        return flask.redirect(flask.url_for(".display", gid=grant["identifier"]))
+    return flask.redirect(flask.url_for(".display", gid=grant["identifier"]))
 
 
 @blueprint.route("/<gid>")
@@ -450,7 +447,7 @@ def allow_create(proposal):
 
 
 def allow_view(grant):
-    """The admin, staff and proposal user (= grant receiver) may 
+    """The admin, staff and proposal user (= grant receiver) may
     view the grant dossier.
     An account with view access to the call may also view the grant.
     """

@@ -42,32 +42,14 @@ Reviews of proposals in call {{ call['identifier'] }}
     {% for proposal in proposals %}
     {% for reviewer in call['reviewers'] %}
     {% set review = reviews_lookup.get("{} {}".format(proposal['identifier'], reviewer)) %}
-    {% if review is none and not proposal['allow_create_review'] %}
+    {% if review is none %}
     {% continue %}
     {% endif %}
     <tr>
-      {% if review %}
       <td>{{ review | review_link }}</td>
       {% for field in utils.get_banner_fields(call['review']) %}
       <td>{{ field | display_field_value(review) }}</td>
       {% endfor %}
-
-      {% else %}
-      <td>
-	<form action="{{ url_for('review.create', pid=proposal['identifier'], username=reviewer) }}"
-	      method="POST">
-	  {{ csrf_token() }}
-          <input type="hidden" name="_next"
-                 value="{{ url_for('reviews.call', cid=call['identifier']) }}">
-	  <button type="submit" class="btn btn-sm btn-info py-0">
-            Create review</button>
-	</form>
-      </td>
-      {% for field in utils.get_banner_fields(call['review']) %}
-      <td>-</td>
-      {% endfor %} {# for field in ... #}
-      {% endif %} {# if review #}
-
       <td>{{ get_user(reviewer) | user_link }}</td>
       <td>{{ proposal | proposal_link(bold=False) }}</td>
       {% for field in utils.get_banner_fields(call['proposal']) %}

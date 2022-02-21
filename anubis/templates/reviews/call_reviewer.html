@@ -36,7 +36,7 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 <table id="reviews" class="table table-sm table-hover">
   <thead>
     <tr>
-      <th>My review</th>
+      <th>Review</th>
       {% for field in utils.get_banner_fields(call['review']) %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
@@ -50,8 +50,8 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
   <tbody class="table-borderless">
     {% for proposal in proposals %}
     {% set review = reviews_lookup.get(proposal['identifier']) %}
-    {% if review %}
     <tr>
+      {% if review %}
       <td>{{ review | review_link }}</td>
       {% for field in utils.get_banner_fields(call['review']) %}
       <td>{{ field | display_field_value(review) }}</td>
@@ -61,8 +61,26 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
       <td>{{ field | display_field_value(proposal) }}</td>
       {% endfor %}
       <td>{{ get_user(proposal['user']) | user_link }}</td>
+
+      {% elif proposal.get("allow_create_review") %} {# if review #}
+      <td>
+	<form action="{{ url_for('review.create', pid=proposal['identifier'], username=user['username']) }}"
+	      method="POST">
+	  {{ csrf_token() }}
+	  <button type="submit" class="btn btn-sm btn-info py-0">
+            Create review</button>
+	</form>
+      </td>
+      {% for field in utils.get_banner_fields(call['review']) %}
+      <td></td>
+      {% endfor %}
+      <td>{{ proposal | proposal_link(bold=False) }}</td>
+      {% for field in utils.get_banner_fields(call['proposal']) %}
+      <td></td>
+      {% endfor %}
+      <td>{{ get_user(proposal['user']) | user_link }}</td>
+      {% endif %} {# if review #}
     </tr>
-    {% endif %}
     {% endfor %}
   </tbody>
 </table>
