@@ -65,6 +65,7 @@ def prepare():
     flask.g.am_admin = anubis.user.am_admin()
     flask.g.am_staff = anubis.user.am_staff()
     if flask.g.current_user:
+        flask.session.permanent = True
         username = flask.g.current_user["username"]
         flask.g.allow_create_call = anubis.call.allow_create()
         flask.g.my_proposals_count = utils.get_count("proposals", "user", username)

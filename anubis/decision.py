@@ -65,10 +65,7 @@ def create(pid):
             saver["decision"] = decision["_id"]
     except ValueError as error:
         utils.flash_error(error)
-    try:
-        return flask.redirect(flask.request.form["_next"])
-    except KeyError:
-        return flask.redirect(flask.url_for(".display", iuid=decision["_id"]))
+    return flask.redirect(flask.url_for(".display", iuid=decision["_id"]))
 
 
 @blueprint.route("/<iuid:iuid>")

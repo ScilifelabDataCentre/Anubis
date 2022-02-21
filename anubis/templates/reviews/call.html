@@ -57,8 +57,6 @@ Reviews of proposals in call {{ call['identifier'] }}
 	<form action="{{ url_for('review.create', pid=proposal['identifier'], username=reviewer) }}"
 	      method="POST">
 	  {{ csrf_token() }}
-          <input type="hidden" name="_next"
-                 value="{{ url_for('reviews.call', cid=call['identifier']) }}">
 	  <button type="submit" class="btn btn-sm btn-info py-0">
             Create review</button>
 	</form>

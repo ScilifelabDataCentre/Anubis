@@ -92,11 +92,7 @@ def create(pid, username):
             pass
     except ValueError as error:
         utils.flash_error(error)
-    try:
-        url = flask.request.form["_next"]
-    except KeyError:
-        url = flask.url_for("reviews.proposal", pid=proposal["identifier"])
-    return flask.redirect(url)
+    return flask.redirect(flask.url_for("reviews.proposal", pid=proposal["identifier"]))
 
 
 @blueprint.route("/<iuid:iuid>")

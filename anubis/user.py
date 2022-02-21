@@ -50,10 +50,10 @@ blueprint = flask.Blueprint("user", __name__)
 def login():
     "Login to a user account."
     if utils.http_GET():
-        return flask.render_template(
-            "user/login.html", next=flask.request.args.get("next")
-        )
-    if utils.http_POST():
+        flask.session["login_target_url"] = flask.request.referrer
+        return flask.render_template("user/login.html")
+
+    elif utils.http_POST():
         username = flask.request.form.get("username")
         password = flask.request.form.get("password")
         try:
@@ -64,10 +64,12 @@ def login():
                 url=flask.url_for(".login"),
             )
         try:
-            return flask.redirect(flask.request.form["next"])
+            url = flask.session["login_target_url"]
+            flask.session.pop("login_target_url")
+            if not url: raise KeyError
         except KeyError:
-            pass
-        return flask.redirect(flask.url_for("home"))
+            url = flask.url_for("home")
+        return flask.redirect(url)
 
     # HEAD request gets here: return No_Content
     return "", 204
@@ -597,7 +599,6 @@ def do_login(username, password):
     with UserSaver(user) as saver:
         saver.set_last_login()
     flask.session["username"] = user["username"]
-    flask.session.permanent = True
 
 
 def send_password_code(user, action):
