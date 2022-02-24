@@ -93,9 +93,8 @@ def create(pid, username):
     except ValueError as error:
         utils.flash_error(error)
     return flask.redirect(
-        flask.url_for("reviews.call_reviewer",
-                      cid=proposal["call"],
-                      username=username))
+        flask.url_for("reviews.call_reviewer", cid=proposal["call"], username=username)
+    )
 
 
 @blueprint.route("/<iuid:iuid>")

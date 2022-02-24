@@ -50,23 +50,20 @@ blueprint = flask.Blueprint("user", __name__)
 def login():
     "Login to a user account."
     if utils.http_GET():
-        flask.session["login_target_url"] = flask.request.referrer
         return flask.render_template("user/login.html")
 
     elif utils.http_POST():
-        username = flask.request.form.get("username")
-        password = flask.request.form.get("password")
         try:
-            do_login(username, password)
+            do_login(
+                flask.request.form.get("username"), flask.request.form.get("password")
+            )
         except ValueError:
             return utils.error(
                 "Invalid user or password, or account disabled.",
                 url=flask.url_for(".login"),
             )
         try:
-            url = flask.session["login_target_url"]
-            flask.session.pop("login_target_url")
-            if not url: raise KeyError
+            url = flask.session.pop("login_target_url")
         except KeyError:
             url = flask.url_for("home")
         return flask.redirect(url)
@@ -599,6 +596,7 @@ def do_login(username, password):
     with UserSaver(user) as saver:
         saver.set_last_login()
     flask.session["username"] = user["username"]
+    flask.session.permanent = True
 
 
 def send_password_code(user, action):
