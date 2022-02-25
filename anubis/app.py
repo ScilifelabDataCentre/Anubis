@@ -57,6 +57,13 @@ def setup_template_context():
     )
 
 
+@app.before_first_request
+def initialize():
+    "Initialization before handling first request."
+    utils.set_db()
+    anubis.user.create_first_admin()
+
+
 @app.before_request
 def prepare():
     "Set the database connection, get the current user."

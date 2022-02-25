@@ -72,7 +72,8 @@ def call_xlsx(cid):
         return utils.error("No such call.", flask.url_for("home"))
     if not anubis.call.allow_view(call):
         return utils.error("You may not view the call.", flask.url_for("home"))
-    response = flask.make_response(get_call_xlsx(call))
+    submitted = utils.to_bool(flask.request.args.get("submitted", ""))
+    response = flask.make_response(get_call_xlsx(call, submitted=submitted))
     response.headers.set("Content-Type", constants.XLSX_MIMETYPE)
     response.headers.set(
         "Content-Disposition",

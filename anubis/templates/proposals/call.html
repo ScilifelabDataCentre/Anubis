@@ -8,9 +8,15 @@
 {% endblock %}
 
 {% block meta %}
+{% if am_reviewer %}
+<a href="{{ url_for('proposals.call_xlsx', cid=call['identifier'], submitted='yes') }}"
+   class="badge badge-pill badge-dark" role="button"
+   title="Excel file of all proposals in the call.">Submitted proposals Excel file</a>
+{% else %}
 <a href="{{ url_for('proposals.call_xlsx', cid=call['identifier']) }}"
    class="badge badge-pill badge-dark" role="button"
    title="Excel file of all proposals in the call.">Proposals Excel file</a>
+{% endif %}
 <a href="{{ url_for('call.call_zip', cid=call['identifier']) }}"
    title="Excel file and documents for submitted proposals."
    class="badge badge-pill badge-dark">Submitted proposals zip file</a>
