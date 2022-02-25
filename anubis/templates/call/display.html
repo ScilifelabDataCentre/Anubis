@@ -8,11 +8,13 @@
 {% endblock %}
 
 {% block meta %}
+
 {% if allow_view_proposals or allow_view_grants %}
 <a href="{{ url_for('proposals.call_xlsx', cid=call['identifier']) }}"
    class="badge badge-pill badge-dark" role="button"
    title="All proposals in the call.">Proposals Excel file</a>
 {% endif %} {# if allow_view_proposals or allow_view_grants #}
+
 {% if allow_view_proposals %}
 <a href="{{ url_for('.call_zip', cid=call['identifier']) }}"
    title="Excel file and documents for submitted proposals."
@@ -21,9 +23,11 @@
    class="badge badge-pill badge-secondary" role="button"
    aria-expanded="false" aria-controls="email_lists">Email address lists</a>
 {% endif %} {# if allow_view_proposals #}
+
 {% endblock %}
 
 {% block main %}
+
 {% if allow_view_details %}
 {% include 'email_lists.html' %}
 {% endif %} {# if allow_view_details #}
@@ -163,8 +167,10 @@
 {% if not am_reviewer %}
 <div class="row my-4">
   <div class="col-md-2 font-weight-bold text-right">My proposal</div>
+
   {% if my_proposal %}
   <div class="col-md">{{ my_proposal | proposal_link }}</div>
+
   {% elif allow_create_proposal %}
   <div class="col-md">
     <form action="{{ url_for('.create_proposal', cid=call['identifier']) }}"
@@ -173,6 +179,7 @@
       <button type="submit" class="btn btn-primary">Create proposal</button>
     </form>
   </div>
+
   {% elif call['tmp']['is_closed'] %}
   <div class="col-md">Call is closed; a proposal cannot be created.</div>
   {% elif not g.current_user %}
@@ -183,9 +190,11 @@
     <a href="{{ url_for('user.login') }}" class="btn btn-primary px-3">
       Login</a>
   </div>
+
   {% else %}
   <div class="col-md">-</div>
   {% endif %} {# if my_proposal #}
+
 </div>
 {% endif %} {# if not am_reviewer #}
 
@@ -315,22 +324,27 @@
   <a href="{{ url_for('.edit', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
+
 <div class="mt-2">
   <a href="{{ url_for('.documents', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit documents</a>
 </div>
+
 <div class="mt-2">
   <a href="{{ url_for('.proposal', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit proposal fields</a>
 </div>
+
 <div class="mt-2">
   <a href="{{ url_for('.review', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit review fields</a>
 </div>
+
 <div class="mt-2">
   <a href="{{ url_for('.decision', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit decision fields</a>
 </div>
+
 <div class="mt-2">
   <a href="{{ url_for('.grant', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit grant fields</a>

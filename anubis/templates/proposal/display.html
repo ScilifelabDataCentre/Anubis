@@ -13,11 +13,13 @@
      title="Proposal information"
      class="badge badge-pill badge-dark">Proposal DOCX file</a>
 </div>
+
 <div>
   <a href="{{ url_for('proposal.display_xlsx', pid=proposal['identifier']) }}"
      title="Proposal information"
      class="badge badge-pill badge-dark">Proposal Excel file</a>
 </div>
+
 <a href="#email_lists" data-toggle="collapse"
    class="badge badge-pill badge-secondary" role="button"
    aria-expanded="false" aria-controls="email_lists">Email address lists</a>
@@ -207,6 +209,7 @@
 {% endif %} {# if allow_edit #}
 
 {% if allow_submit %}
+
 {% if proposal.get('submitted') %}
 <div class="mt-2">
   <form action="{{ url_for('.unsubmit', pid=proposal['identifier']) }}"
@@ -216,6 +219,7 @@
       Unsubmit</button>
   </form>
 </div>
+
 {% else %}
 <div class="mt-2">
   <form action="{{ url_for('.submit', pid=proposal['identifier']) }}"
@@ -226,6 +230,7 @@
   </form>
 </div>
 {% endif %} {# if proposal.get('submitted') #}
+
 {% elif proposal.get('errors') %}
 <div class="card border-success mt-2">
   <div class="card-body text-danger">

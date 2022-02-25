@@ -38,6 +38,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
       <th>Reviewer</th>
     </tr>
   </thead>
+
   <tbody class="table-borderless">
     {% for reviewer in reviewers %}
     {% set review = reviews_lookup.get(reviewer) %}

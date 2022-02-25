@@ -584,11 +584,11 @@ def do_login(username, password):
     """Set the session cookie if successful login.
     Raise ValueError if some problem.
     """
-    user = get_user(username=username)
-    if not user:
+    if not username:
         raise ValueError
     if not password:
         raise ValueError
+    user = get_user(username=username)
     if not werkzeug.security.check_password_hash(user["password"], password):
         raise ValueError
     if user["status"] != constants.ENABLED:

@@ -55,6 +55,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {% else %}
 {% set fields = call['review'] %}
 {% endif %}
+
 {% set entity = review %}
 {% include 'display_fields_values.html' %}
 
@@ -132,6 +133,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   </form>
 </div>
 {% endif %} {# if allow_delete #}
+
 {% endblock %} {# block actions #}
 
 {% block info %}

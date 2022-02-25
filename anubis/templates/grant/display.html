@@ -5,11 +5,13 @@
 {% block body_title %}
 <small class="text-muted mr-2">Grant dossier</small>
 {{ grant['identifier'] }}
+
 {% if grant.get('errors') %}
 <span class="badge badge-danger">Incomplete</span>
 {% else %}
 <span class="badge badge-success">Complete</span>
 {% endif %}
+
 {% endblock %}
 
 {% block meta %}

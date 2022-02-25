@@ -13,6 +13,7 @@ User {{ user['username'] }}
 <table class="table table-sm table-borderless">
   <col style="width:20%">
   <col style="width:80%">
+
   {% if user_calls_count %}
   <tr>
     <th class="text-right">User's calls</th>
@@ -24,6 +25,7 @@ User {{ user['username'] }}
     </td>
   </tr>
   {% endif %} {# if user_calls_count #}
+
   {% if user_proposals_count %}
   <tr>
     <th class="text-right">User's proposals</th>
@@ -35,6 +37,7 @@ User {{ user['username'] }}
     </td>
   </tr>
   {% endif %} {# if user_proposals_count #}
+
   {% if reviewer_calls %}
   <tr>
     <th class="text-right">User's reviews</th>
@@ -51,6 +54,7 @@ User {{ user['username'] }}
     </td>
   </tr>
   {% endif %} {# if reviewer_calls #}
+
   {% if len(reviewer_calls) > 1 %}
   <tr>
     <th class="text-right">User's reviews in all calls</th>
@@ -62,6 +66,7 @@ User {{ user['username'] }}
     </td>
   </tr>
   {% endif %} {# if len(reviewer_calls) > 1 #}
+
   {% if user_grants_count %}
   <tr>
     <th class="text-right">User's grants</th>
@@ -76,18 +81,22 @@ User {{ user['username'] }}
     </td>
   </tr>
   {% endif %} {# if user_grants_count #}
+
   <tr>
     <th class="text-right">Email</th>
     <td>{{ user['email'] | display_value }}</td>
   </tr>
+
   <tr>
     <th class="text-right">Status</th>
     <td>{{ user['status'] }}</td>
   </tr>
+
   <tr>
     <th class="text-right">Role</th>
     <td>{{ user['role'] }}</td>
   </tr>
+
   {% if g.am_admin %}
   <tr>
     <th class="text-right">Code</th>
@@ -99,51 +108,60 @@ User {{ user['username'] }}
       {% endif %}
     </td>
   </tr>
-  {% endif %}
+  {% endif %} {# if g.am_admin #}
+
   <tr>
     <th class="text-right">May create calls</th>
     <td>
       {{ (user.get('call_creator', False) or user['role'] == constants.ADMIN) | display_boolean }}
     </td>
   </tr>
+
   <tr>
     <th class="text-right">Given name</th>
     <td>{{ user.get('givenname') | display_value }}</td>
   </tr>
+
   <tr>
     <th class="text-right">Family name</th>
     <td>{{ user.get('familyname') | display_value }}</td>
   </tr>
+
   {% if config['USER_GENDERS'] %}
   <tr>
     <th class="text-right">Gender</th>
     <td>{{ user.get('gender') | display_value | capitalize }}</td>
   </tr>
   {% endif %}
+
   {% if config['USER_BIRTHDATE'] %}
   <tr>
     <th class="text-right">Birth date</th>
     <td>{{ user.get('birthdate') | display_value }}</td>
   </tr>
   {% endif %}
+
   {% if config['USER_TITLE'] %}
   <tr>
     <th class="text-right">Title</th>
     <td>{{ user.get('title') | display_value }}</td>
   </tr>
   {% endif %}
+
   {% if config['USER_AFFILIATION'] %}
   <tr>
     <th class="text-right">Affiliation</th>
     <td>{{ user.get('affiliation') | display_value }}</td>
   </tr>
   {% endif %}
+
   {% if config['USER_POSTAL_ADDRESS'] %}
   <tr>
     <th class="text-right">Postal address</th>
     <td><pre>{{ user.get('postaladdress') | display_value }}</pre></td>
   </tr>
   {% endif %}
+
   {% if config['USER_PHONE'] %}
   <tr>
     <th class="text-right">Phone</th>
@@ -167,6 +185,7 @@ User {{ user['username'] }}
 {% endblock %} {# block main #}
 
 {% block actions %}
+
 {% if g.current_user['username'] == user['username'] %}
 <div>
   <form action="{{ url_for('.logout') }}"
@@ -176,12 +195,14 @@ User {{ user['username'] }}
   </form>
 </div>
 {% endif %} {# if g.current_user... #}
+
 {% if allow_edit %}
 <div class="mt-2">
   <a href="{{ url_for('.edit', username=user['username']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
 {% endif %} {# if allow_edit #}
+
 {% if allow_edit and user['email'] %}
 <div class="mt-2">
   <form action="{{ url_for('.reset') }}"
@@ -192,6 +213,7 @@ User {{ user['username'] }}
   </form>
 </div>
 {% endif %} {# if allow_edit and user['email'] #}
+
 {% if g.am_admin %}
 <div class="mt-2">
   <form action="{{ url_for('.password') }}"
@@ -202,6 +224,7 @@ User {{ user['username'] }}
   </form>
 </div>
 {% endif %} {# if g.am_admin #}
+
 {% if allow_enable_disable %}
 <div class="mt-4">
   {% if user['status'] != constants.ENABLED %}
@@ -219,6 +242,7 @@ User {{ user['username'] }}
   {% endif %}
 </div>
 {% endif %} {# if allow_enable_disable #}
+
 {% if allow_delete %}
 <div class="mt-4">
   <form action="{{ url_for('.edit', username=user['username']) }}"
@@ -233,6 +257,7 @@ User {{ user['username'] }}
   </form>
 </div>
 {% endif %} {# if allow_delete #}
+
 {% endblock %} {# block actions #}
 
 {% block info %}

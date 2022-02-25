@@ -13,6 +13,7 @@ Reviews by user {{ user['username'] }}
 <div class="row mb-2">
   <div class="col-md-2 text-right font-weight-bold">User's reviews</div>
   <div class="col-md-8">
+
     {% for call in reviewer_calls %}
     <p class="mb-2">
       <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=user['username']) }}"
@@ -22,6 +23,7 @@ Reviews by user {{ user['username'] }}
       of proposals in call {{ call | call_link }}
     </p>
     {% endfor %}
+
   </div>
   <div class="col-md-2 d-print-none">
     <a href="{{ url_for('about.documentation', page='Instructions-for-reviewers') }}"
@@ -30,6 +32,7 @@ Reviews by user {{ user['username'] }}
       Instructions for reviewers</a>
   </div>
 </div>
+
 <table id="reviews" class="table table-hover">
   <thead>
     <tr>
@@ -40,6 +43,7 @@ Reviews by user {{ user['username'] }}
       <th>Call</th>
     </tr>
   </thead>
+
   <tbody class="table-borderless">
     {% for review in reviews %}
     {% set call = get_call(review['call']) %}

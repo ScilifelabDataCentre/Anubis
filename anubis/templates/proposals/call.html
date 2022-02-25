@@ -34,41 +34,52 @@
       {% for field in utils.get_banner_fields(call['proposal']) %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
+
       {% if g.am_admin %}
       <th>Submitted</th>
       {% endif %}
+
       <th>Submitter</th>
+
       {% if am_reviewer %}
       <th>My reviews</th>
       {% endif %}
+
       {% if allow_view_reviews %}
       <th>All reviews</th>
+
       {% for rf in review_rank_fields.values() %}
       <th>Reviews {{ rf['title'] }}: ranking factor</th>
       <th>Reviews {{ rf['title'] }}: stdev</th>
       {% endfor %}
+
       {% if len(review_score_fields) >= 2 %}
       <th>Reviews all scores: mean of means</th>
       <th>Reviews all scores: stdev of means</th>
       {% endif %}
+
       {% for id in review_score_fields %}
       <th>Reviews {{ id }}: mean</th>
       {% if len(review_score_fields) == 1 %}
       <th>Reviews {{ id }}: stdev</th>
       {% endif %}
       {% endfor %}
+
       {% endif %} {# if allow_view_reviews #}
+
       {% if allow_view_decisions %}
       <th>Decision</th>
       {% for field in utils.get_banner_fields(call['decision']) %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
       {% endif %} {# if allow_view_decisions #}
+
       {% if allow_view_grants %}
       <th>Grant dossier</th>
       {% endif %} {# if allow_view_grants #}
     </tr>
   </thead>
+
   <tbody class="table-borderless">
     {% for proposal in proposals %}
     <tr>
@@ -76,6 +87,7 @@
       {% for field in utils.get_banner_fields(call['proposal']) %}
       <td>{{ field | display_field_value(proposal, max_length=10) }}</td>
       {% endfor %}
+
       {% if g.am_admin %}
       <td>
         {% if proposal.get('submitted') %}
@@ -84,11 +96,14 @@
         <span class="badge badge-pill badge-warning">Not submitted</span>
         {% endif %}
       </td>
-      {% endif %}
+      {% endif %} {# if g.am_admin #}
+
       <td>{{ get_user(proposal['user']) | user_link(affiliation=True) }}</td>
+
       {% if am_reviewer %}
       <td>{{ get_reviewer_review(proposal) | review_link }}</td>
       {% endif %}
+
       {% if allow_view_reviews %}
       {% if proposal.get('submitted') %}
       <td>
@@ -97,10 +112,12 @@
           {{ utils.get_proposal_reviews_count(proposal['identifier']) }}
         </a>
       </td>
+
       {% for id in review_rank_fields.keys() %}
       <td>{{ proposal['ranking'][id]['factor'] | display_value }}</td>
       <td>{{ proposal['ranking'][id]['stdev'] | display_value }}</td>
       {% endfor %}
+
       {% if len(review_score_fields) >= 2 %}
       <td>{{ proposal['scores']['__mean__'] | display_value }}</td>
       <td>{{ proposal['scores']['__stdev__'] | display_value }}</td>
@@ -128,18 +145,23 @@
 
       {% if allow_view_decisions %}
       {% set decision = get_decision(proposal['decision']) %}
+
       {% if decision %}
       <td>{{ decision | decision_link(small=True) }}</td>
+
       {% for field in utils.get_banner_fields(call['decision']) %}
       <td>{{ field | display_field_value(decision) }}</td>
       {% endfor %}
+
       {% else %} {# if decision #}
       <td>-</td>
       {% for field in utils.get_banner_fields(call['decision']) %}
       <td>-</td>
       {% endfor %} {# for field in ... #}
       {% endif %} {# if decision #}
+
       {% endif %} {# if allow_view_decisions #}
+
       {% if allow_view_grants %}
       <td>
         {{ get_grant_proposal(proposal['identifier']) | grant_link(small=True, status=True) }}
