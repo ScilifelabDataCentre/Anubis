@@ -7,10 +7,12 @@
      aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
+
       <form action="{{ post_url }}"
 	    method="POST">
 	{{ csrf_token() }}
 	<input type="hidden" name="type" value="{{ field_type }}">
+
 	<div class="modal-header">
           <h5 class="modal-title" 
 	      id="_{{ field_type }}ModalLabel">Add {{ field_type }} field</h5>
@@ -19,6 +21,7 @@
             <span aria-hidden="true">&times;</span>
           </button>
 	</div>
+
 	<div class="modal-body">
 	  <div class="form-group row">
 	    <label for="_{{ field_type }}-identifier"
@@ -37,6 +40,7 @@
 	      </small>
 	    </div>
 	  </div>
+
           {% if repeat_fields %}
 	  <div class="form-group row">
 	    <label for="_{{ field_type }}-repeat"
@@ -58,7 +62,8 @@
 	      </small>
 	    </div>
 	  </div>
-          {% endif %}
+          {% endif %} {# if repeat_fields #}
+
 	  <div class="form-group row">
 	    <label for="_{{ field_type }}-title" 
                    class="col-md-2 col-form-label text-right">
@@ -74,6 +79,7 @@
 	      </small>
 	    </div>
 	  </div>
+
 	  <div class="form-group row">
 	    <label for="_{{ field_type }}-required"
                    class="col-md-2 col-form-label text-right">
@@ -94,6 +100,7 @@
 	      </small>
 	    </div>
 	  </div>
+
 	  <div class="form-group row">
 	    <label for="_{{ field_type }}-staff"
                    class="col-md-2 col-form-label text-right">
@@ -115,6 +122,7 @@
 	      </small>
 	    </div>
 	  </div>
+
 	  <div class="form-group row">
 	    <label for="_{{ field_type }}-staffonly"
                    class="col-md-2 col-form-label text-right">
@@ -137,6 +145,7 @@
 	      </small>
 	    </div>
 	  </div>
+
 	  <div class="form-group row">
 	    <label for="_{{ field_type }}-banner" 
                    class="col-md-2 col-form-label text-right">
@@ -195,6 +204,7 @@
 	      </small>
 	    </div>
 	  </div>
+
 	  <div class="form-group row">
 	    <label for="_{{ field_type }}-menu"
                    class="col-md-2 col-form-label text-right">
@@ -215,6 +225,7 @@
 	      </small>
 	    </div>
 	  </div>
+
 	  <div class="form-group row">
 	    <label for="_{{ field_type }}-multiple"
                    class="col-md-2 col-form-label text-right">
@@ -254,6 +265,7 @@
 	      </small>
 	    </div>
 	  </div>	
+
 	  <div class="form-group row">
 	    <label for="_{{ field_type }}-maximum" 
                    class="col-md-2 col-form-label text-right">
@@ -293,6 +305,7 @@
 	      </small>
 	    </div>
 	  </div>
+
 	  <div class="form-group row">
 	    <label for="_{{ field_type }}-minimum" 
                    class="col-md-2 col-form-label text-right">
@@ -309,6 +322,7 @@
 	      </small>
 	    </div>
 	  </div>	
+
 	  <div class="form-group row">
 	    <label for="_{{ field_type }}-maximum"
                    class="col-md-2 col-form-label text-right">
@@ -366,6 +380,7 @@
 	      </small>
 	    </div>
 	  </div>
+
 	  <div class="form-group row">
 	    <label for="_{{ field_type }}-minimum"
                    class="col-md-2 col-form-label text-right">
@@ -381,6 +396,7 @@
 	      </small>
 	    </div>
 	  </div>	
+
 	  <div class="form-group row">
 	    <label for="_{{ field_type }}-maximum"
                    class="col-md-2 col-form-label text-right">

@@ -12,6 +12,7 @@
 {% endblock %}
 
 {% block main %}
+
 {# The list is already properly sorted. #}
 {% for call in calls %}
 <div class="card border-dark mt-3">
@@ -37,6 +38,7 @@
   </div>
 </div>
 {% endfor %} {# for call in calls #}
+
 {% if not calls %}
 <div class="card border-dark mt-3">
   <div class="card-body lead">
@@ -44,26 +46,32 @@
   </div>
 </div>
 {% endif %} {# if not calls #}
+
 {% endblock %} {# block main #}
 
 {% block actions %}
+
 <p class="mt-3 py-2">
   <a href="{{ url_for('calls.closed') }}"
      class="btn btn-block btn-outline-primary py-3">
     List of closed calls.</a>
 </p>
+
 {% if not g.current_user %}
 <p>
   <a href="{{ url_for('user.login') }}" class="btn btn-block btn-primary">
     Login</a>
 </p>
+
 <p>
   <a href="{{ url_for('user.register') }}" class="btn btn-block btn-success">
     Register a new user account</a>
 </p>
+
 <p class="mb-5">
   <a href="{{ url_for('user.reset') }}" class="btn btn-block btn-info">
     Forgot your password? Reset it</a>
 </p>
 {% endif %}
+
 {% endblock %} {# block actions #}

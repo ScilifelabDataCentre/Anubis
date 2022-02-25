@@ -8,6 +8,7 @@
 <form action="{{ url_for('.edit', username=user['username']) }}"
       method="POST">
   {{ csrf_token() }}
+
   <div class="form-group row">
     <label for="email" class="col-md-2 col-form-label text-right">Email</label>
     <div class="col-md">
@@ -30,6 +31,7 @@
       </small>
     </div>
   </div>
+
   {% if allow_change_role %}
   <div class="form-group row">
     <label for="role" class="col-md-2 col-form-label text-right">Role</label>
@@ -69,8 +71,8 @@
       </div>
     </div>
   </div>
-
   {% endif %} {# if allow_change_role #}
+
   <div class="form-group row">
     <label for="givenname" class="col-md-2 col-form-label text-right">
       Given name</label>
@@ -88,6 +90,7 @@
       </small>
     </div>
   </div>
+
   <div class="form-group row">
     <label for="familyname" class="col-md-2 col-form-label text-right">
       Family name</label>
@@ -105,6 +108,7 @@
       </small>
     </div>
   </div>
+
   {% if config['USER_GENDERS'] %}
   <div class="form-group row">
     <label for="gender" class="col-md-2 col-form-label text-right">
@@ -123,6 +127,7 @@
     </div>
   </div>
   {% endif %}
+
   {% if config['USER_BIRTHDATE'] %}
   <div class="form-group row">
     <label for="birthdate" class="col-md-2 col-form-label text-right">
@@ -142,6 +147,7 @@
     </div>
   </div>
   {% endif %}
+
   {% if config['USER_TITLE'] %}
   <div class="form-group row">
     <label for="title" class="col-md-2 col-form-label text-right">
@@ -161,6 +167,7 @@
     </div>
   </div>
   {% endif %}
+
   {% if config['USER_AFFILIATION'] %}
   <div class="form-group row">
     <label for="affiliation" class="col-md-2 col-form-label text-right">
@@ -207,6 +214,7 @@
     </div>
   </div>
   {% endif %}
+
   {% if config['USER_POSTAL_ADDRESS'] %}
   <div class="form-group row">
     <label for="postaladdress" class="col-md-2 col-form-label text-right">
@@ -226,6 +234,7 @@
     </div>
   </div>
   {% endif %}
+
   {% if config['USER_PHONE'] %}
   <div class="form-group row">
     <label for="phone" class="col-md-2 col-form-label text-right">
@@ -245,11 +254,13 @@
     </div>
   </div>
   {% endif %}
+
   <div class="form-group row">
     <div class="col-md-4 offset-md-2">
       <button type="submit" class="btn btn-block btn-primary">Save</button>
     </div>
   </div>
+
 </form>
 {% endblock %} {# block main #}
 

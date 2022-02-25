@@ -47,6 +47,7 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
       <th>Submitter</th>
     </tr>
   </thead>
+
   <tbody class="table-borderless">
     {% for proposal in proposals %}
     {% set review = reviews_lookup.get(proposal['identifier']) %}

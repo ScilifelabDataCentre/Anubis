@@ -22,6 +22,7 @@ Proposals by user {{ user['username'] }}
       <th>Grant dossier</th>
     </tr>
   </thead>
+
   <tbody class="table-borderless">
     {% for proposal in proposals %}
     {% set call = get_call(proposal['call']) %}

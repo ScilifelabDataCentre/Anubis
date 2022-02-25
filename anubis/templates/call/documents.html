@@ -48,6 +48,7 @@
           enctype="multipart/form-data"
 	  method="POST">
       {{ csrf_token() }}
+
       <div class="form-group">
         <div class="custom-file">
           <input type="file" id="document" name="document"
@@ -56,6 +57,7 @@
             Choose document</label>
         </div>
       </div>
+
       <div class="form-group">
 	<textarea id="document_description" name="document_description"
 		  class="form-control"
@@ -67,10 +69,12 @@
           may be used to format this text.
 	</small>
       </div>
+
       <div class="form-group">
 	<button type="submit" class="btn btn-btn-sm btn-primary mt-2">
 	  Add document</button>
       </div>
+
     </form>
   </div>
 </div>

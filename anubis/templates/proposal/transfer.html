@@ -12,6 +12,7 @@ Transfer ownership of proposal {{ proposal['identifier'] }}
 <form action="{{ url_for('.transfer', pid=proposal['identifier']) }}"
       method="POST">
   {{ csrf_token() }}
+
   <div class="form-group row">
     <label for="user"
            class="col-md-2 col-form-label text-right font-weight-bold">

@@ -15,11 +15,13 @@
     <span class="text-danger">(visible to staff only)</span>
     {% endif %}
   </div>
+
   {% if entity['errors'].get(field1['identifier']) %}
   <div class="col-md-2 text-danger">
     Error: {{ entity['errors'][field1['identifier']] }}
   </div>
   {% endif %}
+
   <div class="col-md text-break">
     {{ field1 | display_field_value(entity) }}
   </div>
@@ -36,28 +38,35 @@
       </div>
     </div>
   </div>
+
   <div class="card-body">
     {% for field2 in fields if field2.get('repeat') == field1['identifier'] %}
+
     {% if not field2.get('staffonly') or (g.am_admin or g.am_staff) %}
     {% set id2 = "{}-{}".format(field2['identifier'], count) %}
     <div class="row mb-2">
       <div class="col-md-2 font-weight-bold text-right">
         {{ field2['title'] }}
+
         {% if field2.get('staffonly') %}
         <br>
         <span class="text-danger">(visible to staff only)</span>
         {% endif %}
+
       </div>
+
       {% if entity['errors'].get(id2) %}
       <div class="col-md-2 text-danger">
         Error: {{ entity['errors'][id2] }}
       </div>
       {% endif %}
+
       <div class="col-md text-break">
         {{ field2 | display_field_value(entity, fid=id2, show_user=True) }}
       </div>
     </div>
     {% endif %} {# if not field2.get('staffonly') ... #}
+
     {% endfor %} {# for field2 in fields ... #}
   </div>
 </div>

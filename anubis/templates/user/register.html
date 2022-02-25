@@ -279,15 +279,16 @@
     </div>
   </div>
 
-  {% else %}
+  {% else %} {# if g.am_admin #}
   <input type="hidden" name="send_email" value="true">
-  {% endif %}
+  {% endif %} {# if g.am_admin #}
 
   <div class="form-group row">
     <div class="col-md-4 offset-md-2">
       <button type="submit" class="btn btn-block btn-success">Register</button>
     </div>
   </div>
+
 </form>
 
 {% if gdpr %}
@@ -301,5 +302,6 @@
     </div>
   </div>
 </div>
-{% endif %}
+{% endif %} {# if gdpr #}
+
 {% endblock %}

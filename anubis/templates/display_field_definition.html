@@ -9,9 +9,11 @@
   <td>{{ field['title'] }}</td>
   <td>
     {{ field['type'] | capitalize }} field.
+
     {% if field.get('repeat') %}
     Repeated by <strong>{{ field['repeat'] }}</strong>.<br>
     {% endif %}
+
     {% if field['type'] == constants.SELECT %}
     {% if field.get('menu') %}
     Options displayed in a menu.
@@ -24,45 +26,58 @@
     {% endif %}
     {% endif %}
     {% endif %} {# if field['type'] == constants.SELECT #}
+
     {% if field.get('multiple') %}
     Multiple allowed.
     {% endif %}
+
     {% if field.get('required') %}
     <strong>Required!</strong>
     {% endif %}
+
     {% if field.get('staffonly') %}
     <span class="text-danger">Visible to staff only.</span>
     {% endif %}
+
     {% if field.get('staff') %}
     Editable only by staff.
     {% endif %}
+
     {% if field.get('banner') %}
     Banner.
     {% endif %}
+
     {% if field.get('maxlength') %}
     Maximum {{ field['maxlength'] }} characters.
     {% endif %}
+
     {% if field.get('blocktitle') is not none %}
     Title of repeated block '{{ field['blocktitle'] }}'.
     {% endif %}
+
     {% if field.get('minimum') is not none %}
     Minimum {{ field['minimum'] }}.
     {% endif %}
+
     {% if field.get('maximum') is not none %}
     Maximum {{ field['maximum'] }}.
     {% endif %}
+
     {% if field.get('slider') is not none %}
     {{ field['slider'] and 'Input using slider.' or 'Input using radio buttons.' }}
     {% endif %}
+
     {% if field.get('extensions') %}
     Uploaded document file must have one of the extensions (file types):
     {% for e in field['extensions'] %}
     <strong>{{ e }}</strong>
     {% endfor %}
     {% endif %}
+
     <br>
     {{ field.get('description') | display_markdown }}
   </td>
+
   {% if post_url %}
   <td>
     <div>
@@ -71,6 +86,7 @@
 	      data-target="#{{ field['identifier'] }}-Modal">
         Edit</button>
     </div>
+
     <div class="mt-1">
       <form action="{{ post_url }}" method="POST">
         {{ csrf_token() }}
@@ -79,6 +95,7 @@
           Move up</button>
       </form>
     </div>
+
     <div class="mt-1">
       <form action="{{ post_url }}" method="POST">
         {{ csrf_token() }}
@@ -89,5 +106,5 @@
       </form>
     </div>
   </td>
-  {% endif %}
+  {% endif %} {# if post_url #}
 </tr>
