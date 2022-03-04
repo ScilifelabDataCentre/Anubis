@@ -30,13 +30,13 @@
 {# Repeat fields. I know, this is rather kludgy...  #}
 {% if field1['type'] == 'repeat' and entity['values'].get(field1['identifier']) %}
 {% for count in range(1, entity['values'][field1['identifier']] + 1) %}
-<div class="card mt-2">
+<div class="card bg-light mt-4">
   <div class="card-header">
     <div class="row">
       <div class="col-md offset-md-1">
-        <h5 class="card-title">
-           <strong>{{ count }}</strong> of
-           <i>{{ field1.get('blocktitle') or field1['title'] }}</i>
+        <h5>
+          <strong>{{ count }}</strong> of
+          <i>{{ field1.get('blocktitle') or field1['title'] }}</i>
         </h5>
       </div>
     </div>

@@ -60,34 +60,8 @@
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Access</div>
   <div class="col-md">
-    <table>
-      <tr>
-        <td class="text-right pr-2">View:</td>
-        <td>
-          {% if call.get('access_view') %}
-          {% for username in call['access_view'] %}
-          {{ get_user(username) | user_link }}
-          <span class="px-2"></span>
-          {% endfor %}
-          {% else %}
-          -
-          {% endif %}
-        </td>
-      </tr>
-      <tr>
-        <td class="text-right pr-2">Edit:</td>
-        <td>
-          {% if call.get('access_edit') %}
-          {% for username in call['access_edit'] %}
-          {{ get_user(username) | user_link }}
-          <span class="px-2"></span>
-          {% endfor %}
-          {% else %}
-          -
-          {% endif %}
-        </td>
-      </tr>
-    </table>
+    {% set item = call %}
+    {% include 'display_access.html' %}
   </div>
 </div>
 {% endif %} {# if allow_view_details #}

@@ -75,10 +75,10 @@ def prepare():
         username = flask.g.current_user["username"]
         flask.g.allow_create_call = anubis.call.allow_create()
         flask.g.my_proposals_count = utils.get_count("proposals", "user", username)
-        flask.g.my_reviews_count = utils.get_count("reviews", "reviewer", username)
         flask.g.my_unsubmitted_proposals_count = utils.get_count(
             "proposals", "unsubmitted", username
         )
+        flask.g.my_reviews_count = utils.get_count("reviews", "reviewer", username)
         flask.g.my_unfinalized_reviews_count = utils.get_count(
             "reviews", "unfinalized", username
         )

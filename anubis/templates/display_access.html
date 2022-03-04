@@ -1,0 +1,28 @@
+{# Display the access table for an item. #}
+
+<table>
+  <tr>
+    <th class="text-right pr-2">View:</th>
+    <td>
+      {% if item.get('access_view') %}
+      {% for username in item['access_view'] %}
+      {% if not username in item.get('access_edit', []) %}
+      {{ get_user(username) | user_link }}
+      <span class="px-2"></span>
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+    </td>
+  </tr>
+  <tr>
+    <th class="text-right pr-2">Edit & view:</th>
+    <td>
+      {% if item.get('access_edit') %}
+      {% for username in item['access_edit'] %}
+      {{ get_user(username) | user_link }}
+      <span class="px-2"></span>
+      {% endfor %}
+      {% endif %}
+    </td>
+  </tr>
+</table>
