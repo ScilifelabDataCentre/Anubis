@@ -46,7 +46,7 @@ DESIGN_DOC = {
         },
         "incomplete": {
             "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'grant') return; if (Object.keys(doc.errors).length === 0) return; emit(doc.user, doc.identifier);}",
+            "map": "function (doc) {if (doc.doctype !== 'grant') return; if (Object.keys(doc.errors).length === 0) return; emit(doc.user, doc.identifier); for (var i=0; i < doc.access_edit.length; i++) {emit(doc.access_edit[i], doc.identifier); }}",
         },
         "access": {
             "reduce": "_count",
