@@ -338,6 +338,16 @@ def get_banner_fields(fields):
     return [f for f in fields if f.get("banner") and not f.get("repeat")]
 
 
+def markdown2html(value):
+    "Process the value from Markdown to HTML."
+    return marko.Markdown(renderer=HtmlRenderer).convert(value or "")
+
+
+def display_markdown(value):
+    "Template filter_ Process the value from Markdown to HTML."
+    return jinja2.utils.Markup(markdown2html(value))
+
+
 def display_field_value(field, entity, fid=None, max_length=None, show_user=False):
     """Template filter: Display field value according to its type.
     max_length: Truncate document name to given number of characters.
@@ -653,16 +663,6 @@ class HtmlRenderer(marko.html_renderer.HTMLRenderer):
         url = self.escape_url(element.dest)
         body = self.render_children(element)
         return template.format(url, title, body)
-
-
-def markdown2html(value):
-    "Process the value from Markdown to HTML."
-    return marko.Markdown(renderer=HtmlRenderer).convert(value or "")
-
-
-def display_markdown(value):
-    "Process the value from Markdown tp HTML for display in a template."
-    return jinja2.utils.Markup(markdown2html(value))
 
 
 def get_site_text(filename):
