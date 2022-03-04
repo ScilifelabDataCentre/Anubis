@@ -202,6 +202,29 @@
         <div class="col-md-2 d-print-none">
           {% block actions %}
           {% endblock %}
+
+          {% block todo %}
+          <p class="mt-3 py-2">
+	    {% if g.my_unsubmitted_proposals_count %}
+            <a href="{{ url_for('proposals.user', username=g.current_user['username']) }}"
+               class="btn btn-block btn-warning">
+              You have {{ g.my_unsubmitted_proposals_count }} unsubmitted proposals.
+            </a>
+	    {% endif %}
+	    {% if g.my_unfinalized_reviews_count %}
+            <a href="{{ url_for('reviews.reviewer', username=g.current_user['username']) }}"
+               class="btn btn-block btn-warning">
+	      You have {{ g.my_unfinalized_reviews_count }} unfinalized reviews.
+            </a>
+	    {% endif %}
+	    {% if g.my_incomplete_grants_count %}
+            <a href="{{ url_for('grants.user', username=g.current_user['username']) }}"
+               class="btn btn-block btn-warning">
+	      You have {{ g.my_incomplete_grants_count }} incomplete grant dossiers.
+            </a>
+            {% endif %} {# if g.my_incomplete_grants_count #}
+          </p>
+          {% endblock %} {# block todo #}
         </div>
       </div>
       {% endblock %} {# block supermain #}
