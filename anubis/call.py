@@ -40,9 +40,6 @@ DESIGN_DOC = {
         "closes": {
             "map": "function (doc) {if (doc.doctype !== 'call' || !doc.closes || !doc.opens) return; emit(doc.closes, doc.identifier);}"
         },
-        "open_ended": {
-            "map": "function (doc) {if (doc.doctype !== 'call' || !doc.opens || doc.closes) return; emit(doc.opens, doc.identifier);}"
-        },
         "owner": {
             "reduce": "_count",
             "map": "function (doc) {if (doc.doctype !== 'call') return; emit(doc.owner, doc.identifier);}",
@@ -1248,8 +1245,8 @@ def set_tmp(call):
         else:
             tmp["is_open"] = True
             tmp["is_closed"] = False
-            tmp["text"] = "Open with no closing date."
-            tmp["color"] = "success"
+            tmp["text"] = "No closing date set."
+            tmp["color"] = "secondary"
     else:
         if call["closes"]:
             tmp["is_open"] = False

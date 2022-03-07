@@ -90,7 +90,7 @@ def open():
 
 def get_open_calls():
     "Return a list of open calls, sorted according to configuration."
-    limited = [
+    result = [
         anubis.call.set_tmp(r.doc)
         for r in flask.g.db.view(
             "calls",
@@ -100,29 +100,18 @@ def get_open_calls():
             include_docs=True,
         )
     ]
-    open_ended = [
-        anubis.call.set_tmp(r.doc)
-        for r in flask.g.db.view(
-            "calls",
-            "open_ended",
-            startkey="",
-            endkey=utils.normalized_local_now(),
-            include_docs=True,
-        )
-    ]
+    # If not admin or staff: exclude not yet open calls.
+    if not (flask.g.am_admin or flask.g.am_staff):
+        result = [doc for doc in result
+                  if (doc["tmp"]["is_open"] or doc["tmp"]["is_closed"])]
     order_key = flask.current_app.config["CALLS_OPEN_ORDER_KEY"]
     if order_key == "closes":
-        limited.sort(key=lambda k: (k["closes"], k["title"]))
-        open_ended.sort(key=lambda k: k["title"])
-        result = limited + open_ended
+        result.sort(key=lambda k: (k["closes"], k["title"]))
     elif order_key == "title":
-        result = limited + open_ended
         result.sort(key=lambda k: k["title"])
     elif order_key == "identifier":
-        result = limited + open_ended
         result.sort(key=lambda k: k["identifier"])
     else:
-        result = limited + open_ended
         result.sort(key=lambda k: k["identifier"])
     return result
 
