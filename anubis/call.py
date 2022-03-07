@@ -579,7 +579,19 @@ def reset_counter(cid):
 @blueprint.route("/<cid>/clone", methods=["GET", "POST"])
 @utils.login_required
 def clone(cid):
-    "Clone the call."
+    """Clone the call. Copies:
+    - Title
+    - Description
+    - Access fields
+    - Proposal fields
+    - Review fields
+    - Decision fields
+    - Grant fields
+    Does not copy:
+    - Dates
+    - Documents
+    - Reviewers
+    """
     call = get_call(cid)
     if not call:
         return utils.error("No such call.", flask.url_for("home"))
@@ -595,10 +607,13 @@ def clone(cid):
             with CallSaver() as saver:
                 saver.set_identifier(flask.request.form.get("identifier"))
                 saver.set_title(flask.request.form.get("title"))
+                saver.doc["description"] = call["description"]
+                saver.doc["access"] = call["access"]
                 saver.doc["proposal"] = copy.deepcopy(call["proposal"])
                 saver.doc["review"] = copy.deepcopy(call["review"])
-                saver.doc["decision"] = copy.deepcopy(call["decision"])
+                saver.doc["decision"] = copy.deepcopy(call.get("decision", []))
                 saver.doc["grant"] = copy.deepcopy(call.get("grant", []))
+                # Do not copy dates.
                 # Do not copy documents.
                 # Do not copy reviewers or chairs.
             new = saver.doc
