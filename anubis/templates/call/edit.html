@@ -16,6 +16,35 @@
   {{ csrf_token() }}
 
   <div class="form-group row">
+    <label for="identifier"
+	   class="col-md-2 col-form-label text-right font-weight-bold">
+      Identifier</label>
+    <div class="col-md">
+      <div class="row">
+        <div class="col-md-4">
+          <input type="text" id="identifier" name="identifier"
+                 maxlength="{{ config['CALL_IDENTIFIER_MAXLENGTH'] }}"
+                 class="form-control"
+                 aria-describedby="identifierHelp"
+                 value="{{ call['identifier'] }}"
+                 {{ not allow_identifier_edit and 'readonly' or '' }}>
+        </div>
+      </div>
+      <small id="identifierHelp" class="form-text text-muted">
+        <strong>Required!</strong>
+        Call identifier, which must be unique. It can be edited only
+        while no proposals or other dependent objects have been
+        created, and the call has not been opened.
+        <br>
+        The identifier must be at most
+        {{ config['CALL_IDENTIFIER_MAXLENGTH'] }} characters long and
+        begin with a letter and continue with letters, digits or
+        underscore. No other characters are allowed.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
     <label for="title"
 	   class="col-md-2 col-form-label text-right font-weight-bold">
       Title</label>

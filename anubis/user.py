@@ -508,7 +508,9 @@ def create_first_admin():
         flask.current_app.logger.info("ADMIN account not specified in settings.")
         return
     if get_user(username=config["ADMIN_USERNAME"]):
-        flask.current_app.logger.info(f"Admin user '{config['ADMIN_USERNAME']}'" " exists already.")
+        flask.current_app.logger.info(
+            f"Admin user '{config['ADMIN_USERNAME']}'" " exists already."
+        )
         return
     try:
         with UserSaver() as saver:
@@ -517,7 +519,9 @@ def create_first_admin():
             saver.set_password(config["ADMIN_PASSWORD"])
             saver.set_role(constants.ADMIN)
             saver.set_status(constants.ENABLED)
-        flask.current_app.logger.info(f"Admin user '{config['ADMIN_USERNAME']}' created.")
+        flask.current_app.logger.info(
+            f"Admin user '{config['ADMIN_USERNAME']}' created."
+        )
     except ValueError as error:
         flask.current_app.logger.info("Could not create admin user; misconfiguration.")
 

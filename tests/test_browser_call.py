@@ -62,10 +62,10 @@ def test_create_call(settings, page):
     assert page.url == f"http://localhost:5002/calls/owner/{settings['ADMIN_USERNAME']}"
     page.click("text=Create")
     assert page.url == "http://localhost:5002/call/"
-    page.click('input[name="title"]')
-    page.fill('input[name="title"]', "Test call")
     page.click('input[name="identifier"]')
     page.fill('input[name="identifier"]', "TEST")
+    page.click('input[name="title"]')
+    page.fill('input[name="title"]', "Test call")
     page.click("#create")
     assert page.url == "http://localhost:5002/call/TEST/edit"
     page.click('textarea[name="description"]')
