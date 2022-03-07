@@ -522,7 +522,7 @@ def create_first_admin():
         flask.current_app.logger.info("Could not create admin user; misconfiguration.")
 
 
-def get_user(username="", email=""):
+def get_user(username=None, email=None):
     """Return the user for the given username or email.
     Return None if no such user.
     """
