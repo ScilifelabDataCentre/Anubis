@@ -2,7 +2,7 @@
 
 <table>
   <tr>
-    <th class="text-right pr-2">View:</th>
+    <th class="text-right align-text-top pr-2">View:</th>
     <td>
       {% if item.get('access_view') %}
       {% for username in item['access_view'] %}
@@ -15,7 +15,7 @@
     </td>
   </tr>
   <tr>
-    <th class="text-right pr-2">Edit & view:</th>
+    <th class="text-right align-text-top text-nowrap pr-2">Edit & view:</th>
     <td>
       {% if item.get('access_edit') %}
       {% for username in item['access_edit'] %}
