@@ -153,11 +153,16 @@ def edit(cid):
         return utils.error("You are not allowed to edit the call.")
 
     if utils.http_GET():
-        return flask.render_template("call/edit.html", call=call)
+        return flask.render_template(
+            "call/edit.html",
+            call=call,
+            allow_identifier_edit=allow_identifier_edit(call),
+        )
 
     elif utils.http_POST():
         try:
             with CallSaver(call) as saver:
+                saver.set_identifier(flask.request.form.get("identifier"))
                 saver.set_title(flask.request.form.get("title"))
                 saver["description"] = flask.request.form.get("description")
                 saver["opens"] = utils.normalize_datetime(
@@ -170,6 +175,7 @@ def edit(cid):
                     flask.request.form.get("reviews_due")
                 )
                 saver.edit_access(flask.request.form)
+            call = saver.doc
         except ValueError as error:
             utils.flash_error(error)
         return flask.redirect(flask.url_for(".display", cid=call["identifier"]))
@@ -729,8 +735,10 @@ class CallSaver(AccessMixin, AttachmentSaver):
 
     def set_identifier(self, identifier):
         "Call identifier."
-        if self.doc.get("identifier"):
-            raise ValueError("Identifier has already been set.")
+        if identifier == self.doc.get("identifier"):
+            return
+        if not allow_identifier_edit(self.doc):
+            raise ValueError("Identifier for this call may not be changed.")
         if not identifier:
             raise ValueError("Identifier must be provided.")
         if len(identifier) > flask.current_app.config["CALL_IDENTIFIER_MAXLENGTH"]:
@@ -1049,6 +1057,25 @@ def allow_edit(call):
     if has_access_edit(call):
         return True
     return False
+
+
+def allow_identifier_edit(call):
+    """Is the identifier of the call editable?
+    Only if no dependent objects have been created, and it has not been opened.
+    """
+    if not call.get("identifier"):
+        return True
+    if utils.get_count("proposals", "call", call["identifier"]):
+        return False
+    if utils.get_count("reviews", "call", call["identifier"]):
+        return False
+    if utils.get_count("decisions", "call", call["identifier"]):
+        return False
+    if utils.get_count("grants", "call", call["identifier"]):
+        return False
+    if call["tmp"]["is_open"]:
+        return False
+    return True
 
 
 def allow_delete(call):
