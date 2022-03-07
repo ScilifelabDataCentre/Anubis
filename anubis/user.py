@@ -526,8 +526,10 @@ def get_user(username="", email=""):
     """Return the user for the given username or email.
     Return None if no such user.
     """
-    username = username.strip()
-    email = email.strip()
+    if username:
+        username = username.strip()
+    if email:
+        email = email.strip()
     if username:
         key = f"username {username}"
         try:
