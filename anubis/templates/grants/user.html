@@ -31,8 +31,9 @@ Grant dossiers user {{ user['username'] }}
       <td>{{ grant | grant_link(small=True) }}</td>
       <td>
         {% if grant.get('errors') %}
+        <span class="badge badge-danger">Incomplete</span>
         <a href="{{ url_for('grant.edit', gid=grant['identifier']) }}"
-           role="button" class="badge badge-danger">Incomplete</a>
+           role="button" class="btn btn-sm btn-primary">Edit</a>
         {% else %}
         <span class="badge badge-success">Complete</span>
         {% endif %}
