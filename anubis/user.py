@@ -624,6 +624,8 @@ def do_login(username, password):
     if not password:
         raise ValueError
     user = get_user(username=username)
+    if not user:
+        raise ValueError
     if not werkzeug.security.check_password_hash(user["password"], password):
         raise ValueError
     if user["status"] != constants.ENABLED:
