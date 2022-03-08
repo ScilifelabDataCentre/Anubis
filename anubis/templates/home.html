@@ -13,6 +13,8 @@
 
 {% block main %}
 
+{% include 'unfinished_business.html' %}
+
 {# The list is already properly sorted. #}
 {% for call in calls %}
 <div class="card border-dark mt-3">
@@ -75,3 +77,6 @@
 {% endif %}
 
 {% endblock %} {# block actions #}
+
+{% block todo %}
+{% endblock %} {# block todo #}

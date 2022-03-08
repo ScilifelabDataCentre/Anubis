@@ -35,37 +35,23 @@
           {% if g.current_user %}
 	  {% if g.my_proposals_count %}
           <a href="{{ url_for('proposals.user', username=g.current_user['username']) }}"
-	     class="nav-link mr-2">My proposals
-	    {% if g.my_unsubmitted_proposals_count %}
-	    <span class="font-weight-bold px-2 py-1 bg-warning active"
-		  title="You have unsubmitted proposals.">
-              {{ g.my_unsubmitted_proposals_count }}
-            </span>
-	    {% endif %}
+             title="My proposals and the proposals to which I have access."
+	     class="nav-link mr-2">
+            My proposals
 	  </a>
 	  {% endif %}
 	  {% if g.my_reviews_count %}
           <a href="{{ url_for('reviews.reviewer', username=g.current_user['username']) }}"
-	     class="nav-link mr-2">My reviews
-	    {% if g.my_unfinalized_reviews_count %}
-	    <span class="font-weight-bold px-2 py-1 bg-warning active"
-		  title="You have unfinalized reviews.">
-              {{ g.my_unfinalized_reviews_count }}
-            </span>
-	    {% endif %}
+	     class="nav-link mr-2">
+            My reviews
 	  </a>
 	  {% endif %}
 
 	  {% if g.my_grants_count %}
           <a href="{{ url_for('grants.user', username=g.current_user['username']) }}"
              title="My grants and the grants to which I have access."
-	     class="nav-link mr-2">My grants
-	    {% if g.my_incomplete_grants_count %}
-	    <span class="font-weight-bold px-2 py-1 bg-warning active"
-		  title="You have incomplete grant dossiers.">
-              {{ g.my_incomplete_grants_count }}
-            </span>
-	    {% endif %}
+	     class="nav-link mr-2">
+            My grants
 	  </a>
 	  {% endif %}
           {% endif %} {# if g.current_user #}
@@ -204,25 +190,8 @@
           {% endblock %}
 
           {% block todo %}
-          <p class="mt-3 py-2">
-	    {% if g.my_unsubmitted_proposals_count %}
-            <a href="{{ url_for('proposals.user', username=g.current_user['username']) }}"
-               class="btn btn-block btn-warning">
-              You have {{ g.my_unsubmitted_proposals_count }} unsubmitted proposals.
-            </a>
-	    {% endif %}
-	    {% if g.my_unfinalized_reviews_count %}
-            <a href="{{ url_for('reviews.reviewer', username=g.current_user['username']) }}"
-               class="btn btn-block btn-warning">
-	      You have {{ g.my_unfinalized_reviews_count }} unfinalized reviews.
-            </a>
-	    {% endif %}
-	    {% if g.my_incomplete_grants_count %}
-            <a href="{{ url_for('grants.user', username=g.current_user['username']) }}"
-               class="btn btn-block btn-warning">
-	      You have {{ g.my_incomplete_grants_count }} incomplete grant dossiers.
-            </a>
-            {% endif %} {# if g.my_incomplete_grants_count #}
+          <p class="my-3">
+            {% include 'unfinished_business.html' %}
           </p>
           {% endblock %} {# block todo #}
         </div>
