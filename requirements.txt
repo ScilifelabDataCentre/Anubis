@@ -16,6 +16,7 @@ marko==1.2.0
 MarkupSafe==2.1.0
 openpyxl==3.0.9
 python-docx==0.8.11
+PyYAML==6.0
 requests==2.27.1
 soupsieve==2.3.1
 tqdm==4.62.3
