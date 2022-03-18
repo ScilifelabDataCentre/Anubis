@@ -73,47 +73,14 @@ def test_documentation(settings, page):
     "Test access to documentation pages."
     page.goto(settings["BASE_URL"])
     page.click("text=Documentation")
-    page.click("text=Basic concepts")
-    assert page.url == f"{settings['BASE_URL']}/about/documentation/Basic-concepts"
+    page.click("text=Overview")
+    assert page.url == f"{settings['BASE_URL']}/documentation/overview"
 
     page.go_back()
     page.click("text=Documentation")
-    page.click("text=Instructions for users")
+    page.click("text=URL endpoints")
     assert (
-        page.url == f"{settings['BASE_URL']}/about/documentation/Instructions-for-users"
+        page.url == f"{settings['BASE_URL']}/documentation/endpoints"
     )
-
-    page.go_back()
-    page.click("text=Documentation")
-    page.click("text=Instructions for reviewers")
-    assert (
-        page.url
-        == f"{settings['BASE_URL']}/about/documentation/Instructions-for-reviewers"
-    )
-
-    page.go_back()
-    page.click("text=Documentation")
-    page.click("text=Instructions for admins")
-    assert (
-        page.url
-        == f"{settings['BASE_URL']}/about/documentation/Instructions-for-admins"
-    )
-
-    page.go_back()
-    page.click("text=Documentation")
-    page.click("text=Input field types")
-    assert page.url == f"{settings['BASE_URL']}/about/documentation/Input-field-types"
-
-    page.go_back()
-    page.click("text=Documentation")
-    page.click("text=Privileges")
-    assert page.url == f"{settings['BASE_URL']}/about/documentation/Privileges"
-
-    # From one documentation page to another.
-    # The link to the right is the second in the page.
-    page.click(':nth-match(:text("Input field types"), 2)')
-    assert page.url == f"{settings['BASE_URL']}/about/documentation/Input-field-types"
-    page.click(':nth-match(:text("Privileges"), 2)')
-    assert page.url == f"{settings['BASE_URL']}/about/documentation/Privileges"
 
     # page.wait_for_timeout(3000)

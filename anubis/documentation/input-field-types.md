@@ -1,9 +1,13 @@
-# Input field types
+---
+title: Input field types
+level: 1
+ordinal: 100
+---
 
 The input fields are the means to store information in proposals, reviews, decisions and grants. They have types which define what kind of information they
 can store.
 
-## Available input field types
+### Available input field types
 
 - **Line**. One single line of text, such as a name or title.
 - **Email**. One single email address.
@@ -16,7 +20,7 @@ can store.
 - **Text**. A multiline text which may use Markdown formatting.
 - **Document**. An attached file.
 
-## Common settings for all input field types
+### Common settings for all input field types
 
 All input field types have a number of settings that can be set at creation
 or modified later. These are:
@@ -40,24 +44,24 @@ or modified later. These are:
 - **Description**. The help text displayed for the field.
    May contain Markdown formatting.
 
-## Line field
+### Line field
 
 One single line of text, such as a name or title. May contain any text.
 
 - **Maxlength**. The maximum number of characters allowed in the
   field, blanks included.
 
-## Email field
+### Email field
 
 One single email address, which must look like a proper email
 address. However, its actual validity is not checked.
 
-## Boolean field
+### Boolean field
 
 A selection between Yes and No. If it is not required, then also "No
 value" will be allowed.
 
-## Select field
+### Select field
 
 A choice among a set of given text values.
 
@@ -66,7 +70,7 @@ A choice among a set of given text values.
 
 - **Multiple choice**. Is the user allowed to choose more than one value?
 
-## Integer field
+### Integer field
 
 A number that is a whole integer.
 
@@ -74,7 +78,7 @@ A number that is a whole integer.
 
 - **Maximum**: An optional upper limit for the value given by the user.
 
-## Float field
+### Float field
 
 A number that may contain fractions, i.e. a decimal point.
 
@@ -82,7 +86,7 @@ A number that may contain fractions, i.e. a decimal point.
 
 - **Maximum**: An optional upper limit for the value given by the user.
 
-## Score field
+### Score field
 
 A number in the range of integer values defined on setup. The choice
 of value is presented as a set of buttons, or optionally by input from
@@ -92,7 +96,7 @@ a slider.
 
 - **Maximum**: The upper limit for the value given by the user.
 
-## Rank field
+### Rank field
 
 A field of type rank is intended for reviews. The reviewer must assign
 a value to the field of each of her reviews in a call such that the
@@ -117,26 +121,26 @@ say, 3, then the ranking factor will become slightly less than 10.
 **NOTE**: This is currently implemented only for reviews; it is not
 very meaningful for other entities.
 
-## Text field
+### Text field
 
 A multiline text which may use Markdown formatting.
 
 - **Maxlength**. The maximum number of characters allowed in the
   field, blanks included.
 
-## Document field
+### Document field
 
  An attached file.
 
 - **Extensions**. A list of allowed extensions for the attached file.
   A simple-minded mechanism to restrict the allowed types of files.
 
-## Repeat field
+### Repeat field
 
-This fiel solves the problem when the number of input fields depends
-on a number that the user must input. If the user has e.g. three
-collaborators, the user should then add the name, affiliation and
-email address in three copies.
+This field allow the number of a set of input fields to depend on a
+number that the user must input. For example, if the user has three
+collaborators and the name, affiliation and email address of these
+collaborators must be entered.
 
 When the user inputs a number in a repeat field, the system brings up
 that number of copies of the other fields that have been associated
@@ -147,4 +151,4 @@ repeated need be associated with it. When creating a new field, there
 will be a select list field to specify whether that field is repeated
 by a previously defined repeat field.
 
-**NOTE**: This is currently implemented only for grants.
+**NOTE**: This is currently implemented only for grant dossiers.

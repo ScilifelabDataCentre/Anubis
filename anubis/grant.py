@@ -328,9 +328,9 @@ def get_grant_documents(grant):
                 field2name = f"{field2['identifier']}-{n}"
                 try:
                     documentname = grant["values"][field2name]
+                    stub = grant["_attachments"][documentname]
                 except KeyError:
                     continue
-                stub = grant["_attachments"][documentname]
                 outfile = flask.g.db.get_attachment(grant, documentname)
                 ext = os.path.splitext(documentname)[1]
                 filename = f"{gid}-{field2['identifier']}-{n}{ext}"

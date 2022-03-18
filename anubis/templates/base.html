@@ -108,11 +108,6 @@
 		 class="nav-link">Overview</a>
               <a href="{{ url_for('documentation.endpoints') }}"
 		 class="nav-link">URL endpoints</a>
-              {% for documentation in constants.DOCUMENTATION %}
-              <a class="nav-link"
-                 href="{{ url_for('about.documentation', page=documentation.replace(' ', '-')) }}">
-                {{ documentation }}</a>
-              {% endfor %}
           </li>
 
           <li class="nav-item dropdown mr-3">

@@ -1,4 +1,8 @@
-# Privileges
+---
+title: Privileges
+level: 1
+ordinal: 110
+---
 
  Anonymous users (not logged-in) are allowed to view open calls and not much else.
 
