@@ -104,6 +104,10 @@
                role="button" data-toggle="dropdown"
                aria-haspopup="true" aria-expanded="false">Documentation</a>
             <div class="dropdown-menu" aria-labelledby="navbarDoc">
+              <a href="{{ url_for('documentation.page', page='overview') }}"
+		 class="nav-link">Overview</a>
+              <a href="{{ url_for('documentation.endpoints') }}"
+		 class="nav-link">URL endpoints</a>
               {% for documentation in constants.DOCUMENTATION %}
               <a class="nav-link"
                  href="{{ url_for('about.documentation', page=documentation.replace(' ', '-')) }}">
@@ -186,12 +190,18 @@
           {% endblock %}
         </div>
         <div class="col-md-2 d-print-none">
-          {% block actions %}
-          {% endblock %}
+          <div>
+            {% block links %}
+            {% endblock %}
+          </div>
+          <div>
+            {% block actions %}
+            {% endblock %}
+          </div>
 
           {% block todo %}
           <p class="my-3">
-            {% include 'unfinished_business.html' %}
+            {% include 'todo.html' %}
           </p>
           {% endblock %} {# block todo #}
         </div>

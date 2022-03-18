@@ -1,9 +1,8 @@
 # ![Anubis logo](https://github.com/pekrau/Anubis/raw/master/anubis/static/logo32.png) Anubis
 
-Proposal submission and review handling system.
+Anubis is a system to handle calls, proposal submission and reviews.
 
 - [A typical use case](#a-typical-use-case)
-- [Important changes](#important-changes)
 - [Entities](#entities)
 - [System design assumptions](#system-design-assumptions)
 - [Command-line interface](#command-line-interface)
@@ -60,11 +59,6 @@ idea is that the user fills in required information, such as a budget
 document, contact persons, collaborators, etc. The staff handling the
 call can then access Anubis to get all information provided from the
 grant holder.
-
-## Important changes
-
-- Since version 1.6, the scripts `dump.py` and `undump.py` have been removed
-  The same functionality is available in the `cli.py` script.
 
 ## Entities
 

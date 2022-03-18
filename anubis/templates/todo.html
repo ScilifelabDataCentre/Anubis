@@ -1,4 +1,4 @@
-{# Display buttons for unfinished items. #}
+{# Display buttons for items to work on. #}
 
 {% if g.my_unsubmitted_proposals_count %}
 <a href="{{ url_for('proposals.user', username=g.current_user['username']) }}"
