@@ -1,11 +1,17 @@
 ---
 title: Input field types
 level: 1
-ordinal: 100
+ordinal: 60
 ---
 
-The input fields are the means to store information in proposals, reviews, decisions and grants. They have types which define what kind of information they
-can store.
+The input fields are the means to store information in proposals,
+reviews, decisions and grants. They have types which define what kind
+of information they can store.
+
+All input fields for proposals, etc, can be changed by the call owner,
+even when the call has been published. This must be done with care,
+since changing a field may invalidate e.g. a proposal that previously
+was valid and complete.
 
 ### Available input field types
 
@@ -151,4 +157,4 @@ repeated need be associated with it. When creating a new field, there
 will be a select list field to specify whether that field is repeated
 by a previously defined repeat field.
 
-**NOTE**: This is currently implemented only for grant dossiers.
+**NOTE**: The repeat field is currently implemented only for grant dossiers.
