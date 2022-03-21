@@ -2,7 +2,6 @@
 
 import flask
 
-import anubis.about
 import anubis.call
 import anubis.calls
 import anubis.config
@@ -13,6 +12,8 @@ import anubis.proposals
 import anubis.decision
 import anubis.grant
 import anubis.grants
+import anubis.about
+import anubis.doc
 import anubis.site
 import anubis.user
 
@@ -31,6 +32,7 @@ anubis.review.init(app)
 anubis.decision.init(app)
 anubis.grant.init(app)
 anubis.user.init(app)
+anubis.doc.init(app)
 
 app.url_map.converters["iuid"] = utils.IuidConverter
 
@@ -180,6 +182,7 @@ app.register_blueprint(anubis.decision.blueprint, url_prefix="/decision")
 app.register_blueprint(anubis.grant.blueprint, url_prefix="/grant")
 app.register_blueprint(anubis.grants.blueprint, url_prefix="/grants")
 app.register_blueprint(anubis.about.blueprint, url_prefix="/about")
+app.register_blueprint(anubis.doc.blueprint, url_prefix="/documentation")
 app.register_blueprint(anubis.site.blueprint, url_prefix="/site")
 
 

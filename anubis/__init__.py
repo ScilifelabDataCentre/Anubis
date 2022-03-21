@@ -4,7 +4,7 @@ import os.path
 import re
 import sys
 
-__version__ = "1.9.9"
+__version__ = "1.10.1"
 
 
 class Constants:
@@ -73,6 +73,7 @@ class Constants:
     ID_RX = re.compile(r"^[a-z][a-z0-9_]*$", re.I)
     IUID_RX = re.compile(r"^[a-f0-9]{32,32}$", re.I)
     EMAIL_RX = re.compile(r"^[a-z0-9_.+-]+@[a-z0-9-]+\.[a-z0-9-.]+$")
+    FRONT_MATTER_RX = re.compile(r"^---(.*)---", re.DOTALL | re.MULTILINE)
 
     # CouchDB document types
     USER = "user"

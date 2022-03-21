@@ -104,11 +104,12 @@
                role="button" data-toggle="dropdown"
                aria-haspopup="true" aria-expanded="false">Documentation</a>
             <div class="dropdown-menu" aria-labelledby="navbarDoc">
-              {% for documentation in constants.DOCUMENTATION %}
-              <a class="nav-link"
-                 href="{{ url_for('about.documentation', page=documentation.replace(' ', '-')) }}">
-                {{ documentation }}</a>
-              {% endfor %}
+              <a href="{{ url_for('documentation.page', page='overview') }}"
+		 class="nav-link">Overview</a>
+              <a href="{{ url_for('documentation.page', page='instructions') }}"
+		 class="nav-link">Instructions</a>
+              <a href="{{ url_for('documentation.endpoints') }}"
+		 class="nav-link">URL endpoints</a>
           </li>
 
           <li class="nav-item dropdown mr-3">
@@ -186,12 +187,31 @@
           {% endblock %}
         </div>
         <div class="col-md-2 d-print-none">
-          {% block actions %}
-          {% endblock %}
+          <div>
+            {% block actions %}
+            {% endblock %}
+          </div>
+          <div>
+            {% block links %}
+            <a href="{{ url_for('documentation.page', page='instructions-for-users') }}"
+               class="btn btn-outline-primary btn-block">
+              Instructions for users</a>
+            {% if g.my_reviews_count %}
+            <a href="{{ url_for('documentation.page', page='instructions-for-reviewers') }}"
+               class="btn btn-outline-primary btn-block">
+              Instructions for reviewers</a>
+            {% endif %}
+            {% if g.am_admin %}
+            <a href="{{ url_for('documentation.page', page='instructions-for-admins') }}"
+               class="btn btn-outline-primary btn-block">
+              Instructions for administrators</a>
+            {% endif %}
+            {% endblock %}
+          </div>
 
           {% block todo %}
           <p class="my-3">
-            {% include 'unfinished_business.html' %}
+            {% include 'todo.html' %}
           </p>
           {% endblock %} {# block todo #}
         </div>

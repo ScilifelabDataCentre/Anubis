@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block head_title %}URL endpoints{% endblock %}
+
+{% block body_title %}URL endpoints{% endblock %}
+
+{% block main %}
+<table class="table table-sm">
+  <thead>
+    <tr>
+      <th>URL</th>
+      <th>Methods</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for url, endpoint in urls %}
+    <tr>
+      <td>{{ url }}</td>
+      <td>{{ ', '.join(endpoint['methods']) }}</td>
+      <td>{{ endpoint['doc'] }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

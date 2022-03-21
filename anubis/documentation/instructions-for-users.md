@@ -1,6 +1,10 @@
-# Instructions for users
+---
+title: Instructions for users
+level: 1
+ordinal: 210
+---
 
-## Create a user account
+### Create a user account
 
 - In order to create a proposal in a call, a user must have an account
   in the system.
@@ -12,7 +16,7 @@
 - Once you have an enabled account with the password set, you may
   create a proposal from an open call.
 
-## Create a proposal
+### Create a proposal
 
 - Go to the page of the open call. All open calls are displayed on the
   home page.
@@ -29,7 +33,7 @@
   may no longer submit a proposal. **Be sure to submit your proposal
   before the deadline!**
 
-## Display your proposals
+### Display your proposals
 
 - The number of your unsubmitted proposals is displayed on a yellow
   background in the top menu. If there is no such yellow marker, your

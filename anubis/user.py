@@ -162,7 +162,9 @@ def reset():
                 saver.set_password()
             send_password_code(user, "password reset")
         # Don't advertise whether user exists or not.
-        utils.flash_message("An email has been sent, if the user account exists.")
+        utils.flash_message(
+            "An email has been sent, if a user account with the given email address exists."
+        )
         return flask.redirect(flask.url_for("home"))
 
 

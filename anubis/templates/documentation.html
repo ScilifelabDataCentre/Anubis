@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block head_title %}{{ doc.front_matter["title"] }}{% endblock %}
+
+{% block body_title %}
+<span class="ml-5">&nbsp;</span><span class="ml-5">&nbsp;</span>
+{{ doc.front_matter["title"] }}
+{% endblock %}
+
+{% block main %}
+<div class="row">
+  <div class="col-md-10 offset-md-1">
+    {{ doc.md | display_markdown }}
+  </div>
+</div>
+{% endblock %} {# block main #}
+
+{% block links %}
+<ul class="list-group">
+  {% for d in docs %}
+  {% if d.level == 0 %}
+  <li class="list-group-item">
+    <a href="{{ url_for('.page', page=d.slug) }}">{{ d.title }}</a>
+  </li>
+  {% elif d.level == 1 %}
+  <li class="list-group-item">
+    <div class="ml-3">
+      <a href="{{ url_for('.page', page=d.slug) }}">{{ d.title }}</a>
+    </div>
+  </li>
+  {% endif %}
+  {% endfor %}
+</ul>
+{% endblock %}

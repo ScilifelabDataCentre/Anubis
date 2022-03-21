@@ -1,4 +1,8 @@
-# Instructions for reviewers
+---
+title: Instructions for reviewers
+level: 1
+ordinal: 220
+---
 
 The number of your unfinalized reviews is displayed on a yellow
 background in the top menu. If there is no such yellow marker, your
