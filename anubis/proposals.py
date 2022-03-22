@@ -302,7 +302,7 @@ def user(username):
 
 def get_call_proposals(call, submitted=False):
     """Get the proposals in the call.
-    Only include those allowed to view.
+    Only include those allowed to view, unless allowed to view call.
     Optionally only the submitted ones.
     """
     result = [
@@ -311,7 +311,8 @@ def get_call_proposals(call, submitted=False):
             "proposals", "call", key=call["identifier"], reduce=False, include_docs=True
         )
     ]
-    result = [p for p in result if anubis.proposal.allow_view(p)]
+    if not anubis.call.allow_view(call):
+        result = [p for p in result if anubis.proposal.allow_view(p)]
     if submitted:
         result = [p for p in result if p.get("submitted")]
     result.sort(key=lambda p: p["identifier"])

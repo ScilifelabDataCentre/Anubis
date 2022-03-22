@@ -534,14 +534,24 @@ def get_proposal_docx(proposal):
         if value is None:
             doc.add_paragraph("-")
         elif field["type"] in (
+            constants.LINE,
+            constants.EMAIL,
+        ):
+            doc.add_paragraph(value)
+        elif field["type"] == constants.BOOLEAN:
+            doc.add_paragraph(utils.display_boolean(value))
+        elif field["type"] == constants.SELECT:
+            if isinstance(value, list):
+                doc.add_paragraph("; ".join(value))
+            else:
+                doc.add_paragraph(value)
+        elif field["type"] in (
             constants.INTEGER,
             constants.FLOAT,
             constants.SCORE,
             constants.RANK,
         ):
             doc.add_paragraph(str(value))
-        elif field["type"] == constants.BOOLEAN:
-            doc.add_paragraph(utils.display_boolean(value))
         elif field["type"] == constants.TEXT:
             converter = htmldocx.HtmlToDocx()
             converter.add_html_to_document(utils.markdown2html(value), doc)
@@ -614,8 +624,21 @@ def get_proposal_xlsx(proposal):
         row = [field["title"] or field["identifier"].capitalize()]
         ws.write_row(nrow, 0, row)
         value = proposal["values"].get(field["identifier"])
+        print(field["type"], value)
         if value is None:
             ws.write_string(nrow, 1, "")
+        elif field["type"] in (
+            constants.LINE,
+            constants.EMAIL,
+        ):
+            ws.write_string(nrow, 1, value)
+        elif field["type"] == constants.BOOLEAN:
+            ws.write(nrow, 1, utils.display_boolean(value))
+        elif field["type"] == constants.SELECT:
+            if isinstance(value, list):
+                ws.write_string(nrow, 1, "; ".join(value))
+            else:
+                ws.write_string(nrow, 1, value)
         elif field["type"] in (
             constants.INTEGER,
             constants.FLOAT,
@@ -623,8 +646,6 @@ def get_proposal_xlsx(proposal):
             constants.RANK,
         ):
             ws.write(nrow, 1, value)
-        elif field["type"] == constants.BOOLEAN:
-            ws.write(nrow, 1, utils.display_boolean(value))
         elif field["type"] == constants.TEXT:
             ws.write_string(nrow, 1, value, wrap_text_format)
         elif field["type"] == constants.DOCUMENT:

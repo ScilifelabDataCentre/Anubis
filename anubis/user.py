@@ -101,7 +101,7 @@ def register():
                 saver.set_familyname(flask.request.form.get("familyname"))
                 saver.set_gender(flask.request.form.get("gender"))
                 saver.set_birthdate(flask.request.form.get("birthdate"))
-                saver.set_title(flask.request.form.get("title"))
+                saver.set_degree(flask.request.form.get("degree"))
                 saver.set_affiliation(
                     flask.request.form.get("affiliation")
                     or flask.request.form.get("affiliation_other")
@@ -273,7 +273,7 @@ def edit(username):
                 saver.set_familyname(flask.request.form.get("familyname"))
                 saver.set_gender(flask.request.form.get("gender"))
                 saver.set_birthdate(flask.request.form.get("birthdate"))
-                saver.set_title(flask.request.form.get("title"))
+                saver.set_degree(flask.request.form.get("degree"))
                 saver.set_affiliation(
                     flask.request.form.get("affiliation")
                     or flask.request.form.get("affiliation_other")
@@ -461,10 +461,12 @@ class UserSaver(BaseSaver):
                 birthdate = None
         self.doc["birthdate"] = birthdate
 
-    def set_title(self, title):
-        if not flask.current_app.config["USER_TITLE"]:
+    def set_degree(self, degree):
+        if not flask.current_app.config["USER_DEGREES"]:
             return
-        self.doc["title"] = title or None
+        if degree not in flask.current_app.config["USER_DEGREES"]:
+            degree = None
+        self.doc["degree"] = degree
 
     def set_affiliation(self, affiliation):
         if not flask.current_app.config["USER_AFFILIATION"]:

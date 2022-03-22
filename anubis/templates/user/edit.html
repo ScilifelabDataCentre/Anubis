@@ -121,7 +121,7 @@
 	       {{ user.get('gender') == gender and 'checked' or '' }}
                value="{{ gender }}">
 	<label class="custom-control-label" for="gender{{ pos }}">
-	  {{ gender.capitalize() }}</label>
+	  {{ gender }}</label>
       </div>
       {% endfor %}
     </div>
@@ -148,22 +148,21 @@
   </div>
   {% endif %}
 
-  {% if config['USER_TITLE'] %}
+  {% if config['USER_DEGREES'] %}
   <div class="form-group row">
-    <label for="title" class="col-md-2 col-form-label text-right">
-      Title</label>
-    <div class="col-md">
-      <div class="row">
-        <div class="col-md-6">
-          <input type="text" id="title" name="title"
-                 class="form-control"
-                 aria-describedby="titleHelp"
-	         value="{{ user.get('title') | display_value('') }}">
-        </div>
+    <label for="degree" class="col-md-2 col-form-label text-right">
+      Academic degree</label>
+    <div class="col-md mt-1">
+      {% for pos, degree in enumerate(config['USER_DEGREES']) %}
+      <div class="custom-control custom-radio custom-control-inline">
+	<input type="radio" name="degree" id="degree{{ pos }}"
+               class="custom-control-input"
+	       {{ user.get('degree') == degree and 'checked' or '' }}
+               value="{{ degree }}">
+	<label class="custom-control-label" for="degree{{ pos }}">
+	  {{ degree }}</label>
       </div>
-      <small id="titleHelp" class="form-text text-muted">
-	Educational status or occupational title.
-      </small>
+      {% endfor %}
     </div>
   </div>
   {% endif %}

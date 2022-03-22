@@ -59,8 +59,7 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   <form action="{{ url_for('.unfinalize', iuid=decision['_id']) }}"
 	method="POST">
     {{ csrf_token() }}
-    <button type="submit" class="btn btn-block btn-warning">
-      Unfinalize</button>
+    <button type="submit" class="btn btn-block btn-warning">Unfinalize</button>
   </form>
 </div>
 {% endif %} {# if allow_unfinalize #}
