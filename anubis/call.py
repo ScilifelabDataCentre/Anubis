@@ -1125,8 +1125,8 @@ def allow_view_details(call):
 
 
 def allow_view_proposals(call):
-    """The admin, staff, call owner and reviewers may view all proposals
-    of the call.
+    """The admin, staff, call owner, reviewers and accounts with view access
+    may view all proposals of the call.
     """
     if not flask.g.current_user:
         return False
@@ -1137,6 +1137,8 @@ def allow_view_proposals(call):
     if am_owner(call):
         return True
     if am_reviewer(call):
+        return True
+    if has_access_view(call):
         return True
     return False
 
