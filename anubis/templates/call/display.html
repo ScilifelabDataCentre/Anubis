@@ -9,10 +9,16 @@
 
 {% block meta %}
 
-{% if allow_view_proposals or allow_view_grants %}
+{% if g.am_admin %}
 <a href="{{ url_for('proposals.call_xlsx', cid=call['identifier']) }}"
    class="badge badge-pill badge-dark" role="button"
-   title="All proposals in the call.">Proposals Excel file</a>
+   title="Excel file of all proposals in the call.">Proposals Excel file</a>
+{% endif %}
+
+{% if allow_view_proposals or allow_view_grants %}
+<a href="{{ url_for('proposals.call_xlsx', cid=call['identifier'], submitted=true) }}"
+   class="badge badge-pill badge-dark" role="button">
+  Submitted proposals Excel file</a>
 {% endif %} {# if allow_view_proposals or allow_view_grants #}
 
 {% if allow_view_proposals %}
