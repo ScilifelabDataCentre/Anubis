@@ -130,7 +130,7 @@ User {{ user['username'] }}
   {% if config['USER_GENDERS'] %}
   <tr>
     <th class="text-right">Gender</th>
-    <td>{{ user.get('gender') | display_value | capitalize }}</td>
+    <td>{{ user.get('gender') | display_value }}</td>
   </tr>
   {% endif %}
 
@@ -141,10 +141,10 @@ User {{ user['username'] }}
   </tr>
   {% endif %}
 
-  {% if config['USER_TITLE'] %}
+  {% if config['USER_DEGREES'] %}
   <tr>
-    <th class="text-right">Title</th>
-    <td>{{ user.get('title') | display_value }}</td>
+    <th class="text-right">Academic degree</th>
+    <td>{{ user.get('degree') | display_value }}</td>
   </tr>
   {% endif %}
 

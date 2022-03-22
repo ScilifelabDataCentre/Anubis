@@ -130,7 +130,7 @@
                class="form-check-input"
 	       value="{{ gender }}">
 	<label class="form-check-label" for="gender{{ pos }}">
-	  {{ gender.capitalize() }}</label>
+	  {{ gender }}</label>
       </div>
       {% endfor %}
     </div>
@@ -150,27 +150,26 @@
         </div>
       </div>
       <small id="birthdateHelp" class="form-text text-muted">
-	ISO format using only digits: YYYY-MM-DD
+	ISO format using number for the month: YYYY-MM-DD
       </small>
     </div>
   </div>
   {% endif %}
 
-  {% if config['USER_TITLE'] %}
+  {% if config['USER_DEGREES'] %}
   <div class="form-group row">
-    <label for="title" class="col-md-2 col-form-label text-right">
-      Title</label>
-    <div class="col-md">
-      <div class="row">
-        <div class="col-md-6">
-          <input type="text" id="title" name="title"
-                 class="form-control"
-                 aria-describedby="titleHelp">
-        </div>
+    <label for="degree" class="col-md-2 col-form-label text-right">
+      Academic degree</label>
+    <div class="col-md form-row">
+      {% for pos, degree in enumerate(config['USER_DEGREES']) %}
+      <div class="form-check form-check-inline pl-2">
+	<input type="radio" name="degree" id="degree{{ pos }}"
+               class="form-check-input"
+	       value="{{ degree }}">
+	<label class="form-check-label" for="degree{{ pos }}">
+	  {{ degree }}</label>
       </div>
-      <small id="titleHelp" class="form-text text-muted">
-	Educational status or occupational title.
-      </small>
+      {% endfor %}
     </div>
   </div>
   {% endif %}
