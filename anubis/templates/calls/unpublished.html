@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Unpublished calls{% endblock %}
+
+{% block body_title %}Unpublished calls{% endblock %}
+
+{% block main %}
+<table id="calls" class="table table-sm table-hover">
+  <thead>
+    <tr>
+      <th>Call id</th>
+      <th>Call title</th>
+      <th>Opens</th>
+      <th>Closes</th>
+    </tr>
+  </thead>
+
+  <tbody class="table-borderless">
+    {% for call in calls %}
+    <tr>
+      <td>{{ call | call_link(proposals_link=False) }}</td>
+      <td>{{ call.get('title') or '[No title]' }}</td>
+      <td class="text-nowrap pl-2">{{ call['opens'] | display_datetime_local_server }}</td>
+      <td class="text-nowrap pl-2">{{ call['closes'] | display_datetime_local_server }}</td>
+    </tr>
+    {% endfor %} {# for call in calls #}
+  </tbody>
+</table>
+{% endblock %} {# block main #}
+
+{% block javascript %}
+<script>
+  $(function() {
+    $("#calls").DataTable( {
+      pagingType: "full_numbers",
+      pageLength: 25,
+      order: [[2, "desc"]]
+    });
+  });
+</script>
+{% endblock %}
