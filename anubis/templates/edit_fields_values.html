@@ -5,7 +5,7 @@
 {% for field1 in fields if not field1.get('repeat') %}
 {% if not field1.get('staffonly') or (g.am_admin or g.am_staff) %}
 
-{# Field without repeats. #}
+{# Not repeat fields. #}
 
 {% set field = field1 %}
 {% set fid = field['identifier']%}
