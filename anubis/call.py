@@ -782,7 +782,7 @@ class CallSaver(AccessMixin, AttachmentSaver):
         if move == "up":
             fieldlist.pop(pos)
             if pos == 0:
-                fieldist.append(field)
+                fieldlist.append(field)
             else:
                 fieldlist.insert(pos - 1, field)
         else:
