@@ -167,7 +167,8 @@
     You need to be logged in to create a proposal.
   </div>
   <div class="col-md">
-    <a href="{{ url_for('user.login') }}" class="btn btn-primary px-3">
+    <a href="{{ url_for('user.login', login_target_url=url_for('.display', cid=call['identifier'])) }}"
+       class="btn btn-primary px-3">
       Login</a>
   </div>
 

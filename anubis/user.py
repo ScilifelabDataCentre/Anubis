@@ -50,6 +50,10 @@ blueprint = flask.Blueprint("user", __name__)
 def login():
     "Login to a user account."
     if utils.http_GET():
+        try:
+            flask.session["login_target_url"] = flask.request.args["login_target_url"]
+        except KeyError:
+            pass
         return flask.render_template("user/login.html")
 
     elif utils.http_POST():
