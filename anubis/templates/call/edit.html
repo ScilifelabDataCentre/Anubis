@@ -61,7 +61,7 @@
   </div>
 
   <div class="form-group row">
-    <label for="description" 
+    <label for="description"
 	   class="col-md-2 col-form-label text-right font-weight-bold">
       Description</label>
     <div class="col-md">
@@ -70,7 +70,30 @@
 		aria-describedby="descriptionHelp"
 		>{{ call['description'] or '' }}</textarea>
       <small id="descriptionHelp" class="form-text text-muted">
-	Description of the call.
+	Full description of the call. This will be displayed on the
+        call page. If no <strong>Home page description</strong> is
+        defined, this description will also be used on the home page
+        of Anubis.
+        <br>
+	<a target="_blank" href="{{ config['MARKDOWN_URL'] }}">Markdown</a>
+        may be used to format this text.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label for="home_description"
+	   class="col-md-2 col-form-label text-right font-weight-bold">
+      Home page description</label>
+    <div class="col-md">
+      <textarea id="home_description" name="home_description"
+		class="form-control" rows="4"
+		aria-describedby="home_descriptionHelp"
+		>{{ call['home_description'] or '' }}</textarea>
+      <small id="home_descriptionHelp" class="form-text text-muted">
+	Description of the call to be used on the home page of
+	Anubis. Should be short. If not defined, the
+	field <strong>Description</strong> will be used.
         <br>
 	<a target="_blank" href="{{ config['MARKDOWN_URL'] }}">Markdown</a>
         may be used to format this text.
