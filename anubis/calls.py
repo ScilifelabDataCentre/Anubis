@@ -111,11 +111,10 @@ def get_open_calls():
             include_docs=True,
         )
     ]
-    # If not admin or staff: exclude not yet open calls.
-    if not (flask.g.am_admin or flask.g.am_staff):
-        result = [
-            doc for doc in result if (doc["tmp"]["is_open"] or doc["tmp"]["is_closed"])
-        ]
+    # Exclude not yet open calls.
+    result = [
+        doc for doc in result if (doc["tmp"]["is_open"] or doc["tmp"]["is_closed"])
+    ]
     order_key = flask.current_app.config["CALLS_OPEN_ORDER_KEY"]
     if order_key == "closes":
         result.sort(key=lambda k: (k["closes"], k["title"]))
