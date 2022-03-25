@@ -1024,7 +1024,7 @@ def get_call(cid):
 
 
 def allow_create(user=None):
-    "Allow admin and users with 'call_creator' flag set to create a call."
+    "Allow admin and users with 'call_creator' flag set may create a call."
     if user is None:
         user = flask.g.current_user
     if not user:
