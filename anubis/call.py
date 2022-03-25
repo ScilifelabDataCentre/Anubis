@@ -40,7 +40,10 @@ DESIGN_DOC = {
         "closes": {
             "map": "function (doc) {if (doc.doctype !== 'call' || !doc.closes || !doc.opens) return; emit(doc.closes, doc.identifier);}"
         },
-        "unpublished": {
+        "opens": {
+            "map": "function (doc) {if (doc.doctype !== 'call' || !doc.closes || !doc.opens) return; emit(doc.opens, doc.identifier);}"
+        },
+        "undefined": {
             "map": "function (doc) {if (doc.doctype !== 'call' || (doc.closes && doc.opens)) return; emit(doc.identifier, null);}"
         },
         "owner": {
