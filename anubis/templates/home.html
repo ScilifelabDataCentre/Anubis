@@ -36,7 +36,11 @@
     </table>
   </div>
   <div class="card-body pb-0">
+    {% if call.get('home_description') %}
+    {{ call.get('home_description') | display_markdown }}
+    {% else %}
     {{ call.get('description') | display_markdown }}
+    {% endif %}
   </div>
 </div>
 {% endfor %} {# for call in calls #}

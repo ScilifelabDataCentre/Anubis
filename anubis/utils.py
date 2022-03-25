@@ -344,7 +344,7 @@ def markdown2html(value):
 
 
 def display_markdown(value):
-    "Template filter_ Process the value from Markdown to HTML."
+    "Template filter: Process the value from Markdown to HTML."
     return jinja2.utils.Markup(markdown2html(value))
 
 

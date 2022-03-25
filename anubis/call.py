@@ -171,6 +171,7 @@ def edit(cid):
                 saver.set_identifier(flask.request.form.get("identifier"))
                 saver.set_title(flask.request.form.get("title"))
                 saver["description"] = flask.request.form.get("description")
+                saver["home_description"] = flask.request.form.get("home_description").strip() or None
                 saver["opens"] = utils.normalize_datetime(
                     flask.request.form.get("opens")
                 )
