@@ -48,7 +48,14 @@ Edit proposal fields for call {{ call['identifier'] }}
      target="_blank">
     Input field types</a>
 </div>
-{% endblock %}
+{% endblock %} {# block actions #}
+
+{% block doclinks %}
+<a href="{{ url_for('documentation.page', page='input-field-types') }}"
+   target="documentation"
+   class="btn btn-outline-primary btn-block">
+  Documentation: Input field types</a>
+{% endblock %} {# block doclinks #}
 
 {% block modals %}
 

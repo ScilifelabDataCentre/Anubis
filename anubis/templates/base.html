@@ -193,29 +193,32 @@
             {% block actions %}
             {% endblock %}
           </div>
-          <div class="mt-2">
-            {% block links %}
+          <div class="mt-4">
+            {% block doclinks %}
             <a href="{{ url_for('documentation.page', page='instructions-for-users') }}"
+               target="documentation"
                class="btn btn-outline-primary btn-block">
               Instructions for users</a>
 
             {% if g.my_reviews_count %}
             <a href="{{ url_for('documentation.page', page='instructions-for-reviewers') }}"
+               target="documentation"
                class="btn btn-outline-primary btn-block">
               Instructions for reviewers</a>
             {% endif %}
 
             {% if g.am_admin %}
             <a href="{{ url_for('documentation.page', page='instructions-for-admins') }}"
+               target="documentation"
                class="btn btn-outline-primary btn-block">
               Instructions for administrators</a>
             {% endif %}
 
-            {% endblock %}
+            {% endblock %} {# block doclinks #}
           </div>
 
           {% block todo %}
-          <p class="mt-2">
+          <p class="mt-4">
             {% include 'todo.html' %}
           </p>
           {% endblock %} {# block todo #}
