@@ -375,6 +375,14 @@
 {% endif %} {# if allow_delete #}
 {% endblock %} {# block actions #}
 
+{% block doclinks %}
+{{ super() }}
+<a href="{{ url_for('documentation.page', page='call') }}"
+   target="documentation"
+   class="btn btn-outline-primary btn-block">
+  Documentation: Call</a>
+{% endblock %} {# block doclinks #}
+
 {% block info %}
 {% if allow_view_details %}
 <div class="small">

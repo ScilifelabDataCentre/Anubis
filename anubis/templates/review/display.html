@@ -136,6 +136,14 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 
 {% endblock %} {# block actions #}
 
+{% block doclinks %}
+{{ super() }}
+<a href="{{ url_for('documentation.page', page='review') }}"
+   target="documentation"
+   class="btn btn-outline-primary btn-block">
+  Documentation: Review</a>
+{% endblock %} {# block doclinks #}
+
 {% block info %}
 <div class="small">
   Modified <span class="localtime">{{ review['modified'] }}</span>
