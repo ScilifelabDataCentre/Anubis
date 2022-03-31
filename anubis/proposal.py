@@ -672,7 +672,8 @@ def get_proposal_xlsx(proposal):
 
 def allow_create(call):
     """A logged-in user may create a proposal in a call.
-    Admin, staff and call owner may always create a proposal.
+    Admin, staff, call owner and user with access to the call may always
+    create a proposal.
     Others may create a proposal only if the call is open and not closed.
     """
     if not flask.g.current_user:
@@ -680,6 +681,8 @@ def allow_create(call):
     if flask.g.am_admin or flask.g.am_staff:
         return True
     if anubis.call.am_owner(call):
+        return True
+    if anubis.call.allow_view(call):
         return True
     return call["tmp"]["is_open"] and not call["tmp"]["is_closed"]
 

@@ -40,7 +40,10 @@ DESIGN_DOC = {
         "closes": {
             "map": "function (doc) {if (doc.doctype !== 'call' || !doc.closes || !doc.opens) return; emit(doc.closes, doc.identifier);}"
         },
-        "unpublished": {
+        "opens": {
+            "map": "function (doc) {if (doc.doctype !== 'call' || !doc.closes || !doc.opens) return; emit(doc.opens, doc.identifier);}"
+        },
+        "undefined": {
             "map": "function (doc) {if (doc.doctype !== 'call' || (doc.closes && doc.opens)) return; emit(doc.identifier, null);}"
         },
         "owner": {
@@ -168,6 +171,7 @@ def edit(cid):
                 saver.set_identifier(flask.request.form.get("identifier"))
                 saver.set_title(flask.request.form.get("title"))
                 saver["description"] = flask.request.form.get("description")
+                saver["home_description"] = flask.request.form.get("home_description").strip() or None
                 saver["opens"] = utils.normalize_datetime(
                     flask.request.form.get("opens")
                 )
@@ -1020,7 +1024,7 @@ def get_call(cid):
 
 
 def allow_create(user=None):
-    "Allow admin and users with 'call_creator' flag set to create a call."
+    "Allow admin and users with 'call_creator' flag set may create a call."
     if user is None:
         user = flask.g.current_user
     if not user:

@@ -15,7 +15,7 @@
 </div>
 {% endblock %} {# block main #}
 
-{% block links %}
+{% block doclinks %}
 <ul class="list-group">
   {% for d in docs %}
   {% if d.level == 0 %}
@@ -30,5 +30,8 @@
   </li>
   {% endif %}
   {% endfor %}
+  <li class="list-group-item">
+    <a href="{{ url_for('.page', page='endpoints') }}">URL endpoints</a>
+  </li>
 </ul>
-{% endblock %}
+{% endblock %} {# block doclinks #}

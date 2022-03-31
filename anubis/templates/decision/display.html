@@ -87,6 +87,14 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {% endif %} {# if allow_delete #}
 {% endblock %} {# block actions #}
 
+{% block doclinks %}
+{{ super() }}
+<a href="{{ url_for('documentation.page', page='decision') }}"
+   target="documentation"
+   class="btn btn-outline-primary btn-block">
+  Documentation: Decision</a>
+{% endblock %} {# block doclinks #}
+
 {% block info %}
 <div class="small">
   Modified <span class="localtime">{{ decision['modified'] }}</span>

@@ -91,16 +91,27 @@ def open():
 @blueprint.route("/unpublished")
 @utils.admin_or_staff_required
 def unpublished():
-    "Unpublished calls; calls lacking opens and/or closes date."
+    "Unpublished calls; undefined opens and/or closes date, or not yet published."
     calls = [
         anubis.call.set_tmp(r.doc)
-        for r in flask.g.db.view("calls", "unpublished", include_docs=True)
+        for r in flask.g.db.view("calls", "undefined", include_docs=True)
     ]
+    calls.extend([
+        anubis.call.set_tmp(r.doc)
+        for r in flask.g.db.view(
+                "calls",
+                "opens",
+                startkey=utils.normalized_local_now(),
+                endkey="ZZZZZZ",
+                include_docs=True
+        )
+    ])
     return flask.render_template("calls/unpublished.html", calls=calls)
 
 
 def get_open_calls():
     "Return a list of open calls, sorted according to configuration."
+    # More computationally efficient to use closes date for first selection.
     result = [
         anubis.call.set_tmp(r.doc)
         for r in flask.g.db.view(
@@ -111,11 +122,10 @@ def get_open_calls():
             include_docs=True,
         )
     ]
-    # If not admin or staff: exclude not yet open calls.
-    if not (flask.g.am_admin or flask.g.am_staff):
-        result = [
-            doc for doc in result if (doc["tmp"]["is_open"] or doc["tmp"]["is_closed"])
-        ]
+    # Exclude not yet open calls.
+    result = [
+        doc for doc in result if (doc["tmp"]["is_open"] or doc["tmp"]["is_closed"])
+    ]
     order_key = flask.current_app.config["CALLS_OPEN_ORDER_KEY"]
     if order_key == "closes":
         result.sort(key=lambda k: (k["closes"], k["title"]))
