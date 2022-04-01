@@ -121,9 +121,36 @@ def test_create_proposal(settings, page):
     logout(settings, page, settings["ADMIN_USERNAME"])
     login_user(settings, page)
 
+    # Create a proposal.
+    page.locator("a:has-text(\"Test call\")").click()
+    assert page.url == f"{settings['BASE_URL']}/call/TEST"
+    page.locator("text=Create proposal").click()
+    assert page.url == f"{settings['BASE_URL']}/proposal/TEST:001/edit"
+    page.locator("input[name=\"_title\"]").click()
+    page.locator("input[name=\"_title\"]").fill("A test proposal")
+    page.locator("input[name=\"short_description\"]").click()
+    page.locator("input[name=\"short_description\"]").fill("A brief description")
+    page.locator("textarea[name=\"long_description\"]").click()
+    page.locator("textarea[name=\"long_description\"]").fill("A longer description.")
+    page.locator("text=Save").first.click()
+    assert page.url == f"{settings['BASE_URL']}/proposal/TEST:001"
+    page.locator("button:has-text(\"Submit\")").click()
+    assert page.url == f"{settings['BASE_URL']}/proposal/TEST:001"
+
     # Logout from ordinary user, login as admin user.
     logout(settings, page, settings["USER_USERNAME"])
     login_admin(settings, page)
+
+    # Delete the proposal.
+    page.locator("a:has-text(\"Test call\")").click()
+    assert page.url == f"{settings['BASE_URL']}/call/TEST"
+    page.locator("text=1 proposals").click()
+    assert page.url == f"{settings['BASE_URL']}/proposals/call/TEST"
+    page.locator("text=TEST:001 A test proposal").click()
+    assert page.url == f"{settings['BASE_URL']}/proposal/TEST:001"
+    page.once("dialog", lambda dialog: dialog.accept())
+    page.locator("text=Delete").click()
+    assert page.url == f"{settings['BASE_URL']}/proposals/call/TEST"
 
     # page.wait_for_timeout(3000)
 
