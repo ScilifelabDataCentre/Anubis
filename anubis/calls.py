@@ -96,16 +96,18 @@ def unpublished():
         anubis.call.set_tmp(r.doc)
         for r in flask.g.db.view("calls", "undefined", include_docs=True)
     ]
-    calls.extend([
-        anubis.call.set_tmp(r.doc)
-        for r in flask.g.db.view(
+    calls.extend(
+        [
+            anubis.call.set_tmp(r.doc)
+            for r in flask.g.db.view(
                 "calls",
                 "opens",
                 startkey=utils.normalized_local_now(),
                 endkey="ZZZZZZ",
-                include_docs=True
-        )
-    ])
+                include_docs=True,
+            )
+        ]
+    )
     return flask.render_template("calls/unpublished.html", calls=calls)
 
 

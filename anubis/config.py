@@ -11,6 +11,7 @@ from anubis import utils
 # Default configurable values; modified by reading a JSON file in 'init'.
 DEFAULT_SETTINGS = dict(
     SERVER_NAME="localhost:5002",  # For URL generation; app.run() in devel.
+    REVERSE_PROXY=False,
     SITE_NAME="Anubis",
     SITE_STATIC_DIR=os.path.normpath(os.path.join(constants.ROOT, "../site/static")),
     SITE_ICON=None,  # Name of file in 'SITE_STATIC_DIR'.
