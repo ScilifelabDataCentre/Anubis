@@ -1,6 +1,7 @@
 "Flask app setup and creation; main entry point.."
 
 import flask
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 import anubis.call
 import anubis.calls
@@ -21,7 +22,6 @@ from anubis import constants
 from anubis import utils
 
 app = flask.Flask(__name__)
-app.jinja_env.add_extension("jinja2.ext.loopcontrols")
 
 # Get the configuration and initialize modules.
 anubis.config.init(app)
@@ -35,6 +35,9 @@ anubis.user.init(app)
 anubis.doc.init(app)
 
 app.url_map.converters["iuid"] = utils.IuidConverter
+app.jinja_env.add_extension("jinja2.ext.loopcontrols")
+if app.config["REVERSE_PROXY"]:
+    app.wsgi_app = ProxyFix(app.wsgi_app)
 
 
 @app.context_processor
