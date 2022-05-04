@@ -1,4 +1,4 @@
-name: Publish Docker image
+name: Publish Docker Image
 
 on:
   release:
@@ -7,7 +7,7 @@ on:
 jobs:
   push_to_registry:
     if: github.repository == 'pekrau/anubis'
-    name: Publish Docker image
+    name: Publish Docker Image
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -23,7 +23,7 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: ghcr.io/pekrau/anubis
-      - name: Push backend to Docker Hub
+      - name: Build and Publish Backend
         uses: docker/build-push-action@v2
         with:
           file: Dockerfile
