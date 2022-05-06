@@ -28,7 +28,7 @@ jobs:
       - name: Build and publish backend
         uses: docker/build-push-action@v2
         with:
-          file: Dockerfile
+          file: docker/Dockerfile-prod
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
