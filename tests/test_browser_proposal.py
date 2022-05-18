@@ -11,70 +11,30 @@ $ playwright codegen http://localhost:5002/
 """
 
 import datetime
-import json
 import urllib.parse
 
 import pytest
 import playwright.sync_api
 
+import utils
+
 
 @pytest.fixture(scope="module")
 def settings():
-    """Get the settings from
-    1) defaults
-    2) file 'settings.json' in this directory
-    """
-    result = {"BASE_URL": "http://localhost:5002"}  # Default values
-
-    try:
-        with open("settings.json", "rb") as infile:
-            result.update(json.load(infile))
-    except IOError:
-        pass
-    for key in ["BASE_URL"]:
-        if result.get(key) is None:
-            raise KeyError(f"Missing {key} value in settings.")
+    "Get the settings from the file 'settings.json' in this directory."
+    result = utils.get_settings(BASE_URL="http://localhost:5002",
+                                ADMIN_USERNAME=None,
+                                ADMIN_PASSWORD=None,
+                                USER_USERNAME=None,
+                                USER_PASSWORD=None)
     # Remove any trailing slash.
     result["BASE_URL"] = result["BASE_URL"].rstrip("/")
     return result
 
 
-def login_admin(settings, page):
-    "Login to the system as admin."
-    page.goto(settings["BASE_URL"])
-    page.click("text=Login")
-    assert page.url.split("?")[0] == f"{settings['BASE_URL']}/user/login"
-    page.click('input[name="username"]')
-    page.fill('input[name="username"]', settings["ADMIN_USERNAME"])
-    page.press('input[name="username"]', "Tab")
-    page.fill('input[name="password"]', settings["ADMIN_PASSWORD"])
-    page.click("id=login")
-    assert page.url.rstrip("/") == settings["BASE_URL"]
-
-
-def login_user(settings, page):
-    "Login to the system as ordinary user."
-    page.goto(settings["BASE_URL"])
-    page.click("text=Login")
-    assert page.url.split("?")[0] == f"{settings['BASE_URL']}/user/login"
-    page.click('input[name="username"]')
-    page.fill('input[name="username"]', settings["USER_USERNAME"])
-    page.press('input[name="username"]', "Tab")
-    page.fill('input[name="password"]', settings["USER_PASSWORD"])
-    page.click("id=login")
-    assert page.url.rstrip("/") == settings["BASE_URL"]
-
-
-def logout(settings, page, username):
-    "Logout from the current account."
-    page.goto(f"{settings['BASE_URL']}/user/display/{username}")
-    page.click("text=Logout")
-    assert page.url.rstrip("/") == settings["BASE_URL"]
-
-
 def test_create_proposal(settings, page):
     "Test login, create, delete a call, and a proposal in that call."
-    login_admin(settings, page)
+    utils.login(settings, page, admin=True)
 
     # Create a call.
     page.goto(settings["BASE_URL"])
@@ -118,8 +78,8 @@ def test_create_proposal(settings, page):
     assert page.url == f"{settings['BASE_URL']}/call/TEST"
 
     # Logout from admin user, login as ordinary user.
-    logout(settings, page, settings["ADMIN_USERNAME"])
-    login_user(settings, page)
+    utils.logout(settings, page, settings["ADMIN_USERNAME"])
+    utils.login(settings, page, admin=False)
 
     # Create a proposal.
     page.locator("a:has-text(\"Test call\")").click()
@@ -138,8 +98,8 @@ def test_create_proposal(settings, page):
     assert page.url == f"{settings['BASE_URL']}/proposal/TEST:001"
 
     # Logout from ordinary user, login as admin user.
-    logout(settings, page, settings["USER_USERNAME"])
-    login_admin(settings, page)
+    utils.logout(settings, page, settings["USER_USERNAME"])
+    utils.login(settings, page, admin=True)
 
     # Delete the proposal.
     page.locator("a:has-text(\"Test call\")").click()

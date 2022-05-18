@@ -10,29 +10,18 @@ Much of the code below was created using the playwright code generation feature:
 $ playwright codegen http://localhost:5002/
 """
 
-import json
 import urllib.parse
 
 import pytest
 import playwright.sync_api
 
+import utils
+
 
 @pytest.fixture(scope="module")
 def settings():
-    """Get the settings from
-    1) defaults
-    2) file 'settings.json' in this directory
-    """
-    result = {"BASE_URL": "http://localhost:5002"}  # Default values
-
-    try:
-        with open("settings.json", "rb") as infile:
-            result.update(json.load(infile))
-    except IOError:
-        pass
-    for key in ["BASE_URL"]:
-        if result.get(key) is None:
-            raise KeyError(f"Missing {key} value in settings.")
+    "Get the settings from the file 'settings.json' in this directory."
+    result = utils.get_settings(BASE_URL="http://localhost:5002")
     # Remove any trailing slash.
     result["BASE_URL"] = result["BASE_URL"].rstrip("/")
     return result
