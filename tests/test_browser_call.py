@@ -61,5 +61,3 @@ def test_create_call(settings, page):
     page.once("dialog", lambda dialog: dialog.accept())  # Callback for next click.
     page.click("text=Delete")
     assert page.url == f"{settings['BASE_URL']}/calls/owner/{settings['ADMIN_USERNAME']}"
-
-    # page.wait_for_timeout(3000)

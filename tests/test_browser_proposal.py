@@ -1,4 +1,4 @@
-"""Test browser call and proposal creation. Requires admin and ordinary user account.
+"""Test browser proposal creation. Requires admin and ordinary user account.
 
 After installing from PyPi using the 'requirements.txt' file, one must do:
 $ playwright install
@@ -124,4 +124,3 @@ def test_create_proposal(settings, page):
     page.once("dialog", lambda dialog: dialog.accept())  # Callback for next click.
     page.click("text=Delete")
     assert page.url == f"{settings['BASE_URL']}/calls/owner/{settings['ADMIN_USERNAME']}"
-

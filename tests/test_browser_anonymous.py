@@ -71,5 +71,3 @@ def test_documentation(settings, page):
     assert (
         page.url == f"{settings['BASE_URL']}/documentation/endpoints"
     )
-
-    # page.wait_for_timeout(3000)
