@@ -37,6 +37,7 @@ DEFAULT_SETTINGS = dict(
     MAIL_USERNAME=None,
     MAIL_PASSWORD=None,
     MAIL_DEFAULT_SENDER="anubis@your.org",  # Must be changed in settings!
+    MAIL_REPLY_TO=None,                     # Should be changed in settings.
     CALL_IDENTIFIER_MAXLENGTH=16,
     CALL_REMAINING_DANGER=1.0,
     CALL_REMAINING_WARNING=7.0,

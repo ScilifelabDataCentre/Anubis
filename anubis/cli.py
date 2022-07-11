@@ -1,9 +1,7 @@
 "Command-line interface for admin operations."
 
-import io
 import json
-import os
-import tarfile
+import os.path
 import time
 
 import click
