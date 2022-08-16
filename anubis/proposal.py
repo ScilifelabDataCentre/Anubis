@@ -83,7 +83,8 @@ def display(pid):
             access_emails.append(user["email"])
     # There may be accounts that have no email!
     access_emails = [e for e in access_emails if e]
-    all_emails = [submitter_email] + access_emails
+    if submitter_email:
+        all_emails = [submitter_email] + access_emails
     email_lists = {
         "Proposal submitter": submitter_email,
         "Persons with access to this proposal": ", ".join(access_emails),
