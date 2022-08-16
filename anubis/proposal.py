@@ -85,6 +85,8 @@ def display(pid):
     access_emails = [e for e in access_emails if e]
     if submitter_email:
         all_emails = [submitter_email] + access_emails
+    else:
+        all_emails = access_emails
     email_lists = {
         "Proposal submitter": submitter_email,
         "Persons with access to this proposal": ", ".join(access_emails),
