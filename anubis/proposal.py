@@ -197,7 +197,12 @@ def edit(pid):
                 utils.flash_error(error)
             else:
                 utils.flash_message("Proposal saved and submitted.")
-                send_submission_email(proposal)
+                try:
+                    send_email_submission(proposal)
+                except ValueError:
+                    flash_warning("No separate confirmation email sent.")
+                except KeyError:
+                    flash_error("Could not send confirmation email; misconfiguration in the Anubis setup.")
 
         elif allow_submit(proposal) and not proposal.get("submitted"):
             utils.flash_warning(
@@ -270,12 +275,20 @@ def submit(pid):
             utils.flash_error(error)
         else:
             utils.flash_message("Proposal was submitted.")
-            send_submission_email(proposal)
+            try:
+                send_email_submission(proposal)
+            except ValueError:
+                flash_warning("No separate confirmation email sent.")
+            except KeyError:
+                flash_error("Could not send confirmation email; misconfiguration in the Anubis setup.")
         return flask.redirect(flask.url_for(".display", pid=pid))
 
 
-def send_submission_email(proposal):
-    "Send an email to the owner of the proposal confirming the submission."
+def send_email_submission(proposal):
+    """Send an email to the owner of the proposal confirming the submission.
+    Raise ValueError if email server not configured.
+    Raise KeyError if email could not be sent; server misconfigured.
+    """
     user = anubis.user.get_user(username=proposal["user"])
     if not (user and user["email"]):
         return

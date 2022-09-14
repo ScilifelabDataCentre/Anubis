@@ -268,11 +268,16 @@
       Send email</label>
     <div class="col-md form-row">
       <div class="form-check form-check-inline pl-2">
+        {% if config['MAIL_SERVER'] %}
 	<input type="checkbox" name="send_email" id="send_email"
-               class="form-check-input"
-	       value="true" checked>
+               class="form-check-input" value="true" checked>
+        {% endif %}
 	<label class="form-check-label" for="send_email">
-	  Send email to the user with password-setting code and instructions
+          {% if config['MAIL_SERVER'] %}
+	  Send email to the user with password-setting code and instructions.
+          {% else %}
+          <i>Email cannot be sent automatically; email server has not been configured.</i>
+          {% endif %}
         </label>
       </div>
     </div>

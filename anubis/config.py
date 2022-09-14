@@ -31,7 +31,7 @@ DEFAULT_SETTINGS = dict(
     MIN_PASSWORD_LENGTH=6,
     PERMANENT_SESSION_LIFETIME=7 * 24 * 60 * 60,  # In seconds; 1 week.
     DOCUMENTATION_DIR=os.path.join(constants.ROOT, "documentation"),
-    MAIL_SERVER="localhost",
+    MAIL_SERVER=None,                             # e.g. "localhost" or domain name.
     MAIL_PORT=25,
     MAIL_USE_TLS=False,
     MAIL_USERNAME=None,
@@ -102,6 +102,11 @@ def init(app):
                 app.config[key] = bool(new)
             else:
                 app.config[key] = new
+
+    # Cannot enable a new user account directly if no email server configured.
+    if not app.config["MAIL_SERVER"]:
+        app.config["USER_ENABLE_IMMEDIATELY"] = False
+        app.config["USER_ENABLE_EMAIL_WHITELIST"] = []
 
     # Sanity checks. Exception means bad setup.
     if not app.config["SECRET_KEY"]:

@@ -142,7 +142,7 @@ def get_docs_view(designname, viewname, key):
 
 def login_required(f):
     """Resource endpoint decorator for checking if logged in.
-    Send to login page if not, recording the origin URL.
+    Forward to login page if not, recording the origin URL.
     """
 
     @functools.wraps(f)
@@ -712,24 +712,21 @@ def delete(doc):
 
 
 def send_email(recipients, title, text):
-    "Send an email, if enabled."
+    """Send an email.
+    Raise ValueError if email server not configured.
+    Raise KeyError if email could not be sent; server misconfigured.
+    """
+    if not flask.current_app.config["MAIL_SERVER"]:
+        raise ValueError
+    if isinstance(recipients, str):
+        recipients = [recipients]
+    message = flask_mail.Message(
+        title,
+        recipients=recipients,
+        reply_to=flask.current_app.config["MAIL_REPLY_TO"])
+    message.body = text
     try:
-        if not flask.current_app.config["MAIL_SERVER"]:
-            raise KeyError
-        if isinstance(recipients, str):
-            recipients = [recipients]
-        message = flask_mail.Message(
-            title,
-            recipients=recipients,
-            reply_to=flask.current_app.config["MAIL_REPLY_TO"])
-        message.body = text
-        try:
-            MAIL.send(message)
-        except (ConnectionRefusedError, smtplib.SMTPAuthenticationError) as error:
-            logging.error(str(error))
-            raise KeyError
-    except KeyError:
-        flash_error(
-            "Email has not been properly configured in this system."
-            " No email message was sent."
-        )
+        MAIL.send(message)
+    except (ConnectionRefusedError, smtplib.SMTPAuthenticationError) as error:
+        logging.error(str(error))
+        raise KeyError
