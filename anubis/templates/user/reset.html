@@ -9,6 +9,22 @@
       method="POST">
   {{ csrf_token() }}
 
+  {% if not config['MAIL_SERVER'] %}
+  <div class="row">
+    <div class="col-md offset-md-2 my-4">
+      <strong>
+        {% if g.am_admin %}
+        No automatic email can be sent. You must send the one-time code manually
+        to the user.
+        {% else %}
+        No automatic email can be sent. You must contact the administrator to
+        obtain the one-time code to set your password.
+        {% endif %}
+      </strong>
+    </div>
+  </div>
+  {% endif %}
+
   <div class="form-group row">
     <label for="email" class="col-md-2 col-form-label text-right">Email</label>
     <div class="col-md">

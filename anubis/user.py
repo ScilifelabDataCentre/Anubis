@@ -118,7 +118,7 @@ def register():
         # Directly enabled; send code to the user, if so instructed.
         if user["status"] == constants.ENABLED:
             if utils.to_bool(flask.request.form.get("send_email")):
-                send_password_code(user, "registered")
+                send_email_password_code(user, "registered")
                 utils.flash_message(
                     "User account created; an email with a link"
                     " to set password has been sent."
@@ -137,7 +137,12 @@ def register():
             title = f"{site} user account pending"
             url = flask.url_for(".display", username=user["username"], _external=True)
             text = f"To enable the user account, go to {url}\n\n" "/The Anubis system"
-            utils.send_email(recipients, title, text)
+            try:
+                utils.send_email(recipients, title, text)
+            except ValueError:
+                if flask.g.admin:
+                    utils.flash_warning("No email sent; email server not configured. The code must be sent manually to the user.")
+                    return flask.redirect(flask.url_for("user.display", username=user["username"]))
         if flask.g.am_admin:
             return flask.redirect(flask.url_for("user.all"))
         else:
@@ -160,16 +165,31 @@ def reset():
             if user["status"] != constants.ENABLED:
                 raise KeyError
         except KeyError:
-            pass  # Silent when no user found.
+            # Don't reveal whether the user exists or not.
+            utils.flash_message(
+                "An email has been sent, if a user account with the given email address exists."
+            )
         else:
             with UserSaver(user) as saver:
                 saver.set_password()
-            send_password_code(user, "password reset")
-        # Don't advertise whether user exists or not.
-        utils.flash_message(
-            "An email has been sent, if a user account with the given email address exists."
-        )
-        return flask.redirect(flask.url_for("home"))
+            try:
+                send_email_password_code(user, "password reset")
+                utils.flash_message(
+                    "An email has been sent, if a user account with the given email address exists."
+                )
+            except ValueError:
+                if flask.g.am_admin:
+                    utils.flash_warning("No automatic email can be sent. The code must be sent manually to the user.")
+                else:
+                    utils.flash_warning("No automatic email can be sent. The code must be obtained from the administrator.")
+            else:
+                utils.flash_message(
+                    "An email has been sent, if a user account with the given email address exists."
+                )
+        if flask.g.am_admin:
+            return flask.redirect(flask.url_for("user.display", username=user["username"]))
+        else:
+            return flask.redirect(flask.url_for("home"))
 
 
 @blueprint.route("/password", methods=["GET", "POST"])
@@ -362,7 +382,7 @@ def enable(username):
     with UserSaver(user) as saver:
         saver.set_status(constants.ENABLED)
         saver.set_password()
-    send_password_code(user, "enabled")
+    send_email_password_code(user, "enabled")
     utils.flash_message("User account enabled; email sent.")
     return flask.redirect(flask.url_for(".display", username=username))
 
@@ -644,9 +664,11 @@ def do_login(username, password):
     flask.session.permanent = True
 
 
-def send_password_code(user, action):
+def send_email_password_code(user, action):
     """Send an email with the one-time code to the user's email address.
     No action if no email address for user.
+    Raise ValueError if email server not configured.
+    Raise KeyError if email could not be sent; server misconfigured.
     """
     if not user["email"]:
         return
