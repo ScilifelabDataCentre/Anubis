@@ -57,6 +57,8 @@ reviews are done.
 - The content (input fields) of the reviews are set for the call by the admin.
 - The reviews of a call have a **due** date, before which all reviews must
   have been finalized by the reviewers.
+- There may be a chair designated for a call. This is a reviewer
+  heading the reviewer group. He or she has additional privileges.
 
 ### Reviewer privileges
 
@@ -64,5 +66,6 @@ reviews are done.
 - The reviewer can edit her review instance.
 - The reviewers cannot create or delete review instances.
 - The chair, if any, of a call may create review instances.
+- The chair, if any, may view all reviews.
 - A reviewer may view finalized reviews by other reviewers only if the
   admin allows it for the call.

@@ -141,8 +141,12 @@ def register():
                 utils.send_email(recipients, title, text)
             except ValueError:
                 if flask.g.admin:
-                    utils.flash_warning("No email sent; email server not configured. The code must be sent manually to the user.")
-                    return flask.redirect(flask.url_for("user.display", username=user["username"]))
+                    utils.flash_warning(
+                        "No email sent; email server not configured. The code must be sent manually to the user."
+                    )
+                    return flask.redirect(
+                        flask.url_for("user.display", username=user["username"])
+                    )
         if flask.g.am_admin:
             return flask.redirect(flask.url_for("user.all"))
         else:
@@ -179,15 +183,21 @@ def reset():
                 )
             except ValueError:
                 if flask.g.am_admin:
-                    utils.flash_warning("No automatic email can be sent. The code must be sent manually to the user.")
+                    utils.flash_warning(
+                        "No automatic email can be sent. The code must be sent manually to the user."
+                    )
                 else:
-                    utils.flash_warning("No automatic email can be sent. The code must be obtained from the administrator.")
+                    utils.flash_warning(
+                        "No automatic email can be sent. The code must be obtained from the administrator."
+                    )
             else:
                 utils.flash_message(
                     "An email has been sent, if a user account with the given email address exists."
                 )
         if flask.g.am_admin:
-            return flask.redirect(flask.url_for("user.display", username=user["username"]))
+            return flask.redirect(
+                flask.url_for("user.display", username=user["username"])
+            )
         else:
             return flask.redirect(flask.url_for("home"))
 
