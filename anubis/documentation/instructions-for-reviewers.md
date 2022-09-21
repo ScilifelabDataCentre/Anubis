@@ -8,6 +8,25 @@ The number of your unfinalized reviews is displayed on a yellow
 background in the top menu. If there is no such yellow marker, your
 reviews are done.
 
+#### How to get the proposals
+
+- As a reviewer, you have access to all submitted proposals in the call.
+- Depending on the policy for the call, you should read all or only
+  some of the proposals.
+- To download all proposals and their attached files, go to the call page. In the
+  right-hand upper corner, there are two small black buttons:
+  1. "Submitted proposals Excel file", which allows you to download
+     the information in all submitted proposals in Excel format. This
+     does not contain the files attached to proposals, if any.
+  2. "Submitted proposals zip file", which contains the above Excel
+     file, **and** all files attached to the proposals. The naming of
+     the files indicates which one belongs to which proposal.
+- It is also possible to browse the proposals in a list display by
+  clicking the blue button by the item "All proposals" on the call
+  page.
+
+#### How to fill in your reviews
+
 1. Click on the item "My reviews" in the top menu.
    - The list of all reviews for your user account are shown in a table,
      which can be sorted by any column.
@@ -25,14 +44,16 @@ reviews are done.
 6. Before the **due** date, ensure that all your reviews have been
    finalized.
 
-### Basic reviewer information
+### Reviewer: Basic information
 
 - A user account is set as a reviewer for a specific call by the admin
   of the Anubis system.
 - The admin also creates the review instances for the proposals for
-  each reviewer.
+  each reviewer. A reviewer cannot create the review instances, only the admin
+  can do this.
 - Depending on the policy for the call, a reviewer may have to write a
-  review for all or only some proposals.
+  review for all or only some proposals. The admin handles this by creating those
+  review instances that the reviewer should fill in.
 - The content (input fields) of the reviews are set for the call by the admin.
 - The reviews of a call have a **due** date, before which all reviews must
   have been finalized by the reviewers.

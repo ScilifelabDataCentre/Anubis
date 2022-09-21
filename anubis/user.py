@@ -178,7 +178,10 @@ def reset():
                     "An email has been sent, if a user account with the given email address exists."
                 )
             except ValueError:
-                utils.flash_warning("No automatic email can be sent. The code must be obtained from the administrator.")
+                if flask.g.am_admin:
+                    utils.flash_warning("No automatic email can be sent. The code must be sent manually to the user.")
+                else:
+                    utils.flash_warning("No automatic email can be sent. The code must be obtained from the administrator.")
             else:
                 utils.flash_message(
                     "An email has been sent, if a user account with the given email address exists."

@@ -13,8 +13,13 @@
   <div class="row">
     <div class="col-md offset-md-2 my-4">
       <strong>
+        {% if g.am_admin %}
+        No automatic email can be sent. You must send the one-time code manually
+        to the user.
+        {% else %}
         No automatic email can be sent. You must contact the administrator to
         obtain the one-time code to set your password.
+        {% endif %}
       </strong>
     </div>
   </div>
