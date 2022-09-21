@@ -721,9 +721,8 @@ def send_email(recipients, title, text):
     if isinstance(recipients, str):
         recipients = [recipients]
     message = flask_mail.Message(
-        title,
-        recipients=recipients,
-        reply_to=flask.current_app.config["MAIL_REPLY_TO"])
+        title, recipients=recipients, reply_to=flask.current_app.config["MAIL_REPLY_TO"]
+    )
     message.body = text
     try:
         MAIL.send(message)
