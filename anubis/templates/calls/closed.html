@@ -12,6 +12,7 @@
       <th>Call title</th>
       <th>Closed</th>
       {% if g.current_user %}
+      <th>Reviews due</th>
       <th>Proposals</th>
       <th>Reviews</a>
       <th>Grants</a>
@@ -26,6 +27,7 @@
       <td>{{ call.get('title') or '[No title]' }}</td>
       <td class="text-nowrap pl-2">{{ call['closes'] | display_datetime_local_server }}</td>
       {% if g.current_user %}
+      <td class="text-nowrap pl-2">{{ call['reviews_due'] | display_datetime_local_server }}</td>
       <td>{{ call | call_proposals_link }}</td>
       <td>{{ call | call_reviews_link }}</td>
       <td>{{ call | call_grants_link }}</td>
