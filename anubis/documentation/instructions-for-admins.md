@@ -37,5 +37,7 @@ web interface.
 
 ### Proposal handling
 
-- The admin is allowed to edit and submit user's proposals. Of course,
-  this should be done only in special circumstances.
+- The admin is allowed to edit and submit any user's proposals. This
+  can be done even when the call for the proposal has been closed. Of
+  course, this should be done only in special circumstances.
+- The admin is allowed to change the ownership of a proposal.

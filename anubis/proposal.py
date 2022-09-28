@@ -200,9 +200,9 @@ def edit(pid):
                 try:
                     send_email_submission(proposal)
                 except ValueError:
-                    flash_warning("No separate confirmation email sent.")
+                    utils.flash_warning("No separate confirmation email sent.")
                 except KeyError:
-                    flash_error(
+                    utils.flash_error(
                         "Could not send confirmation email; misconfiguration in the Anubis setup."
                     )
 
@@ -280,9 +280,9 @@ def submit(pid):
             try:
                 send_email_submission(proposal)
             except ValueError:
-                flash_warning("No separate confirmation email sent.")
+                utils.flash_warning("No separate confirmation email sent.")
             except KeyError:
-                flash_error(
+                utils.flash_error(
                     "Could not send confirmation email; misconfiguration in the Anubis setup."
                 )
         return flask.redirect(flask.url_for(".display", pid=pid))
