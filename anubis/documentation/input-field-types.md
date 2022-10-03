@@ -10,8 +10,10 @@ of information they can store.
 
 All input fields for proposals, etc, can be changed by the call owner,
 even when the call has been published. This must be done with care,
-since changing a field may invalidate e.g. a proposal that previously
-was valid and complete.
+since changing a field may invalidate a proposal, etc, that previously
+was valid and complete, although the Anubis system should be able to
+tolerate this.  The data for fields that are removed or modified may
+become unreachable.
 
 ### Available input field types
 

@@ -409,6 +409,8 @@ def get_reviewer_review(proposal, reviewer=None):
 
 def allow_create(proposal):
     "The admin, call owner and chair may create a review for a submitted proposal."
+    if flask.g.readonly:
+        return False
     if not proposal.get("submitted"):
         return False
     if not flask.g.current_user:
@@ -449,6 +451,8 @@ def allow_view(review):
 
 def allow_edit(review):
     "The admin, call owner and reviewer may edit an unfinalized review."
+    if flask.g.readonly:
+        return False
     if review.get("finalized"):
         return False
     if review.get("archived"):
@@ -467,6 +471,8 @@ def allow_edit(review):
 
 def allow_delete(review):
     "The admin and call owner may delete a review."
+    if flask.g.readonly:
+        return False
     if not flask.g.current_user:
         return False
     if flask.g.am_admin:
@@ -479,6 +485,8 @@ def allow_delete(review):
 
 def allow_finalize(review):
     "The admin, call owner and reviewer may finalize if it contains no errors."
+    if flask.g.readonly:
+        return False
     if review.get("finalized"):
         return False
     if review.get("archived"):
@@ -501,6 +509,8 @@ def allow_unfinalize(review):
     """The admin and call owner may always unfinalize.
     Reviewer may unfinalize the review before reviews due date.
     """
+    if flask.g.readonly:
+        return False
     if not review.get("finalized"):
         return False
     if review.get("archived"):

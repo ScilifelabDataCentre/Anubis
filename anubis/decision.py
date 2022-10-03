@@ -284,6 +284,8 @@ def get_decision(iuid):
 
 def allow_create(proposal):
     "Admin and chair may create a decision for a submitted proposal."
+    if flask.g.readonly:
+        return False
     if not flask.g.current_user:
         return False
     if not proposal.get("submitted"):
@@ -343,6 +345,8 @@ def allow_link(decision):
 
 def allow_edit(decision):
     "Admin and chair may edit an unfinalized decision."
+    if flask.g.readonly:
+        return False
     if not flask.g.current_user:
         return False
     if decision.get("finalized"):
@@ -359,6 +363,8 @@ def allow_edit(decision):
 
 def allow_delete(decision):
     "Admin may delete an unfinalized decision."
+    if flask.g.readonly:
+        return False
     if decision.get("finalized"):
         return False
     return flask.g.am_admin
@@ -366,6 +372,8 @@ def allow_delete(decision):
 
 def allow_finalize(decision):
     "Admin and chair may finalize if the decision contains no errors."
+    if flask.g.readonly:
+        return False
     if not flask.g.current_user:
         return False
     if decision.get("finalized"):
@@ -386,6 +394,8 @@ def allow_finalize(decision):
 
 def allow_unfinalize(decision):
     "Admin and chair may unfinalize the decision."
+    if flask.g.readonly:
+        return False
     if not flask.g.current_user:
         return False
     if not decision.get("finalized"):

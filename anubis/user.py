@@ -741,6 +741,8 @@ def allow_edit(user):
     """Is the current user allowed to edit the user account?
     Yes, if current user is admin or self.
     """
+    if flask.g.readonly:
+        return False
     if not flask.g.current_user:
         return False
     if flask.g.am_admin:
@@ -756,6 +758,8 @@ def allow_delete(user):
     and is not reviewer in any call.
     Note that the user herself may be able to delete the account.
     """
+    if flask.g.readonly:
+        return False
     if user["role"] == constants.ADMIN:
         return False
     if utils.get_count("proposals", "user", user["username"]):
@@ -771,6 +775,8 @@ def allow_enable_disable(user):
     """Is the current user allowed to enable or disable the user account?
     Yes, if current user is admin an not self.
     """
+    if flask.g.readonly:
+        return False
     if flask.g.am_admin and flask.g.current_user["username"] != user["username"]:
         return True
     return False
@@ -780,6 +786,8 @@ def allow_change_role(user):
     """Is the current user allowed to change the role of the user account?
     Yes, if current user is admin an not self.
     """
+    if flask.g.readonly:
+        return False
     if flask.g.am_admin and flask.g.current_user["username"] != user["username"]:
         return True
     return False

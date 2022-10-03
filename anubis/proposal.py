@@ -696,6 +696,8 @@ def allow_create(call):
     create a proposal.
     Others may create a proposal only if the call is open and not closed.
     """
+    if flask.g.readonly:
+        return False
     if not flask.g.current_user:
         return False
     if flask.g.am_admin or flask.g.am_staff:
@@ -742,6 +744,8 @@ def allow_edit(proposal):
     The user may edit if not submitted.
     A user set to have edit access may edit it if not submitted.
     """
+    if flask.g.readonly:
+        return False
     if not flask.g.current_user:
         return False
     if flask.g.am_admin:
@@ -762,6 +766,8 @@ def allow_delete(proposal):
     """The admin, and call owner may delete the proposal.
     The user may delete if not submitted.
     """
+    if flask.g.readonly:
+        return False
     if not flask.g.current_user:
         return False
     if flask.g.am_admin:
@@ -781,6 +787,8 @@ def allow_submit(proposal):
     The admin and owner of the call may submit/unsubmit the proposal.
     The user may submit/unsubmit the proposal if the call is open.
     """
+    if flask.g.readonly:
+        return False
     if not flask.g.current_user:
         return False
     if proposal["errors"]:
@@ -797,6 +805,8 @@ def allow_submit(proposal):
 
 def allow_transfer(proposal):
     "The admin and staff may transfer ownership of a proposal."
+    if flask.g.readonly:
+        return False
     if not flask.g.current_user:
         return False
     if flask.g.am_admin:

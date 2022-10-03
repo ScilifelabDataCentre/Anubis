@@ -20,6 +20,7 @@ DEFAULT_SETTINGS = dict(
     HOST_LOGO=None,  # Name of file in 'SITE_STATIC_DIR'.
     HOST_NAME=None,
     HOST_URL=None,
+    READONLY=False,   # Site will be readonly if set to a string message.
     SECRET_KEY=None,  # Must be set in 'settings.json'.
     SALT_LENGTH=12,
     COUCHDB_URL="http://127.0.0.1:5984/",

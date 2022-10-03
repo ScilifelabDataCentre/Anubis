@@ -156,6 +156,11 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-md-10">
+          {% if g.readonly and g.current_user %}
+          <div class="alert alert-danger mt-2" role="alert">
+            <strong>This service is currently read-only:</strong> {{ g.readonly }}
+          </div>
+          {% endif %}
           <h2 class="mt-2 mb-3">{% block body_title %}{{ config['SITE_NAME'] }}{% endblock %}</h2>
           {% for msg in get_flashed_messages(category_filter=['error']) %}
           <div class="alert alert-danger" role="alert">
