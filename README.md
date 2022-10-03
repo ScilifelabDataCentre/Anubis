@@ -15,7 +15,7 @@ reviews, decisions and grant dossiers. It allows:
 
 For more information, see the documentation pages at the reference instance
 at [SciLifeLab Anubis](https://anubis.scilifelab.se/). The source for the pages
-is [here (Markdown format)](/pekrau/Anubis/tree/master/anubis/documentation).
+is [here (Markdown format)](https://github.com/pekrau/Anubis/tree/master/anubis/documentation).
 
 Some of the steps in a typical worflow are illustrated in the screenshots in the
 [PowerPoint presentation](https://github.com/pekrau/Anubis/raw/master/Anubis-common-actions.pptx).
