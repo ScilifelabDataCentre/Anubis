@@ -156,7 +156,7 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-md-10">
-          {% if g.readonly %}
+          {% if g.readonly and g.current_user %}
           <div class="alert alert-danger mt-2" role="alert">
             <strong>This service is currently read-only:</strong> {{ g.readonly }}
           </div>
