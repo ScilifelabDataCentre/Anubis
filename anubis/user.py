@@ -543,11 +543,11 @@ def create_first_admin():
     if not (
         config["ADMIN_USERNAME"] and config["ADMIN_EMAIL"] and config["ADMIN_PASSWORD"]
     ):
-        flask.current_app.logger.info("ADMIN account not specified in settings.")
+        flask.current_app.logger.info("ADMIN account not specified in settings (ADMIN_USERNAME, ADMIN_EMAIL, ADMIN_PASSWORD)")
         return
     if get_user(username=config["ADMIN_USERNAME"]):
         flask.current_app.logger.info(
-            f"Admin user '{config['ADMIN_USERNAME']}'" " exists already."
+            f"Admin user '{config['ADMIN_USERNAME']}'" " exists already; not created"
         )
         return
     try:

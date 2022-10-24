@@ -5,6 +5,7 @@ import os.path
 import time
 
 import click
+import couchdb2
 import flask
 
 import anubis.app
@@ -21,6 +22,38 @@ from anubis import utils
 def cli():
     "Command line interface for operations on the Anubis database."
     pass
+
+
+@cli.command()
+def destroy_database():
+    "Hard delete of the entire database, including the instance within CouchDB."
+    server = couchdb2.Server(
+        href=anubis.app.app.config["COUCHDB_URL"],
+        username=anubis.app.app.config["COUCHDB_USERNAME"],
+        password=anubis.app.app.config["COUCHDB_PASSWORD"],
+    )
+    try:
+        db = server[anubis.app.app.config["COUCHDB_DBNAME"]]
+    except couchdb2.NotFoundError as error:
+        raise click.ClickException(str(error))
+    db.destroy()
+    click.echo(f"""Destroyed database '{anubis.app.app.config["COUCHDB_DBNAME"]}'.""")
+
+
+@cli.command()
+def create_database():
+    "Create the database within CouchDB. It is *not* initialized!"
+    server = couchdb2.Server(
+        href=anubis.app.app.config["COUCHDB_URL"],
+        username=anubis.app.app.config["COUCHDB_USERNAME"],
+        password=anubis.app.app.config["COUCHDB_PASSWORD"],
+    )
+    if anubis.app.app.config["COUCHDB_DBNAME"] in server:
+        raise click.ClickException(
+            f"""Database '{anubis.app.app.config["COUCHDB_DBNAME"]}' already exists."""
+        )
+    server.create(anubis.app.app.config["COUCHDB_DBNAME"])
+    click.echo(f"""Created database '{anubis.app.app.config["COUCHDB_DBNAME"]}'.""")
 
 
 @cli.command()
