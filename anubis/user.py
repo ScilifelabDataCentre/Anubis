@@ -465,8 +465,23 @@ class UserSaver(BaseSaver):
             self.doc["email"] = None
 
     def set_orcid(self, orcid):
-        "Set the ORCID of the account. Currently no validity check."
-        self.doc["orcid"] = orcid
+        "Set the ORCID of the account."
+        if orcid:
+            if len(orcid) == 16: # Add in dashes.
+                orcid = f"{orcid[0:4]}-{orcid[4:8]}-{orcid[8:12]}-{orcid[12:16]}"
+            if len(orcid) != 19 or not (orcid[4] == "-" and orcid[9] == "-" and orcid[14] == "-"):
+                raise ValueError("Invalid ORCID format; length is wrong, or dashes in the wrong places.")
+            # Compute checksum according to https://support.orcid.org/hc/en-us/articles/360006897674-Structure-of-the-ORCID-Identifier
+            total = 0
+            for c in orcid[:-1]:
+                if c == "-": continue
+                digit = int(c)
+                total = (total + digit) * 2
+            remainder = total % 11
+            result = (12 - remainder) % 11
+            if not ((result == 10 and orcid[-1] == "X") or (result == int(orcid[-1]))):
+                raise ValueError("Invalid ORCID; checksum is wrong.")
+        self.doc["orcid"] = orcid or None
 
     def set_status(self, status):
         if status not in constants.USER_STATUSES:
