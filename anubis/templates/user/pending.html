@@ -10,6 +10,7 @@
     <tr>
       <th>Username</th>
       <th>Email</th>
+      <th>ORCID</th>
       <th>Given name</th>
       <th>Family name</th>
       <th>Affiliation</th>
@@ -21,6 +22,7 @@
     <tr>
       <td>{{ user | user_link(fullname=False) }}</td>
       <td>{{ user['email'] | display_value }}</td>
+      <td>{{ user.get('orcid') | display_value }}</td>
       <td>{{ user.get('givenname') | display_value }}</td>
       <td>{{ user.get('familyname') | display_value }}</td>
       <td>{{ user.get('affiliation') | display_value }}</td>

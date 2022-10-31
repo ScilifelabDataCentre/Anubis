@@ -31,6 +31,9 @@ DESIGN_DOC = {
         "email": {
             "map": "function(doc) {if (doc.doctype !== 'user' || !doc.email) return; emit(doc.email, null);}"
         },
+        "orcid": {
+            "map": "function(doc) {if (doc.doctype !== 'user' || !doc.orcid) return; emit(doc.orcid, null);}"
+        },
         "role": {
             "map": "function(doc) {if (doc.doctype !== 'user') return; emit(doc.role, doc.username);}"
         },
@@ -96,6 +99,7 @@ def register():
             with UserSaver() as saver:
                 saver.set_username(flask.request.form.get("username"))
                 saver.set_email(flask.request.form.get("email"))
+                saver.set_orcid(flask.request.form.get("orcid"))
                 if utils.to_bool(flask.request.form.get("enable")):
                     saver.set_status(constants.ENABLED)
                 saver.set_role(constants.USER)
@@ -298,6 +302,7 @@ def edit(username):
                 if flask.g.am_admin:
                     email = flask.request.form.get("email")
                     saver.set_email(email, require=bool(email))
+                saver.set_orcid(flask.request.form.get("orcid"))
                 if allow_change_role(user):
                     saver.set_role(flask.request.form.get("role"))
                     saver.set_call_creator(
@@ -458,6 +463,10 @@ class UserSaver(BaseSaver):
             raise ValueError("No email address provided.")
         else:
             self.doc["email"] = None
+
+    def set_orcid(self, orcid):
+        "Set the ORCID of the account. Currently no validity check."
+        self.doc["orcid"] = orcid
 
     def set_status(self, status):
         if status not in constants.USER_STATUSES:
