@@ -66,7 +66,7 @@ def login():
             )
         except ValueError:
             return utils.error(
-                "Invalid user or password, or account disabled.",
+                "Invalid username/email or password, or account disabled.",
                 url=flask.url_for(".login"),
             )
         try:
@@ -687,7 +687,9 @@ def do_login(username, password):
         raise ValueError
     user = get_user(username=username)
     if not user:
-        raise ValueError
+        user = get_user(email=username)
+        if not user:
+            raise ValueError
     if not werkzeug.security.check_password_hash(user["password"], password):
         raise ValueError
     if user["status"] != constants.ENABLED:
