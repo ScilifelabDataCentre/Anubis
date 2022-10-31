@@ -21,6 +21,7 @@ DEFAULT_SETTINGS = dict(
     HOST_NAME=None,
     HOST_URL=None,
     READONLY=False,   # Site will be readonly if set to a string message.
+    ALERT=None,       # Alert text displayed on all pages.
     SECRET_KEY=None,  # Must be set in 'settings.json'.
     SALT_LENGTH=12,
     COUCHDB_URL="http://127.0.0.1:5984/",

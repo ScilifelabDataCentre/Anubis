@@ -161,6 +161,11 @@
             <strong>This service is currently read-only:</strong> {{ g.readonly }}
           </div>
           {% endif %}
+          {% if g.alert %}
+          <div class="alert alert-warning mt-2" role="alert">
+            {{ g.alert }}
+          </div>
+          {% endif %}
           <h2 class="mt-2 mb-3">{% block body_title %}{{ config['SITE_NAME'] }}{% endblock %}</h2>
           {% for msg in get_flashed_messages(category_filter=['error']) %}
           <div class="alert alert-danger" role="alert">
