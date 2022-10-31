@@ -88,6 +88,11 @@ User {{ user['username'] }}
   </tr>
 
   <tr>
+    <th class="text-right">ORCID</th>
+    <td>{{ user.get('orcid') | display_value }}</td>
+  </tr>
+
+  <tr>
     <th class="text-right">Status</th>
     <td>{{ user['status'] }}</td>
   </tr>

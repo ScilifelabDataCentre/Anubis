@@ -17,6 +17,7 @@
           {% if g.am_admin %}
           <input type="email" id="email" name="email"
                  class="form-control"
+                 aria-describedby="emailHelp"
                  value="{{ user['email'] | display_value('') }}">
           {% else %}
           <input type="email" readonly
@@ -28,6 +29,23 @@
       </div>
       <small id="emailHelp" class="form-text text-muted">
 	Only the admin of the site may change the email address of a user.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label for="orcid" class="col-md-2 col-form-label text-right">ORCID</label>
+    <div class="col-md">
+      <div class="row">
+        <div class="col-md-4">
+          <input type="orcid" id="orcid" name="orcid"
+                 class="form-control"
+                 aria-describedby="orcidHelp"
+                 value="{{ user.get('orcid') | display_value('') }}">
+        </div>
+      </div>
+      <small id="orcidHelp" class="form-text text-muted">
+        The ORCID of the user; see <a href="https://orcid.org/" target="_blank">the ORCID website</a>.
       </small>
     </div>
   </div>

@@ -13,6 +13,7 @@
       <th>Reviews</th>
       <th>Grants</th>
       <th>Email</th>
+      <th>ORCID</th>
       <th>Given name</th>
       <th>Family name</th>
       <th>Affiliation</th>
@@ -57,6 +58,7 @@
         {% endif %}
       </td>
       <td>{{ user['email'] | display_value }}</td>
+      <td>{{ user.get('orcid') | display_value }}</td>
       <td>{{ user.get('givenname') | display_value }}</td>
       <td>{{ user.get('familyname') | display_value }}</td>
       <td>{{ user.get('affiliation') | display_value }}</td>
@@ -90,7 +92,7 @@
     $("#users").DataTable( {
       pagingType: "full_numbers",
       pageLength: 25,
-      order: [[10, "desc"]]
+      order: [[11, "desc"]]
     });
   });
 </script>

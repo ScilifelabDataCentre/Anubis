@@ -31,6 +31,9 @@ DESIGN_DOC = {
         "email": {
             "map": "function(doc) {if (doc.doctype !== 'user' || !doc.email) return; emit(doc.email, null);}"
         },
+        "orcid": {
+            "map": "function(doc) {if (doc.doctype !== 'user' || !doc.orcid) return; emit(doc.orcid, null);}"
+        },
         "role": {
             "map": "function(doc) {if (doc.doctype !== 'user') return; emit(doc.role, doc.username);}"
         },
@@ -63,7 +66,7 @@ def login():
             )
         except ValueError:
             return utils.error(
-                "Invalid user or password, or account disabled.",
+                "Invalid username/email or password, or account disabled.",
                 url=flask.url_for(".login"),
             )
         try:
@@ -96,6 +99,7 @@ def register():
             with UserSaver() as saver:
                 saver.set_username(flask.request.form.get("username"))
                 saver.set_email(flask.request.form.get("email"))
+                saver.set_orcid(flask.request.form.get("orcid"))
                 if utils.to_bool(flask.request.form.get("enable")):
                     saver.set_status(constants.ENABLED)
                 saver.set_role(constants.USER)
@@ -298,6 +302,7 @@ def edit(username):
                 if flask.g.am_admin:
                     email = flask.request.form.get("email")
                     saver.set_email(email, require=bool(email))
+                saver.set_orcid(flask.request.form.get("orcid"))
                 if allow_change_role(user):
                     saver.set_role(flask.request.form.get("role"))
                     saver.set_call_creator(
@@ -458,6 +463,25 @@ class UserSaver(BaseSaver):
             raise ValueError("No email address provided.")
         else:
             self.doc["email"] = None
+
+    def set_orcid(self, orcid):
+        "Set the ORCID of the account."
+        if orcid:
+            if len(orcid) == 16: # Add in dashes.
+                orcid = f"{orcid[0:4]}-{orcid[4:8]}-{orcid[8:12]}-{orcid[12:16]}"
+            if len(orcid) != 19 or not (orcid[4] == "-" and orcid[9] == "-" and orcid[14] == "-"):
+                raise ValueError("Invalid ORCID format; length is wrong, or dashes in the wrong places.")
+            # Compute checksum according to https://support.orcid.org/hc/en-us/articles/360006897674-Structure-of-the-ORCID-Identifier
+            total = 0
+            for c in orcid[:-1]:
+                if c == "-": continue
+                digit = int(c)
+                total = (total + digit) * 2
+            remainder = total % 11
+            result = (12 - remainder) % 11
+            if not ((result == 10 and orcid[-1] == "X") or (result == int(orcid[-1]))):
+                raise ValueError("Invalid ORCID; checksum is wrong.")
+        self.doc["orcid"] = orcid or None
 
     def set_status(self, status):
         if status not in constants.USER_STATUSES:
@@ -663,7 +687,9 @@ def do_login(username, password):
         raise ValueError
     user = get_user(username=username)
     if not user:
-        raise ValueError
+        user = get_user(email=username)
+        if not user:
+            raise ValueError
     if not werkzeug.security.check_password_hash(user["password"], password):
         raise ValueError
     if user["status"] != constants.ENABLED:
