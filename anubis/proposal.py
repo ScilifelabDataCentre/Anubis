@@ -25,9 +25,8 @@ from anubis import utils
 from anubis.saver import AttachmentSaver, FieldMixin, AccessMixin
 
 
-def init(app):
-    "Initialize; update CouchDB design documents."
-    db = utils.get_db(app=app)
+def load_design_document(app, db):
+    "Load the CouchDB design document."
     if db.put_design("proposals", DESIGN_DOC):
         app.logger.info("Updated proposals design document.")
 

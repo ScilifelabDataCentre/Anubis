@@ -15,9 +15,8 @@ from anubis import utils
 from anubis.saver import BaseSaver
 
 
-def init(app):
-    "Initialize; update CouchDB design documents."
-    db = utils.get_db(app=app)
+def load_design_document(app, db):
+    "Load the CouchDB design document."
     if db.put_design("users", DESIGN_DOC):
         app.logger.info("Updated users design document.")
 
@@ -555,37 +554,6 @@ class UserSaver(BaseSaver):
 
     def set_last_login(self):
         self.doc["last_login"] = utils.get_time()
-
-
-def create_first_admin():
-    """Check if an admin user is specified by settings.
-    If it is, and it has not been created, create it.
-    Called by 'app' before first request.
-    """
-    flask.g.db = utils.get_db()
-    config = flask.current_app.config
-    if not (
-        config["ADMIN_USERNAME"] and config["ADMIN_EMAIL"] and config["ADMIN_PASSWORD"]
-    ):
-        flask.current_app.logger.info("ADMIN account not specified in settings (ADMIN_USERNAME, ADMIN_EMAIL, ADMIN_PASSWORD)")
-        return
-    if get_user(username=config["ADMIN_USERNAME"]):
-        flask.current_app.logger.info(
-            f"Admin user '{config['ADMIN_USERNAME']}'" " exists already; not created"
-        )
-        return
-    try:
-        with UserSaver() as saver:
-            saver.set_username(config["ADMIN_USERNAME"])
-            saver.set_email(config["ADMIN_EMAIL"])
-            saver.set_password(config["ADMIN_PASSWORD"])
-            saver.set_role(constants.ADMIN)
-            saver.set_status(constants.ENABLED)
-        flask.current_app.logger.info(
-            f"Admin user '{config['ADMIN_USERNAME']}' created."
-        )
-    except ValueError as error:
-        flask.current_app.logger.info("Could not create admin user; misconfiguration.")
 
 
 def get_user(username=None, email=None):
