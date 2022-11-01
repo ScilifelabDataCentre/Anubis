@@ -23,10 +23,7 @@ MAIL = flask_mail.Mail()
 
 
 def init(app):
-    """Initialize.
-    - Add template filters.
-    - Update CouchDB design documents.
-    """
+    "Initialize: Setup email, add template filters."
     MAIL.init_app(app)
     app.add_template_filter(display_markdown)
     app.add_template_filter(display_field_value)
@@ -42,8 +39,27 @@ def init(app):
     app.add_template_filter(review_link)
     app.add_template_filter(decision_link)
     app.add_template_filter(grant_link)
-    if get_db(app=app).put_design("logs", DESIGN_DOC):
+
+
+def load_design_documents(app):
+    "Load all CouchDB design documents."
+    import anubis.call
+    import anubis.proposal
+    import anubis.review
+    import anubis.decision
+    import anubis.grant
+    import anubis.user
+    import anubis.doc
+
+    db = get_db(app=app)
+    if db.put_design("logs", DESIGN_DOC):
         app.logger.info("Updated logs design document.")
+    anubis.call.load_design_document(app, db)
+    anubis.proposal.load_design_document(app, db)
+    anubis.review.load_design_document(app, db)
+    anubis.decision.load_design_document(app, db)
+    anubis.grant.load_design_document(app, db)
+    anubis.user.load_design_document(app, db)
 
 
 DESIGN_DOC = {
@@ -53,12 +69,6 @@ DESIGN_DOC = {
         }
     }
 }
-
-
-def set_db(app=None):
-    "Sets the database connection and creates the document cache."
-    flask.g.db = get_db(app=app)
-    flask.g.cache = {}  # key: id, value: doc.
 
 
 def get_db(app=None):
@@ -71,6 +81,12 @@ def get_db(app=None):
         password=app.config["COUCHDB_PASSWORD"],
     )
     return server[app.config["COUCHDB_DBNAME"]]
+
+
+def set_db(app=None):
+    "Sets the database connection and creates the document cache."
+    flask.g.db = get_db(app=app)
+    flask.g.cache = {}  # key: id, value: doc.
 
 
 def get_count(designname, viewname, key=None):

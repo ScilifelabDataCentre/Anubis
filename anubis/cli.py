@@ -53,6 +53,7 @@ def create_database():
             f"""Database '{anubis.app.app.config["COUCHDB_DBNAME"]}' already exists."""
         )
     server.create(anubis.app.app.config["COUCHDB_DBNAME"])
+    utils.load_design_documents(anubis.app.app)
     click.echo(f"""Created database '{anubis.app.app.config["COUCHDB_DBNAME"]}'.""")
 
 
@@ -218,6 +219,7 @@ def undump(dumpfile, progressbar):
                 f"The database '{anubis.app.app.config['COUCHDB_DBNAME']}'"
                 " is not empty."
             )
+        
         ndocs, nfiles = flask.g.db.undump(dumpfile, progressbar=progressbar)
         click.echo(f"Loaded {ndocs} documents and {nfiles} files.")
 

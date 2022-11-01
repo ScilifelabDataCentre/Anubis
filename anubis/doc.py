@@ -16,6 +16,17 @@ DOCUMENTATION = {}
 blueprint = flask.Blueprint("documentation", __name__)
 
 
+def init(app):
+    "Initialize; read the documentation files."
+    docs = []
+    for filename in os.listdir(app.config["DOCUMENTATION_DIR"]):
+        if not filename.endswith(".md"):
+            continue
+        docs.append(Documentation(app.config["DOCUMENTATION_DIR"], filename))
+    docs.sort(key=lambda d: d.ordinal)
+    DOCUMENTATION.update(dict([(d.slug, d) for d in docs]))
+
+
 @blueprint.route("/endpoints")
 def endpoints():
     "Display all URL endpoints."
@@ -55,17 +66,6 @@ def page(page):
     return flask.render_template(
         "documentation.html", doc=doc, docs=DOCUMENTATION.values()
     )
-
-
-def init(app):
-    "Initialize; read the documentation files."
-    docs = []
-    for filename in os.listdir(app.config["DOCUMENTATION_DIR"]):
-        if not filename.endswith(".md"):
-            continue
-        docs.append(Documentation(app.config["DOCUMENTATION_DIR"], filename))
-    docs.sort(key=lambda d: d.ordinal)
-    DOCUMENTATION.update(dict([(d.slug, d) for d in docs]))
 
 
 class Documentation:

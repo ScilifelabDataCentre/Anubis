@@ -23,17 +23,8 @@ from anubis import utils
 
 app = flask.Flask(__name__)
 
-# Get the configuration and initialize modules.
+# Get the configuration.
 anubis.config.init(app)
-utils.init(app)
-anubis.call.init(app)
-anubis.proposal.init(app)
-anubis.review.init(app)
-anubis.decision.init(app)
-anubis.grant.init(app)
-anubis.user.init(app)
-anubis.doc.init(app)
-
 app.url_map.converters["iuid"] = utils.IuidConverter
 app.jinja_env.add_extension("jinja2.ext.loopcontrols")
 if app.config["REVERSE_PROXY"]:
@@ -64,9 +55,12 @@ def setup_template_context():
 
 @app.before_first_request
 def initialize():
-    "Initialization before handling first request."
-    utils.set_db()
-    anubis.user.create_first_admin()
+    "Initialization before handling first request. Load the design documents."
+    app = flask.current_app
+    utils.init(app)
+    utils.load_design_documents(app)
+    anubis.doc.init(app)
+    utils.set_db(app)
 
 
 @app.before_request
