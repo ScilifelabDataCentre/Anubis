@@ -198,7 +198,7 @@ def dump(dumpfile, dumpdir, progressbar):
         if not dumpfile:
             dumpfile = "dump_{0}.tar.gz".format(time.strftime("%Y-%m-%d"))
             if dumpdir:
-                filepath = os.path.join(dumpdir, dumpfile)
+                dumpfile = os.path.join(dumpdir, dumpfile)
         ndocs, nfiles = flask.g.db.dump(
             dumpfile, exclude_designs=True, progressbar=progressbar
         )
