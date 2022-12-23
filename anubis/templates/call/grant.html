@@ -42,12 +42,6 @@ Edit grant fields for call {{ call['identifier'] }}
   <a href="{{ url_for('.display', cid=call['identifier']) }}"
      role="button" class="btn btn-block btn-secondary">Back</a>
 </div>
-<div class="mt-2">
-  <a href="{{ url_for('about.documentation', page='Input-field-types') }}"
-     role="button" class="btn btn-block btn-outline-secondary"
-     target="_blank">
-    Input field types</a>
-</div>
 {% endblock %} {# block actions #}
 
 {% block doclinks %}

@@ -17,7 +17,7 @@ blueprint = flask.Blueprint("documentation", __name__)
 
 
 def init(app):
-    "Initialize; read the documentation files."
+    "Initialize; load the documentation files."
     docs = []
     for filename in os.listdir(app.config["DOCUMENTATION_DIR"]):
         if not filename.endswith(".md"):

@@ -56,7 +56,7 @@ successful proposal.
 
 Most of the above entities are configured for each call to provide a
 set of input fields, to be filled in by the user, reviewer or
-staff. There are a number of [input field types](/documenation/input-field-types)
+staff. There are a number of [input field types](/documentation/input-field-types)
 that may be used.
 
 ### Account

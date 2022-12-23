@@ -55,11 +55,17 @@ def setup_template_context():
 
 @app.before_first_request
 def initialize():
-    "Initialization before handling first request. Load the design documents."
+    """Initialization before handling the first request.
+    1) Load the design documents.
+    2) Load the documentation files.
+    3) Update the database.
+    4) Set the database connection and cache.
+    """
     app = flask.current_app
     utils.init(app)
     utils.load_design_documents(app)
     anubis.doc.init(app)
+    utils.update_db(app)
     utils.set_db(app)
 
 

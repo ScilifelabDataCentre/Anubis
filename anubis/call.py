@@ -173,15 +173,12 @@ def edit(cid):
                 saver["home_description"] = (
                     flask.request.form.get("home_description").strip() or None
                 )
-                saver["opens"] = utils.normalize_datetime(
-                    flask.request.form.get("opens")
-                )
-                saver["closes"] = utils.normalize_datetime(
-                    flask.request.form.get("closes")
-                )
-                saver["reviews_due"] = utils.normalize_datetime(
-                    flask.request.form.get("reviews_due")
-                )
+                for key in ["opens", "closes", "reviews_due"]:
+                    value = flask.request.form.get(key).strip() or None
+                    print(key, value)
+                    if value:
+                        value = utils.utc_from_timezone_isoformat(value)
+                    saver[key] = value
                 saver.edit_access(flask.request.form)
             call = saver.doc
         except ValueError as error:
@@ -1196,7 +1193,7 @@ def allow_view_decisions(call):
         return True
     due = call.get("reviews_due")
     if due:
-        return am_reviewer(call) and utils.normalized_local_now() > due
+        return am_reviewer(call) and due < utils.get_time()
     return False
 
 
@@ -1269,7 +1266,7 @@ def set_tmp(call):
     tmp = {}
     # Set the current state of the call, computed from open/close and today.
     if call["opens"]:
-        if call["opens"] > utils.normalized_local_now():
+        if call["opens"] > utils.get_time():
             tmp["is_open"] = False
             tmp["is_closed"] = False
             tmp["text"] = "Not yet open."

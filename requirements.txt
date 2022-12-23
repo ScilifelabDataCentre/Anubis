@@ -1,6 +1,6 @@
 beautifulsoup4==4.10.0
 blinker==1.4
-certifi==2022.12.7
+certifi==2021.10.8
 charset-normalizer==2.0.12
 click==8.0.4
 CouchDB2==1.13.0
@@ -15,9 +15,12 @@ lxml==4.9.1
 marko==1.2.0
 MarkupSafe==2.1.0
 openpyxl==3.0.9
+python-dateutil==2.8.2
 python-docx==0.8.11
+pytz==2022.7
 PyYAML==6.0
 requests==2.27.1
+six==1.16.0
 soupsieve==2.3.1
 tqdm==4.62.3
 urllib3==1.26.8

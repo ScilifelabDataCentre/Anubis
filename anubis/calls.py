@@ -61,7 +61,7 @@ def closed():
             "calls",
             "closes",
             startkey="",
-            endkey=utils.normalized_local_now(),
+            endkey=utils.get_time(),
             include_docs=True,
         )
     ]
@@ -102,7 +102,7 @@ def unpublished():
             for r in flask.g.db.view(
                 "calls",
                 "opens",
-                startkey=utils.normalized_local_now(),
+                startkey=utils.get_time(),
                 endkey="ZZZZZZ",
                 include_docs=True,
             )
@@ -119,7 +119,7 @@ def get_open_calls():
         for r in flask.g.db.view(
             "calls",
             "closes",
-            startkey=utils.normalized_local_now(),
+            startkey=utils.get_time(),
             endkey="ZZZZZZ",
             include_docs=True,
         )

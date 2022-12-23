@@ -24,7 +24,7 @@
     <tr>
       <td>{{ call | call_link(proposals_link=False) }}</td>
       <td>{{ call.get('title') or '[No title]' }}</td>
-      <td class="text-nowrap pl-2">{{ call['closes'] | display_datetime_local_server }}</td>
+      <td class="text-nowrap pl-2">{{ call['closes'] | display_datetime_timezone }}</td>
       <td>
         <span class="badge badge-pill badge-{{ call['tmp']['color'] }}">
           {{ call['tmp']['text'] }}</span>

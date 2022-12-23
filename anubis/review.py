@@ -521,7 +521,7 @@ def allow_unfinalize(review):
     call = anubis.call.get_call(review["call"])
     if anubis.call.am_owner(call):
         return True
-    if call.get("reviews_due") and utils.days_remaining(call["reviews_due"]) < 0:
+    if call.get("reviews_due") and call["reviews_due"] < utils.get_time():
         return False
     if flask.g.current_user["username"] == review["reviewer"]:
         return True

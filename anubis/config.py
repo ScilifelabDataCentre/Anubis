@@ -1,8 +1,11 @@
 "Configuration of the instance: default settings and reading of settings file."
 
+import datetime
 import json
 import os
 import os.path
+
+import pytz
 
 from anubis import constants
 from anubis import utils
@@ -33,6 +36,8 @@ DEFAULT_SETTINGS = dict(
     MIN_PASSWORD_LENGTH=6,
     PERMANENT_SESSION_LIFETIME=7 * 24 * 60 * 60,  # In seconds; 1 week.
     DOCUMENTATION_DIR=os.path.join(constants.ROOT, "documentation"),
+    # Default timezone to that of the host machine.
+    TIMEZONE=str(datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo),
     MAIL_SERVER=None,  # e.g. "localhost" or domain name.
     MAIL_PORT=25,
     MAIL_USE_TLS=False,
@@ -54,9 +59,6 @@ DEFAULT_SETTINGS = dict(
     USER_ENABLE_EMAIL_WHITELIST=[],  # List of fnmatch patterns, not regexp's!
     UNIVERSITIES=[],
     MARKDOWN_URL="https://www.markdownguide.org/basic-syntax/",
-    ADMIN_USERNAME=None,  # Admin user to create at startup, if not exists.
-    ADMIN_EMAIL=None,
-    ADMIN_PASSWORD=None,
 )
 
 
@@ -117,3 +119,4 @@ def init(app):
         raise ValueError("SALT_LENGTH is too short")
     if app.config["MIN_PASSWORD_LENGTH"] <= 4:
         raise ValueError("MIN_PASSWORD_LENGTH is too short")
+    pytz.timezone(app.config["TIMEZONE"])
