@@ -111,13 +111,13 @@
 	  <input type="text" name="opens" id="opens"
 		 class="form-control"
 		 aria-describedby="opensHelp"
-		 value="{{ call['opens'] or '' }}">
+		 value="{{ call['opens'] | display_datetime_timezone(tz=False, dash=False) }}">
 	</div>
       </div>
       <small id="opensHelp" class="form-text text-muted">
 	The date (ISO format YYY-MM-DD, all digits) and time (HH:MM,
-	24 hour, server local time) when the call opens for
-	submitting proposals.
+	24 hour, timezone {{ config['TIMEZONE'] }}) when the call
+	opens for submitting proposals.
 	<br>
 	The system automatically displays open calls on the home page.
       </small>
@@ -134,13 +134,13 @@
 	  <input type="text" name="closes" id="closes"
 		 class="form-control"
 		 aria-describedby="closesHelp"
-		 value="{{ call['closes'] or '' }}">
+		 value="{{ call['closes'] | display_datetime_timezone(tz=False, dash=False) }}">
 	</div>
       </div>
       <small id="closesHelp" class="form-text text-muted">
 	The date (ISO format YYY-MM-DD, all digits) and time (HH:MM,
-	24 hour, server local time) when the call closes for
-	submitting proposals.
+	24 hour, timezone {{ config['TIMEZONE'] }}) when the call
+	closes for submitting proposals.
 	<br>
 	The system automatically disallows creating proposals for
 	closed calls.
@@ -162,13 +162,13 @@
 	  <input type="text" name="reviews_due" id="reviews_due"
 		 class="form-control"
 		 aria-describedby="reviews_dueHelp"
-		 value="{{ call['reviews_due'] or '' }}">
+		 value="{{ call['reviews_due'] | display_datetime_timezone(tz=False, dash=False) }}">
 	</div>
       </div>
       <small id="reviews_dueHelp" class="form-text text-muted">
 	The date (ISO format YYY-MM-DD, all digits) and time (HH:MM,
-	24 hour, server local time) when the reviews of the proposals
-        are due.
+	24 hour, timezone {{ config['TIMEZONE'] }}) when the reviews
+	of the proposals are due.
 	<br>
 	<strong>NOTE:</strong> If the reviews are due at midnight
 	e.g. 2019-01-01, then one must specify <strong>2019-01-02

@@ -45,13 +45,13 @@
 
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Opens</div>
-  <div class="col-md">{{ call['opens'] | display_datetime_local_server }}</div>
+  <div class="col-md">{{ call['opens'] | display_datetime_timezone }}</div>
 </div>
 
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
   <div class="col-md">
-    {{ call['closes'] | display_datetime_local_server }}
+    {{ call['closes'] | display_datetime_timezone }}
     <span class="badge badge-pill badge-{{ call['tmp']['color'] }} ml-3">
       {{ call['tmp']['text'] }}</span>
   </div>
@@ -118,7 +118,7 @@
 <div class="row mt-1">
   <div class="col-md-2 font-weight-bold text-right">Reviews due</div>
   <div class="col-md">
-    {{ call.get('reviews_due') | display_datetime_local_server(due=True) }}
+    {{ call.get('reviews_due') | display_datetime_timezone(due=True) }}
   </div>
 </div>
 {% endif %} {# if allow_view_details #}

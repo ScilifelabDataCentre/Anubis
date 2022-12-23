@@ -6,14 +6,15 @@ import http.client
 import logging
 import os.path
 import smtplib
-import time
 import uuid
 
 import couchdb2
+import dateutil.parser
 import flask
 import flask_mail
 import jinja2.utils
 import marko
+import pytz
 import werkzeug.routing
 
 from anubis import constants
@@ -23,12 +24,15 @@ MAIL = flask_mail.Mail()
 
 
 def init(app):
-    "Initialize: Setup email, add template filters."
+    "Initialize: Logging, setup email, add template filters."
+    logging.basicConfig(level=logging.INFO)
+    logging.info(f"Anubis version {constants.VERSION}")
+    logging.info(f"settings: {app.config['SETTINGS_FILE']}")
     MAIL.init_app(app)
     app.add_template_filter(display_markdown)
     app.add_template_filter(display_field_value)
     app.add_template_filter(display_value)
-    app.add_template_filter(display_datetime_local_server)
+    app.add_template_filter(display_datetime_timezone)
     app.add_template_filter(display_boolean)
     app.add_template_filter(user_link)
     app.add_template_filter(call_link)
@@ -81,6 +85,29 @@ def get_db(app=None):
         password=app.config["COUCHDB_PASSWORD"],
     )
     return server[app.config["COUCHDB_DBNAME"]]
+
+
+def update_db(app=None):
+    """Update the contents of the database for changes in new version(s).
+    - Change all stored datetimes (call opens, closes, reviews_due) to UTC ISO format.
+    """
+    db = get_db(app=app)
+    calls = [row.doc for row in db.view("calls", "identifier", include_docs=True)]
+    for call in calls:
+        changed = False
+        for key in ["opens", "closes", "reviews_due"]:
+            try:
+                value = call[key]
+                if not value: raise KeyError
+            except KeyError:
+                pass
+            else:
+                if "Z" not in value: # Not in UTC; then it is in TIMEZONE.
+                    changed = True
+                    call[key] = utc_from_timezone_isoformat(value)
+        if changed:
+            logging.info(f"Updated call {call['identifier']} document.")
+            db.put(call)
 
 
 def set_db(app=None):
@@ -221,44 +248,26 @@ def to_bool(s):
     return s in ("true", "t", "yes", "y")
 
 
-def get_time(offset=None):
-    """Current date and time (UTC) in ISO format, with millisecond precision.
-    Add the specified offset in seconds, if given.
+def get_time():
+    "Current UTC datetime in ISO format (including Z) with millisecond precision."
+    now = datetime.datetime.utcnow().isoformat()
+    return now[:17] + "{:06.3f}".format(float(now[17:])) + "Z"
+
+
+def utc_from_timezone_isoformat(dts):
+    """Convert the given datetime ISO string in the site timezone to UTC, and 
+    output in the same ISO format as in 'get_time' with dummy millisecond precision.
     """
-    instant = datetime.datetime.utcnow()
-    if offset:
-        instant += datetime.timedelta(seconds=offset)
-    instant = instant.isoformat()
-    return instant[:17] + "{:06.3f}".format(float(instant[17:])) + "Z"
+    dt = dateutil.parser.isoparse(dts)
+    dt = pytz.timezone(flask.current_app.config["TIMEZONE"]).localize(dt)
+    dt = dt.astimezone(pytz.utc)
+    return dt.strftime("%Y-%m-%dT%H:%M:%S.000Z")
 
 
-def normalized_local_now():
-    "Return the current local date and time (hour, minute) in normalized form."
-    return datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-
-
-def normalize_datetime(dt=None):
-    "Normalize date and time to format 'YYYY-MM-DD HH:MM'."
-    if dt:
-        dt = dt.strip()
-    if dt:
-        try:
-            dt = " ".join(dt.split())
-            dt = datetime.datetime.strptime(dt, "%Y-%m-%d %H:%M")
-        except ValueError:
-            try:
-                dt = datetime.datetime.strptime(dt, "%Y-%m-%d")
-            except ValueError:
-                raise ValueError("invalid date or datetime")
-        return dt.strftime("%Y-%m-%d %H:%M")
-    else:
-        return None
-
-
-def days_remaining(dt):
-    "Return the number of days remaining for the given local datetime string."
-    dt = datetime.datetime.strptime(dt, "%Y-%m-%d %H:%M")
-    remaining = dt - datetime.datetime.now()
+def days_remaining(dts):
+    "Return the number of days remaining for the given UTC datetime ISO format string."
+    dt = dateutil.parser.isoparse(dts)
+    remaining = dt - datetime.datetime.now(datetime.timezone.utc)
     return remaining.total_seconds() / (24 * 3600.0)
 
 
@@ -451,34 +460,43 @@ def display_value(value, default="-"):
         return value
 
 
-def display_datetime_local_server(value, due=False):
-    """Template filter: datetime with server local timezone.
-    Optionally output warning for approaching due date.
+def display_datetime_timezone(value, due=False, tz=True, dash=True):
+    """Template filter: Convert UTC datetime ISO string to the timezone of the site.
+    Optionally output warning for approaching due date, and the timezone.
     """
     if value:
-        dtz = f"{value} {time.tzname[0]}"
+        try:
+            dt = dateutil.parser.isoparse(value)
+        except ValueError as error:
+            return str(error)
+        dt = dt.astimezone(pytz.timezone(flask.current_app.config["TIMEZONE"]))
+        if tz:
+            dts = dt.strftime(f"%Y-%m-%d %H:%M %Z")
+        else:
+            dts = dt.strftime(f"%Y-%m-%d %H:%M")
         if due:
             remaining = days_remaining(value)
             if remaining > 7:
-                return dtz
+                return dts
             elif remaining >= 2:
                 return jinja2.utils.Markup(
-                    f'{dtz} <div class="badge badge-warning ml-2">'
+                    f'{dts} <div class="badge badge-warning ml-2">'
                     f"{remaining:.1f} days until due.</div>"
                 )
             elif remaining >= 0:
                 return jinja2.utils.Markup(
-                    f'{dtz} <div class="badge badge-danger ml-2">'
+                    f'{dts} <div class="badge badge-danger ml-2">'
                     f"{remaining:.1f} days until due.</div>"
                 )
             else:
                 return jinja2.utils.Markup(
-                    f'{dtz} <div class="badge badge-danger ml-2">Overdue!</div>'
+                    f'{dts} <div class="badge badge-danger ml-2">Overdue!</div>'
                 )
         else:
-            return dtz
-    else:
+            return dts
+    elif dash:
         return "-"
+    return ""
 
 
 def display_boolean(value):
