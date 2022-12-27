@@ -64,7 +64,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {% block actions %}
 {% if allow_edit %}
 <div class="mt-2">
-  <a href="{{ url_for('about.documentation', page='Instructions-for-reviewers') }}"
+  <a href="{{ url_for('documentation.page', page='instructions-for-reviewers') }}"
      role="button" class="btn btn-block btn-outline-secondary"
      target="_blank">Instructions for reviewers</a>
 </div>

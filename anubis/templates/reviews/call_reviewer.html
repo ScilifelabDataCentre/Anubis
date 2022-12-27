@@ -25,7 +25,7 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
   <div class="col-md-2 text-right font-weight-bold">Due</div>
   <div class="col-md-8">{{ call.get('reviews_due') | display_datetime_timezone(due=True) }}</div>
   <div class="col-md">
-    <a href="{{ url_for('about.documentation', page='Instructions-for-reviewers') }}"
+    <a href="{{ url_for('documentation.page', page='instructions-for-reviewers') }}"
        role="button" class="btn btn-block btn-outline-secondary"
        target="_blank">Instructions for reviewers</a>
     <a href="{{ url_for('reviews.call_reviewer_archived', cid=call['identifier'], username=user['username']) }}"
