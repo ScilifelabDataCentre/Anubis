@@ -32,11 +32,7 @@ def gdpr():
 @blueprint.route("/software")
 def software():
     "Show the current software versions."
-    return flask.render_template("about/software.html", software=get_software())
-
-
-def get_software():
-    return [
+    software = [
         ("Anubis", constants.VERSION, constants.URL),
         ("Python", constants.PYTHON_VERSION, constants.PYTHON_URL),
         ("Flask", flask.__version__, constants.FLASK_URL),
@@ -56,6 +52,7 @@ def get_software():
         ("clipboard.js", constants.CLIPBOARD_VERSION, constants.CLIPBOARD_URL),
         ("Feather of Ma'at icon", constants.MAAT_VERSION, constants.MAAT_URL),
     ]
+    return flask.render_template("about/software.html", software=software)
 
 
 @blueprint.route("/settings")
