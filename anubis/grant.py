@@ -429,8 +429,6 @@ def get_grant_proposal(pid):
 
 def allow_create(proposal):
     "The admin and staff may create a grant dossier."
-    if flask.g.readonly:
-        return False
     if not flask.g.current_user:
         return False
     if not proposal.get("decision"):
@@ -471,8 +469,6 @@ def allow_edit(grant):
     """The admin, staff and proposal user (= grant receiver) and accounts
     with edit access may edit the grant dossier.
     """
-    if flask.g.readonly:
-        return False
     if not flask.g.current_user:
         return False
     if flask.g.am_admin:
@@ -493,8 +489,6 @@ def allow_change_access(grant):
     with edit access may change access for the grant dossier.
     Lock status does not affect this.
     """
-    if flask.g.readonly:
-        return False
     if not flask.g.current_user:
         return False
     if flask.g.am_admin:
@@ -510,8 +504,6 @@ def allow_change_access(grant):
 
 def allow_lock(grant):
     "The admin and staff can lock/unlock the grant whenever."
-    if flask.g.readonly:
-        return False
     if not flask.g.current_user:
         return False
     if flask.g.am_admin:
@@ -540,8 +532,6 @@ def allow_link(grant):
 
 def allow_delete(grant):
     "Only the admin may delete a grant dossier."
-    if flask.g.readonly:
-        return False
     if not flask.g.current_user:
         return False
     if flask.g.am_admin:

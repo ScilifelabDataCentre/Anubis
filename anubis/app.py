@@ -73,7 +73,6 @@ def initialize():
 def prepare():
     "Set the database connection, get the current user."
     utils.set_db()
-    flask.g.readonly = flask.current_app.config["READONLY"]
     flask.g.alert = flask.current_app.config["ALERT"]
     flask.g.current_user = anubis.user.get_current_user()
     flask.g.am_admin = anubis.user.am_admin()
