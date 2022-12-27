@@ -71,9 +71,9 @@
 		>{{ call['description'] or '' }}</textarea>
       <small id="descriptionHelp" class="form-text text-muted">
 	Full description of the call. This will be displayed on the
-        call page. If no <strong>Home page description</strong> is
-        defined, this description will also be used on the home page
-        of Anubis.
+        call page. If no <strong>Home page description</strong>
+        (below) is defined, this description will also be used on the
+        home page of Anubis.
         <br>
 	<a target="_blank" href="{{ config['MARKDOWN_URL'] }}">Markdown</a>
         may be used to format this text.
@@ -93,7 +93,7 @@
       <small id="home_descriptionHelp" class="form-text text-muted">
 	Description of the call to be used on the home page of
 	Anubis. Should be short. If not defined, the
-	field <strong>Description</strong> will be used.
+	field <strong>Description</strong> (above) will be used.
         <br>
 	<a target="_blank" href="{{ config['MARKDOWN_URL'] }}">Markdown</a>
         may be used to format this text.
@@ -109,17 +109,21 @@
       <div class="row">
 	<div class="col-md-3">
 	  <input type="text" name="opens" id="opens"
-		 class="form-control"
-		 aria-describedby="opensHelp"
+		 class="form-control" aria-describedby="opensHelp"
 		 value="{{ call['opens'] | display_datetime_timezone(tz=False, dash=False) }}">
 	</div>
       </div>
       <small id="opensHelp" class="form-text text-muted">
-	The date (ISO format YYY-MM-DD, all digits) and time (HH:MM,
-	24 hour, timezone {{ config['TIMEZONE'] }}) when the call
-	opens for submitting proposals.
+	The date and time when the call opens for submitting
+        proposals. The system automatically opens the call at this
+        time.
 	<br>
-	The system automatically displays open calls on the home page.
+        ISO format YYY-MM-DD HH:MM, all digits, 24 hour notation in
+        the <strong>{{ config['TIMEZONE'] }} timezone</strong>.
+        <br>
+	<strong>NOTE:</strong> The time 00:00 denotes the first minute
+	of the morning of the given date. To specify the last minute
+	of the given date, use 23:59.
       </small>
     </div>
   </div>
@@ -132,22 +136,21 @@
       <div class="row">
 	<div class="col-md-3">
 	  <input type="text" name="closes" id="closes"
-		 class="form-control"
-		 aria-describedby="closesHelp"
+		 class="form-control" aria-describedby="closesHelp"
 		 value="{{ call['closes'] | display_datetime_timezone(tz=False, dash=False) }}">
 	</div>
       </div>
       <small id="closesHelp" class="form-text text-muted">
-	The date (ISO format YYY-MM-DD, all digits) and time (HH:MM,
-	24 hour, timezone {{ config['TIMEZONE'] }}) when the call
-	closes for submitting proposals.
+	The date and time when the call closes for submitting or
+	creating proposals. The system automatically closes the call
+	at this time.
+        <br>
+        ISO format YYY-MM-DD HH:MM, all digits, 24 hour notation in
+        the <strong>{{ config['TIMEZONE'] }} timezone</strong>.
 	<br>
-	The system automatically disallows creating proposals for
-	closed calls.
-	<br>
-	<strong>NOTE:</strong> If the call should close at midnight
-	e.g. 2019-01-01, then one must specify <strong>2019-01-02
-	00:00</strong>, that is, at 0:00 in the morning the following day.
+	<strong>NOTE:</strong> The time 00:00 denotes the first minute
+	of the morning of the given date. To specify the last minute
+	of the given date, use 23:59.
       </small>
     </div>
   </div>
@@ -160,19 +163,19 @@
       <div class="row">
 	<div class="col-md-3">
 	  <input type="text" name="reviews_due" id="reviews_due"
-		 class="form-control"
-		 aria-describedby="reviews_dueHelp"
+		 class="form-control" aria-describedby="reviews_dueHelp"
 		 value="{{ call['reviews_due'] | display_datetime_timezone(tz=False, dash=False) }}">
 	</div>
       </div>
       <small id="reviews_dueHelp" class="form-text text-muted">
-	The date (ISO format YYY-MM-DD, all digits) and time (HH:MM,
-	24 hour, timezone {{ config['TIMEZONE'] }}) when the reviews
-	of the proposals are due.
+	The date and time when the reviews of the proposals are due.
+        <br>
+        ISO format YYY-MM-DD HH:MM, all digits, 24 hour notation in
+        the <strong>{{ config['TIMEZONE'] }} timezone</strong>.
 	<br>
-	<strong>NOTE:</strong> If the reviews are due at midnight
-	e.g. 2019-01-01, then one must specify <strong>2019-01-02
-	00:00</strong>, that is, at 0:00 in the morning the following day.
+	<strong>NOTE:</strong> The time 00:00 denotes the first minute
+	of the morning of the given date. To specify the last minute
+	of the given date, use 23:59.
       </small>
     </div>
   </div>
