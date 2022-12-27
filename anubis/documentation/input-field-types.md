@@ -1,8 +1,12 @@
 ---
 title: Input field types
 level: 1
-ordinal: 60
+ordinal: 100
 ---
+
+The proposals of a call must be defined in terms of which data a proposer is
+supposed to provide. This is configure by the call creator by defining the
+input fields to be used, their instruction texts and their possible values.
 
 The input fields are the means to store information in proposals,
 reviews, decisions and grants. They have types which define what kind

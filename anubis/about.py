@@ -15,19 +15,6 @@ from anubis import utils
 blueprint = flask.Blueprint("about", __name__)
 
 
-@blueprint.route("/documentation/<page>")
-def documentation(page):
-    "Display the given documentation page."
-    filepath = os.path.join(flask.current_app.config["DOCUMENTATION_DIR"], f"{page}.md")
-    try:
-        with open(filepath) as infile:
-            text = infile.read()
-    except (OSError, IOError):
-        return utils.error("No such documentation page.")
-    title = page.replace("-", " ")
-    return flask.render_template("about/documentation.html", title=title, text=text)
-
-
 @blueprint.route("/contact")
 def contact():
     "Display the contact information page."

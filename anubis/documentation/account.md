@@ -1,7 +1,7 @@
 ---
 title: Account
 level: 1
-ordinal: 100
+ordinal: 60
 ---
 
 In order to do any work in Anubis, a user must have an account.

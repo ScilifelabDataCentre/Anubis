@@ -4,6 +4,12 @@
 {% block body_title %}Settings{% endblock %}
 
 {% block main %}
+<p>
+  Settings are defined in a JSON file or in environment variables.
+  These are read on startup of the server process. To change a value,
+  the JSON file or the environment variables need to be edited, and
+  the server process restarted.
+</p>
 <table class="table table-sm">
   {% for key, value in items %}
   <tr>
