@@ -1023,8 +1023,6 @@ def get_call(cid):
 
 def allow_create(user=None):
     "Allow admin and users with 'call_creator' flag set may create a call."
-    if flask.g.readonly:
-        return False
     if user is None:
         user = flask.g.current_user
     if not user:
@@ -1055,8 +1053,6 @@ def allow_view(call):
 
 def allow_edit(call):
     "The admin and call owner may edit a call, and accounts with edit access."
-    if flask.g.readonly:
-        return False
     if not flask.g.current_user:
         return False
     if flask.g.am_admin:
@@ -1072,8 +1068,6 @@ def allow_identifier_edit(call):
     """Is the identifier of the call editable?
     Only if no dependent objects have been created, and it has not been opened.
     """
-    if flask.g.readonly:
-        return False
     if not call.get("identifier"):
         return True
     if utils.get_count("proposals", "call", call["identifier"]):
@@ -1091,8 +1085,6 @@ def allow_identifier_edit(call):
 
 def allow_delete(call):
     "Allow the admin or call owner to delete a call if it has no proposals."
-    if flask.g.readonly:
-        return False
     if not (flask.g.am_admin or am_owner(call)):
         return False
     if utils.get_call_proposals_count(call["identifier"]) == 0:
@@ -1104,8 +1096,6 @@ def allow_change_access(call):
     """The admin, staff, call owner and accounts with edit access
     may change access for the call.
     """
-    if flask.g.readonly:
-        return False
     if not flask.g.current_user:
         return False
     if flask.g.am_admin:
@@ -1250,8 +1240,6 @@ def has_access_view(call):
 
 def has_access_edit(call):
     "Does the current user have explicit edit access to the call?"
-    if flask.g.readonly:
-        return False
     if not flask.g.current_user:
         return False
     if flask.g.current_user["username"] in call.get("access_edit", []):

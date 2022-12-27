@@ -34,3 +34,8 @@ be open unless this has been set.
 After the **closes** date of a call, a user can no longer create, edit
 or submit a proposal in it.
 
+The input fields for proposals within a call should, of course, be
+defined before the call is opened. However, it is possible to modify
+an input field even when the call has been opened. This feature should
+be used as little as possible since the users writing their proposals
+may become confused when the their proposal form changes.

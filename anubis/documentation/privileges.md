@@ -4,6 +4,9 @@ level: 1
 ordinal: 110
 ---
 
+Different user roles have different sets of privileges, which
+determine what they are allowed to do within the Anubis system.
+
 Anonymous users (not logged-in) are allowed to view open calls and not
 much else.
 
