@@ -250,7 +250,7 @@ def documents(cid):
                 saver.add_document(infile, description)
         else:
             utils.flash_error("No document selected.")
-        return flask.redirect(flask.url_for(".display", cid=call["identifier"]))
+        return flask.redirect(flask.url_for(".documents", cid=call["identifier"]))
 
 
 @blueprint.route("/<cid>/documents/<documentname>", methods=["GET", "POST", "DELETE"])
