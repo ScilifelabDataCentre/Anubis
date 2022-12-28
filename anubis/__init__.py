@@ -4,7 +4,7 @@ import os.path
 import re
 import sys
 
-__version__ = "1.15.1"
+__version__ = "1.15.2"
 
 
 class Constants:
@@ -83,6 +83,7 @@ class Constants:
     DECISION = "decision"
     GRANT = "grant"
     LOG = "log"
+    META = "meta"
 
     # User roles
     ADMIN = "admin"

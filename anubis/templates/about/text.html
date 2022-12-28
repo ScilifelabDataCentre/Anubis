@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block head_title %}{{ doc['_id'].replace('_', ' ').capitalize() }}{% endblock %}
+{% block body_title %}{{ doc['_id'].replace('_', ' ').capitalize() }}{% endblock %}
+
+{% block main %}
+{{ (doc.get('text') or '*No text defined.*') | display_markdown }}
+{% endblock %} {# block main #}
+
+{% block actions %}
+{% if url %}
+<div class="mt-2">
+  <a href="{{ url }}" role="button" class="btn btn-primary btn-block">Edit</a>
+</div>
+{% endif %}
+{% endblock %}

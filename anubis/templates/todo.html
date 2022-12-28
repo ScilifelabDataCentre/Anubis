@@ -1,28 +1,34 @@
-{# Display buttons for items to work on. #}
+{# Display buttons for items the user should work on. #}
 
 {% if g.my_unsubmitted_proposals_count %}
-<a href="{{ url_for('proposals.user', username=g.current_user['username']) }}"
-   class="btn btn-block btn-warning">
-  You have {{ g.my_unsubmitted_proposals_count }} unsubmitted proposals.
-  <br>
-  Click here to view the list.
-</a>
+<div class="mt-2">
+  <a href="{{ url_for('proposals.user', username=g.current_user['username']) }}"
+     class="btn btn-block btn-warning">
+    You have {{ g.my_unsubmitted_proposals_count }} unsubmitted proposals.
+    <br>
+    Click here to view the list.
+  </a>
+</div>
 {% endif %}
 
 {% if g.my_unfinalized_reviews_count %}
-<a href="{{ url_for('reviews.reviewer', username=g.current_user['username']) }}"
-   class="btn btn-block btn-warning">
-  You have {{ g.my_unfinalized_reviews_count }} unfinalized reviews.
-  <br>
-  Click here to view the list.
-</a>
+<div class="mt-2">
+  <a href="{{ url_for('reviews.reviewer', username=g.current_user['username']) }}"
+     class="btn btn-block btn-warning">
+    You have {{ g.my_unfinalized_reviews_count }} unfinalized reviews.
+    <br>
+    Click here to view the list.
+  </a>
+</div>
 {% endif %}
 
 {% if g.my_incomplete_grants_count %}
-<a href="{{ url_for('grants.user', username=g.current_user['username']) }}"
-   class="btn btn-block btn-warning">
-  You have {{ g.my_incomplete_grants_count }} incomplete grant dossiers.
-  <br>
-  Click here to view the list.
-</a>
+<div class="mt-2">
+  <a href="{{ url_for('grants.user', username=g.current_user['username']) }}"
+     class="btn btn-block btn-warning">
+    You have {{ g.my_incomplete_grants_count }} incomplete grant dossiers.
+    <br>
+    Click here to view the list.
+  </a>
+</div>
 {% endif %} {# if g.my_incomplete_grants_count #}

@@ -1,23 +1,18 @@
 {% extends 'base.html' %}
 
 {% block body_title %}
-{% if config['SITE_LOGO'] %}
-<img src="{{ url_for('site.static', filename=config['SITE_LOGO']) }}"
-     class="align-middle mr-1" title="config['SITE_NAME']">
-{% endif %}
 {{ config['SITE_NAME'] }}
-<small class="ml-4 text-muted">
-  {{ config['SITE_DESCRIPTION'] }}
-</small>
+<small class="ml-4 text-muted">{{ config['SITE_DESCRIPTION'] }}</small>
 {% endblock %}
 
 {% block main %}
 
 {% include 'todo.html' %}
 
-{# The list is already properly sorted. #}
+{% if calls %}
+{# This list is already properly sorted. #}
 {% for call in calls %}
-<div class="card border-dark mt-3">
+<div class="card border-dark mt-2">
   <div class="card-header">
     <table class="table table-borderless mb-0">
       <tr>
@@ -45,19 +40,19 @@
 </div>
 {% endfor %} {# for call in calls #}
 
-{% if not calls %}
-<div class="card border-dark mt-3">
+{% else %}
+<div class="card border-dark mt-2">
   <div class="card-body lead">
     There are currently no open calls.
   </div>
 </div>
-{% endif %} {# if not calls #}
+{% endif %} {# if calls #}
 
 {% endblock %} {# block main #}
 
 {% block actions %}
 
-<p class="mt-3">
+<p>
   <a href="{{ url_for('calls.closed') }}"
      class="btn btn-block btn-outline-primary py-3">
     List of closed calls.</a>

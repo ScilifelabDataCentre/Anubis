@@ -15,12 +15,6 @@ from anubis import utils
 from anubis.saver import BaseSaver
 
 
-def load_design_document(app, db):
-    "Load the CouchDB design document."
-    if db.put_design("users", DESIGN_DOC):
-        app.logger.info("Updated users design document.")
-
-
 DESIGN_DOC = {
     "views": {
         "username": {
@@ -387,7 +381,7 @@ def pending():
 
 
 @blueprint.route("/enable/<username>", methods=["POST"])
-@utils.admin_required
+@utils.admin_or_staff_required
 def enable(username):
     "Enable the given user account."
     user = get_user(username=username)
@@ -402,7 +396,7 @@ def enable(username):
 
 
 @blueprint.route("/disable/<username>", methods=["POST"])
-@utils.admin_required
+@utils.admin_or_staff_required
 def disable(username):
     "Disable the given user account."
     user = get_user(username=username)
@@ -733,11 +727,13 @@ def allow_view(user):
 
 def allow_edit(user):
     """Is the current user allowed to edit the user account?
-    Yes, if current user is admin or self.
+    Yes, if current user is admin or staff or self.
     """
     if not flask.g.current_user:
         return False
     if flask.g.am_admin:
+        return True
+    if flask.g.am_staff:
         return True
     if flask.g.current_user["username"] == user["username"]:
         return True
@@ -763,9 +759,9 @@ def allow_delete(user):
 
 def allow_enable_disable(user):
     """Is the current user allowed to enable or disable the user account?
-    Yes, if current user is admin an not self.
+    Yes, if current user is admin or staff and not self.
     """
-    if flask.g.am_admin and flask.g.current_user["username"] != user["username"]:
+    if (flask.g.am_admin or flask.g.am_staff) and flask.g.current_user["username"] != user["username"]:
         return True
     return False
 
