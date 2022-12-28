@@ -27,6 +27,7 @@ app = flask.Flask(__name__)
 anubis.config.init(app)
 app.url_map.converters["iuid"] = utils.IuidConverter
 app.jinja_env.add_extension("jinja2.ext.loopcontrols")
+app.jinja_env.add_extension("jinja2.ext.do")
 if app.config["REVERSE_PROXY"]:
     app.wsgi_app = ProxyFix(app.wsgi_app)
 
