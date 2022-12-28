@@ -18,6 +18,8 @@ import pytz
 import werkzeug.routing
 
 from anubis import constants
+from anubis.saver import BaseSaver
+
 
 # Global instance of mail interface.
 MAIL = flask_mail.Mail()
@@ -56,20 +58,36 @@ def load_design_documents(app):
     import anubis.doc
 
     db = get_db(app=app)
-    if db.put_design("logs", DESIGN_DOC):
+    if db.put_design("calls", anubis.call.DESIGN_DOC):
+        app.logger.info("Updated calls design document.")
+    if db.put_design("proposals", anubis.proposal.DESIGN_DOC):
+        app.logger.info("Updated proposals design document.")
+    if db.put_design("reviews", anubis.review.DESIGN_DOC):
+        app.logger.info("Updated reviews design document.")
+    if db.put_design("decisions", anubis.decision.DESIGN_DOC):
+        app.logger.info("Updated decisions design document.")
+    if db.put_design("grants", anubis.grant.DESIGN_DOC):
+        app.logger.info("Updated grants design document.")
+    if db.put_design("users", anubis.user.DESIGN_DOC):
+        app.logger.info("Updated users design document.")
+    if db.put_design("logs", LOG_DESIGN_DOC):
         app.logger.info("Updated logs design document.")
-    anubis.call.load_design_document(app, db)
-    anubis.proposal.load_design_document(app, db)
-    anubis.review.load_design_document(app, db)
-    anubis.decision.load_design_document(app, db)
-    anubis.grant.load_design_document(app, db)
-    anubis.user.load_design_document(app, db)
+    if db.put_design("meta", META_DESIGN_DOC):
+        app.logger.info("Updated meta design document.")
 
 
-DESIGN_DOC = {
+LOG_DESIGN_DOC = {
     "views": {
         "doc": {
             "map": "function (doc) {if (doc.doctype !== 'log') return; emit([doc.docid, doc.timestamp], null);}"
+        }
+    }
+}
+
+META_DESIGN_DOC = {
+    "views": {
+        "doc": {
+            "map": "function (doc) {if (doc.doctype !== 'meta') return; emit(doc.docid, null);}"
         }
     }
 }
@@ -108,6 +126,24 @@ def update_db(app=None):
         if changed:
             logging.info(f"Updated call {call['identifier']} document.")
             db.put(call)
+    if "data_policy" not in db:
+        try:
+            filepath = os.path.normpath(os.path.join(constants.ROOT, "../site", "gdpr.md"))
+            with open(filepath) as infile:
+                text = infile.read()
+        except (OSError, IOError):
+            text = None
+        with MetaSaver(id="data_policy", db=db) as saver:
+            saver["text"] = text
+    if "contact" not in db:
+        try:
+            filepath = os.path.normpath(os.path.join(constants.ROOT, "../site", "contact.md"))
+            with open(filepath) as infile:
+                text = infile.read()
+        except (OSError, IOError):
+            text = None
+        with MetaSaver(id="contact", db=db) as saver:
+            saver["text"] = text
 
 
 def set_db(app=None):
@@ -161,7 +197,7 @@ def get_user_grants_count(username):
 
 
 def get_docs_view(designname, viewname, key):
-    "Get the documents from the view."
+    "Get the documents from the view. Add them to the cache."
     result = [
         r.doc for r in flask.g.db.view(designname, viewname, key=key, include_docs=True)
     ]
@@ -763,3 +799,13 @@ def send_email(recipients, title, text):
     except (ConnectionRefusedError, smtplib.SMTPAuthenticationError) as error:
         logging.error(str(error))
         raise KeyError
+
+
+class MetaSaver(BaseSaver):
+    "Meta document saver context handler."
+
+    DOCTYPE = constants.META
+
+    def add_log(self):
+        "No log entries for meta documents."
+        pass

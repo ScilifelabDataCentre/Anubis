@@ -15,12 +15,6 @@ from anubis import utils
 from anubis.saver import BaseSaver
 
 
-def load_design_document(app, db):
-    "Load the CouchDB design document."
-    if db.put_design("users", DESIGN_DOC):
-        app.logger.info("Updated users design document.")
-
-
 DESIGN_DOC = {
     "views": {
         "username": {
@@ -387,7 +381,7 @@ def pending():
 
 
 @blueprint.route("/enable/<username>", methods=["POST"])
-@utils.admin_required
+@utils.admin_or_staff_required
 def enable(username):
     "Enable the given user account."
     user = get_user(username=username)
@@ -402,7 +396,7 @@ def enable(username):
 
 
 @blueprint.route("/disable/<username>", methods=["POST"])
-@utils.admin_required
+@utils.admin_or_staff_required
 def disable(username):
     "Disable the given user account."
     user = get_user(username=username)

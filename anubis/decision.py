@@ -20,12 +20,6 @@ from anubis import utils
 from anubis.saver import AttachmentSaver, FieldMixin
 
 
-def load_design_document(app, db):
-    "Load the CouchDB design document."
-    if db.put_design("decisions", DESIGN_DOC):
-        app.logger.info("Updated decisions design document.")
-
-
 DESIGN_DOC = {
     "views": {
         # Decisions for all proposals in call.

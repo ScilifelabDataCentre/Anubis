@@ -16,14 +16,15 @@ class BaseSaver:
     DOCTYPE = None
     HIDDEN_FIELDS = []
 
-    def __init__(self, doc=None):
+    def __init__(self, doc=None, id=None, db=None):
         if doc is None:
             self.original = {}
-            self.doc = {"_id": utils.get_iuid(), "created": utils.get_time()}
+            self.doc = {"_id": id or utils.get_iuid(), "created": utils.get_time()}
             self.initialize()
         else:
             self.original = copy.deepcopy(doc)
             self.doc = doc
+        self.db = db or flask.g.db
         self.prepare()
         # Special flag when a repeat field has changed value.
         # May be used to immediately redisplay the edit page
@@ -39,7 +40,7 @@ class BaseSaver:
         self.finish()
         self.doc["doctype"] = self.DOCTYPE
         self.doc["modified"] = utils.get_time()
-        flask.g.db.put(self.doc)
+        self.db.put(self.doc)
         self.wrapup()
         self.add_log()
 
@@ -121,7 +122,7 @@ class BaseSaver:
         else:
             entry["remote_addr"] = None
             entry["user_agent"] = None
-        flask.g.db.put(entry)
+        self.db.put(entry)
 
 
 class AttachmentSaver(BaseSaver):

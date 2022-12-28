@@ -14,8 +14,8 @@ import anubis.decision
 import anubis.grant
 import anubis.grants
 import anubis.about
+import anubis.admin
 import anubis.doc
-import anubis.site
 import anubis.user
 
 from anubis import constants
@@ -73,7 +73,6 @@ def initialize():
 def prepare():
     "Set the database connection, get the current user."
     utils.set_db()
-    flask.g.alert = flask.current_app.config["ALERT"]
     flask.g.current_user = anubis.user.get_current_user()
     flask.g.am_admin = anubis.user.am_admin()
     flask.g.am_staff = anubis.user.am_staff()
@@ -186,8 +185,8 @@ app.register_blueprint(anubis.decision.blueprint, url_prefix="/decision")
 app.register_blueprint(anubis.grant.blueprint, url_prefix="/grant")
 app.register_blueprint(anubis.grants.blueprint, url_prefix="/grants")
 app.register_blueprint(anubis.about.blueprint, url_prefix="/about")
+app.register_blueprint(anubis.admin.blueprint, url_prefix="/admin")
 app.register_blueprint(anubis.doc.blueprint, url_prefix="/documentation")
-app.register_blueprint(anubis.site.blueprint, url_prefix="/site")
 
 
 # This code is used only during development.

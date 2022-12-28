@@ -1,7 +1,5 @@
 "Information page endpoints."
 
-import os.path
-
 import couchdb2
 import flask
 import jinja2
@@ -18,15 +16,44 @@ blueprint = flask.Blueprint("about", __name__)
 @blueprint.route("/contact")
 def contact():
     "Display the contact information page."
-    return flask.render_template(
-        "about/contact.html", text=utils.get_site_text("contact.md")
-    )
+    try:
+        doc = flask.g.db["contact"]
+    except couchdb2.NotFoundError:
+        doc = {"_id": "contact"}
+    if flask.g.am_admin:
+        url = flask.url_for(".text_edit", docid=doc['_id'])
+    else:
+        url = None
+    return flask.render_template("about/text.html", doc=doc, url=url)
 
 
-@blueprint.route("/gdpr")
-def gdpr():
-    "Display the personal data policy page."
-    return flask.render_template("about/gdpr.html", text=utils.get_site_text("gdpr.md"))
+@blueprint.route("/data_policy")
+def data_policy():
+    "Display the data policy page."
+    try:
+        doc = flask.g.db["data_policy"]
+    except couchdb2.NotFoundError:
+        doc = {"_id": "data_policy"}
+    if flask.g.am_admin:
+        url = flask.url_for(".text_edit", docid=doc['_id'])
+    else:
+        url = None
+    return flask.render_template("about/text.html", doc=doc, url=url)
+
+
+@blueprint.route("/text_edit/<docid>", methods=["GET", "POST"])
+@utils.admin_required
+def text_edit(docid):
+    "Edit the text."
+    doc = flask.g.db[docid]
+    if utils.http_GET():
+        return flask.render_template("about/text_edit.html",
+                                     doc=doc,
+                                     url=flask.url_for(f".{docid}"))
+    elif utils.http_POST():
+        with utils.MetaSaver(doc=doc) as saver:
+            saver["text"] = flask.request.form.get("text") or None
+        return flask.redirect(flask.url_for(f".{docid}"))
 
 
 @blueprint.route("/software")
@@ -53,19 +80,3 @@ def software():
         ("Feather of Ma'at icon", constants.MAAT_VERSION, constants.MAAT_URL),
     ]
     return flask.render_template("about/software.html", software=software)
-
-
-@blueprint.route("/settings")
-@utils.login_required
-def settings():
-    "Display all configuration settings."
-    if not (flask.g.am_admin or flask.g.am_staff):
-        return utils.error(
-            "You are not allowed to view configuration settings.", flask.url_for("home")
-        )
-    config = flask.current_app.config.copy()
-    config["ROOT"] = constants.ROOT
-    for key in ["SECRET_KEY", "COUCHDB_PASSWORD", "MAIL_PASSWORD"]:
-        if config[key]:
-            config[key] = "<hidden>"
-    return flask.render_template("about/settings.html", items=sorted(config.items()))

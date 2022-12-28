@@ -83,6 +83,7 @@ class Constants:
     DECISION = "decision"
     GRANT = "grant"
     LOG = "log"
+    META = "meta"
 
     # User roles
     ADMIN = "admin"

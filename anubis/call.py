@@ -25,12 +25,6 @@ from anubis import utils
 from anubis.saver import AttachmentSaver, AccessMixin
 
 
-def load_design_document(app, db):
-    "Load the CouchDB design document."
-    if db.put_design("calls", DESIGN_DOC):
-        app.logger.info("Updated calls design document.")
-
-
 DESIGN_DOC = {
     "views": {
         "identifier": {
@@ -348,6 +342,8 @@ def reviewers(cid):
         if not allow_view_details(call):
             return utils.error("You are not allowed to edit the reviewers of the call.")
         reviewers = [anubis.user.get_user(r) for r in call["reviewers"]]
+        for reviewer in reviewers:
+            reviewer["number_of_reviews"] = utils.get_call_reviewer_reviews_count(cid, reviewer["username"])
         reviewer_emails = [r["email"] for r in reviewers if r["email"]]
         email_lists = {"Emails for reviewers": ", ".join(reviewer_emails)}
         return flask.render_template(
@@ -393,22 +389,17 @@ def reviewers(cid):
         if not allow_edit(call):
             return utils.error("You are not allowed to edit the call.")
         reviewer = flask.request.form.get("reviewer")
-        if utils.get_docs_view(
-            "reviews", "call_reviewer", [call["identifier"], reviewer]
-        ):
-            return utils.error(
-                "Cannot remove reviewer which has reviews" " in the call."
-            )
-        if reviewer:
-            with CallSaver(call) as saver:
-                try:
-                    saver["reviewers"].remove(reviewer)
-                except ValueError:
-                    pass
-                try:
-                    saver["chairs"].remove(reviewer)
-                except ValueError:
-                    pass
+        if utils.get_call_reviewer_reviews_count(call["identifier"], reviewer):
+            return utils.error("Cannot remove reviewer which has reviews in the call.")
+        with CallSaver(call) as saver:
+            try:
+                saver["reviewers"].remove(reviewer)
+            except ValueError:
+                pass
+            try:
+                saver["chairs"].remove(reviewer)
+            except ValueError:
+                pass
         return flask.redirect(flask.url_for(".reviewers", cid=call["identifier"]))
 
 
@@ -721,7 +712,7 @@ def call_zip(cid):
 
 
 class CallSaver(AccessMixin, AttachmentSaver):
-    "Call document saver context."
+    "Call document saver context handler."
 
     DOCTYPE = constants.CALL
 

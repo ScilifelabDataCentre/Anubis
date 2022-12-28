@@ -4,12 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block head_title %}{{ config['SITE_NAME'] }}{% endblock %}</title>
-    {% if config['SITE_ICON'] %}
-    <link rel="shortcut icon"
-          href="{{ url_for('site.static', filename=config['SITE_ICON']) }}">
-    {% else %}
     <link rel="icon" href="{{ url_for('static', filename='logo32.png') }}">
-    {% endif %}
     <link rel="stylesheet" crossorigin="anonymous"
           href="{{ constants.BOOTSTRAP_CSS_URL }}"
           integrity="{{ constants.BOOTSTRAP_CSS_INTEGRITY }}">
@@ -93,8 +88,10 @@
                  href="{{ url_for('user.pending') }}">Pending users</a>
               <a class="dropdown-item"
                  href="{{ url_for('user.register') }}">Register user</a>
+              {% if g.am_admin %}
               <a class="dropdown-item"
-                 href="{{ url_for('about.settings') }}">Settings</a>
+                 href="{{ url_for('admin.settings') }}">Settings</a>
+              {% endif %} {# if g.am_admin #}
             </div>
           </li>
           {% endif %} {# if g.am_admin or g.am_staff #}
@@ -120,7 +117,7 @@
               <a class="nav-link"
                  href="{{ url_for('about.contact') }}">Contact</a>
               <a class="nav-link"
-                 href="{{ url_for('about.gdpr') }}">Personal data policy</a>
+                 href="{{ url_for('about.data_policy') }}">Data policy</a>
               <a class="nav-link"
                  href="{{ url_for('about.software') }}">Software</a>
 	    </div>
@@ -152,12 +149,26 @@
     </nav>
 
     <div class="container-fluid">
+      {% if g.alert %}
+      <div class="row">
+        <div class="col-md-10 alert alert-warning" role="alert">{{ g.alert }}</div>
+      </div>
+      {% endif %}
+
+      <div class="row">
+        {% block body_title_outer %}
+        <div class="col-md-10 my-3">
+          <h2>{% block body_title %}{{ config['SITE_NAME'] }}{% endblock %}</h2>
+        </div>
+        {% endblock %} {# block body_title_outer #}
+        <div class="col-md-2 py-1 d-print-none">
+          {% block meta %}
+          {% endblock %}
+        </div>
+      </div>
+
       <div class="row">
         <div class="col-md-10">
-          {% if g.alert %}
-          <div class="alert alert-warning mt-2" role="alert">{{ g.alert }}</div>
-          {% endif %}
-          <h2 class="mt-2 mb-3">{% block body_title %}{{ config['SITE_NAME'] }}{% endblock %}</h2>
           {% for msg in get_flashed_messages(category_filter=['error']) %}
           <div class="alert alert-danger" role="alert">
             <strong>Error:</strong> {{ msg }}
@@ -175,11 +186,6 @@
             <strong>Message:</strong> {{ msg }}
           </div>
           {% endfor %}
-        </div>
-
-        <div class="col-md-2 py-1 d-print-none">
-          {% block meta %}
-          {% endblock %}
         </div>
       </div>
 
@@ -219,10 +225,9 @@
           </div>
 
           {% block todo %}
-          <p class="mt-4">
-            {% include 'todo.html' %}
-          </p>
+          {% include 'todo.html' %}
           {% endblock %} {# block todo #}
+
         </div>
       </div>
       {% endblock %} {# block supermain #}
@@ -232,28 +237,14 @@
       <div class="row">
         <div class="col-md-3">
           {% if config['HOST_URL'] %}
-          <a href="{{ config['HOST_URL'] }}">
-            {% if config['HOST_LOGO'] %}
-            <img src="{{ url_for('site.static',filename=config['HOST_LOGO']) }}"
-                 title="{{ config['HOST_NAME'] or '' }}">
-            {{ config['HOST_NAME'] or '' }}
-            {% endif %}
-          </a>
-
-          {% elif config['HOST_LOGO'] %}
-          <img src="{{ url_for('site_file', filename=config['HOST_LOGO']) }}"
-               title="{{ config['HOST_NAME'] or '' }}">
-          {{ config['HOST_NAME'] or '' }}
+          <a href="{{ config['HOST_URL'] }}">{{ config['HOST_NAME'] or 'Host' }}</a>
           {% endif %}
         </div>
-
         <div class="col-md-6">
             {% block info %}
             {% endblock %}
         </div>
-
         <div class="col-md-3 text-right">
-          <img src="{{ url_for('static', filename='logo32.png') }}">
           <a href="{{ constants.URL }}">Anubis</a>
 	  <span id="version">{{ constants.VERSION }}</span>
         </div>

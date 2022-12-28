@@ -61,7 +61,9 @@ Reviewers for call {{ call['identifier'] }}
 	      {{ csrf_token() }}
               <input type="hidden" name="_http_method" value="DELETE">
               <input type="hidden" name="reviewer" value="{{ reviewer['username'] }}">
-	      <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+	      <button type="submit" class="btn btn-sm btn-danger"
+                      {{ reviewer['number_of_reviews'] and 'disabled' or '' }}>
+                Remove</button>
             </form>
           </td>
           {% endif %} {# if allow_edit #}
