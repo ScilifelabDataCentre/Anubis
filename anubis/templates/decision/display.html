@@ -9,6 +9,15 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {{ proposal | proposal_link }}
 {% endblock %}
 
+{% block meta %}
+
+{% if g.am_admin %}
+<a href="{{ url_for('admin.document', identifier=decision['_id']) }}"
+   class="badge badge-pill badge-light" role="button">Database document</a>
+{% endif %}
+
+{% endblock %} {# block meta #}
+
 {% block main %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Submitter</div>

@@ -21,6 +21,12 @@
 <a href="#email_lists" data-toggle="collapse"
    class="badge badge-pill badge-secondary" role="button"
    aria-expanded="false" aria-controls="email_lists">Email address lists</a>
+
+{% if g.am_admin %}
+<a href="{{ url_for('admin.document', identifier=grant['_id']) }}"
+   class="badge badge-pill badge-light" role="button">Database document</a>
+{% endif %}
+
 {% endblock %} {# block meta #}
 
 {% block main %}
