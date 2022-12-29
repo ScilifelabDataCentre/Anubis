@@ -19,10 +19,11 @@ blueprint = flask.Blueprint("documentation", __name__)
 def init(app):
     "Initialize; load the documentation files."
     docs = []
-    for filename in os.listdir(app.config["DOCUMENTATION_DIR"]):
+    docdir = os.path.join(constants.ROOT, "documentation")
+    for filename in os.listdir(docdir):
         if not filename.endswith(".md"):
             continue
-        docs.append(Documentation(app.config["DOCUMENTATION_DIR"], filename))
+        docs.append(Documentation(docdir, filename))
     docs.sort(key=lambda d: d.ordinal)
     DOCUMENTATION.update(dict([(d.slug, d) for d in docs]))
 

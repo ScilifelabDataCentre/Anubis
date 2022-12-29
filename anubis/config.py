@@ -13,33 +13,33 @@ from anubis import utils
 
 # Default configurable values; modified by reading a JSON file in 'init'.
 DEFAULT_SETTINGS = dict(
+    DEBUG=False,
     SERVER_NAME="localhost:5002",  # For URL generation; app.run() in devel.
     REVERSE_PROXY=False,
     SITE_NAME="Anubis",
-    SITE_DESCRIPTION="Proposal submission and review handling system.",
+    SITE_DESCRIPTION="Submit proposals for grants in open calls.",
     HOST_NAME=None,
     HOST_URL=None,
-    SECRET_KEY=None,  # Must be set in 'settings.json'.
-    SALT_LENGTH=12,
+    SECRET_KEY=None,  # Must be set!
+    SALT_LENGTH=12,   # Must be at least 6
     COUCHDB_URL="http://127.0.0.1:5984/",
-    COUCHDB_USERNAME=None,
-    COUCHDB_PASSWORD=None,
+    COUCHDB_USERNAME=None, # Must probably be set.
+    COUCHDB_PASSWORD=None, # Must probably bet set.
     COUCHDB_DBNAME="anubis",
     JSON_AS_ASCII=False,
     JSON_SORT_KEYS=False,
-    MIN_PASSWORD_LENGTH=6,
+    MIN_PASSWORD_LENGTH=6, # Must be at least 4.
     PERMANENT_SESSION_LIFETIME=7 * 24 * 60 * 60,  # In seconds; 1 week.
-    DOCUMENTATION_DIR=os.path.join(constants.ROOT, "documentation"),
     # Default timezone to that of the host machine.
     TIMEZONE=str(datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo),
-    MAIL_SERVER=None,  # e.g. "localhost" or domain name.
+    MAIL_SERVER=None,  # E.g. "localhost" or domain name. If None: emails disabled.
     MAIL_PORT=25,
     MAIL_USE_TLS=False,
     MAIL_USE_SSL=False,
     MAIL_USERNAME=None,
     MAIL_PASSWORD=None,
-    MAIL_DEFAULT_SENDER="anubis@your.org",  # Must be changed in settings!
-    MAIL_REPLY_TO=None,  # Should be changed in settings.
+    MAIL_DEFAULT_SENDER=None,  # Should be set if email is enabled.
+    MAIL_REPLY_TO=None,
     CALL_IDENTIFIER_MAXLENGTH=16,
     CALL_REMAINING_DANGER=1.0,
     CALL_REMAINING_WARNING=7.0,
@@ -98,7 +98,7 @@ def init(app):
             if isinstance(value, int):
                 app.config[key] = int(new)
             elif isinstance(value, bool):
-                app.config[key] = bool(new)
+                app.config[key] = utils.to_bool(new)
             else:
                 app.config[key] = new
 

@@ -380,6 +380,14 @@ def pending():
     return flask.render_template("user/pending.html", users=users)
 
 
+@blueprint.route("/staff")
+@utils.admin_or_staff_required
+def staff():
+    "Display list of all admin and staff user accounts."
+    users = get_users(role=constants.ADMIN) + get_users(role=constants.STAFF)
+    return flask.render_template("user/staff.html", users=users)
+
+
 @blueprint.route("/enable/<username>", methods=["POST"])
 @utils.admin_or_staff_required
 def enable(username):
@@ -598,7 +606,7 @@ def get_user(username=None, email=None):
         return None
 
 
-def get_users(role=None, status=None, safe=False):
+def get_users(role=None, status=None):
     "Return the users specified by role and optionally by status."
     assert role is None or role in constants.USER_ROLES
     assert status is None or status in constants.USER_STATUSES
@@ -620,11 +628,6 @@ def get_users(role=None, status=None, safe=False):
         ]
         if status is not None:
             result = [d for d in result if d["status"] == status]
-    if safe:
-        for user in result:
-            user["iuid"] = user.pop("_id")
-            user.pop("_rev")
-            user.pop("password", None)
     return result
 
 
