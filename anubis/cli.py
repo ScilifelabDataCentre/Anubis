@@ -141,44 +141,6 @@ def password(username, password):
 
 
 @cli.command()
-@click.argument("identifier")
-def show(identifier):
-    "Show the JSON for the item given by the identifier."
-    with anubis.app.app.app_context():
-        utils.set_db()
-        for item in [
-            anubis.call.get_call(identifier),
-            anubis.proposal.get_proposal(identifier),
-            anubis.grant.get_grant(identifier),
-            anubis.user.get_user(username=identifier),
-            anubis.user.get_user(email=identifier),
-            flask.g.db.get(identifier),
-        ]:
-            if item:
-                click.echo(json.dumps(item, indent=2))
-                break
-        else:
-            raise click.ClickException("No such item.")
-
-
-@cli.command()
-@click.argument("username")
-def user(username):
-    "Show the JSON for the user given by username or email."
-    with anubis.app.app.app_context():
-        utils.set_db()
-        for item in [
-            anubis.user.get_user(username=username),
-            anubis.user.get_user(email=username),
-        ]:
-            if item:
-                click.echo(json.dumps(item, indent=2))
-                break
-        else:
-            raise click.ClickException("No such user.")
-
-
-@cli.command()
 @click.option(
     "-d", "--dumpfile", type=str, help="The path of the Anubis database dump file."
 )
@@ -222,6 +184,21 @@ def undump(dumpfile, progressbar):
         
         ndocs, nfiles = flask.g.db.undump(dumpfile, progressbar=progressbar)
         click.echo(f"Loaded {ndocs} documents and {nfiles} files.")
+
+
+@cli.command()
+@click.argument("identifier")
+def output(identifier):
+    """Output the JSON for the single document in the database.
+    The identifier may be a user account name, email or ORCID, or a call identifier,
+    proposal identifier, grant identifier, or '_id' if the CouchDB document.
+    """
+    with anubis.app.app.app_context():
+        utils.set_db()
+        doc = utils.get_document(identifier)
+        if doc is None:
+            raise click.ClickException("No such item in the database.")
+        click.echo(json.dumps(doc, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

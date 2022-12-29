@@ -16,7 +16,6 @@
       <div class="row">
         <div class="col-md-4">
           <input type="text" id="identifier" name="identifier"
-                 maxlength="{{ config['CALL_IDENTIFIER_MAXLENGTH'] }}"
                  class="form-control" autofocus
                  aria-describedby="identifierHelp">
         </div>
@@ -24,13 +23,12 @@
       <small id="identifierHelp" class="form-text text-muted">
         <strong>Required!</strong>
         Call identifier, which must be unique. It can be edited only
-        while no proposals or other dependent objects have been
-        created.
+        if no proposals or other dependent objects have been
+        created in the call, and the call has not been opened.
         <br>
-        The identifier must be at most
-        {{ config['CALL_IDENTIFIER_MAXLENGTH'] }} characters long and
-        begin with a letter and continue with letters, digits or
-        underscore. No other characters are allowed.
+        The call identifier must begin with a letter and continue with
+        letters, digits or underscore. No other characters are
+        allowed. It is a good idea to keep it short.
       </small>
     </div>
   </div>

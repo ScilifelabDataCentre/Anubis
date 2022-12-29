@@ -113,7 +113,7 @@ def unpublished():
 
 def get_open_calls():
     "Return a list of open calls, sorted according to configuration."
-    # More computationally efficient to use closes date for first selection.
+    # It is more computationally efficient to use closes date for first selection.
     result = [
         anubis.call.set_tmp(r.doc)
         for r in flask.g.db.view(

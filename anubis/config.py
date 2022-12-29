@@ -40,7 +40,6 @@ DEFAULT_SETTINGS = dict(
     MAIL_PASSWORD=None,
     MAIL_DEFAULT_SENDER=None,  # Should be set if email is enabled.
     MAIL_REPLY_TO=None,
-    CALL_IDENTIFIER_MAXLENGTH=16,
     CALL_REMAINING_DANGER=1.0,
     CALL_REMAINING_WARNING=7.0,
     CALLS_OPEN_ORDER_KEY="closes",
@@ -53,7 +52,6 @@ DEFAULT_SETTINGS = dict(
     USER_ENABLE_IMMEDIATELY=False,
     USER_ENABLE_EMAIL_WHITELIST=[],  # List of fnmatch patterns, not regexp's!
     UNIVERSITIES=[],
-    MARKDOWN_URL="https://www.markdownguide.org/basic-syntax/",
 )
 
 

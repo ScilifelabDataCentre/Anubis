@@ -108,34 +108,7 @@ def home():
 @app.route("/status")
 def status():
     "Return JSON for the current status and some counts for the database."
-    try:
-        n_calls = list(flask.g.db.view("calls", "owner", reduce=True))[0].value
-    except IndexError:
-        n_calls = 0
-    try:
-        n_users = list(flask.g.db.view("users", "username", reduce=True))[0].value
-    except IndexError:
-        n_users = 0
-    try:
-        n_proposals = list(flask.g.db.view("proposals", "call", reduce=True))[0].value
-    except IndexError:
-        n_proposals = 0
-    try:
-        n_reviews = list(flask.g.db.view("reviews", "call", reduce=True))[0].value
-    except IndexError:
-        n_reviews = 0
-    try:
-        n_grants = list(flask.g.db.view("grants", "call", reduce=True))[0].value
-    except IndexError:
-        n_grants = 0
-    return dict(
-        status="ok",
-        n_calls=n_calls,
-        n_users=n_users,
-        n_proposals=n_proposals,
-        n_reviews=n_reviews,
-        n_grants=n_grants,
-    )
+    return utils.get_counts()
 
 
 @app.route("/sitemap")
