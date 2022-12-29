@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Admin and staff users{% endblock %}
+
+{% block body_title %}Admin and staff users{% endblock %}
+
+{% block supermain %}
+<table id="users" class="table table-sm table-hover">
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Email</th>
+      <th>ORCID</th>
+      <th>Given name</th>
+      <th>Family name</th>
+      <th>Affiliation</th>
+      <th>Role</th>
+      <th>Status</th>
+      <th>Modified</th>
+      <th>Last login</th>
+    </tr>
+  </thead>
+  <tbody class="table-borderless">
+    {% for user in users %}
+    <tr>
+      <td>{{ user | user_link(fullname=False) }}</td>
+      <td>{{ user['email'] | display_value }}</td>
+      <td>{{ user.get('orcid') | display_value }}</td>
+      <td>{{ user.get('givenname') | display_value }}</td>
+      <td>{{ user.get('familyname') | display_value }}</td>
+      <td>{{ user.get('affiliation') | display_value }}</td>
+      <td>{{ user['role'] }}</td>
+      <td>
+        {% if user['status'] == constants.PENDING %}
+	<span class="badge badge-pill badge-warning">{{ user['status'] }}</span>
+        {% elif user['status'] == constants.DISABLED %}
+	<span class="badge badge-pill badge-danger">{{ user['status'] }}</span>
+        {% else %}
+        {{ user['status'] }}
+        {% endif %}
+      </td>
+      <td class="small localtime">{{ user['modified'] }}</td>
+      <td class="small">
+        {% if user.get('last_login') %}
+        <span class="localtime">{{ user['last_login'] }}</span>
+        {% else %}
+        ?
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %} {# block supermain #}
+
+{% block javascript %}
+<script>
+  $(function() {
+    $("#users").DataTable( {
+      pagingType: "full_numbers",
+      pageLength: 25,
+      order: [[8, "desc"]]
+    });
+  });
+</script>
+{% endblock %}

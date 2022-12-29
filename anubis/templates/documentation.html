@@ -2,10 +2,11 @@
 
 {% block head_title %}{{ doc.front_matter["title"] }}{% endblock %}
 
-{% block body_title %}
-<span class="ml-5">&nbsp;</span><span class="ml-5">&nbsp;</span>
-{{ doc.front_matter["title"] }}
-{% endblock %}
+{% block body_title_outer %}
+<div class="col-md-9 offset-md-1 my-3">
+  <h1>{{ doc.front_matter["title"] }}</h1>
+</div>
+{% endblock %} {# block body_title_outer #}
 
 {% block main %}
 <div class="row">
@@ -16,21 +17,24 @@
 {% endblock %} {# block main #}
 
 {% block doclinks %}
-<ul class="list-group">
+{% set level = [] %}
+<ul class="list-unstyled">
   {% for d in docs %}
-  {% if d.level == 0 %}
-  <li class="list-group-item">
+  {% if len(level) < d.level %}
+    <ul style="list-style-type: none; padding-left: 20px;">
+    {% do level.append(1) %}
+  {% elif len(level) > d.level %}
+    </ul>
+    {% do level.pop() %}
+  {% endif %}
+  <li>
     <a href="{{ url_for('.page', page=d.slug) }}">{{ d.title }}</a>
   </li>
-  {% elif d.level == 1 %}
-  <li class="list-group-item">
-    <div class="ml-3">
-      <a href="{{ url_for('.page', page=d.slug) }}">{{ d.title }}</a>
-    </div>
-  </li>
-  {% endif %}
   {% endfor %}
-  <li class="list-group-item">
+  {% for i in range(len(level)) %}
+  </ul>
+  {% endfor %}
+  <li>
     <a href="{{ url_for('.page', page='endpoints') }}">URL endpoints</a>
   </li>
 </ul>

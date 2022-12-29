@@ -250,7 +250,7 @@ def documents(cid):
                 saver.add_document(infile, description)
         else:
             utils.flash_error("No document selected.")
-        return flask.redirect(flask.url_for(".display", cid=call["identifier"]))
+        return flask.redirect(flask.url_for(".documents", cid=call["identifier"]))
 
 
 @blueprint.route("/<cid>/documents/<documentname>", methods=["GET", "POST", "DELETE"])
@@ -737,8 +737,6 @@ class CallSaver(AccessMixin, AttachmentSaver):
             raise ValueError("Identifier for this call may not be changed.")
         if not identifier:
             raise ValueError("Identifier must be provided.")
-        if len(identifier) > flask.current_app.config["CALL_IDENTIFIER_MAXLENGTH"]:
-            raise ValueError("Too long identifier.")
         if not constants.ID_RX.match(identifier):
             raise ValueError("Invalid identifier.")
         if get_call(identifier):

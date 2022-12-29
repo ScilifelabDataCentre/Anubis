@@ -1,6 +1,4 @@
 {
-    "SITE_NAME": "Anubis-dev",
-    "DEBUG": true,
     "SECRET_KEY": "you need to change this string value",
     "COUCHDB_USERNAME": "username",
     "COUCHDB_PASSWORD": "password",

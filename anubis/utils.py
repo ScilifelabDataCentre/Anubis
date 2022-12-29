@@ -93,16 +93,21 @@ META_DESIGN_DOC = {
 }
 
 
-def get_db(app=None):
-    "Get a connection to the database."
+def get_server(app=None):
     if app is None:
         app = flask.current_app
-    server = couchdb2.Server(
+    return couchdb2.Server(
         href=app.config["COUCHDB_URL"],
         username=app.config["COUCHDB_USERNAME"],
         password=app.config["COUCHDB_PASSWORD"],
     )
-    return server[app.config["COUCHDB_DBNAME"]]
+
+
+def get_db(app=None):
+    "Get a connection to the database."
+    if app is None:
+        app = flask.current_app
+    return get_server(app=app)[app.config["COUCHDB_DBNAME"]]
 
 
 def update_db(app=None):
@@ -164,6 +169,20 @@ def get_count(designname, viewname, key=None):
         return 0
 
 
+def get_counts():
+    "Get counts of some entities in the database."
+    result = {}
+    for key, design, view in [("n_calls", "calls", "owner"),
+                              ("n_users", "users", "username"),
+                              ("n_proposals", "proposals", "call"),
+                              ("n_reviews", "reviews", "call"),
+                              ("n_grants", "grants", "call")]:
+        try:
+            result[key] = list(flask.g.db.view(design, view, reduce=True))[0].value
+        except IndexError:
+            result[key] = 0
+    return result
+
 def get_call_proposals_count(cid):
     "Get the count for all proposals in the given call."
     return get_count("proposals", "call", cid)
@@ -218,6 +237,35 @@ def get_docs_view(designname, viewname, key):
                 flask.g.cache[f"email {doc['email']}"] = doc
     return result
 
+
+def get_document(identifier):
+    """Get the database document by identifier, else None.
+    The identifier may be an account email, account API key, file name, info name,
+    order identifier, or '_id' of the CouchDB document.
+    """
+    if not identifier:          # If empty string, database info is returned.
+        return None
+    for designname, viewname in [
+            ("users", "username"),
+            ("users", "email"),
+            ("users", "orcid"),
+            ("calls", "identifier"),
+            ("proposals", "identifier"),
+            ("grants", "identifier"),
+    ]:
+        try:
+            view = flask.g.db.view(
+                designname, viewname, key=identifier, reduce=False, include_docs=True
+            )
+            result = list(view)
+            if len(result) == 1:
+                return result[0].doc
+        except KeyError:
+            pass
+    try:
+        return flask.g.db[identifier]
+    except couchdb2.NotFoundError:
+        return None
 
 def login_required(f):
     """Resource endpoint decorator for checking if logged in.

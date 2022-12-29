@@ -4,7 +4,7 @@ import os.path
 import re
 import sys
 
-__version__ = "1.15.2"
+__version__ = "1.15.3"
 
 
 class Constants:
@@ -62,6 +62,8 @@ class Constants:
     DATATABLES_BOOTSTRAP_JS_URL = (
         "https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"
     )
+
+    MARKDOWN_URL = "https://www.markdownguide.org/basic-syntax/",
 
     CLIPBOARD_URL = "https://clipboardjs.com/"
     CLIPBOARD_VERSION = "2.0.6"
@@ -187,6 +189,7 @@ class Constants:
     XLSX_MIMETYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     ZIP_MIMETYPE = "application/zip"
     XML_MIMETYPE = "text/xml"
+    JSON_MIMETYPE = "application/json"
 
     DOCUMENTATION = (
         "Basic concepts",

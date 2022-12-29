@@ -87,8 +87,12 @@
               <a class="dropdown-item"
                  href="{{ url_for('user.pending') }}">Pending users</a>
               <a class="dropdown-item"
+                 href="{{ url_for('user.staff') }}">Admin and staff users</a>
+              <a class="dropdown-item"
                  href="{{ url_for('user.register') }}">Register user</a>
               {% if g.am_admin %}
+              <a class="dropdown-item"
+                 href="{{ url_for('admin.database') }}">Database</a>
               <a class="dropdown-item"
                  href="{{ url_for('admin.settings') }}">Settings</a>
               {% endif %} {# if g.am_admin #}
