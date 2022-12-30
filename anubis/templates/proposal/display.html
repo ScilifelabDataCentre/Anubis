@@ -11,22 +11,29 @@
 <div>
   <a href="{{ url_for('proposal.display_docx', pid=proposal['identifier']) }}"
      title="Proposal information"
-     class="badge badge-pill badge-dark">Proposal DOCX file</a>
+     class="badge badge-pill badge-dark"
+     title="Download a DOCX file containing the proposal information.">
+    Proposal Word file</a>
 </div>
 
 <div>
   <a href="{{ url_for('proposal.display_xlsx', pid=proposal['identifier']) }}"
      title="Proposal information"
-     class="badge badge-pill badge-dark">Proposal Excel file</a>
+     class="badge badge-pill badge-dark"
+     title="Download an XLSX file containing the proposal information">
+    Proposal Excel file</a>
 </div>
 
 <a href="#email_lists" data-toggle="collapse"
    class="badge badge-pill badge-secondary" role="button"
-   aria-expanded="false" aria-controls="email_lists">Email address lists</a>
+   aria-expanded="false" aria-controls="email_lists"
+   title="Toggle display of email address lists.">Email address lists</a>
 
 {% if g.am_admin %}
 <a href="{{ url_for('admin.document', identifier=proposal['_id']) }}"
-   class="badge badge-pill badge-light" role="button">Database document</a>
+   class="badge badge-pill badge-light" role="button"
+   title="Download the JSON CouchDB database document for the proposal.">
+  Database document</a>
 {% endif %}
 
 {% endblock %} {# block meta #}

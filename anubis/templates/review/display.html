@@ -13,7 +13,9 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 
 {% if g.am_admin %}
 <a href="{{ url_for('admin.document', identifier=review['_id']) }}"
-   class="badge badge-pill badge-light" role="button">Database document</a>
+   class="badge badge-pill badge-light" role="button"
+   title="Download the JSON CouchDB database document for the review.">
+  Database document</a>
 {% endif %}
 
 {% endblock %} {# block meta #}

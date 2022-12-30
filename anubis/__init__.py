@@ -4,7 +4,7 @@ import os.path
 import re
 import sys
 
-__version__ = "1.15.4"
+__version__ = "2.0.0"
 
 
 class Constants:
@@ -86,6 +86,9 @@ class Constants:
     GRANT = "grant"
     LOG = "log"
     META = "meta"
+
+    # Generic fields in CouchDB document
+    GENERIC_FIELDS = frozenset(["_id", "_rev", "created", "modified"])
 
     # User roles
     ADMIN = "admin"

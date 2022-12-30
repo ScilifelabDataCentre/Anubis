@@ -40,6 +40,7 @@ def setup_template_context():
         range=range,
         sorted=sorted,
         len=len,
+        min=min,
         max=max,
         utils=utils,
         constants=constants,
@@ -61,6 +62,7 @@ def initialize():
     2) Load the documentation files.
     3) Update the database.
     4) Set the database connection and cache.
+    5) Update the configuration from values stored in the database.
     """
     app = flask.current_app
     utils.init(app)
@@ -68,6 +70,7 @@ def initialize():
     anubis.doc.init(app)
     utils.update_db(app)
     utils.set_db(app)
+    utils.update_config_from_db(app)
 
 
 @app.before_request
@@ -115,31 +118,16 @@ def status():
 def sitemap():
     "Return an XML sitemap."
     pages = [
-        dict(
-            url=flask.url_for("home", _external=True), changefreq="daily", priority=1.0
-        ),
-        dict(url=flask.url_for("about.contact", _external=True), changefreq="yearly"),
-        dict(url=flask.url_for("about.software", _external=True), changefreq="yearly"),
-        dict(
-            url=flask.url_for("calls.open", _external=True),
-            changefreq="daily",
-            priority=1.0,
-        ),
-        dict(
-            url=flask.url_for("calls.closed", _external=True),
-            changefreq="daily",
-            priority=0.1,
-        ),
+        dict(url=flask.url_for("home", _external=True)),
+        dict(url=flask.url_for("about.contact", _external=True)),
+        dict(url=flask.url_for("about.software", _external=True)),
+        dict(url=flask.url_for("calls.open", _external=True)),
+        dict(url=flask.url_for("calls.closed", _external=True)),
     ]
     for call in anubis.calls.get_open_calls():
         pages.append(
             dict(
-                url=flask.url_for(
-                    "call.display", cid=call["identifier"], _external=True
-                ),
-                changefreq="daily",
-                priority=0.8,
-            )
+                url=flask.url_for("call.display", cid=call["identifier"], _external=True))
         )
     xml = flask.render_template("sitemap.xml", pages=pages)
     response = flask.current_app.make_response(xml)

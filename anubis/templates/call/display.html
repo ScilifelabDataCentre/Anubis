@@ -12,27 +12,33 @@
 {% if g.am_admin %}
 <a href="{{ url_for('proposals.call_xlsx', cid=call['identifier']) }}"
    class="badge badge-pill badge-dark" role="button"
-   title="Excel file of all proposals in the call.">Proposals Excel file</a>
+   title="Download XLSX file of all proposals in the call.">Proposals Excel file</a>
 {% endif %}
 
 {% if allow_view_proposals or allow_view_grants %}
 <a href="{{ url_for('proposals.call_xlsx', cid=call['identifier'], submitted=true) }}"
-   class="badge badge-pill badge-dark" role="button">
+   class="badge badge-pill badge-dark" role="button"
+   title="Download XLSX file of all submitted proposals in the call.">
   Submitted proposals Excel file</a>
 {% endif %} {# if allow_view_proposals or allow_view_grants #}
 
 {% if allow_view_proposals %}
 <a href="{{ url_for('.call_zip', cid=call['identifier']) }}"
    title="Excel file and documents for submitted proposals."
-   class="badge badge-pill badge-dark">Submitted proposals zip file</a>
+   class="badge badge-pill badge-dark"
+   title="Download zip file of all submitted proposals in the call.">
+  Submitted proposals zip file</a>
 <a href="#email_lists" data-toggle="collapse"
    class="badge badge-pill badge-secondary" role="button"
-   aria-expanded="false" aria-controls="email_lists">Email address lists</a>
+   aria-expanded="false" aria-controls="email_lists"
+   title="Toggle display of email address lists.">Email address lists</a>
 {% endif %} {# if allow_view_proposals #}
 
 {% if g.am_admin %}
 <a href="{{ url_for('admin.document', identifier=call['_id']) }}"
-   class="badge badge-pill badge-light" role="button">Database document</a>
+   class="badge badge-pill badge-light" role="button"
+   title="Download the JSON CouchDB database document for the call.">
+  Database document</a>
 {% endif %}
 
 {% endblock %} {# block meta #}

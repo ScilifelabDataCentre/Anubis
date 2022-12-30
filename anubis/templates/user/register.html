@@ -61,30 +61,29 @@
       </div>
       <small id="emailHelp" class="form-text text-muted">
         <strong>Required!</strong>
-        <p>
-	  A valid email address for the user. It must be unique within
-	  the database of this site.
-        </p>
-        <p>
-          When your account has been enabled, an email with
-          instructions on how to set your password will be sent to this
-          email address.
-        </p>
-        <p>
-          {% if config["USER_ENABLE_EMAIL_WHITELIST"] %}
-          Some email addresses allow the account to be immediately enabled,
-          depending on the configuration of this particular site.
-          Most email addresses require an administrator of the site to
-          enable your account after inspection.
-          {% else %}
-          The administrator of the site will inspect your account
-          and decide whether to enable it or not.
-          {% endif %}
-        </p>
+	A valid email address for the user. It must be unique within
+	the database of this site.
+        <br>
+        When your account has been enabled, an email with instructions
+        on how to set your password will be sent to this email
+        address.
+        <br>
+        {% if config["USER_ENABLE_EMAIL_WHITELIST"] %}
+        Some email addresses allow your account to be immediately
+        enabled, depending on the configuration of this particular
+        site.
+        <br>
+        Other email addresses require an administrator of the site to
+        enable your account after inspection.
+        {% else %}
+        The administrator of the site will inspect your account and
+        decide whether to enable it or not.
+        {% endif %}
       </small>
     </div>
   </div>
 
+  {% if config['USER_ORCID'] %}
   <div class="form-group row">
     <label for="orcid" class="col-md-2 col-form-label text-right">ORCID</label>
     <div class="col-md">
@@ -99,6 +98,7 @@
       </small>
     </div>
   </div>
+  {% endif %}
 
   <div class="form-group row">
     <label for="givenname" class="col-md-2 col-form-label text-right">
@@ -206,7 +206,7 @@
             {% endfor %}
           </select>
         </div>
-        {% endif %}
+        {% endif %} {# if config['UNIVERSITIES'] #}
         <div class="col-md-6">
           <input type="text" id="affiliation_other" name="affiliation_other"
                  class="form-control"
@@ -214,17 +214,21 @@
         </div>
       </div>
       <small id="affiliationHelp" class="form-text text-muted">
+        {% if config['UNIVERSITIES'] %}
         Abbreviated name of the university; select from the drop-down
-        menu.
+        menu, if present.
         <br>
         If not present in the menu, write abbreviated name of
-        international university or company.
+        university or company in the field to the right.
+        {% else %}
+        Write the abbreviated name of university or company.
+        {% endif %} {# if config['UNIVERSITIES'] #}
       </small>
     </div>
   </div>
   {% endif %}
 
-  {% if config['USER_POSTAL_ADDRESS'] %}
+  {% if config['USER_POSTALADDRESS'] %}
   <div class="form-group row">
     <label for="postaladdress" class="col-md-2 col-form-label text-right">
       Postal address</label>
@@ -232,7 +236,7 @@
       <div class="row">
         <div class="col-md-6">
           <textarea id="postaladdress" name="postaladdress"
-                    class="form-control" 
+                    class="form-control" rows="4"
                     aria-describedby="postaladdressHelp"></textarea>
         </div>
       </div>
@@ -262,7 +266,7 @@
   </div>
   {% endif %}
 
-  {% if g.am_admin %}
+  {% if g.am_admin or g.am_staff %}
   <div class="form-group row">
     <label for="enable" class="col-md-2 col-form-label text-right">
       Enable</label>
@@ -298,9 +302,9 @@
     </div>
   </div>
 
-  {% else %} {# if g.am_admin #}
+  {% else %} {# if g.am_admin or g.am_staff #}
   <input type="hidden" name="send_email" value="true">
-  {% endif %} {# if g.am_admin #}
+  {% endif %} {# if g.am_admin or g.am_staff #}
 
   <div class="form-group row">
     <div class="col-md-4 offset-md-2">
@@ -310,17 +314,17 @@
 
 </form>
 
-{% if gdpr %}
+{% if data_policy['text'] %}
 <div class="row mt-4">
   <div class=" col-md-10 offset-md-2">
     <div class="card">
       <div class="card-header">
-        <h4 class="card-title">Personal data policy</h4>
+        <h4 class="card-title">Data policy</h4>
       </div>
-      <div class="card-body">{{ gdpr | display_markdown }}</div>
+      <div class="card-body">{{ data_policy['text'] | display_markdown }}</div>
     </div>
   </div>
 </div>
-{% endif %} {# if gdpr #}
+{% endif %} {# if data_policy['text'] #}
 
 {% endblock %}

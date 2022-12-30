@@ -84,7 +84,7 @@ def register():
     "Register a new user account."
     if utils.http_GET():
         return flask.render_template(
-            "user/register.html", gdpr=utils.get_site_text("gdpr.md")
+            "user/register.html", data_policy=flask.g.db["data_policy"]
         )
 
     elif utils.http_POST():
@@ -93,11 +93,12 @@ def register():
                 saver.set_username(flask.request.form.get("username"))
                 saver.set_email(flask.request.form.get("email"))
                 saver.set_orcid(flask.request.form.get("orcid"))
-                if utils.to_bool(flask.request.form.get("enable")):
-                    saver.set_status(constants.ENABLED)
+                if flask.g.am_admin or flask.g.am_staff:
+                    if utils.to_bool(flask.request.form.get("enable")):
+                        saver.set_status(constants.ENABLED)
                 saver.set_role(constants.USER)
                 saver.set_call_creator(False)
-                saver.set_password()  # Sets code.
+                saver.set_password()  # No argument; sets code.
                 saver.set_givenname(flask.request.form.get("givenname"))
                 saver.set_familyname(flask.request.form.get("familyname"))
                 saver.set_gender(flask.request.form.get("gender"))
@@ -112,17 +113,25 @@ def register():
             user = saver.doc
         except ValueError as error:
             return utils.error(error, flask.url_for(".register"))
-        # Directly enabled; send code to the user, if so instructed.
+        # Directly enabled due to white list; send code in email to the user.
         if user["status"] == constants.ENABLED:
-            if utils.to_bool(flask.request.form.get("send_email")):
-                send_email_password_code(user, "registered")
-                utils.flash_message(
-                    "User account created; an email with a link"
-                    " to set password has been sent."
-                )
-            else:
-                utils.flash_message("User account created.")
-        # Was set to 'pending'; send email to admins.
+            try:
+                if utils.to_bool(flask.request.form.get("send_email")):
+                    send_email_password_code(user, "registered")
+                    utils.flash_message(
+                        "User account created. An email with a link"
+                        " to set the password has been sent."
+                    )
+                else:
+                    utils.flash_message("User account created. No email was sent.")
+            except ValueError:
+                utils.flash_warning(
+                    "User account created, but no email could be sent."
+                    " The email server is badly configured."
+                    " You must request the one-time password setting code"
+                    " from the admin of the site."
+                    )
+        # Was set to 'pending'; try to send email to admins.
         else:
             utils.flash_message(
                 "User account created; an email will be sent"
@@ -137,9 +146,10 @@ def register():
             try:
                 utils.send_email(recipients, title, text)
             except ValueError:
-                if flask.g.admin:
+                if flask.g.am_admin or flask.g.am_staff:
                     utils.flash_warning(
-                        "No email sent; email server not configured. The code must be sent manually to the user."
+                        "No email sent; email server badly configured."
+                        " The code must be sent manually to the user."
                     )
                     return flask.redirect(
                         flask.url_for("user.display", username=user["username"])
@@ -423,16 +433,14 @@ class UserSaver(BaseSaver):
 
     def initialize(self):
         "Set the status for a new user."
-        if flask.current_app.config["USER_ENABLE_IMMEDIATELY"]:
-            self.doc["status"] = constants.ENABLED
-        else:
-            self.doc["status"] = constants.PENDING
+        self.config = flask.current_app.config
+        self.doc["status"] = constants.PENDING
 
     def finish(self):
         "Check that required fields have been set."
         for key in ["username", "role", "status"]:
             if not self.doc.get(key):
-                raise ValueError("invalid user: %s not set" % key)
+                raise ValueError(f"invalid user: {key} not set")
 
     def set_username(self, username):
         if "username" in self.doc:
@@ -456,7 +464,7 @@ class UserSaver(BaseSaver):
             self.doc["email"] = email
             if self.doc.get("status") == constants.PENDING:
                 # Filename matching instead of regexp; easier to specify.
-                for ep in flask.current_app.config["USER_ENABLE_EMAIL_WHITELIST"]:
+                for ep in self.config["USER_ENABLE_EMAIL_WHITELIST"]:
                     if fnmatch.fnmatch(email, ep):
                         self.set_status(constants.ENABLED)
                         break
@@ -504,14 +512,12 @@ class UserSaver(BaseSaver):
         self.doc["familyname"] = familyname or None
 
     def set_gender(self, gender):
-        if not flask.current_app.config["USER_GENDERS"]:
-            return
-        if gender not in flask.current_app.config["USER_GENDERS"]:
+        if gender not in self.config["USER_GENDERS"]:
             gender = None
         self.doc["gender"] = gender
 
     def set_birthdate(self, birthdate):
-        if not flask.current_app.config["USER_BIRTHDATE"]:
+        if not self.config["USER_BIRTHDATE"]:
             return
         if birthdate:
             try:
@@ -521,38 +527,29 @@ class UserSaver(BaseSaver):
         self.doc["birthdate"] = birthdate
 
     def set_degree(self, degree):
-        if not flask.current_app.config["USER_DEGREES"]:
-            return
-        if degree not in flask.current_app.config["USER_DEGREES"]:
+        if degree not in self.config["USER_DEGREES"]:
             degree = None
         self.doc["degree"] = degree
 
     def set_affiliation(self, affiliation):
-        if not flask.current_app.config["USER_AFFILIATION"]:
-            return
-        self.doc["affiliation"] = affiliation or None
+        self.doc["affiliation"] = self.config["USER_AFFILIATION"] and affiliation or None
 
     def set_postaladdress(self, postaladdress):
-        if not flask.current_app.config["USER_POSTALADDRESS"]:
-            return
-        self.doc["postaladdress"] = postaladdress or None
+        self.doc["postaladdress"] = self.config["USER_POSTALADDRESS"] and postaladdress or None
 
     def set_phone(self, phone):
-        if not flask.current_app.config["USER_PHONE"]:
-            return
-        self.doc["phone"] = phone or None
+        self.doc["phone"] = self.config["USER_PHONE"] and phone or None
 
     def set_password(self, password=None):
         "Set the password; a one-time code if no password provided."
-        config = flask.current_app.config
         if password:
-            if len(password) < config["MIN_PASSWORD_LENGTH"]:
+            if len(password) < self.config["MIN_PASSWORD_LENGTH"]:
                 raise ValueError("password too short")
             self.doc["password"] = werkzeug.security.generate_password_hash(
-                password, salt_length=config["SALT_LENGTH"]
+                password, salt_length=self.config["SALT_LENGTH"]
             )
         else:
-            self.doc["password"] = "code:%s" % utils.get_iuid()
+            self.doc["password"] = f"code:{utils.get_iuid()}"
 
     def set_last_login(self):
         self.doc["last_login"] = utils.get_time()

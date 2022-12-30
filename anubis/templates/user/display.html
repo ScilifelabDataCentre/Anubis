@@ -160,7 +160,7 @@ User {{ user['username'] }}
   </tr>
   {% endif %}
 
-  {% if config['USER_POSTAL_ADDRESS'] %}
+  {% if config['USER_POSTALADDRESS'] %}
   <tr>
     <th class="text-right">Postal address</th>
     <td><pre>{{ user.get('postaladdress') | display_value }}</pre></td>

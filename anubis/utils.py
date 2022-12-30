@@ -3,7 +3,6 @@
 import datetime
 import functools
 import http.client
-import logging
 import os.path
 import smtplib
 import uuid
@@ -27,9 +26,8 @@ MAIL = flask_mail.Mail()
 
 def init(app):
     "Initialize: Logging, setup email, add template filters."
-    logging.basicConfig(level=logging.INFO)
-    logging.info(f"Anubis version {constants.VERSION}")
-    logging.info(f"settings: {app.config['SETTINGS_FILE']}")
+    app.logger.info(f"Anubis version {constants.VERSION}")
+    app.logger.info(f"settings file: {app.config.get('SETTINGS_FILE')}")
     MAIL.init_app(app)
     app.add_template_filter(display_markdown)
     app.add_template_filter(display_field_value)
@@ -113,6 +111,7 @@ def get_db(app=None):
 def update_db(app=None):
     """Update the contents of the database for changes in new version(s).
     - Change all stored datetimes (call opens, closes, reviews_due) to UTC ISO format.
+    - Add meta documents for data policy and contact pages.
     """
     db = get_db(app=app)
     calls = [row.doc for row in db.view("calls", "identifier", include_docs=True)]
@@ -129,7 +128,7 @@ def update_db(app=None):
                     changed = True
                     call[key] = utc_from_timezone_isoformat(value)
         if changed:
-            logging.info(f"Updated call {call['identifier']} document.")
+            app.logger.info(f"Updated call {call['identifier']} document.")
             db.put(call)
     if "data_policy" not in db:
         try:
@@ -149,12 +148,40 @@ def update_db(app=None):
             text = None
         with MetaSaver(id="contact", db=db) as saver:
             saver["text"] = text
+    if "user_configuration" not in db:
+        with MetaSaver(id="user_configuration", db=db) as saver:
+            saver["orcid"] = to_bool(app.config.get("USER_ORCID", True))
+            saver["genders"] = app.config.get("USER_GENDERS") or ["Male", "Female", "Other"]
+            saver["birthdate"] = to_bool(app.config.get("USER_BIRTHDATE", True))
+            saver["degrees"] = app.config.get("USER_DEGREES") or ["Mr/Ms", "MSc", "MD", "PhD", "Assoc Prof", "Prof", "Other"]
+            saver["affiliation"] = to_bool(app.config.get("USER_AFFILIATION", True))
+            saver["universities"] = app.config.get("UNIVERSITIES") or []
+            # Badly chosen key, but have to keep it...
+            saver["postaladdress"] = to_bool(app.config.get("USER_POSTALADDRESS", False))
+            saver["phone"] = to_bool(app.config.get("USER_PHONE", True))
+            saver["enable_email_whitelist"] = app.config.get("USER_ENABLE_EMAIL_WHITELIST") or []
 
 
 def set_db(app=None):
-    "Sets the database connection and creates the document cache."
+    "Set the database connection and create the document cache."
     flask.g.db = get_db(app=app)
     flask.g.cache = {}  # key: id, value: doc.
+
+
+def update_config_from_db(app=None):
+    "Set configuration values that are stored in the database."
+    if app is None:
+        app = flask.current_app
+    user_configuration = flask.g.db["user_configuration"]
+    for key, value in user_configuration.items():
+        if key in constants.GENERIC_FIELDS: continue
+        if key == "universities":  # Special case
+            app.config["UNIVERSITIES"] = value
+        else:
+            app.config[f"USER_{key.upper()}"] = value
+    # Special case: user cannot be enabled immediately if no email server defined.
+    if not app.config["MAIL_SERVER"]:
+        app.config["USER_ENABLE_EMAIL_WHITELIST"] = []
 
 
 def get_count(designname, viewname, key=None):
@@ -325,11 +352,11 @@ def get_iuid():
 
 
 def to_bool(s):
-    "Convert string value into boolean."
-    if not s:
-        return False
-    s = s.lower()
-    return s in ("true", "t", "yes", "y")
+    "Convert string or other value into boolean."
+    if isinstance(s, str):
+        return s.lower() in ("true", "t", "yes", "y")
+    else:
+        return bool(s)
 
 
 def get_time():
@@ -783,18 +810,6 @@ class HtmlRenderer(marko.html_renderer.HTMLRenderer):
         return template.format(url, title, body)
 
 
-def get_site_text(filename):
-    """Get the Markdown-formatted text from a file in the site directory.
-    Return None if no such file.
-    """
-    try:
-        filepath = os.path.normpath(os.path.join(constants.ROOT, "../site", filename))
-        with open(filepath) as infile:
-            return infile.read()
-    except (OSError, IOError):
-        return None
-
-
 def get_logs(docid, cleanup=True):
     """Return the list of log entries for the given document identifier,
     sorted by reverse timestamp.
@@ -845,7 +860,7 @@ def send_email(recipients, title, text):
     try:
         MAIL.send(message)
     except (ConnectionRefusedError, smtplib.SMTPAuthenticationError) as error:
-        logging.error(str(error))
+        app.logger.error(str(error))
         raise KeyError
 
 

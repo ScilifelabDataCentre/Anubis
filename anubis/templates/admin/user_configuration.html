@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+
+{% block head_title %}User configuration{% endblock %}
+{% block body_title %}User configuration{% endblock %}
+
+{% block main %}
+<form action="{{ url_for('.user_configuration') }}"
+      method="POST">
+  {{ csrf_token() }}
+
+  <div class="form-group row">
+    <label for="orcid" class="col-md-2 col-form-label text-right">
+      Orcid</label>
+    <div class="col-md">
+      <div class="form-check">
+	<input type="checkbox"
+               name="orcid" id="orcid"
+	       class="form-check-input"
+	       aria-describedby="orcidHelp"
+	       value="yes"
+	       {{ config['USER_ORCID'] and 'checked' or '' }}>
+        <label class="form-check-label" for="orcid">
+	  Yes</label>
+      </div>
+      <small id="orcidHelp" class="form-text text-muted">
+	The ORCID field is present when registering a user account.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label for="genders" class="col-md-2 col-form-label text-right">
+      Genders</label>
+    <div class="col-md-4">
+      <textarea id="genders" name="genders"
+		class="form-control"
+                rows="{{ min(8, max(2, len(configuration['genders']))) }}"
+		aria-describedby="gendersHelp"
+		>{{ '\n'.join(config['USER_GENDERS']) }}</textarea>
+      <small id="gendersHelp" class="form-text text-muted">
+	Gender alternatives to select among when registering a user account.
+        <br>
+        Specify gender one per line.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label for="birthdate" class="col-md-2 col-form-label text-right">
+      Birthdate</label>
+    <div class="col-md">
+      <div class="form-check">
+	<input type="checkbox"
+               name="birthdate" id="birthdate"
+	       class="form-check-input"
+	       aria-describedby="birthdateHelp"
+	       value="yes"
+	       {{ config['USER_BIRTHDATE'] and 'checked' or '' }}>
+        <label class="form-check-label" for="birthdate">
+	  Yes</label>
+      </div>
+      <small id="birthdateHelp" class="form-text text-muted">
+	The birthdate field is present when registering a user account.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label for="degrees" class="col-md-2 col-form-label text-right">
+      Degrees</label>
+    <div class="col-md-4">
+      <textarea id="degrees" name="degrees"
+		class="form-control"
+                rows="{{ min(8, max(2, len(configuration['degrees']))) }}"
+		aria-describedby="degreesHelp"
+		>{{ '\n'.join(config['USER_DEGREES']) }}</textarea>
+      <small id="degreesHelp" class="form-text text-muted">
+        Academic degrees to select among when registering a user account.
+        <br>
+        Specify one degree per line.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label for="affiliation" class="col-md-2 col-form-label text-right">
+      Affiliation</label>
+    <div class="col-md">
+      <div class="form-check">
+	<input type="checkbox"
+               name="affiliation" id="affiliation"
+	       class="form-check-input"
+	       aria-describedby="affiliationHelp"
+	       value="yes"
+	       {{ config['USER_AFFILIATION'] and 'checked' or '' }}>
+        <label class="form-check-label" for="affiliation">
+	  Yes</label>
+      </div>
+      <small id="affiliationHelp" class="form-text text-muted">
+	The affiliation field is present when registering a user account.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label for="universities" class="col-md-2 col-form-label text-right">
+      Universities</label>
+    <div class="col-md-4">
+      <textarea id="universities" name="universities"
+		class="form-control"
+                rows="{{ min(8, max(2, len(configuration['universities']))) }}"
+		aria-describedby="universitiesHelp"
+		>{{ '\n'.join(config['UNIVERSITIES']) }}</textarea>
+      <small id="universitiesHelp" class="form-text text-muted">
+        List of universities to choose from when registering a user account.
+        Relevant only if affiliation is requested (see above).
+        <br>
+        Specify one university per line.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label for="postaladdress" class="col-md-2 col-form-label text-right">
+      Postal address</label>
+    <div class="col-md">
+      <div class="form-check">
+	<input type="checkbox"
+               name="postaladdress" id="postaladdress"
+	       class="form-check-input"
+	       aria-describedby="postaladdressHelp"
+	       value="yes"
+	       {{ config['USER_POSTALADDRESS'] and 'checked' or '' }}>
+        <label class="form-check-label" for="postaladdress">
+	  Yes</label>
+      </div>
+      <small id="postaladdressHelp" class="form-text text-muted">
+	The postal address field is present when registering a user account.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label for="phone" class="col-md-2 col-form-label text-right">
+      Phone</label>
+    <div class="col-md">
+      <div class="form-check">
+	<input type="checkbox"
+               name="phone" id="phone"
+	       class="form-check-input"
+	       aria-describedby="phoneHelp"
+	       value="yes"
+	       {{ config['USER_PHONE'] and 'checked' or '' }}>
+        <label class="form-check-label" for="phone">
+	  Yes</label>
+      </div>
+      <small id="phoneHelp" class="form-text text-muted">
+	The phone field is present when registering a user account.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label for="enable_email_whitelist" class="col-md-2 col-form-label text-right">
+      Email patterns whitelist</label>
+    <div class="col-md-6">
+      {% if config['MAIL_SERVER'] %}
+      <textarea id="enable_email_whitelist" name="enable_email_whitelist"
+		class="form-control"
+                rows="{{ min(8, max(2, len(config['USER_ENABLE_EMAIL_WHITELIST']))) }}"
+		aria-describedby="enable_email_whitelistHelp"
+		>{{ '\n'.join(config['USER_ENABLE_EMAIL_WHITELIST']) }}</textarea>
+      <small id="enable_email_whitelistHelp" class="form-text text-muted">
+        List of email patterns for user accounts that will be enabled
+        directly without intervention by the admin.
+        <br>
+        The pattern format is that used for UNIX filename matching
+        (see the Pyton module <strong>fnmatch</strong>) E.g. the
+        pattern <code>*@kth.se</code> matches an email "perka@kth.se",
+        while the pattern
+        <code>perka?@kth.se</code> will not match it, because the
+        pattern requires one more character in the name part of the
+        email.
+        <br>
+        Specify one pattern per line.
+      </small>
+      {% else %}
+      <input type="text" id="enable_email_whitelist"
+             readonly class="form-control-plaintext"
+             value="No email server is defined. this configuration item cannot be set.">
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <div class="col-md-3 offset-md-2">
+      <button type="submit" class="btn btn-block btn-primary">Save</button>
+    </div>
+  </div>
+
+</form>
+{% endblock %} {# block main #}
+
+{% block actions %}
+<div class="mt-2">
+  <a href="{{ url_for('home') }}"
+     role="button" class="btn btn-block btn-secondary">Cancel</a>
+</div>
+{% endblock %}

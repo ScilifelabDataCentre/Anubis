@@ -92,6 +92,8 @@
                  href="{{ url_for('user.register') }}">Register user</a>
               {% if g.am_admin %}
               <a class="dropdown-item"
+                 href="{{ url_for('admin.user_configuration') }}">User configuration</a>
+              <a class="dropdown-item"
                  href="{{ url_for('admin.database') }}">Database</a>
               <a class="dropdown-item"
                  href="{{ url_for('admin.settings') }}">Settings</a>

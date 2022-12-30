@@ -1,4 +1,6 @@
-"Configuration of the instance: default settings and reading of settings file."
+"""Configuration of this Anubis instance: default configuration,
+modified by an optional settings file or environment variables.
+"""
 
 import datetime
 import json
@@ -11,10 +13,10 @@ from anubis import constants
 from anubis import utils
 
 
-# Default configurable values; modified by reading a JSON file in 'init'.
-DEFAULT_SETTINGS = dict(
+# Default configurable values, loaded and/or modified in procedure 'init'.
+DEFAULT_CONFIG = dict(
     DEBUG=False,
-    SERVER_NAME="localhost:5002",  # For URL generation; app.run() in devel.
+    SERVER_NAME=None, # Previously "localhost:5002" for development.
     REVERSE_PROXY=False,
     SITE_NAME="Anubis",
     SITE_DESCRIPTION="Submit proposals for grants in open calls.",
@@ -43,15 +45,6 @@ DEFAULT_SETTINGS = dict(
     CALL_REMAINING_DANGER=1.0,
     CALL_REMAINING_WARNING=7.0,
     CALLS_OPEN_ORDER_KEY="closes",
-    USER_GENDERS=["Male", "Female", "Other"],
-    USER_BIRTHDATE=True,
-    USER_DEGREES=["Mr/Ms", "MSc", "MD", "PhD", "Assoc Prof", "Prof", "Other"],
-    USER_AFFILIATION=True,
-    USER_POSTALADDRESS=True,
-    USER_PHONE=True,
-    USER_ENABLE_IMMEDIATELY=False,
-    USER_ENABLE_EMAIL_WHITELIST=[],  # List of fnmatch patterns, not regexp's!
-    UNIVERSITIES=[],
 )
 
 
@@ -61,13 +54,12 @@ def init(app):
     1) The settings file path environment variable ANUBIS_SETTINGS_FILEPATH.
     2) The file 'settings.json' in this directory.
     3) The file '../site/settings.json' relative to this directory.
-    Check the environment for variables and use if defined.
+    4) Check for environment variables and use value if defined.
     Raise IOError if settings file could not be read.
     Raise KeyError if a settings variable is missing.
     Raise ValueError if a settings variable value is invalid.
     """
-    # Set the defaults specified above.
-    app.config.from_mapping(DEFAULT_SETTINGS)
+    app.config.from_mapping(DEFAULT_CONFIG)
 
     # Modify the configuration from a JSON settings file.
     filepaths = []
@@ -79,15 +71,20 @@ def init(app):
         filepaths.append(os.path.normpath(os.path.join(constants.ROOT, filepath)))
     for filepath in filepaths:
         try:
-            app.config.from_file(filepath, load=json.load)
+            with open(filepath) as infile:
+                config = json.load(infile)
         except FileNotFoundError:
             pass
         else:
+            for key in config.keys():
+                if key not in DEFAULT_CONFIG:
+                    app.logger.warning(f"Obsolete item '{key}' in settings file.")
+            app.config.update(**config)
             app.config["SETTINGS_FILE"] = filepath
             break
-
-    # Modify the configuration from environment variables.
-    for key, value in DEFAULT_SETTINGS.items():
+            
+    # Modify the configuration from environment variables; convert to correct type.
+    for key, value in DEFAULT_CONFIG.items():
         try:
             new = os.environ[key]
         except KeyError:
@@ -99,11 +96,6 @@ def init(app):
                 app.config[key] = utils.to_bool(new)
             else:
                 app.config[key] = new
-
-    # Cannot enable a new user account directly if no email server configured.
-    if not app.config["MAIL_SERVER"]:
-        app.config["USER_ENABLE_IMMEDIATELY"] = False
-        app.config["USER_ENABLE_EMAIL_WHITELIST"] = []
 
     # Sanity checks. Exception means bad setup.
     if not app.config["SECRET_KEY"]:
