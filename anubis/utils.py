@@ -358,6 +358,10 @@ def to_bool(s):
     else:
         return bool(s)
 
+def to_list(value):
+    "Convert string value to list: one item per line, excluding empty lines."
+    values = [s.strip() for s in value.split("\n")]
+    return [s for s in values if s]
 
 def get_time():
     "Current UTC datetime in ISO format (including Z) with millisecond precision."

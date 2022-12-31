@@ -23,13 +23,12 @@ DEFAULT_CONFIG = dict(
     HOST_NAME=None,
     HOST_URL=None,
     SECRET_KEY=None,  # Must be set!
-    COUCHDB_URL="http://127.0.0.1:5984/",
-    COUCHDB_USERNAME=None, # Must probably be set.
-    COUCHDB_PASSWORD=None, # Must probably bet set.
+    COUCHDB_URL="http://127.0.0.1:5984/", # Appropriate if CouchDB on local machine.
+    COUCHDB_USERNAME=None, # Must probably be set; depends on CouchDB setup.
+    COUCHDB_PASSWORD=None, # Must probably be set; depends on CouchDB setup.
     COUCHDB_DBNAME="anubis",
     MIN_PASSWORD_LENGTH=6, # Must be at least 4.
-    PERMANENT_SESSION_LIFETIME=7 * 24 * 60 * 60,  # In seconds; 1 week.
-    # Default timezone to that of the host machine.
+    # Default timezone is that of the host machine.
     TIMEZONE=str(datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo),
     MAIL_SERVER=None,  # E.g. "localhost" or domain name. If None: emails disabled.
     MAIL_PORT=25,

@@ -26,23 +26,19 @@ def user_configuration():
             form = flask.request.form
             with utils.MetaSaver(configuration) as saver:
                 saver["orcid"] = utils.to_bool(form.get("orcid"))
-                saver["genders"] = to_list(form.get("genders") or "")
+                saver["genders"] = utils.to_list(form.get("genders") or "")
                 saver["birthdate"] = utils.to_bool(form.get("birthdate"))
-                saver["degrees"] = to_list(form.get("degrees") or "")
+                saver["degrees"] = utils.to_list(form.get("degrees") or "")
                 saver["affiliation"] = utils.to_bool(form.get("affiliation"))
-                saver["universities"] = to_list(form.get("universities") or "")
+                saver["universities"] = utils.to_list(form.get("universities") or "")
                 saver["postaladdress"] = utils.to_bool(form.get("postaladdress"))
                 saver["phone"] = utils.to_bool(form.get("phone"))
                 if flask.current_app.config.get("MAIL_SERVER"):
-                    saver["enable_email_whitelist"] = to_list(form.get("enable_email_whitelist") or "")
+                    saver["enable_email_whitelist"] = utils.to_list(form.get("enable_email_whitelist") or "")
         except ValueError as error:
             utils.flash_error(error)
         utils.update_config_from_db()
         return flask.redirect(flask.url_for(".user_configuration"))
-
-def to_list(value):
-    values = [s.strip() for s in value.split("\n")]
-    return [s for s in values if s]
 
 @blueprint.route("/database")
 @utils.admin_required
