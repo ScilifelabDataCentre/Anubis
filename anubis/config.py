@@ -23,13 +23,10 @@ DEFAULT_CONFIG = dict(
     HOST_NAME=None,
     HOST_URL=None,
     SECRET_KEY=None,  # Must be set!
-    SALT_LENGTH=12,   # Must be at least 6
     COUCHDB_URL="http://127.0.0.1:5984/",
     COUCHDB_USERNAME=None, # Must probably be set.
     COUCHDB_PASSWORD=None, # Must probably bet set.
     COUCHDB_DBNAME="anubis",
-    JSON_AS_ASCII=False,
-    JSON_SORT_KEYS=False,
     MIN_PASSWORD_LENGTH=6, # Must be at least 4.
     PERMANENT_SESSION_LIFETIME=7 * 24 * 60 * 60,  # In seconds; 1 week.
     # Default timezone to that of the host machine.
@@ -60,6 +57,10 @@ def init(app):
     Raise ValueError if a settings variable value is invalid.
     """
     app.config.from_mapping(DEFAULT_CONFIG)
+
+    # Hard-wired Flask configurations.
+    app.config["JSON_AS_ASCII"] = False
+    app.config["JSON_SORT_KEYS"] = False
 
     # Modify the configuration from a JSON settings file.
     filepaths = []
@@ -100,8 +101,6 @@ def init(app):
     # Sanity checks. Exception means bad setup.
     if not app.config["SECRET_KEY"]:
         raise ValueError("SECRET_KEY not set")
-    if app.config["SALT_LENGTH"] <= 6:
-        raise ValueError("SALT_LENGTH is too short")
     if app.config["MIN_PASSWORD_LENGTH"] <= 4:
         raise ValueError("MIN_PASSWORD_LENGTH is too short")
     pytz.timezone(app.config["TIMEZONE"])

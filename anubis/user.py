@@ -280,7 +280,7 @@ def display(username):
         allow_enable_disable=allow_enable_disable(user),
         allow_edit=allow_edit(user),
         allow_delete=allow_delete(user),
-        gdpr=utils.get_site_text("gdpr.md"),
+        data_policy=flask.g.db["data_policy"]
     )
 
 
@@ -545,9 +545,7 @@ class UserSaver(BaseSaver):
         if password:
             if len(password) < self.config["MIN_PASSWORD_LENGTH"]:
                 raise ValueError("password too short")
-            self.doc["password"] = werkzeug.security.generate_password_hash(
-                password, salt_length=self.config["SALT_LENGTH"]
-            )
+            self.doc["password"] = werkzeug.security.generate_password_hash(password)
         else:
             self.doc["password"] = f"code:{utils.get_iuid()}"
 
