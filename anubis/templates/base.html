@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block head_title %}{{ config['SITE_NAME'] }}{% endblock %}</title>
-    <link rel="icon" href="{{ url_for('static', filename='logo32.png') }}">
+    {% if config["SITE_NAME_LOGO_FAVICON"] %}
+    <link rel="icon" href="{{ url_for('site', filename='name_logo') }}">
+    {% else %}
+    <link rel="icon" href="{{ url_for('static', filename='feather_of_maat.png') }}">
+    {% endif %}
     <link rel="stylesheet" crossorigin="anonymous"
           href="{{ constants.BOOTSTRAP_CSS_URL }}"
           integrity="{{ constants.BOOTSTRAP_CSS_INTEGRITY }}">
@@ -15,8 +19,13 @@
     <nav class="navbar navbar-expand-md navbar-light"
          style="background-color: #e8e8e8;">
       <a class="navbar-brand" href="{{ url_for('home') }}">
-        <img src="{{ url_for('static', filename='logo32.png') }}"
+        {% if config["SITE_NAME_LOGO_MENU"] %}
+        <img src="{{ url_for('site', filename='name_logo') }}"
 	     class="d-inline-block align-top">
+        {% else %}
+        <img src="{{ url_for('static', filename='feather_of_maat.png') }}"
+	     class="d-inline-block align-top">
+        {% endif %}
         {{ config['SITE_NAME'] }}</a>
       <button type="button" class="navbar-toggler navbar-toggler-right"
               data-toggle="collapse" data-target="#top_navbar"
@@ -91,6 +100,8 @@
               <a class="dropdown-item"
                  href="{{ url_for('user.register') }}">Register user</a>
               {% if g.am_admin %}
+              <a class="dropdown-item"
+                 href="{{ url_for('admin.site_configuration') }}">Site configuration</a>
               <a class="dropdown-item"
                  href="{{ url_for('admin.user_configuration') }}">User configuration</a>
               <a class="dropdown-item"
@@ -242,8 +253,15 @@
       <hr>
       <div class="row">
         <div class="col-md-3">
-          {% if config['HOST_URL'] %}
-          <a href="{{ config['HOST_URL'] }}">{{ config['HOST_NAME'] or 'Host' }}</a>
+          {% if config['SITE_HOST_URL'] %}
+          <a href="{{ config['SITE_HOST_URL'] }}">
+          {% endif %}
+          {% if config['SITE_HOST_LOGO'] %}
+          <img src="/site/host_logo">
+          {% endif %}
+          {{ config['SITE_HOST_NAME'] or '' }}
+          {% if config['SITE_HOST_URL'] %}
+          </a>
           {% endif %}
         </div>
         <div class="col-md-6">
@@ -251,6 +269,7 @@
             {% endblock %}
         </div>
         <div class="col-md-3 text-right">
+          <img src="{{ url_for('static', filename='feather_of_maat.png') }}">
           <a href="{{ constants.URL }}">Anubis</a>
 	  <span id="version">{{ constants.VERSION }}</span>
         </div>

@@ -16,7 +16,7 @@ import anubis.call
 import anubis.proposal
 from anubis import constants
 from anubis import utils
-from anubis.saver import AttachmentSaver, FieldMixin
+from anubis.saver import Saver, FieldSaverMixin
 
 
 DESIGN_DOC = {
@@ -290,7 +290,7 @@ def document(iuid, fid):
     return response
 
 
-class ReviewSaver(FieldMixin, AttachmentSaver):
+class ReviewSaver(FieldSaverMixin, Saver):
     "Review document saver context."
 
     DOCTYPE = constants.REVIEW

@@ -3,6 +3,7 @@
 import datetime
 import functools
 import http.client
+import mimetypes
 import os.path
 import smtplib
 import uuid
@@ -17,7 +18,7 @@ import pytz
 import werkzeug.routing
 
 from anubis import constants
-from anubis.saver import BaseSaver
+from anubis.saver import Saver
 
 
 # Global instance of mail interface.
@@ -109,11 +110,10 @@ def get_db(app=None):
 
 
 def update_db(app=None):
-    """Update the contents of the database for changes in new version(s).
-    - Change all stored datetimes (call opens, closes, reviews_due) to UTC ISO format.
-    - Add meta documents for data policy and contact pages.
-    """
+    "Update the contents of the database for changes in new version(s)."
     db = get_db(app=app)
+
+    # Change all stored datetimes (call opens, closes, reviews_due) to UTC ISO format.
     calls = [row.doc for row in db.view("calls", "identifier", include_docs=True)]
     for call in calls:
         changed = False
@@ -130,6 +130,8 @@ def update_db(app=None):
         if changed:
             app.logger.info(f"Updated call {call['identifier']} document.")
             db.put(call)
+
+    # Add a meta document for 'data_policy' text.
     if "data_policy" not in db:
         try:
             filepath = os.path.normpath(os.path.join(constants.ROOT, "../site", "gdpr.md"))
@@ -139,6 +141,8 @@ def update_db(app=None):
             text = None
         with MetaSaver(id="data_policy", db=db) as saver:
             saver["text"] = text
+
+    # Add a meta document for 'contact' text.
     if "contact" not in db:
         try:
             filepath = os.path.normpath(os.path.join(constants.ROOT, "../site", "contact.md"))
@@ -148,6 +152,38 @@ def update_db(app=None):
             text = None
         with MetaSaver(id="contact", db=db) as saver:
             saver["text"] = text
+
+    # Add a meta document for site configuration.
+    if "site_configuration" not in db:
+        with MetaSaver(id="site_configuration", db=db) as saver:
+            saver["name"] = app.config.get("SITE_NAME") or "Anubis"
+            saver["description"] = app.config.get("SITE_DESCRIPTION") or "Submit proposals for grants in open calls."
+            saver["host_name"] = app.config.get("HOST_NAME")
+            saver["host_url"] = app.config.get("HOST_URL")
+            # Attach the site name logo file, if any.
+            if app.config.get("SITE_LOGO"):
+                path = os.path.normpath(os.path.join(constants.ROOT, "../site"))
+                path = os.path.join(path, app.config["SITE_LOGO"])
+                mimetype = mimetypes.guess_type(path)[0]
+                try:
+                    with open(path, "rb") as infile:
+                        data = infile.read()
+                    saver.add_attachment("name_logo", data, mimetype)
+                except IOError:
+                    pass
+            # Attach the host logo file, if any.
+            if app.config.get("HOST_LOGO"):
+                path = os.path.normpath(os.path.join(constants.ROOT, "../site"))
+                path = os.path.join(path, app.config["HOST_LOGO"])
+                mimetype = mimetypes.guess_type(path)[0]
+                try:
+                    with open(path, "rb") as infile:
+                        data = infile.read()
+                    saver.add_attachment("host_logo", data, mimetype)
+                except IOError:
+                    pass
+
+    # Add a meta document for user account configurations.
     if "user_configuration" not in db:
         with MetaSaver(id="user_configuration", db=db) as saver:
             saver["orcid"] = to_bool(app.config.get("USER_ORCID", True))
@@ -172,8 +208,27 @@ def update_config_from_db(app=None):
     "Set configuration values that are stored in the database."
     if app is None:
         app = flask.current_app
-    user_configuration = flask.g.db["user_configuration"]
-    for key, value in user_configuration.items():
+
+    configuration = flask.g.db["site_configuration"]
+    for key, value in configuration.items():
+        if key in constants.GENERIC_FIELDS: continue
+        app.config[f"SITE_{key.upper()}"] = value
+    modified = datetime.datetime.fromisoformat(configuration["modified"].strip("Z"))
+    for filename in constants.SITE_FILES:
+        key = f"SITE_{filename.upper()}"
+        try:
+            filestub = configuration["_attachments"][filename]
+            infile = flask.g.db.get_attachment(configuration, filename)
+        except (KeyError, couchdb2.NotFoundError):
+            app.config.pop(key, None)
+        else:
+            app.config[key] = {"content": infile.read(),
+                               "mimetype": filestub["content_type"],
+                               "etag": filestub["digest"],
+                               "modified": modified}
+
+    configuration = flask.g.db["user_configuration"]
+    for key, value in configuration.items():
         if key in constants.GENERIC_FIELDS: continue
         if key == "universities":  # Special case
             app.config["UNIVERSITIES"] = value
@@ -794,24 +849,40 @@ def get_fullname(user):
 
 
 class HtmlRenderer(marko.html_renderer.HTMLRenderer):
-    """Extension of HTML renderer to allow setting <a> attribute '_target'
-    to '_blank', when the title begins with an exclamation point '!'.
-    """
+    "Extension of Marko Markdown-to-HTML renderer."
 
     def render_link(self, element):
+        """Allow setting <a> attribute '_target' to '_blank', when the title
+        begins with an exclamation point '!'.
+        """
         if element.title and element.title.startswith("!"):
-            template = '<a target="_blank" href="{}"{}>{}</a>'
+            template = '<a target="_blank" href="{url}"{title}>{body}</a>'
             element.title = element.title[1:]
         else:
-            template = '<a href="{}"{}>{}</a>'
+            template = '<a href="{url}"{title}>{body}</a>'
         title = (
             ' title="{}"'.format(self.escape_html(element.title))
             if element.title
             else ""
         )
-        url = self.escape_url(element.dest)
-        body = self.render_children(element)
-        return template.format(url, title, body)
+        return template.format(url=self.escape_url(element.dest),
+                               title=title,
+                               body=self.render_children(element))
+
+    def render_heading(self, element):
+        "Add id to all headings."
+        id = self.get_text_only(element).replace(" ", "-").lower()
+        id = "".join(c for c in id if c in constants.ALLOWED_ID_CHARACTERS)
+        return '<h{level}><a id="{id}">{children}</a></h{level}>\n'.format(
+            level=element.level, id=id, children=self.render_children(element)
+        )
+
+    def get_text_only(self, element):
+        "Helper function to extract only the text from element and its children."
+        if isinstance(element.children, str):
+            return element.children
+        else:
+            return "".join([self.get_text_only(el) for el in element.children])
 
 
 def get_logs(docid, cleanup=True):
@@ -868,7 +939,7 @@ def send_email(recipients, title, text):
         raise KeyError
 
 
-class MetaSaver(BaseSaver):
+class MetaSaver(Saver):
     "Meta document saver context handler."
 
     DOCTYPE = constants.META

@@ -1,5 +1,10 @@
 "Flask app setup and creation; main entry point.."
 
+import base64
+import http.client
+import io
+import os.path
+
 import flask
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -113,6 +118,21 @@ def status():
     "Return JSON for the current status and some counts for the database."
     return utils.get_counts()
 
+
+@app.route("/site/<filename>")
+def site(filename):
+    if filename in constants.SITE_FILES:
+        try:
+            filedata = flask.current_app.config[f"SITE_{filename.upper()}"]
+            return flask.send_file(io.BytesIO(filedata["content"]),
+                                   mimetype=filedata["mimetype"],
+                                   etag=filedata["etag"],
+                                   last_modified=filedata["modified"],
+                                   max_age=constants.SITE_FILE_MAX_AGE)
+        except KeyError:
+            pass
+    flask.abort(http.client.NOT_FOUND)
+    
 
 @app.route("/sitemap")
 def sitemap():

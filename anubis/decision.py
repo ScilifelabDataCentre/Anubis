@@ -17,7 +17,7 @@ import anubis.call
 import anubis.proposal
 from anubis import constants
 from anubis import utils
-from anubis.saver import AttachmentSaver, FieldMixin
+from anubis.saver import Saver, FieldSaverMixin
 
 
 DESIGN_DOC = {
@@ -218,7 +218,7 @@ def document(iuid, fid):
     return response
 
 
-class DecisionSaver(FieldMixin, AttachmentSaver):
+class DecisionSaver(FieldSaverMixin, Saver):
     "Decision document saver context."
 
     DOCTYPE = constants.DECISION

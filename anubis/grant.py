@@ -17,7 +17,7 @@ import anubis.user
 import anubis.decision
 from anubis import constants
 from anubis import utils
-from anubis.saver import AttachmentSaver, FieldMixin, AccessMixin
+from anubis.saver import Saver, FieldSaverMixin, AccessSaverMixin
 
 
 DESIGN_DOC = {
@@ -349,7 +349,7 @@ def logs(gid):
     )
 
 
-class GrantSaver(AccessMixin, FieldMixin, AttachmentSaver):
+class GrantSaver(AccessSaverMixin, FieldSaverMixin, Saver):
     "Grant dossier document saver context."
 
     DOCTYPE = constants.GRANT

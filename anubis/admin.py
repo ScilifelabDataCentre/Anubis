@@ -13,6 +13,42 @@ import anubis.config
 blueprint = flask.Blueprint("admin", __name__)
 
 
+@blueprint.route("/site_configuration", methods=["GET", "POST"])
+@utils.admin_required
+def site_configuration():
+    "Display and edit site configuration."
+    configuration = flask.g.db["site_configuration"]
+    if utils.http_GET():
+        return flask.render_template("admin/site_configuration.html",
+                                     configuration=configuration)
+    elif utils.http_POST():
+        try:
+            form = flask.request.form
+            with utils.MetaSaver(configuration) as saver:
+                saver["name"] = form.get("name") or "Anubis"
+                saver["description"] = form.get("description") or None
+                saver["name_logo_favicon"] = utils.to_bool(form.get("name_logo_favicon"))
+                saver["name_logo_menu"] = utils.to_bool(form.get("name_logo_menu"))
+                saver["host_name"] = form.get("host_name") or None
+                saver["host_url"] = form.get("host_url") or None
+                if utils.to_bool(form.get("remove_name_logo")):
+                    saver.delete_attachment("name_logo")
+                    saver["name_logo_favicon"] = False
+                    saver["name_logo_menu"] = False
+                infile = flask.request.files.get("name_logo")
+                if infile:
+                    saver.add_attachment("name_logo", infile.read(), infile.mimetype)
+                if utils.to_bool(form.get("remove_host_logo")):
+                    saver.delete_attachment("host_logo")
+                infile = flask.request.files.get("host_logo")
+                if infile:
+                    saver.add_attachment("host_logo", infile.read(), infile.mimetype)
+        except ValueError as error:
+            utils.flash_error(error)
+        utils.update_config_from_db()
+        return flask.redirect(flask.url_for(".site_configuration"))
+
+
 @blueprint.route("/user_configuration", methods=["GET", "POST"])
 @utils.admin_required
 def user_configuration():

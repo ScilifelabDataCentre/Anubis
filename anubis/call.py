@@ -22,7 +22,7 @@ import anubis.proposals
 import anubis.user
 from anubis import constants
 from anubis import utils
-from anubis.saver import AttachmentSaver, AccessMixin
+from anubis.saver import Saver, AccessSaverMixin
 
 
 DESIGN_DOC = {
@@ -711,7 +711,7 @@ def call_zip(cid):
     return response
 
 
-class CallSaver(AccessMixin, AttachmentSaver):
+class CallSaver(AccessSaverMixin, Saver):
     "Call document saver context handler."
 
     DOCTYPE = constants.CALL

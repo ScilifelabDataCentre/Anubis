@@ -22,7 +22,7 @@ import anubis.grant
 import anubis.review
 from anubis import constants
 from anubis import utils
-from anubis.saver import AttachmentSaver, FieldMixin, AccessMixin
+from anubis.saver import Saver, FieldSaverMixin, AccessSaverMixin
 
 
 DESIGN_DOC = {
@@ -421,7 +421,7 @@ def logs(pid):
     )
 
 
-class ProposalSaver(AccessMixin, FieldMixin, AttachmentSaver):
+class ProposalSaver(AccessSaverMixin, FieldSaverMixin, Saver):
     "Proposal document saver context."
 
     DOCTYPE = constants.PROPOSAL

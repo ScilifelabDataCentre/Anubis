@@ -12,7 +12,7 @@ import werkzeug.security
 import anubis.call
 from anubis import constants
 from anubis import utils
-from anubis.saver import BaseSaver
+from anubis.saver import Saver
 
 
 DESIGN_DOC = {
@@ -425,7 +425,7 @@ def disable(username):
     return flask.redirect(flask.url_for(".display", username=username))
 
 
-class UserSaver(BaseSaver):
+class UserSaver(Saver):
     "User document saver context manager."
 
     DOCTYPE = constants.USER

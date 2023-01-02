@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 
 {% block body_title %}
+{% if config['SITE_NAME_LOGO'] %}
+<img src="/site/name_logo">
+{% endif %}
 {{ config['SITE_NAME'] }}
 <small class="ml-4 text-muted">{{ config['SITE_DESCRIPTION'] }}</small>
 {% endblock %}
