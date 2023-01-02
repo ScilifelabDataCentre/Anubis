@@ -56,6 +56,7 @@ def init(app):
     # Hard-wired Flask configurations.
     app.config["JSON_AS_ASCII"] = False
     app.config["JSON_SORT_KEYS"] = False
+    app.config["SEND_FILE_MAX_AGE_DEFAULT"] = constants.SITE_FILE_MAX_AGE
 
     # Modify the configuration from a JSON settings file.
     filepaths = []

@@ -187,8 +187,8 @@ class Constants:
     GENERIC_FIELDS = frozenset(["_id", "_rev", "_attachments",
                                 "doctype", "created", "modified"])
 
-    SITE_FILES = frozenset(["name_logo", "host_logo"])
     SITE_FILE_MAX_AGE = 24 * 3600
+    SITE_FILES = frozenset(["name_logo", "host_logo"])
 
     # MIME types
     DOCX_MIMETYPE = (
