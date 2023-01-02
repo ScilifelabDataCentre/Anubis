@@ -15,11 +15,11 @@ from anubis import utils
 
 # Default configurable values, loaded and/or modified in procedure 'init'.
 DEFAULT_CONFIG = dict(
-    DEBUG=False,
-    SERVER_NAME=None, # Previously "localhost:5002" for development.
+    FLASK_DEBUG=False,
+    SERVER_NAME=None,
     REVERSE_PROXY=False,
     SECRET_KEY=None,  # Must be set!
-    COUCHDB_URL="http://127.0.0.1:5984/", # Appropriate if CouchDB on local machine.
+    COUCHDB_URL="http://127.0.0.1:5984/", # Likely, if CouchDB on local machine.
     COUCHDB_USERNAME=None, # Must probably be set; depends on CouchDB setup.
     COUCHDB_PASSWORD=None, # Must probably be set; depends on CouchDB setup.
     COUCHDB_DBNAME="anubis",
@@ -54,8 +54,8 @@ def init(app):
     app.config.from_mapping(DEFAULT_CONFIG)
 
     # Hard-wired Flask configurations.
-    app.config["JSON_AS_ASCII"] = False
-    app.config["JSON_SORT_KEYS"] = False
+    app.json.ensure_ascii = False
+    app.json.sort_keys = False
     app.config["SEND_FILE_MAX_AGE_DEFAULT"] = constants.SITE_FILE_MAX_AGE
 
     # Modify the configuration from a JSON settings file.

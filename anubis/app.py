@@ -5,6 +5,7 @@ import http.client
 import io
 import os.path
 
+import dotenv
 import flask
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -25,6 +26,9 @@ import anubis.user
 
 from anubis import constants
 from anubis import utils
+
+# Load environment variables from the file '.env' if it exists.
+dotenv.load_dotenv()
 
 app = flask.Flask(__name__)
 

@@ -114,7 +114,8 @@ def settings():
     config = {"ROOT": constants.ROOT}
     for key in anubis.config.DEFAULT_CONFIG:
         config[key] = flask.current_app.config[key]
-    for key in ["SECRET_KEY", "COUCHDB_PASSWORD", "MAIL_PASSWORD"]:
-        if config[key]:
-            config[key] = "<hidden>"
+    if not flask.current_app.config.get("DEBUG"):
+        for key in ["SECRET_KEY", "COUCHDB_PASSWORD", "MAIL_PASSWORD"]:
+            if config[key]:
+                config[key] = "<hidden>"
     return flask.render_template("admin/settings.html", items=config.items())

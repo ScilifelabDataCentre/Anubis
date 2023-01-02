@@ -28,7 +28,10 @@ MAIL = flask_mail.Mail()
 def init(app):
     "Initialize: Logging, setup email, add template filters."
     app.logger.info(f"Anubis version {constants.VERSION}")
-    app.logger.info(f"settings file: {app.config.get('SETTINGS_FILE')}")
+    if app.config.get('SETTINGS_FILE'):
+        app.logger.info(f"settings file: {app.config['SETTINGS_FILE']}")
+    else:
+        app.logger.info(f"settings from environment variables")
     MAIL.init_app(app)
     app.add_template_filter(display_markdown)
     app.add_template_filter(display_field_value)
