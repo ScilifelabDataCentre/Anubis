@@ -7,6 +7,7 @@ import flask
 from anubis import constants
 from anubis import utils
 
+import anubis.database
 import anubis.config
 
 
@@ -80,7 +81,7 @@ def user_configuration():
 @utils.admin_required
 def database():
     "Display CouchDB database information."
-    server = utils.get_server()
+    server = anubis.database.get_server()
     identifier = flask.request.args.get("identifier") or None
     return flask.render_template("admin/database.html",
                                  doc=utils.get_document(identifier),
@@ -110,12 +111,6 @@ def document(identifier):
 @blueprint.route("/settings")
 @utils.admin_required
 def settings():
-    "Display all configuration settings."
-    config = {"ROOT": constants.ROOT}
-    for key in anubis.config.DEFAULT_CONFIG:
-        config[key] = flask.current_app.config[key]
-    if not flask.current_app.config.get("DEBUG"):
-        for key in ["SECRET_KEY", "COUCHDB_PASSWORD", "MAIL_PASSWORD"]:
-            if config[key]:
-                config[key] = "<hidden>"
+    "Display the current config."
+    config = anubis.config.get_config(not flask.current_app.config.get("DEBUG"))
     return flask.render_template("admin/settings.html", items=config.items())

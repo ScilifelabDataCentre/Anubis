@@ -9,6 +9,7 @@ import couchdb2
 import flask
 
 import anubis.app
+import anubis.database
 import anubis.call
 import anubis.proposal
 import anubis.grant
@@ -16,6 +17,10 @@ import anubis.user
 
 from anubis import constants
 from anubis import utils
+
+
+def pjson(data):
+    return json.dumps(data, ensure_ascii=False, indent=2)    
 
 
 @click.group()
@@ -28,7 +33,7 @@ def cli():
 def destroy_database():
     "Hard delete of the entire database, including the instance within CouchDB."
     with anubis.app.app.app_context():
-        server = utils.get_server(anubis.app.app)
+        server = anubis.database.get_server()
         try:
             db = server[anubis.app.app.config["COUCHDB_DBNAME"]]
         except couchdb2.NotFoundError as error:
@@ -41,13 +46,13 @@ def destroy_database():
 def create_database():
     "Create the database within CouchDB and load the design documents."
     with anubis.app.app.app_context():
-        server = utils.get_server(anubis.app.app)
+        server = anubis.database.get_server()
         if anubis.app.app.config["COUCHDB_DBNAME"] in server:
             raise click.ClickException(
                 f"""Database '{anubis.app.app.config["COUCHDB_DBNAME"]}' already exists."""
             )
         server.create(anubis.app.app.config["COUCHDB_DBNAME"])
-        utils.load_design_documents()
+        anubis.database.update_design_documents()
         click.echo(f"""Created database '{anubis.app.app.config["COUCHDB_DBNAME"]}'.""")
 
 
@@ -208,7 +213,22 @@ def output(identifier):
         doc = utils.get_document(identifier)
         if doc is None:
             raise click.ClickException("No such item in the database.")
-        click.echo(json.dumps(doc, ensure_ascii=False, indent=2))
+        click.echo(pjson(doc))
+
+
+@cli.command()
+def config():
+    "Output the current config."
+    with anubis.app.app.app_context():
+        config = anubis.config.get_config(hidden=False)
+    click.echo(pjson(config))
+
+
+@cli.command()
+def versions():
+    "Version of various software in the Anubis system."
+    with anubis.app.app.app_context():
+        click.echo(pjson(anubis.utils.get_software()))
 
 
 if __name__ == "__main__":

@@ -16,6 +16,8 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from anubis import constants
 from anubis import utils
 
+import anubis.database
+
 
 # Default configurable values, loaded and/or modified in procedure 'init'.
 DEFAULT_CONFIG = dict(
@@ -116,10 +118,11 @@ def init(app):
     app.logger.info(f"settings file: {app.config['SETTINGS_FILE']}")
 
 
-def init_from_db(db):
+def init_from_db():
     """Set configuration from values stored in the database.
     These are not settable by environment variables or the settings file.
     """
+    db = anubis.database.get_db()
     app = flask.current_app
 
     configuration = db["site_configuration"]
@@ -150,3 +153,15 @@ def init_from_db(db):
     # Special case: user cannot be enabled immediately if no email server defined.
     if not app.config["MAIL_SERVER"]:
         app.config["USER_ENABLE_EMAIL_WHITELIST"] = []
+
+
+def get_config(hidden=True):
+    "Return the current config."
+    result = {"ROOT": constants.ROOT}
+    for key in anubis.config.DEFAULT_CONFIG:
+        result[key] = flask.current_app.config[key]
+    if hidden:
+        for key in ["SECRET_KEY", "COUCHDB_PASSWORD", "MAIL_PASSWORD"]:
+            if result[key]:
+                result[key] = "<hidden>"
+    return result

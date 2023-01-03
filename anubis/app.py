@@ -11,6 +11,7 @@ import markupsafe
 import pytz
 import werkzeug.routing
 
+import anubis.database
 import anubis.call
 import anubis.calls
 import anubis.config
@@ -33,15 +34,15 @@ from anubis import utils
 app = flask.Flask(__name__)
 app.logger.info(f"Anubis version {constants.VERSION}")
 
-# Hard-wired Flask configurations.
+# Config Flask app from settings file and/or environment variables.
+anubis.config.init(app)
+
+# Hard-wired Flask config.
 app.json.ensure_ascii = False
 app.json.sort_keys = False
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = constants.SITE_FILE_MAX_AGE
 app.jinja_env.add_extension("jinja2.ext.loopcontrols")
 app.jinja_env.add_extension("jinja2.ext.do")
-
-# Configuration of Flask app from settings file and/or environment variables.
-anubis.config.init(app)
 
 # Global instance of the mail interface.
 mail = flask_mail.Mail()
@@ -59,12 +60,12 @@ app.url_map.converters["iuid"] = IuidConverter
 
 with app.app_context():
     # Ensure the design documents in the database are current.
-    utils.load_design_documents()
-    # XXX To be refactored away.
-    anubis.doc.init()
-    db = utils.get_db()
-    utils.update_db(db)
-    anubis.config.init_from_db(db)
+    anubis.database.update_design_documents()
+    anubis.doc.init()  # XXX To be refactored away.
+    # Update the database to this version.
+    anubis.database.update()
+    # Get config values that nowadays are stored in the database.
+    anubis.config.init_from_db()
 
 
 @app.context_processor
