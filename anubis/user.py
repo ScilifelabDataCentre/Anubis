@@ -176,31 +176,27 @@ def reset():
             if user["status"] != constants.ENABLED:
                 raise KeyError
         except KeyError:
-            # Don't reveal whether the user exists or not.
-            utils.flash_message(
-                "An email has been sent, if a user account with the given email address exists."
-            )
+            if flask.g.am_admin:
+                utils.flash_error("No such user.")
+            else:
+                # Don't reveal whether the user exists or not.
+                utils.flash_message("An email has been sent, if a user account"
+                                    " with the given email address exists.")
         else:
             with UserSaver(user) as saver:
                 saver.set_password()
             try:
                 send_email_password_code(user, "password reset")
-                utils.flash_message(
-                    "An email has been sent, if a user account with the given email address exists."
-                )
+                utils.flash_message("An email has been sent, if a user account"
+                                    " with the given email address exists.")
             except ValueError:
                 if flask.g.am_admin:
-                    utils.flash_warning(
-                        "No automatic email can be sent. The code must be sent manually to the user."
-                    )
+                    utils.flash_warning("No automatic email can be sent. The one-time"
+                                        " code must be sent manually to the user.")
                 else:
-                    utils.flash_warning(
-                        "No automatic email can be sent. The code must be obtained from the administrator."
-                    )
-            else:
-                utils.flash_message(
-                    "An email has been sent, if a user account with the given email address exists."
-                )
+                    utils.flash_warning("No automatic email can be sent."
+                                        " The one-time code for setting your password"
+                                        " must be obtained from the administrator.")
         if flask.g.am_admin:
             return flask.redirect(
                 flask.url_for("user.display", username=user["username"])
@@ -433,7 +429,6 @@ class UserSaver(Saver):
 
     def initialize(self):
         "Set the status for a new user."
-        self.config = flask.current_app.config
         self.doc["status"] = constants.PENDING
 
     def finish(self):
@@ -464,7 +459,7 @@ class UserSaver(Saver):
             self.doc["email"] = email
             if self.doc.get("status") == constants.PENDING:
                 # Filename matching instead of regexp; easier to specify.
-                for ep in self.config["USER_ENABLE_EMAIL_WHITELIST"]:
+                for ep in flask.current_app.config["USER_ENABLE_EMAIL_WHITELIST"]:
                     if fnmatch.fnmatch(email, ep):
                         self.set_status(constants.ENABLED)
                         break
@@ -512,12 +507,12 @@ class UserSaver(Saver):
         self.doc["familyname"] = familyname or None
 
     def set_gender(self, gender):
-        if gender not in self.config["USER_GENDERS"]:
+        if gender not in flask.current_app.config["USER_GENDERS"]:
             gender = None
         self.doc["gender"] = gender
 
     def set_birthdate(self, birthdate):
-        if not self.config["USER_BIRTHDATE"]:
+        if not flask.current_app.config["USER_BIRTHDATE"]:
             return
         if birthdate:
             try:
@@ -527,23 +522,23 @@ class UserSaver(Saver):
         self.doc["birthdate"] = birthdate
 
     def set_degree(self, degree):
-        if degree not in self.config["USER_DEGREES"]:
+        if degree not in flask.current_app.config["USER_DEGREES"]:
             degree = None
         self.doc["degree"] = degree
 
     def set_affiliation(self, affiliation):
-        self.doc["affiliation"] = self.config["USER_AFFILIATION"] and affiliation or None
+        self.doc["affiliation"] = flask.current_app.config["USER_AFFILIATION"] and affiliation or None
 
     def set_postaladdress(self, postaladdress):
-        self.doc["postaladdress"] = self.config["USER_POSTALADDRESS"] and postaladdress or None
+        self.doc["postaladdress"] = flask.current_app.config["USER_POSTALADDRESS"] and postaladdress or None
 
     def set_phone(self, phone):
-        self.doc["phone"] = self.config["USER_PHONE"] and phone or None
+        self.doc["phone"] = flask.current_app.config["USER_PHONE"] and phone or None
 
     def set_password(self, password=None):
         "Set the password; a one-time code if no password provided."
         if password:
-            if len(password) < self.config["MIN_PASSWORD_LENGTH"]:
+            if len(password) < flask.current_app.config["MIN_PASSWORD_LENGTH"]:
                 raise ValueError("password too short")
             self.doc["password"] = werkzeug.security.generate_password_hash(password)
         else:

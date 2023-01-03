@@ -163,10 +163,13 @@ def update_db(app=None):
             saver["description"] = app.config.get("SITE_DESCRIPTION") or "Submit proposals for grants in open calls."
             saver["host_name"] = app.config.get("HOST_NAME")
             saver["host_url"] = app.config.get("HOST_URL")
+            if app.config.get("SITE_STATIC_DIR"):
+                dirpath = app.config.get("SITE_STATIC_DIR")
+            else:
+                dirpath = os.path.normpath(os.path.join(constants.ROOT, "../site/static"))
             # Attach the site name logo file, if any.
             if app.config.get("SITE_LOGO"):
-                path = os.path.normpath(os.path.join(constants.ROOT, "../site"))
-                path = os.path.join(path, app.config["SITE_LOGO"])
+                path = os.path.join(dirpath, app.config["SITE_LOGO"])
                 mimetype = mimetypes.guess_type(path)[0]
                 try:
                     with open(path, "rb") as infile:
@@ -176,8 +179,7 @@ def update_db(app=None):
                     pass
             # Attach the host logo file, if any.
             if app.config.get("HOST_LOGO"):
-                path = os.path.normpath(os.path.join(constants.ROOT, "../site"))
-                path = os.path.join(path, app.config["HOST_LOGO"])
+                path = os.path.join(dirpath, app.config["HOST_LOGO"])
                 mimetype = mimetypes.guess_type(path)[0]
                 try:
                     with open(path, "rb") as infile:

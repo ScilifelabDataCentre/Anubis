@@ -25,11 +25,13 @@
   <div class="form-group row">
     <label for="name_logo" class="col-md-2 col-form-label text-right">
       Name logo</label>
-    <div class="col-md-6 custom-file">
-      <input type="file" id="name_logo" name="name_logo"
-	     class="custom-file-input">
-      <label class="custom-file-label" for="name_logo">
-        Choose a new logo file for the name of the site.</label>
+    <div class="col-md-6">
+      <div class="custom-file">
+        <input type="file" id="name_logo" name="name_logo"
+	       class="custom-file-input">
+        <label class="custom-file-label" for="name_logo">
+          Choose a new logo file for the name of the site.</label>
+      </div>
     </div>
   </div>
 
@@ -102,6 +104,19 @@
     </div>
   </div>
 
+  <div class="form-group row">
+    <label for="host_logo" class="col-md-2 col-form-label text-right">
+      Host logo</label>
+    <div class="col-md-6">
+      <div class="custom-file">
+        <input type="file" id="host_logo" name="host_logo"
+	       class="custom-file-input">
+        <label class="custom-file-label" for="host_logo">
+          Choose a new logo file for the host name.</label>
+      </div>
+    </div>
+  </div>
+
   {% if config.get("SITE_HOST_LOGO") %}
   <div class="form-group row">
     <div class="col-md offset-md-2">
@@ -117,17 +132,6 @@
     </div>
   </div>
   {% endif %}
-
-  <div class="form-group row">
-    <label for="host_logo" class="col-md-2 col-form-label text-right">
-      Host logo</label>
-    <div class="col-md-6 custom-file">
-      <input type="file" id="host_logo" name="host_logo"
-	     class="custom-file-input">
-      <label class="custom-file-label" for="host_logo">
-        Choose a new logo file for the host name.</label>
-    </div>
-  </div>
 
   <div class="form-group row">
     <label for="host_url" class="col-md-2 col-form-label text-right">

@@ -5,6 +5,7 @@ import os.path
 import time
 
 import click
+import dotenv
 import couchdb2
 import flask
 
@@ -16,6 +17,10 @@ import anubis.user
 
 from anubis import constants
 from anubis import utils
+
+
+# Load environment variables from the file '.env' if it exists.
+dotenv.load_dotenv()
 
 
 @click.group()
