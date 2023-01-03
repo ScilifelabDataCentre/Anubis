@@ -173,11 +173,11 @@
       {% endif %}
 
       <div class="row">
-        {% block body_title_outer %}
-        <div class="col-md-10 my-3">
+        <div class="col-md offset-md-1 pt-3 pb-1">
+          {% block body_title_outer %}
           <h2>{% block body_title %}{{ config['SITE_NAME'] }}{% endblock %}</h2>
+          {% endblock %} {# block body_title_outer #}
         </div>
-        {% endblock %} {# block body_title_outer #}
         <div class="col-md-2 py-1 d-print-none">
           {% block meta %}
           {% endblock %}
@@ -217,6 +217,9 @@
             {% block actions %}
             {% endblock %}
           </div>
+          {% block todo %}
+          {% include 'todo.html' %}
+          {% endblock %} {# block todo #}
           <div class="mt-4">
             {% block doclinks %}
             <a href="{{ url_for('documentation.page', page='instructions-for-users') }}"
@@ -240,11 +243,6 @@
 
             {% endblock %} {# block doclinks #}
           </div>
-
-          {% block todo %}
-          {% include 'todo.html' %}
-          {% endblock %} {# block todo #}
-
         </div>
       </div>
       {% endblock %} {# block supermain #}

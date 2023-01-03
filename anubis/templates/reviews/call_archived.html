@@ -5,7 +5,7 @@ Archived reviews in call {{ call['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-<small class="text-muted mr-2">Archived reviews in call</small>
+<small class="text-muted">Archived reviews in call</small>
 {{ call | call_link }}
 {% endblock %}
 
@@ -38,7 +38,7 @@ Archived reviews in call {{ call['identifier'] }}
       <td>{{ field | display_field_value(review) }}</td>
       {% endfor %}
       <td>{{ get_user(review['reviewer']) | user_link }}</td>
-      <td>{{ proposal | proposal_link(bold=False) }}</td>
+      <td>{{ proposal | proposal_link }}</td>
       <td>{{ get_user(proposal['user']) | user_link }}</td>
     </tr>
     {% endif %}

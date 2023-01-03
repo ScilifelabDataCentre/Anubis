@@ -392,16 +392,13 @@ def call_grants_link(call, full=False):
 
 
 @app.template_filter()
-def proposal_link(proposal, bold=True):
+def proposal_link(proposal):
     "Link to proposal."
     if not proposal:
         return "-"
     url = flask.url_for("proposal.display", pid=proposal["identifier"])
     title = proposal.get("title") or "[No title]"
-    html = f'''<a href="{url}" title="{title}"'''
-    if bold:
-        html += ' class="font-weight-bold"'
-    html += f">{proposal['identifier']} {title}</a>"
+    html = f'''<a href="{url}" title="{title}">{proposal['identifier']} {title}</a>'''
     return markupsafe.Markup(html)
 
 
@@ -411,7 +408,7 @@ def review_link(review):
     if not review:
         return "-"
     url = flask.url_for("review.display", iuid=review["_id"])
-    html = f"""<a href="{url}" class="font-weight-bold text-info">Review """
+    html = f"""<a href="{url}" class="text-info">Review """
     if review.get("archived"):
         html += '<span class="badge badge-pill badge-secondary">Archived</span>'
     elif review.get("finalized"):

@@ -5,7 +5,7 @@ Reviews of proposals in call {{ call['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-<small class="text-muted mr-2">Reviews of proposals in call</small>
+<small class="text-muted">Reviews of proposals in call</small>
 {{ call | call_link }}
 {% endblock %}
 
@@ -52,7 +52,7 @@ Reviews of proposals in call {{ call['identifier'] }}
       <td>{{ field | display_field_value(review) }}</td>
       {% endfor %}
       <td>{{ get_user(reviewer) | user_link }}</td>
-      <td>{{ proposal | proposal_link(bold=False) }}</td>
+      <td>{{ proposal | proposal_link }}</td>
       {% for field in utils.get_banner_fields(call['proposal']) %}
       <td>{{ field | display_field_value(proposal) }}</td>
       {% endfor %}

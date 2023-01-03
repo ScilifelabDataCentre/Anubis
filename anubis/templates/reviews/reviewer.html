@@ -5,7 +5,7 @@ Reviews by user {{ user['username'] }}
 {% endblock %}
 
 {% block body_title %}
-<small class="text-muted mr-2">Reviews by</small>
+<small class="text-muted">Reviews by</small>
 {{ user | user_link }}
 {% endblock %}
 
@@ -51,7 +51,7 @@ Reviews by user {{ user['username'] }}
     <tr>
       <td>{{ review | review_link }}</td>
       <td>{{ call.get('reviews_due') | display_datetime_timezone(due=not review.get('finalized')) }}</td>
-      <td>{{ proposal | proposal_link(bold=False) }}</td>
+      <td>{{ proposal | proposal_link }}</td>
       <td>{{ get_user(proposal['user']) | user_link }}</td>
       <td>{{ call | call_link(title=False) }}</td>
     </tr>
