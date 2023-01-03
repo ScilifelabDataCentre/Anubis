@@ -11,45 +11,25 @@ import uuid
 import couchdb2
 import dateutil.parser
 import flask
-import flask_mail
-import jinja2.utils
 import marko
+import markupsafe
 import pytz
-import werkzeug.routing
 
 from anubis import constants
 from anubis.saver import Saver
 
 
-# Global instance of mail interface.
-MAIL = flask_mail.Mail()
+class MetaSaver(Saver):
+    "Meta document saver context handler."
+
+    DOCTYPE = constants.META
+
+    def add_log(self):
+        "No log entries for meta documents."
+        pass
 
 
-def init(app):
-    "Initialize: Logging, setup email, add template filters."
-    app.logger.info(f"Anubis version {constants.VERSION}")
-    if app.config.get('SETTINGS_FILE'):
-        app.logger.info(f"settings file: {app.config['SETTINGS_FILE']}")
-    else:
-        app.logger.info(f"settings from environment variables")
-    MAIL.init_app(app)
-    app.add_template_filter(display_markdown)
-    app.add_template_filter(display_field_value)
-    app.add_template_filter(display_value)
-    app.add_template_filter(display_datetime_timezone)
-    app.add_template_filter(display_boolean)
-    app.add_template_filter(user_link)
-    app.add_template_filter(call_link)
-    app.add_template_filter(call_proposals_link)
-    app.add_template_filter(call_reviews_link)
-    app.add_template_filter(call_grants_link)
-    app.add_template_filter(proposal_link)
-    app.add_template_filter(review_link)
-    app.add_template_filter(decision_link)
-    app.add_template_filter(grant_link)
-
-
-def load_design_documents(app):
+def load_design_documents():
     "Load all CouchDB design documents."
     import anubis.call
     import anubis.proposal
@@ -59,7 +39,9 @@ def load_design_documents(app):
     import anubis.user
     import anubis.doc
 
-    db = get_db(app=app)
+    app = flask.current_app
+    db = get_db()
+
     if db.put_design("calls", anubis.call.DESIGN_DOC):
         app.logger.info("Updated calls design document.")
     if db.put_design("proposals", anubis.proposal.DESIGN_DOC):
@@ -96,6 +78,7 @@ META_DESIGN_DOC = {
 
 
 def get_server(app=None):
+    "Get a connection to the CouchDB server."
     if app is None:
         app = flask.current_app
     return couchdb2.Server(
@@ -104,17 +87,20 @@ def get_server(app=None):
         password=app.config["COUCHDB_PASSWORD"],
     )
 
-
-def get_db(app=None):
+def get_db():
     "Get a connection to the database."
-    if app is None:
-        app = flask.current_app
-    return get_server(app=app)[app.config["COUCHDB_DBNAME"]]
+    return get_server()[flask.current_app.config["COUCHDB_DBNAME"]]
 
 
-def update_db(app=None):
+def set_db():
+    "Set the database connection and create the document cache."
+    flask.g.db = get_db()
+    flask.g.cache = {}  # key: id, value: doc.
+
+
+def update_db(db):
     "Update the contents of the database for changes in new version(s)."
-    db = get_db(app=app)
+    app = flask.current_app
 
     # Change all stored datetimes (call opens, closes, reviews_due) to UTC ISO format.
     calls = [row.doc for row in db.view("calls", "identifier", include_docs=True)]
@@ -140,7 +126,7 @@ def update_db(app=None):
             filepath = os.path.normpath(os.path.join(constants.ROOT, "../site", "gdpr.md"))
             with open(filepath) as infile:
                 text = infile.read()
-        except (OSError, IOError):
+        except OSError:
             text = None
         with MetaSaver(id="data_policy", db=db) as saver:
             saver["text"] = text
@@ -151,7 +137,7 @@ def update_db(app=None):
             filepath = os.path.normpath(os.path.join(constants.ROOT, "../site", "contact.md"))
             with open(filepath) as infile:
                 text = infile.read()
-        except (OSError, IOError):
+        except OSError:
             text = None
         with MetaSaver(id="contact", db=db) as saver:
             saver["text"] = text
@@ -175,7 +161,7 @@ def update_db(app=None):
                     with open(path, "rb") as infile:
                         data = infile.read()
                     saver.add_attachment("name_logo", data, mimetype)
-                except IOError:
+                except OSError:
                     pass
             # Attach the host logo file, if any.
             if app.config.get("HOST_LOGO"):
@@ -185,7 +171,7 @@ def update_db(app=None):
                     with open(path, "rb") as infile:
                         data = infile.read()
                     saver.add_attachment("host_logo", data, mimetype)
-                except IOError:
+                except OSError:
                     pass
 
     # Add a meta document for user account configurations.
@@ -201,47 +187,6 @@ def update_db(app=None):
             saver["postaladdress"] = to_bool(app.config.get("USER_POSTALADDRESS", False))
             saver["phone"] = to_bool(app.config.get("USER_PHONE", True))
             saver["enable_email_whitelist"] = app.config.get("USER_ENABLE_EMAIL_WHITELIST") or []
-
-
-def set_db(app=None):
-    "Set the database connection and create the document cache."
-    flask.g.db = get_db(app=app)
-    flask.g.cache = {}  # key: id, value: doc.
-
-
-def update_config_from_db(app=None):
-    "Set configuration values that are stored in the database."
-    if app is None:
-        app = flask.current_app
-
-    configuration = flask.g.db["site_configuration"]
-    for key, value in configuration.items():
-        if key in constants.GENERIC_FIELDS: continue
-        app.config[f"SITE_{key.upper()}"] = value
-    modified = datetime.datetime.fromisoformat(configuration["modified"].strip("Z"))
-    for filename in constants.SITE_FILES:
-        key = f"SITE_{filename.upper()}"
-        try:
-            filestub = configuration["_attachments"][filename]
-            infile = flask.g.db.get_attachment(configuration, filename)
-        except (KeyError, couchdb2.NotFoundError):
-            app.config.pop(key, None)
-        else:
-            app.config[key] = {"content": infile.read(),
-                               "mimetype": filestub["content_type"],
-                               "etag": filestub["digest"],
-                               "modified": modified}
-
-    configuration = flask.g.db["user_configuration"]
-    for key, value in configuration.items():
-        if key in constants.GENERIC_FIELDS: continue
-        if key == "universities":  # Special case
-            app.config["UNIVERSITIES"] = value
-        else:
-            app.config[f"USER_{key.upper()}"] = value
-    # Special case: user cannot be enabled immediately if no email server defined.
-    if not app.config["MAIL_SERVER"]:
-        app.config["USER_ENABLE_EMAIL_WHITELIST"] = []
 
 
 def get_count(designname, viewname, key=None):
@@ -397,15 +342,6 @@ def admin_or_staff_required(f):
     return wrap
 
 
-class IuidConverter(werkzeug.routing.BaseConverter):
-    "URL route converter for a IUID."
-
-    def to_python(self, value):
-        if not constants.IUID_RX.match(value):
-            raise werkzeug.routing.ValidationError
-        return value.lower()  # Case-insensitive
-
-
 def get_iuid():
     "Return a new IUID, which is a UUID4 pseudo-random string."
     return uuid.uuid4().hex
@@ -429,11 +365,27 @@ def get_time():
     return now[:17] + "{:06.3f}".format(float(now[17:])) + "Z"
 
 
+def timezone_from_utc_isoformat(dts, tz=True):
+    "Convert the given datetime ISO string in UTC to the local timezone."
+    try:
+        dt = dateutil.parser.isoparse(dts)
+    except ValueError as error:
+        return str(error)
+    dt = dt.astimezone(pytz.timezone(flask.current_app.config["TIMEZONE"]))
+    if tz:
+        return dt.strftime(f"%Y-%m-%d %H:%M %Z")
+    else:
+        return dt.strftime(f"%Y-%m-%d %H:%M")
+
+
 def utc_from_timezone_isoformat(dts):
     """Convert the given datetime ISO string in the site timezone to UTC, and 
     output in the same ISO format as in 'get_time' with dummy millisecond precision.
     """
-    dt = dateutil.parser.isoparse(dts)
+    try:
+        dt = dateutil.parser.isoparse(dts)
+    except ValueError as error:
+        return str(error)
     dt = pytz.timezone(flask.current_app.config["TIMEZONE"]).localize(dt)
     dt = dt.astimezone(pytz.utc)
     return dt.strftime("%Y-%m-%dT%H:%M:%S.000Z")
@@ -483,13 +435,12 @@ def http_DELETE(csrf=True):
 def csrf_token():
     "Output HTML for cross-site request forgery (CSRF) protection."
     # Generate a token to last the session's lifetime.
-    if "_csrf_token" not in flask.session:
-        flask.session["_csrf_token"] = get_iuid()
-    html = (
-        '<input type="hidden" name="_csrf_token" value="%s">'
-        % flask.session["_csrf_token"]
-    )
-    return jinja2.utils.Markup(html)
+    try:
+        token = flask.session["_csrf_token"]
+    except KeyError:
+        flask.session["_csrf_token"] = token = get_iuid()
+    html = f'<input type="hidden" name="_csrf_token" value="{token}">'
+    return markupsafe.Markup(html)
 
 
 def check_csrf_token():
@@ -541,316 +492,6 @@ def get_banner_fields(fields):
 def markdown2html(value):
     "Process the value from Markdown to HTML."
     return marko.Markdown(renderer=HtmlRenderer).convert(value or "")
-
-
-def display_markdown(value):
-    "Template filter: Process the value from Markdown to HTML."
-    return jinja2.utils.Markup(markdown2html(value))
-
-
-def display_field_value(field, entity, fid=None, max_length=None, show_user=False):
-    """Template filter: Display field value according to its type.
-    max_length: Truncate document name to given number of characters.
-    show_user: Show user link if email address is an account, and admin or staff.
-    """
-    import anubis.user
-
-    # Repeated field needs to pass its actual id explicitly.
-    if not fid:
-        fid = field["identifier"]
-    value = entity.get("values", {}).get(fid)
-    if field["type"] == constants.LINE:
-        return value or "-"
-    elif field["type"] == constants.EMAIL:
-        if not value:
-            return "-"
-        if show_user and (flask.g.am_admin or flask.g.am_staff):
-            user = anubis.user.get_user(email=value)
-            if user:
-                return value + " (" + user_link(user) + ")"
-        return value
-    elif field["type"] == constants.BOOLEAN:
-        return display_boolean(value)
-    elif field["type"] == constants.SELECT:
-        if value is None:
-            return "-"
-        elif isinstance(value, list):
-            return "; ".join(value)
-        else:
-            return value
-    elif field["type"] in (constants.INTEGER, constants.SCORE, constants.RANK):
-        if value is None:
-            return "-"
-        elif isinstance(value, int):
-            return "{:,}".format(value)  # Thousands marker.
-        else:
-            return "?"
-    elif field["type"] == constants.FLOAT:
-        if value is None:
-            return "-"
-        elif isinstance(value, (int, float)):
-            return "%.2f" % float(value)
-        else:
-            return "?"
-    elif field["type"] == constants.TEXT:
-        return display_markdown(value)
-    elif field["type"] == constants.DOCUMENT:
-        if value:
-            if entity["doctype"] == constants.PROPOSAL:
-                docurl = flask.url_for(
-                    "proposal.document", pid=entity["identifier"], fid=fid
-                )
-            elif entity["doctype"] == constants.REVIEW:
-                docurl = flask.url_for("review.document", iuid=entity["_id"], fid=fid)
-            elif entity["doctype"] == constants.DECISION:
-                docurl = flask.url_for("decision.document", iuid=entity["_id"], fid=fid)
-            elif entity["doctype"] == constants.GRANT:
-                docurl = flask.url_for(
-                    "grant.document", gid=entity["identifier"], fid=fid
-                )
-            if max_length:
-                if len(value) > max_length:
-                    value = value[:max_length] + "..."
-            return jinja2.utils.Markup(
-                f'<i title="File" class="align-top">{value}</i> <a href="{docurl}"'
-                ' role="button" title="Download file"'
-                ' class="btn btn-dark btn-sm ml-4">Download</a>'
-            )
-        else:
-            return "-"
-    elif field["type"] == constants.REPEAT:
-        if value is None:
-            return "-"
-        else:
-            return value
-    else:
-        raise ValueError(f"unknown field type: {field['type']}")
-
-
-def display_value(value, default="-"):
-    "Template filter: Display the value if not None, else the default."
-    if value is None:
-        return default
-    else:
-        return value
-
-
-def display_datetime_timezone(value, due=False, tz=True, dash=True):
-    """Template filter: Convert UTC datetime ISO string to the timezone of the site.
-    Optionally output warning for approaching due date, and the timezone.
-    """
-    if value:
-        try:
-            dt = dateutil.parser.isoparse(value)
-        except ValueError as error:
-            return str(error)
-        dt = dt.astimezone(pytz.timezone(flask.current_app.config["TIMEZONE"]))
-        if tz:
-            dts = dt.strftime(f"%Y-%m-%d %H:%M %Z")
-        else:
-            dts = dt.strftime(f"%Y-%m-%d %H:%M")
-        if due:
-            remaining = days_remaining(value)
-            if remaining > 7:
-                return dts
-            elif remaining >= 2:
-                return jinja2.utils.Markup(
-                    f'{dts} <div class="badge badge-warning ml-2">'
-                    f"{remaining:.1f} days until due.</div>"
-                )
-            elif remaining >= 0:
-                return jinja2.utils.Markup(
-                    f'{dts} <div class="badge badge-danger ml-2">'
-                    f"{remaining:.1f} days until due.</div>"
-                )
-            else:
-                return jinja2.utils.Markup(
-                    f'{dts} <div class="badge badge-danger ml-2">Overdue!</div>'
-                )
-        else:
-            return dts
-    elif dash:
-        return "-"
-    return ""
-
-
-def display_boolean(value):
-    "Display field value boolean."
-    if value is None:
-        return "-"
-    elif value:
-        return "Yes"
-    else:
-        return "No"
-
-
-def user_link(user, fullname=True, affiliation=False):
-    """Template filter: user by name, with link if allowed to view.
-    Optionally output affiliation.
-    """
-    import anubis.user
-
-    if fullname:
-        name = get_fullname(user)
-    else:
-        name = user["username"]
-    if affiliation:
-        name += f" [{user.get('affiliation') or '-'}]"
-    if anubis.user.allow_view(user):
-        url = flask.url_for("user.display", username=user["username"])
-        return jinja2.utils.Markup(f'<a href="{url}">{name}</a>')
-    else:
-        return jinja2.utils.Markup(name)
-
-
-def call_link(
-    call, identifier=True, title=False, proposals_link=True, grants_link=False
-):
-    """Template filter: Link to call and optionally links to
-    all its proposals and grants.
-    """
-    label = []
-    if identifier:
-        label.append(call["identifier"])
-    if title and call["title"]:
-        label.append(call["title"])
-    label = " ".join(label) or call["identifier"]
-    url = flask.url_for("call.display", cid=call["identifier"])
-    html = f'<a href="{url}" class="font-weight-bold">{label}</a>'
-    if proposals_link:
-        count = get_call_proposals_count(call["identifier"])
-        url = flask.url_for("proposals.call", cid=call["identifier"])
-        html += (
-            f' <a href="{url}" class="badge badge-primary mx-2">{count} proposals</a>'
-        )
-    if grants_link:
-        count = get_count("grants", "call", call["identifier"])
-        url = flask.url_for("grants.call", cid=call["identifier"])
-        html += f' <a href="{url}" class="badge badge-success mx-2">{count} grants</a>'
-    return jinja2.utils.Markup(html)
-
-
-def call_proposals_link(call, full=False):
-    "Template filter: Button with link to the page of all proposals in the call."
-    import anubis.call
-
-    if not anubis.call.allow_view_proposals(call):
-        return ""
-    count = get_count("proposals", "call", call["identifier"])
-    url = flask.url_for("proposals.call", cid=call["identifier"])
-    html = f' <a href="{url}" role="button" class="btn btn-sm btn-primary">{count} {full and "proposals" or "" }</a>'
-    return jinja2.utils.Markup(html)
-
-
-def call_reviews_link(call, full=False):
-    "Template filter: Button with link to the page of all reviews in the call."
-    import anubis.call
-
-    if not anubis.call.allow_view_reviews(call):
-        return ""
-    count = get_count("reviews", "call", call["identifier"])
-    url = flask.url_for("reviews.call", cid=call["identifier"])
-    html = f' <a href="{url}" role="button" class="btn btn-sm btn-info">{count} {full and "reviews" or ""}</a>'
-    return jinja2.utils.Markup(html)
-
-
-def call_grants_link(call, full=False):
-    "Template filter: Button with link to the page of all grants in the call."
-    import anubis.call
-
-    if not anubis.call.allow_view_grants(call):
-        return ""
-    count = get_count("grants", "call", call["identifier"])
-    url = flask.url_for("grants.call", cid=call["identifier"])
-    html = f' <a href="{url}" role="button" class="btn btn-sm btn-success">{count} {full and "grants" or ""}</a>'
-    return jinja2.utils.Markup(html)
-
-
-def proposal_link(proposal, bold=True):
-    "Template filter: link to proposal."
-    if not proposal:
-        return "-"
-    url = flask.url_for("proposal.display", pid=proposal["identifier"])
-    title = proposal.get("title") or "[No title]"
-    html = f'''<a href="{url}" title="{title}"'''
-    if bold:
-        html += ' class="font-weight-bold"'
-    html += f">{proposal['identifier']} {title}</a>"
-    return jinja2.utils.Markup(html)
-
-
-def review_link(review):
-    "Template filter: link to review."
-    if not review:
-        return "-"
-    url = flask.url_for("review.display", iuid=review["_id"])
-    html = f"""<a href="{url}" class="font-weight-bold text-info">Review """
-    if review.get("archived"):
-        html += '<span class="badge badge-pill badge-secondary">Archived</span>'
-    elif review.get("finalized"):
-        html += '<span class="badge badge-pill badge-success">Finalized</span>'
-    else:
-        html += '<span class="badge badge-pill badge-warning">Not finalized</span>'
-    html += "</a>"
-    return jinja2.utils.Markup(html)
-
-
-def decision_link(decision, small=False):
-    "Template filter: link to decision."
-    if not decision:
-        return "-"
-    url = flask.url_for("decision.display", iuid=decision["_id"])
-    if decision.get("finalized"):
-        if decision.get("verdict"):
-            color = "btn-success font-weight-bold"
-            label = "Accepted"
-        else:
-            color = "btn-secondary font-weight-bold"
-            label = "Declined"
-    else:
-        if decision.get("verdict"):
-            color = "btn-outline-success font-weight-bold"
-            label = "Accepted"
-        elif decision.get("verdict") == False:
-            color = "btn-outline-secondary font-weight-bold"
-            label = "Declined"
-        else:
-            color = "btn-warning"
-            label = "Undecided"
-    if small:
-        color += " btn-sm"
-    else:
-        color += " my-1"
-    return jinja2.utils.Markup(
-        f"""<a href="{url}" role="button" class="btn {color}">""" f"{label}</a>"
-    )
-
-
-def grant_link(grant, small=False, status=False):
-    "Template filter: link to grant, optionally with status marker."
-    if not grant:
-        return "-"
-    url = flask.url_for("grant.display", gid=grant["identifier"])
-    color = "btn-success font-weight-bold"
-    if small:
-        color += " btn-sm"
-    label = f"Grant {grant['identifier']}"
-    if status:
-        if grant["errors"]:
-            label += ' <span class="badge badge-danger ml-2">Incomplete</span>'
-    return jinja2.utils.Markup(
-        f'<a href="{url}" role="button"' f' class="btn {color} my-1">{label}</a>'
-    )
-
-
-def get_fullname(user):
-    "Return full name of user, or family name, or user name."
-    if user.get("familyname"):
-        name = user["familyname"]
-        if user.get("givenname"):
-            return f"{user['givenname']} {name}"
-        return name
-    return user["username"]
 
 
 class HtmlRenderer(marko.html_renderer.HTMLRenderer):
@@ -926,9 +567,10 @@ def delete(doc):
 
 def send_email(recipients, title, text):
     """Send an email.
-    Raise ValueError if email server not configured.
+    Raise ValueError if the email server is not configured.
     Raise KeyError if email could not be sent; server misconfigured.
     """
+    import anubis
     if not flask.current_app.config["MAIL_SERVER"]:
         raise ValueError
     if isinstance(recipients, str):
@@ -938,17 +580,7 @@ def send_email(recipients, title, text):
     )
     message.body = text
     try:
-        MAIL.send(message)
+        anubis.mail.send(message)
     except (ConnectionRefusedError, smtplib.SMTPAuthenticationError) as error:
         app.logger.error(str(error))
         raise KeyError
-
-
-class MetaSaver(Saver):
-    "Meta document saver context handler."
-
-    DOCTYPE = constants.META
-
-    def add_log(self):
-        "No log entries for meta documents."
-        pass

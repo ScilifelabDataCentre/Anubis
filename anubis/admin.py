@@ -45,7 +45,7 @@ def site_configuration():
                     saver.add_attachment("host_logo", infile.read(), infile.mimetype)
         except ValueError as error:
             utils.flash_error(error)
-        utils.update_config_from_db()
+        anubis.config.init_from_db(flask.g.db)
         return flask.redirect(flask.url_for(".site_configuration"))
 
 
@@ -73,7 +73,7 @@ def user_configuration():
                     saver["enable_email_whitelist"] = utils.to_list(form.get("enable_email_whitelist") or "")
         except ValueError as error:
             utils.flash_error(error)
-        utils.update_config_from_db()
+        anubis.config.init_from_db(flask.g.db)
         return flask.redirect(flask.url_for(".user_configuration"))
 
 @blueprint.route("/database")

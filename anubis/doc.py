@@ -16,7 +16,7 @@ DOCUMENTATION = {}
 blueprint = flask.Blueprint("documentation", __name__)
 
 
-def init(app):
+def init():
     "Initialize; load the documentation files."
     docs = []
     docdir = os.path.join(constants.ROOT, "documentation")
@@ -80,7 +80,7 @@ class Documentation:
             try:
                 self.front_matter = yaml.safe_load(match.group(1)) or {}
             except yaml.parser.ParserError:
-                raise IOError(f"Invalid YAML in {abspath}")
+                raise OSError(f"Invalid YAML in {abspath}")
             self.md = data[match.end() :]
         else:
             self.front_matter = {}

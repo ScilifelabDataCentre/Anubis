@@ -5,7 +5,6 @@ import os.path
 import time
 
 import click
-import dotenv
 import couchdb2
 import flask
 
@@ -19,10 +18,6 @@ from anubis import constants
 from anubis import utils
 
 
-# Load environment variables from the file '.env' if it exists.
-dotenv.load_dotenv()
-
-
 @click.group()
 def cli():
     "Command line interface for operations on the Anubis database."
@@ -32,34 +27,28 @@ def cli():
 @cli.command()
 def destroy_database():
     "Hard delete of the entire database, including the instance within CouchDB."
-    server = couchdb2.Server(
-        href=anubis.app.app.config["COUCHDB_URL"],
-        username=anubis.app.app.config["COUCHDB_USERNAME"],
-        password=anubis.app.app.config["COUCHDB_PASSWORD"],
-    )
-    try:
-        db = server[anubis.app.app.config["COUCHDB_DBNAME"]]
-    except couchdb2.NotFoundError as error:
-        raise click.ClickException(str(error))
-    db.destroy()
-    click.echo(f"""Destroyed database '{anubis.app.app.config["COUCHDB_DBNAME"]}'.""")
+    with anubis.app.app.app_context():
+        server = utils.get_server(anubis.app.app)
+        try:
+            db = server[anubis.app.app.config["COUCHDB_DBNAME"]]
+        except couchdb2.NotFoundError as error:
+            raise click.ClickException(str(error))
+        db.destroy()
+        click.echo(f"""Destroyed database '{anubis.app.app.config["COUCHDB_DBNAME"]}'.""")
 
 
 @cli.command()
 def create_database():
-    "Create the database within CouchDB. It is *not* initialized!"
-    server = couchdb2.Server(
-        href=anubis.app.app.config["COUCHDB_URL"],
-        username=anubis.app.app.config["COUCHDB_USERNAME"],
-        password=anubis.app.app.config["COUCHDB_PASSWORD"],
-    )
-    if anubis.app.app.config["COUCHDB_DBNAME"] in server:
-        raise click.ClickException(
-            f"""Database '{anubis.app.app.config["COUCHDB_DBNAME"]}' already exists."""
-        )
-    server.create(anubis.app.app.config["COUCHDB_DBNAME"])
-    utils.load_design_documents(anubis.app.app)
-    click.echo(f"""Created database '{anubis.app.app.config["COUCHDB_DBNAME"]}'.""")
+    "Create the database within CouchDB and load the design documents."
+    with anubis.app.app.app_context():
+        server = utils.get_server(anubis.app.app)
+        if anubis.app.app.config["COUCHDB_DBNAME"] in server:
+            raise click.ClickException(
+                f"""Database '{anubis.app.app.config["COUCHDB_DBNAME"]}' already exists."""
+            )
+        server.create(anubis.app.app.config["COUCHDB_DBNAME"])
+        utils.load_design_documents()
+        click.echo(f"""Created database '{anubis.app.app.config["COUCHDB_DBNAME"]}'.""")
 
 
 @cli.command()
@@ -133,7 +122,7 @@ def create_user(username, email, password):
     prompt=True,
     hide_input=True,
 )
-def password(username, password):
+def set_password(username, password):
     "Set the password for a user account."
     with anubis.app.app.app_context():
         utils.set_db()
@@ -141,6 +130,22 @@ def password(username, password):
         if user:
             with anubis.user.UserSaver(user) as saver:
                 saver.set_password(password)
+        else:
+            raise click.ClickException("No such user.")
+
+
+@cli.command()
+@click.option("--username", help="Username for the user account.", prompt=True)
+def reset_password(username):
+    "Reset the password for a user account."
+    with anubis.app.app.app_context():
+        utils.set_db()
+        user = anubis.user.get_user(username)
+        if user:
+            with anubis.user.UserSaver(user) as saver:
+                saver.set_password()
+            code = saver["password"][5:]
+            click.echo(f"One-time password setting code: {code}")
         else:
             raise click.ClickException("No such user.")
 

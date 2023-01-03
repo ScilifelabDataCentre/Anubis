@@ -525,7 +525,7 @@ def get_proposal_docx(proposal):
     para = doc.add_paragraph()
     para.paragraph_format.space_before = docx.shared.Pt(20)
     para.add_run("Submitter: ").bold = True
-    para.add_run(utils.get_fullname(submitter))
+    para.add_run(anubis.user.get_fullname(submitter))
     para.add_run(f" (Anubis user name: {submitter['username']})")
     para = doc.add_paragraph()
     para.add_run("Affiliation: ").bold = True
@@ -616,7 +616,7 @@ def get_proposal_xlsx(proposal):
     nrow += 1
     row = [
         "Submitter",
-        utils.get_fullname(submitter),
+        anubis.user.get_fullname(submitter),
         f"{submitter.get('affiliation') or '-'}",
     ]
     ws.write_row(nrow, 0, row)

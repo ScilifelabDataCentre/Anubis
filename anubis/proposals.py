@@ -168,7 +168,7 @@ def get_call_xlsx(call, submitted=False, proposals=None):
         ws.write_string(nrow, ncol, proposal.get("submitted") and "yes" or "no")
         ncol += 1
         user = anubis.user.get_user(username=proposal["user"])
-        ws.write_string(nrow, ncol, utils.get_fullname(user))
+        ws.write_string(nrow, ncol, anubis.user.get_fullname(user))
         ncol += 1
         ws.write_string(nrow, ncol, user.get("email") or "")
         ncol += 1
@@ -424,7 +424,7 @@ def get_review_rank_fields_errors(call, proposals):
             series = list(values.values())
             if series:
                 user = anubis.user.get_user(reviewer)
-                name = utils.get_fullname(user)
+                name = anubis.user.get_fullname(user)
                 if min(series) != 1:
                     errors.append(f"{name} reviews '{id}' do not start with 1.")
                 elif set(series) != set(range(1, max(series) + 1)):

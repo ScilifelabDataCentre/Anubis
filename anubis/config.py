@@ -7,7 +7,11 @@ import json
 import os
 import os.path
 
+import couchdb2
+import dotenv
+import flask
 import pytz
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from anubis import constants
 from anubis import utils
@@ -15,6 +19,8 @@ from anubis import utils
 
 # Default configurable values, loaded and/or modified in procedure 'init'.
 DEFAULT_CONFIG = dict(
+    SETTINGS_ENV=False,
+    SETTINGS_FILE=None,
     FLASK_DEBUG=False,
     SERVER_NAME=None,
     REVERSE_PROXY=False,
@@ -42,23 +48,22 @@ DEFAULT_CONFIG = dict(
 
 def init(app):
     """Perform the configuration of the Flask app.
-    Set the defaults, and then modify the values based on:
-    1) The settings file path environment variable ANUBIS_SETTINGS_FILEPATH.
-    2) The file 'settings.json' in this directory.
-    3) The file '../site/settings.json' relative to this directory.
-    4) Check for environment variables and use value if defined.
-    Raise IOError if settings file could not be read.
+    1) Start with values in DEFAULT_SETTINGS.
+    2) Set environment variables from file '.env' using 'dotenv.load_dotenv'.
+    3) Collect the possible settings file paths in the following order:
+       - The environment variable ANUBIS_SETTINGS_FILEPATH, if any.
+       - The file 'settings.json' in this directory.
+       - The file '../site/settings.json' relative to this directory.
+    4) Use the first of these files that is found and can be read.
+    5) Use any environment variables defined.
     Raise KeyError if a settings variable is missing.
     Raise ValueError if a settings variable value is invalid.
     """
     app.config.from_mapping(DEFAULT_CONFIG)
 
-    # Hard-wired Flask configurations.
-    app.json.ensure_ascii = False
-    app.json.sort_keys = False
-    app.config["SEND_FILE_MAX_AGE_DEFAULT"] = constants.SITE_FILE_MAX_AGE
+    app.config["SETTINGS_ENV"] = dotenv.load_dotenv()
 
-    # Modify the configuration from a JSON settings file.
+    # Collect filepaths for possible settings files.
     filepaths = []
     try:
         filepaths.append(os.environ["ANUBIS_SETTINGS_FILEPATH"])
@@ -66,11 +71,13 @@ def init(app):
         pass
     for filepath in ["settings.json", "../site/settings.json"]:
         filepaths.append(os.path.normpath(os.path.join(constants.ROOT, filepath)))
+
+    # Use the first settings file that can be found.
     for filepath in filepaths:
         try:
             with open(filepath) as infile:
                 config = json.load(infile)
-        except FileNotFoundError:
+        except OSError:
             pass
         else:
             for key in config.keys():
@@ -94,9 +101,52 @@ def init(app):
             else:
                 app.config[key] = new
 
-    # Sanity checks. Exception means bad setup.
+    # Must be done after all possible settings sources have been processed.
+    if app.config["REVERSE_PROXY"]:
+        app.wsgi_app = ProxyFix(app.wsgi_app)
+
+    # Sanity checks. Any Exception raised here means bad configuration.
     if not app.config["SECRET_KEY"]:
         raise ValueError("SECRET_KEY not set")
     if app.config["MIN_PASSWORD_LENGTH"] <= 4:
         raise ValueError("MIN_PASSWORD_LENGTH is too short")
     pytz.timezone(app.config["TIMEZONE"])
+
+    app.logger.info(f"settings from environment variables: {app.config['SETTINGS_ENV']}")
+    app.logger.info(f"settings file: {app.config['SETTINGS_FILE']}")
+
+
+def init_from_db(db):
+    """Set configuration from values stored in the database.
+    These are not settable by environment variables or the settings file.
+    """
+    app = flask.current_app
+
+    configuration = db["site_configuration"]
+    for key, value in configuration.items():
+        if key in constants.GENERIC_FIELDS: continue
+        app.config[f"SITE_{key.upper()}"] = value
+    modified = datetime.datetime.fromisoformat(configuration["modified"].strip("Z"))
+    for filename in constants.SITE_FILES:
+        key = f"SITE_{filename.upper()}"
+        try:
+            filestub = configuration["_attachments"][filename]
+            infile = db.get_attachment(configuration, filename)
+        except (KeyError, couchdb2.NotFoundError):
+            app.config.pop(key, None)
+        else:
+            app.config[key] = {"content": infile.read(),
+                               "mimetype": filestub["content_type"],
+                               "etag": filestub["digest"],
+                               "modified": modified}
+
+    configuration = db["user_configuration"]
+    for key, value in configuration.items():
+        if key in constants.GENERIC_FIELDS: continue
+        if key == "universities":  # Special case
+            app.config["UNIVERSITIES"] = value
+        else:
+            app.config[f"USER_{key.upper()}"] = value
+    # Special case: user cannot be enabled immediately if no email server defined.
+    if not app.config["MAIL_SERVER"]:
+        app.config["USER_ENABLE_EMAIL_WHITELIST"] = []

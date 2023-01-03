@@ -632,6 +632,16 @@ def get_current_user():
     return user
 
 
+def get_fullname(user):
+    "Return full name of user, or family name, or user name."
+    if user.get("familyname"):
+        name = user["familyname"]
+        if user.get("givenname"):
+            return f"{user['givenname']} {name}"
+        return name
+    return user["username"]
+
+
 def do_login(username, password):
     """Set the session cookie if successful login.
     Raise ValueError if some problem.
