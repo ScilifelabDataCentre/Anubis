@@ -13,42 +13,14 @@ import flask
 
 import anubis.call
 import anubis.database
+import anubis.decision
 import anubis.proposal
 import anubis.user
-import anubis.decision
 
 from anubis import constants
 from anubis import utils
 from anubis.saver import Saver, FieldSaverMixin, AccessSaverMixin
 
-
-DESIGN_DOC = {
-    "views": {
-        "identifier": {
-            "map": "function (doc) {if (doc.doctype !== 'grant') return; emit(doc.identifier, doc.proposal);}"
-        },
-        "call": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'grant') return; emit(doc.call, doc.identifier);}",
-        },
-        "proposal": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'grant') return; emit(doc.proposal, doc.identifier);}",
-        },
-        "user": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'grant') return; emit(doc.user, doc.identifier);}",
-        },
-        "incomplete": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'grant') return; if (Object.keys(doc.errors).length === 0) return; emit(doc.user, doc.identifier); for (var i=0; i < doc.access_edit.length; i++) {emit(doc.access_edit[i], doc.identifier); }}",
-        },
-        "access": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'grant') return; for (var i=0; i < doc.access_view.length; i++) {emit(doc.access_view[i], doc.identifier); }}",
-        },
-    }
-}
 
 blueprint = flask.Blueprint("grant", __name__)
 
@@ -149,7 +121,7 @@ def edit(gid):
         proposal = anubis.proposal.get_proposal(grant["proposal"])
         with anubis.proposal.ProposalSaver(proposal) as saver:
             saver["grant"] = None
-        utils.delete(grant)
+        anubis.database.delete(grant)
         utils.flash_message("Deleted grant dossier.")
         return flask.redirect(
             flask.url_for("proposal.display", pid=proposal["identifier"])
@@ -347,7 +319,7 @@ def logs(gid):
         "logs.html",
         title=f"Grant {grant['identifier']}",
         back_url=flask.url_for(".display", gid=grant["identifier"]),
-        logs=utils.get_logs(grant["_id"]),
+        logs=anubis.database.get_logs(grant["_id"]),
     )
 
 

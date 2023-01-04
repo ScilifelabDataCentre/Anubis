@@ -7,6 +7,7 @@ import flask
 import xlsxwriter
 
 import anubis.call
+import anubis.database
 import anubis.decision
 import anubis.proposal
 import anubis.user
@@ -293,7 +294,7 @@ def user(username):
             "You may not view the user's proposals.", flask.url_for("home")
         )
     proposals = get_user_proposals(user["username"])
-    proposals.extend(utils.get_docs_view("proposals", "access", user["username"]))
+    proposals.extend(anubis.database.get_docs("proposals", "access", user["username"]))
     return flask.render_template(
         "proposals/user.html",
         user=user,
@@ -352,7 +353,7 @@ def get_review_score_fields(call, proposals):
         ]
     )
     for proposal in proposals:
-        reviews = utils.get_docs_view("reviews", "proposal", proposal["identifier"])
+        reviews = anubis.database.get_docs("reviews", "proposal", proposal["identifier"])
         # Only include finalized reviews in the calculation.
         reviews = [r for r in reviews if r.get("finalized")]
         scores = dict([(id, list()) for id in fields])
@@ -408,7 +409,7 @@ def get_review_rank_fields_errors(call, proposals):
     for id in fields.keys():
         ranks = dict()  # key: reviewer, value: dict(proposal: rank)
         for proposal in proposals:
-            reviews = utils.get_docs_view("reviews", "proposal", proposal["identifier"])
+            reviews = anubis.database.get_docs("reviews", "proposal", proposal["identifier"])
             # Only include finalized reviews in the calculation.
             reviews = [r for r in reviews if r.get("finalized")]
             for review in reviews:

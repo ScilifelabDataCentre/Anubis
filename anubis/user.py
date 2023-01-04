@@ -17,30 +17,6 @@ from anubis import utils
 from anubis.saver import Saver
 
 
-DESIGN_DOC = {
-    "views": {
-        "username": {
-            "reduce": "_count",
-            "map": "function(doc) {if (doc.doctype !== 'user') return; emit(doc.username, null);}",
-        },
-        "email": {
-            "map": "function(doc) {if (doc.doctype !== 'user' || !doc.email) return; emit(doc.email, null);}"
-        },
-        "orcid": {
-            "map": "function(doc) {if (doc.doctype !== 'user' || !doc.orcid) return; emit(doc.orcid, null);}"
-        },
-        "role": {
-            "map": "function(doc) {if (doc.doctype !== 'user') return; emit(doc.role, doc.username);}"
-        },
-        "status": {
-            "map": "function(doc) {if (doc.doctype !== 'user') return; emit(doc.status, doc.username);}"
-        },
-        "last_login": {
-            "map": "function(doc) {if (doc.doctype !== 'user') return; if (!doc.last_login) return; emit(doc.last_login, doc.username);}"
-        },
-    }
-}
-
 blueprint = flask.Blueprint("user", __name__)
 
 
@@ -339,7 +315,7 @@ def edit(username):
                 "Cannot delete the user account; admin or not empty.",
                 flask.url_for(".display", username=username),
             )
-        flask.g.db.delete(user)
+        anubis.database.delete(user)
         utils.flash_message(f"Deleted user {username}.")
         if flask.g.am_admin:
             return flask.redirect(flask.url_for(".all"))
@@ -360,7 +336,7 @@ def logs(username):
         "logs.html",
         title=f"User {user['username']}",
         back_url=flask.url_for(".display", username=user["username"]),
-        logs=utils.get_logs(user["_id"]),
+        logs=anubis.database.get_logs(user["_id"]),
     )
 
 

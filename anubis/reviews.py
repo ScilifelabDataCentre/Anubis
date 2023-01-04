@@ -7,10 +7,12 @@ import flask
 import xlsxwriter
 
 import anubis.call
-import anubis.user
+import anubis.database
 import anubis.proposal
 import anubis.proposals
 import anubis.review
+import anubis.user
+
 from anubis import constants
 from anubis import utils
 
@@ -35,7 +37,7 @@ def call(cid):
     proposals = anubis.proposals.get_call_proposals(call, submitted=True)
     for proposal in proposals:
         proposal["allow_create_review"] = anubis.review.allow_create(proposal)
-    reviews = utils.get_docs_view("reviews", "call", call["identifier"])
+    reviews = anubis.database.get_docs("reviews", "call", call["identifier"])
     # For ordinary reviewer, list only finalized reviews.
     if flask.g.am_admin or flask.g.am_staff or anubis.call.am_chair(call):
         only_finalized = False
@@ -68,7 +70,7 @@ def call_xlsx(cid):
         )
 
     proposals = anubis.proposals.get_call_proposals(call, submitted=True)
-    reviews = utils.get_docs_view("reviews", "call", call["identifier"])
+    reviews = anubis.database.get_docs("reviews", "call", call["identifier"])
     # For ordinary reviewer, list only finalized reviews.
     if not (flask.g.am_admin or anubis.call.am_chair(call)):
         reviews = [
@@ -112,7 +114,7 @@ def call_reviewer(cid, username):
     proposals = anubis.proposals.get_call_proposals(call, submitted=True)
     for proposal in proposals:
         proposal["allow_create_review"] = anubis.review.allow_create(proposal)
-    reviews = utils.get_docs_view(
+    reviews = anubis.database.get_docs(
         "reviews", "call_reviewer", [call["identifier"], user["username"]]
     )
     reviews_lookup = {r["proposal"]: r for r in reviews}
@@ -149,7 +151,7 @@ def call_reviewer_xlsx(cid, username):
         )
 
     proposals = anubis.proposals.get_call_proposals(call, submitted=True)
-    reviews = utils.get_docs_view(
+    reviews = anubis.database.get_docs(
         "reviews", "call_reviewer", [call["identifier"], user["username"]]
     )
     reviews_lookup = {f"{r['proposal']} {username}": r for r in reviews}
@@ -189,7 +191,7 @@ def call_reviewer_zip(cid, username):
         )
 
     proposals = anubis.proposals.get_call_proposals(call, submitted=True)
-    reviews = utils.get_docs_view(
+    reviews = anubis.database.get_docs(
         "reviews", "call_reviewer", [call["identifier"], user["username"]]
     )
     reviews_lookup = {f"{r['proposal']} {username}": r for r in reviews}
@@ -243,7 +245,7 @@ def proposal(pid):
             flask.url_for("call.display", cid=call["identifier"]),
         )
 
-    reviews = utils.get_docs_view("reviews", "proposal", proposal["identifier"])
+    reviews = anubis.database.get_docs("reviews", "proposal", proposal["identifier"])
     # For ordinary reviewer, list only finalized reviews.
     if flask.g.am_admin or flask.g.am_staff or anubis.call.am_chair(call):
         only_finalized = False
@@ -278,7 +280,7 @@ def proposal_archived(pid):
             flask.url_for("call.display", cid=call["identifier"]),
         )
 
-    reviews = utils.get_docs_view(
+    reviews = anubis.database.get_docs(
         "reviews", "proposal_archived", proposal["identifier"]
     )
     return flask.render_template(
@@ -343,7 +345,7 @@ def call_reviewer_archived(cid, username):
         )
 
     proposals = anubis.proposals.get_call_proposals(call, submitted=True)
-    reviews = utils.get_docs_view(
+    reviews = anubis.database.get_docs(
         "reviews", "call_reviewer_archived", [call["identifier"], user["username"]]
     )
     reviews_lookup = {r["proposal"]: r for r in reviews}
@@ -375,7 +377,7 @@ def proposal_xlsx(pid):
             flask.url_for("call.display", cid=call["identifier"]),
         )
 
-    reviews = utils.get_docs_view("reviews", "proposal", proposal["identifier"])
+    reviews = anubis.database.get_docs("reviews", "proposal", proposal["identifier"])
     if not (flask.g.am_admin or anubis.call.am_chair(call)):
         reviews = [
             r
@@ -428,7 +430,7 @@ def reviewer(username):
             "reviews", "call_reviewer", [c["identifier"], user["username"]]
         )
 
-    reviews = utils.get_docs_view("reviews", "reviewer", user["username"])
+    reviews = anubis.database.get_docs("reviews", "reviewer", user["username"])
     return flask.render_template(
         "reviews/reviewer.html",
         user=user,

@@ -16,42 +16,16 @@ import htmldocx
 import xlsxwriter
 
 import anubis.call
-import anubis.user
+import anubis.database
 import anubis.decision
 import anubis.grant
 import anubis.review
+import anubis.user
 
 from anubis import constants
 from anubis import utils
 from anubis.saver import Saver, FieldSaverMixin, AccessSaverMixin
 
-
-DESIGN_DOC = {
-    "views": {
-        "identifier": {
-            "map": "function (doc) {if (doc.doctype !== 'proposal') return; emit(doc.identifier, doc.title);}"
-        },
-        "call": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'proposal') return; emit(doc.call, doc.user);}",
-        },
-        "user": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'proposal') return; emit(doc.user, doc.identifier);}",
-        },
-        "call_user": {
-            "map": "function (doc) {if (doc.doctype !== 'proposal') return; emit([doc.call, doc.user], doc.identifier);}"
-        },
-        "unsubmitted": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'proposal' || doc.submitted) return; emit(doc.user, doc.identifier);}",
-        },
-        "access": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'proposal') return; for (var i=0; i < doc.access_view.length; i++) {emit(doc.access_view[i], doc.identifier); }}",
-        },
-    }
-}
 
 blueprint = flask.Blueprint("proposal", __name__)
 
@@ -214,11 +188,11 @@ def edit(pid):
             return utils.error("You are not allowed to delete this proposal.")
         decision = anubis.decision.get_decision(proposal.get("decision"))
         if decision:
-            utils.delete(decision)
-        reviews = utils.get_docs_view("reviews", "proposal", proposal["identifier"])
+            anubis.database.delete(decision)
+        reviews = anubis.database.get_docs("reviews", "proposal", proposal["identifier"])
         for review in reviews:
-            utils.delete(review)
-        utils.delete(proposal)
+            anubis.database.delete(review)
+        anubis.database.delete(proposal)
         utils.flash_message(f"Deleted proposal {pid}.")
         if flask.g.am_admin or flask.g.am_staff:
             url = flask.url_for("proposals.call", cid=call["identifier"])
@@ -393,7 +367,7 @@ def get_document(proposal, fid):
     # This may generate a KeyError, which is correct.
     stub = proposal["_attachments"][documentname]
     # Colon ':' is a problematic character in filenames.
-    # Replace it by dash '-'; used as general glue character here.
+    # Replace it by dash '-' which used as general glue character here.
     pid = proposal["identifier"].replace(":", "-")
     ext = os.path.splitext(documentname)[1]
     outfile = flask.g.db.get_attachment(proposal, documentname)
@@ -420,7 +394,7 @@ def logs(pid):
         "logs.html",
         title=f"Proposal {proposal['identifier']}",
         back_url=flask.url_for(".display", pid=proposal["identifier"]),
-        logs=utils.get_logs(proposal["_id"]),
+        logs=anubis.database.get_logs(proposal["_id"]),
     )
 
 

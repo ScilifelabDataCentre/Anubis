@@ -206,7 +206,7 @@ def output(identifier):
     """
     with anubis.app.app.app_context():
         flask.g.db = anubis.database.get_db()
-        doc = utils.get_document(identifier)
+        doc = anubis.database.get_doc(identifier)
         if doc is None:
             raise click.ClickException("No such item in the database.")
         click.echo(to_json(doc))

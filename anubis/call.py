@@ -27,35 +27,6 @@ from anubis import utils
 from anubis.saver import Saver, AccessSaverMixin
 
 
-DESIGN_DOC = {
-    "views": {
-        "identifier": {
-            "map": "function (doc) {if (doc.doctype !== 'call') return; emit(doc.identifier, doc.title);}"
-        },
-        "closes": {
-            "map": "function (doc) {if (doc.doctype !== 'call' || !doc.closes || !doc.opens) return; emit(doc.closes, doc.identifier);}"
-        },
-        "opens": {
-            "map": "function (doc) {if (doc.doctype !== 'call' || !doc.closes || !doc.opens) return; emit(doc.opens, doc.identifier);}"
-        },
-        "undefined": {
-            "map": "function (doc) {if (doc.doctype !== 'call' || (doc.closes && doc.opens)) return; emit(doc.identifier, null);}"
-        },
-        "owner": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'call') return; emit(doc.owner, doc.identifier);}",
-        },
-        "reviewer": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'call') return; for (var i=0; i < doc.reviewers.length; i++) {emit(doc.reviewers[i], doc.identifier); }}",
-        },
-        "access": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'call') return; for (var i=0; i < doc.access_view.length; i++) {emit(doc.access_view[i], doc.identifier); }}",
-        },
-    }
-}
-
 blueprint = flask.Blueprint("call", __name__)
 
 
@@ -184,7 +155,7 @@ def edit(cid):
     elif utils.http_DELETE():
         if not allow_delete(call):
             return utils.error("You are not allowed to delete the call.")
-        utils.delete(call)
+        anubis.database.delete(call)
         utils.flash_message(f"Deleted call {call['identifier']}:{call['title']}.")
         return flask.redirect(
             flask.url_for("calls.owner", username=flask.g.current_user["username"])
@@ -646,7 +617,7 @@ def logs(cid):
         "logs.html",
         title=f"Call {call['identifier']}",
         back_url=flask.url_for(".display", cid=call["identifier"]),
-        logs=utils.get_logs(call["_id"]),
+        logs=anubis.database.get_logs(call["_id"]),
     )
 
 

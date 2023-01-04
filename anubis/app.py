@@ -78,7 +78,6 @@ def setup_template_context():
         len=len,
         min=min,
         max=max,
-        utils=utils,
         constants=constants,
         csrf_token=utils.csrf_token,
         get_user=anubis.user.get_user,
@@ -133,14 +132,9 @@ def home():
 @app.route("/status")
 def status():
     "Return JSON for the current status and some counts for the database."
-    return dict(
-        status="ok",
-        n_calls = anubis.database.get_count("calls", "owner"),
-        n_users = anubis.database.get_count("users", "username"),
-        n_proposals = anubis.database.get_count("proposals", "call"),
-        n_reviews = anubis.database.get_count("reviews", "call"),
-        n_grants = anubis.database.get_count("grants", "call")
-    )
+    result = dict(status="ok")
+    result.update(anubis.database.get_counts())
+    return result
 
 
 @app.route("/site/<filename>")

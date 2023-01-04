@@ -85,7 +85,7 @@ def database():
     identifier = flask.request.args.get("identifier") or None
     return flask.render_template(
         "admin/database.html",
-        doc=utils.get_document(identifier),
+        doc=anubis.database.get_doc(identifier),
         counts=json.dumps(anubis.database.get_counts(), indent=2),
         db_info=json.dumps(flask.g.db.get_info(), indent=2),
         server_data=json.dumps(server(), indent=2),

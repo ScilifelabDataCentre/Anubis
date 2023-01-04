@@ -59,58 +59,6 @@ def cache_get(identifier):
         flask.g.cache = dict()
         raise KeyError
 
-def get_docs_view(designname, viewname, key):
-    "Get the documents from the view. Add them to the cache."
-    result = [
-        r.doc for r in flask.g.db.view(designname, viewname, key=key, include_docs=True)
-    ]
-    for doc in result:
-        if doc.get("doctype") == constants.CALL:
-            cache_put(f"call {doc['identifier']}", doc)
-        elif doc.get("doctype") == constants.PROPOSAL:
-            cache_put(f"proposal {doc['identifier']}", doc)
-        elif doc.get("doctype") == constants.REVIEW:
-            cache_put(f"review {doc['_id']}", doc)
-        elif doc.get("doctype") == constants.DECISION:
-            cache_put(f"decision {doc['_id']}", doc)
-        elif doc.get("doctype") == constants.GRANT:
-            cache_put(f"grant {doc['identifier']}", doc)
-        elif doc.get("doctype") == constants.USER:
-            cache_put(f"username {doc['username']}", doc)
-            if doc["email"]:
-                cache_put(f"email {doc['email']}", doc)
-    return result
-
-
-def get_document(identifier):
-    """Get the database document by identifier, else None.
-    The identifier may be an account email, account API key, file name, info name,
-    order identifier, or '_id' of the CouchDB document.
-    """
-    if not identifier:          # If empty string, database info is returned.
-        return None
-    for designname, viewname in [
-            ("users", "username"),
-            ("users", "email"),
-            ("users", "orcid"),
-            ("calls", "identifier"),
-            ("proposals", "identifier"),
-            ("grants", "identifier"),
-    ]:
-        try:
-            view = flask.g.db.view(
-                designname, viewname, key=identifier, reduce=False, include_docs=True
-            )
-            result = list(view)
-            if len(result) == 1:
-                return result[0].doc
-        except KeyError:
-            pass
-    try:
-        return flask.g.db[identifier]
-    except couchdb2.NotFoundError:
-        return None
-
 def login_required(f):
     """Resource endpoint decorator for checking if logged in.
     Forward to login page if not, recording the origin URL.
@@ -336,40 +284,6 @@ class HtmlRenderer(marko.html_renderer.HTMLRenderer):
             return element.children
         else:
             return "".join([self.get_text_only(el) for el in element.children])
-
-
-def get_logs(docid, cleanup=True):
-    """Return the list of log entries for the given document identifier,
-    sorted by reverse timestamp.
-    """
-    result = [
-        r.doc
-        for r in flask.g.db.view(
-            "logs",
-            "doc",
-            startkey=[docid, "ZZZZZZ"],
-            endkey=[docid],
-            descending=True,
-            include_docs=True,
-        )
-    ]
-    # Remove irrelevant entries, if requested.
-    if cleanup:
-        for log in result:
-            for key in ["_id", "_rev", "doctype", "docid"]:
-                log.pop(key)
-    return result
-
-
-def delete(doc):
-    """Delete the given document and all its log entries.
-    NOTE: This was done by 'purge' before. This new implementation
-    should be faster, but leaves the deleted documents in CouchDB.
-    These are removed whenever a database compaction is done.
-    """
-    for log in get_logs(doc["_id"], cleanup=False):
-        flask.g.db.delete(log)
-    flask.g.db.delete(doc)
 
 
 def send_email(recipients, title, text):

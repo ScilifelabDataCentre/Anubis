@@ -11,50 +11,15 @@ import os.path
 
 import flask
 
-import anubis.user
 import anubis.call
+import anubis.database
 import anubis.proposal
+import anubis.user
 
 from anubis import constants
 from anubis import utils
 from anubis.saver import Saver, FieldSaverMixin
 
-
-DESIGN_DOC = {
-    "views": {
-        "call": {  # Reviews for all proposals in call.
-            "reduce": "_count",
-            "map": "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit(doc.call, null);}",
-        },
-        "proposal": {  # Reviews for a proposal.
-            "reduce": "_count",
-            "map": "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit(doc.proposal, null);}",
-        },
-        "reviewer": {  # Reviews per reviewer, in any call
-            "reduce": "_count",
-            "map": "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit(doc.reviewer, null);}",
-        },
-        "call_reviewer": {  # Reviews per call and reviewer.
-            "reduce": "_count",
-            "map": "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit([doc.call, doc.reviewer], null);}",
-        },
-        "proposal_reviewer": {
-            "map": "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit([doc.proposal, doc.reviewer], null);}"
-        },
-        "unfinalized": {  # Unfinalized reviews by reviewer, in any call.
-            "reduce": "_count",
-            "map": "function(doc) {if (doc.doctype !== 'review' || doc.finalized || doc.archived) return; emit(doc.reviewer, null);}",
-        },
-        "proposal_archived": {  # Archived reviews for a proposal.
-            "reduce": "_count",
-            "map": "function(doc) {if (doc.doctype !== 'review' || !doc.archived) return; emit(doc.proposal, null);}",
-        },
-        "call_reviewer_archived": {  # Archived reviews for a call and reviewer.
-            "reduce": "_count",
-            "map": "function(doc) {if (doc.doctype !== 'review' || !doc.archived) return; emit([doc.call, doc.reviewer], doc.proposal);}",
-        },
-    }
-}
 
 blueprint = flask.Blueprint("review", __name__)
 
@@ -153,7 +118,7 @@ def edit(iuid):
     elif utils.http_DELETE():
         if not allow_delete(review):
             return utils.error("You are not allowed to delete this review.")
-        utils.delete(review)
+        anubis.database.delete(review)
         utils.flash_message("Deleted review.")
         return flask.redirect(flask.url_for("proposal.display", pid=review["proposal"]))
 
@@ -257,7 +222,7 @@ def logs(iuid):
         "logs.html",
         title=f"Review of {review['proposal']} by {review['reviewer']}",
         back_url=flask.url_for(".display", iuid=review["_id"]),
-        logs=utils.get_logs(review["_id"]),
+        logs=anubis.database.get_logs(review["_id"]),
     )
 
 
@@ -316,7 +281,7 @@ class ReviewSaver(FieldSaverMixin, Saver):
         call = anubis.call.get_call(self["call"])
         proposal = anubis.proposal.get_proposal(self["proposal"])
         reviewer = anubis.user.get_user(self["reviewer"])
-        reviews = utils.get_docs_view(
+        reviews = anubis.database.get_docs(
             "reviews", "call_reviewer", [call["identifier"], reviewer["username"]]
         )
         rank_fields = [f for f in call["review"] if f["type"] == constants.RANK]
