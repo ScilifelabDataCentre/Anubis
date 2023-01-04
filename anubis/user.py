@@ -10,6 +10,7 @@ import flask
 import werkzeug.security
 
 import anubis.call
+import anubis.database
 
 from anubis import constants
 from anubis import utils
@@ -262,18 +263,27 @@ def display(username):
             "calls", "reviewer", key=user["username"], reduce=False
         )
     ]
-    user_proposals_count = utils.get_count(
+    for call in reviewer_calls:
+        call["n_reviews"] = anubis.database.get_count(
+            "reviews", "call_reviewer", [call["identifier"], user["username"]]
+        )
+    user_proposals_count = anubis.database.get_count(
         "proposals", "user", user["username"]
-    ) + utils.get_count("proposals", "access", user["username"])
+    ) + anubis.database.get_count("proposals", "access", user["username"])
+    # The user's own grants and the ones she has access to.
+    user_grants_count = (
+        anubis.database.get_count("grants", "user", user["username"]) +
+        anubis.database.get_count("grants", "access", user["username"])
+    )
     return flask.render_template(
         "user/display.html",
         user=user,
         reviewer_calls=reviewer_calls,
         allow_create_call=anubis.call.allow_create(user),
-        user_calls_count=utils.get_count("calls", "owner", user["username"]),
+        user_calls_count=anubis.database.get_count("calls", "owner", user["username"]),
         user_proposals_count=user_proposals_count,
-        user_reviews_count=utils.get_count("reviews", "reviewer", user["username"]),
-        user_grants_count=utils.get_user_grants_count(user["username"]),
+        user_reviews_count=anubis.database.get_count("reviews", "reviewer", user["username"]),
+        user_grants_count=user_grants_count,
         allow_enable_disable=allow_enable_disable(user),
         allow_edit=allow_edit(user),
         allow_delete=allow_delete(user),
@@ -359,12 +369,16 @@ def logs(username):
 def all():
     "Display list of all user accounts."
     users = get_users()
+    # A single call using group_level 1 is much more efficient
+    # than calling once for each user.
     result = flask.g.db.view("proposals", "user", group_level=1, reduce=True)
     proposals_counts = dict([(r.key, r.value) for r in result])
     result = flask.g.db.view("reviews", "reviewer", group_level=1, reduce=True)
     reviews_counts = dict([(r.key, r.value) for r in result])
+    # User's own grants.
     result = flask.g.db.view("grants", "user", group_level=1, reduce=True)
     grants_counts = dict([(r.key, r.value) for r in result])
+    # Grants user has access to.
     result = flask.g.db.view("grants", "access", group_level=1, reduce=True)
     for row in result:
         try:
@@ -752,11 +766,11 @@ def allow_delete(user):
     """
     if user["role"] == constants.ADMIN:
         return False
-    if utils.get_count("proposals", "user", user["username"]):
+    if anubis.database.get_count("proposals", "user", user["username"]):
         return False
-    if utils.get_count("reviews", "reviewer", user["username"]):
+    if anubis.database.get_count("reviews", "reviewer", user["username"]):
         return False
-    if utils.get_count("calls", "reviewer", user["username"]):
+    if anubis.database.get_count("calls", "reviewer", user["username"]):
         return False
     return True
 

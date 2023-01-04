@@ -50,7 +50,7 @@ Reviewers for call {{ call['identifier'] }}
           <td>
             <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=reviewer['username']) }}"
                role="button" class="btn btn-sm btn-info mr-2">
-              {{ utils.get_call_reviewer_reviews_count(call['identifier'], reviewer['username']) }} reviews
+              {{ call['n_reviews'][reviewer['username']] }} reviews
             </a>
           </td>
           {% endif %} {# if allow_view_reviews #}
@@ -61,9 +61,13 @@ Reviewers for call {{ call['identifier'] }}
 	      {{ csrf_token() }}
               <input type="hidden" name="_http_method" value="DELETE">
               <input type="hidden" name="reviewer" value="{{ reviewer['username'] }}">
+              {% if reviewer['n_reviews'] %}
 	      <button type="submit" class="btn btn-sm btn-danger"
-                      {{ reviewer['number_of_reviews'] and 'disabled' or '' }}>
+                      title="Cannot remove reviewer with reviews in the call." disabled>
                 Remove</button>
+              {% else %}
+	      <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+              {% endif %}
             </form>
           </td>
           {% endif %} {# if allow_edit #}

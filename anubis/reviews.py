@@ -422,6 +422,11 @@ def reviewer(username):
                 username=username,
             )
         )
+    # Get the number of reviews on each call for the reviewer.
+    for c in reviewer_calls:
+        c["n_reviews"] = anubis.database.get_count(
+            "reviews", "call_reviewer", [c["identifier"], user["username"]]
+        )
 
     reviews = utils.get_docs_view("reviews", "reviewer", user["username"])
     return flask.render_template(

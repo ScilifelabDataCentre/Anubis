@@ -112,6 +112,7 @@ def display(iuid):
         review=review,
         call=call,
         proposal=proposal,
+        n_reviews=anubis.database.get_count("reviews", "proposal", proposal["identifier"]),
         allow_edit=allow_edit(review),
         allow_delete=allow_delete(review),
         allow_finalize=allow_finalize(review),

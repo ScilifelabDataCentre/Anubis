@@ -57,14 +57,14 @@ def counts():
     "Output counts of entities in the system."
     with anubis.app.app.app_context():
         flask.g.db = anubis.database.get_db()
-        click.echo(f"{utils.get_count('calls', 'owner'):>5} calls")
-        click.echo(f"{utils.get_count('proposals', 'user'):>5} proposals")
-        click.echo(f"{utils.get_count('reviews', 'call'):>5} reviews")
+        click.echo(f"{anubis.database.get_count('calls', 'owner'):>5} calls")
+        click.echo(f"{anubis.database.get_count('proposals', 'user'):>5} proposals")
+        click.echo(f"{anubis.database.get_count('reviews', 'call'):>5} reviews")
         click.echo(
-            f"{utils.get_count('reviews', 'proposal_archived'):>5} archived reviews"
+            f"{anubis.database.get_count('reviews', 'proposal_archived'):>5} archived reviews"
         )
-        click.echo(f"{utils.get_count('grants', 'call'):>5} grants")
-        click.echo(f"{utils.get_count('users', 'username'):>5} users")
+        click.echo(f"{anubis.database.get_count('grants', 'call'):>5} grants")
+        click.echo(f"{anubis.database.get_count('users', 'username'):>5} users")
 
 
 @cli.command
@@ -187,7 +187,7 @@ def undump(dumpfile, progressbar):
     "Load an Anubis database dump file. The database must be empty."
     with anubis.app.app.app_context():
         flask.g.db = anubis.database.get_db()
-        if utils.get_count("users", "username") != 0:
+        if anubis.database.get_count("users", "username") != 0:
             raise click.ClickException(
                 f"The database '{anubis.app.app.config['COUCHDB_DBNAME']}'"
                 " is not empty."

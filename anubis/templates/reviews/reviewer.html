@@ -18,7 +18,7 @@ Reviews by user {{ user['username'] }}
     <p class="mb-2">
       <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=user['username']) }}"
          role="button" class="btn btn-sm btn-info mr-2">
-        {{ utils.get_call_reviewer_reviews_count(call['identifier'], user['username']) }} reviews
+        {{ call['n_reviews'] }} reviews
       </a>
       of proposals in call {{ call | call_link }}
     </p>

@@ -36,8 +36,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   <div class="col-md-2 font-weight-bold text-right">Reviews of proposal</div>
   <div class="col-md">
     <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
-       role="button" class="btn btn-sm btn-info">
-      {{ utils.get_proposal_reviews_count(proposal['identifier']) }} reviews
+       role="button" class="btn btn-sm btn-info">{{ n_reviews }} reviews
     </a>
   </div>
 </div>

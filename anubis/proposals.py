@@ -37,6 +37,7 @@ def call(cid):
         all_emails.append(user["email"])
         if proposal.get("submitted"):
             submitted_emails.append(user["email"])
+        proposal["n_reviews"] = anubis.database.get_count("reviews", "proposal", proposal["identifier"])
     # There may be accounts that have no email!
     all_emails = sorted(set([e for e in all_emails if e]))
     submitted_emails = sorted(set([e for e in submitted_emails if e]))

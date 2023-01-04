@@ -48,7 +48,7 @@ def get_db():
 
 
 def update_design_documents():
-    "Update all CouchDB design documents."
+    "Ensure that all CouchDB design documents are up to date."
     import anubis.call
     import anubis.proposal
     import anubis.review
@@ -75,6 +75,18 @@ def update_design_documents():
         app.logger.info("Updated logs design document.")
     if db.put_design("meta", META_DESIGN_DOC):
         app.logger.info("Updated meta design document.")
+
+
+def get_count(designname, viewname, key=None):
+    "Get the count for the given view and key."
+    if key is None:
+        result = flask.g.db.view(designname, viewname, reduce=True)
+    else:
+        result = flask.g.db.view(designname, viewname, key=key, reduce=True)
+    if result:
+        return result[0].value
+    else:
+        return 0
 
 
 def update():

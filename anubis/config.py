@@ -65,7 +65,8 @@ def init(app):
     app.config.from_mapping(DEFAULT_CONFIG)
 
     app.config["SETTINGS_DOTENV"] = dotenv.load_dotenv()
-    app.logger.info(f"settings from '.env' file: {app.config['SETTINGS_DOTENV']}")
+    if app.config["SETTINGS_DOTENV"]:
+        app.logger.info(f"set environment variables from '.env' file")
 
     # Collect filepaths for possible settings files.
     filepaths = []
@@ -105,7 +106,7 @@ def init(app):
                 app.config[key] = utils.to_bool(new)
             else:
                 app.config[key] = new
-            app.logger.info(f"Setting {key} from environment variable.")
+            app.logger.info(f"setting '{key}' from environment variable.")
             app.config["SETTINGS_ENVVAR"] = True
 
     # Must be done after all possible settings sources have been processed.

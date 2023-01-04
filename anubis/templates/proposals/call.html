@@ -37,7 +37,7 @@
   <thead>
     <tr>
       <th>Proposal</th>
-      {% for field in utils.get_banner_fields(call['proposal']) %}
+      {% for field in get_banner_fields(call['proposal']) %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
 
@@ -75,7 +75,7 @@
 
       {% if allow_view_decisions %}
       <th>Decision</th>
-      {% for field in utils.get_banner_fields(call['decision']) %}
+      {% for field in get_banner_fields(call['decision']) %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
       {% endif %} {# if allow_view_decisions #}
@@ -90,7 +90,7 @@
     {% for proposal in proposals %}
     <tr>
       <td>{{ proposal | proposal_link }}</td>
-      {% for field in utils.get_banner_fields(call['proposal']) %}
+      {% for field in get_banner_fields(call['proposal']) %}
       <td>{{ field | display_field_value(proposal, max_length=10) }}</td>
       {% endfor %}
 
@@ -115,7 +115,7 @@
       <td>
         <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
            role="button" class="btn btn-sm btn-info">
-          {{ utils.get_proposal_reviews_count(proposal['identifier']) }}
+          {{ proposal['n_reviews'] }}
         </a>
       </td>
 
@@ -155,13 +155,13 @@
       {% if decision %}
       <td>{{ decision | decision_link(small=True) }}</td>
 
-      {% for field in utils.get_banner_fields(call['decision']) %}
+      {% for field in get_banner_fields(call['decision']) %}
       <td>{{ field | display_field_value(decision) }}</td>
       {% endfor %}
 
       {% else %} {# if decision #}
       <td>-</td>
-      {% for field in utils.get_banner_fields(call['decision']) %}
+      {% for field in get_banner_fields(call['decision']) %}
       <td>-</td>
       {% endfor %} {# for field in ... #}
       {% endif %} {# if decision #}

@@ -101,6 +101,8 @@ def display(pid):
         call=call,
         decision=decision,
         grant=grant,
+        n_reviews=anubis.database.get_count("reviews", "proposal", proposal["identifier"]),
+        n_reviews_archived=anubis.database.get_count("reviews", "proposal_archived", proposal["identifier"]),
         email_lists=email_lists,
         allow_edit=allow_edit(proposal),
         allow_delete=allow_delete(proposal),

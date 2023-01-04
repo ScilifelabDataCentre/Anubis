@@ -83,6 +83,7 @@ def setup_template_context():
         csrf_token=utils.csrf_token,
         get_user=anubis.user.get_user,
         get_call=anubis.call.get_call,
+        get_banner_fields=anubis.call.get_banner_fields,
         get_proposal=anubis.proposal.get_proposal,
         get_review=anubis.review.get_review,
         get_decision=anubis.decision.get_decision,
@@ -101,16 +102,19 @@ def prepare():
     if flask.g.current_user:
         username = flask.g.current_user["username"]
         flask.g.allow_create_call = anubis.call.allow_create()
-        flask.g.my_proposals_count = utils.get_count("proposals", "user", username)
-        flask.g.my_unsubmitted_proposals_count = utils.get_count(
+        flask.g.my_proposals_count = anubis.database.get_count("proposals", "user", username)
+        flask.g.my_unsubmitted_proposals_count = anubis.database.get_count(
             "proposals", "unsubmitted", username
         )
-        flask.g.my_reviews_count = utils.get_count("reviews", "reviewer", username)
-        flask.g.my_unfinalized_reviews_count = utils.get_count(
+        flask.g.my_reviews_count = anubis.database.get_count("reviews", "reviewer", username)
+        flask.g.my_unfinalized_reviews_count = anubis.database.get_count(
             "reviews", "unfinalized", username
         )
-        flask.g.my_grants_count = utils.get_user_grants_count(username)
-        flask.g.my_incomplete_grants_count = utils.get_count(
+        flask.g.my_grants_count = (
+            anubis.database.get_count("grants", "user", username) +
+            anubis.database.get_count("grants", "access", username)
+        )
+        flask.g.my_incomplete_grants_count = anubis.database.get_count(
             "grants", "incomplete", username
         )
 
@@ -129,7 +133,14 @@ def home():
 @app.route("/status")
 def status():
     "Return JSON for the current status and some counts for the database."
-    return utils.get_counts()
+    return dict(
+        status="ok",
+        n_calls = anubis.database.get_count("calls", "owner"),
+        n_users = anubis.database.get_count("users", "username"),
+        n_proposals = anubis.database.get_count("proposals", "call"),
+        n_reviews = anubis.database.get_count("reviews", "call"),
+        n_grants = anubis.database.get_count("grants", "call")
+    )
 
 
 @app.route("/site/<filename>")
@@ -346,13 +357,13 @@ def call_link(
     url = flask.url_for("call.display", cid=call["identifier"])
     html = f'<a href="{url}" class="font-weight-bold">{label}</a>'
     if proposals_link:
-        count = utils.get_call_proposals_count(call["identifier"])
+        count = anubis.database.get_count("proposals", "call", call["identifier"])
         url = flask.url_for("proposals.call", cid=call["identifier"])
         html += (
             f' <a href="{url}" class="badge badge-primary mx-2">{count} proposals</a>'
         )
     if grants_link:
-        count = utils.get_count("grants", "call", call["identifier"])
+        count = anubis.database.get_count("grants", "call", call["identifier"])
         url = flask.url_for("grants.call", cid=call["identifier"])
         html += f' <a href="{url}" class="badge badge-success mx-2">{count} grants</a>'
     return markupsafe.Markup(html)
@@ -363,7 +374,7 @@ def call_proposals_link(call, full=False):
     "Button with link to the page of all proposals in the call."
     if not anubis.call.allow_view_proposals(call):
         return ""
-    count = utils.get_count("proposals", "call", call["identifier"])
+    count = anubis.database.get_count("proposals", "call", call["identifier"])
     url = flask.url_for("proposals.call", cid=call["identifier"])
     html = f' <a href="{url}" role="button" class="btn btn-sm btn-primary">{count} {full and "proposals" or "" }</a>'
     return markupsafe.Markup(html)
@@ -374,7 +385,7 @@ def call_reviews_link(call, full=False):
     "Button with link to the page of all reviews in the call."
     if not anubis.call.allow_view_reviews(call):
         return ""
-    count = utils.get_count("reviews", "call", call["identifier"])
+    count = anubis.database.get_count("reviews", "call", call["identifier"])
     url = flask.url_for("reviews.call", cid=call["identifier"])
     html = f' <a href="{url}" role="button" class="btn btn-sm btn-info">{count} {full and "reviews" or ""}</a>'
     return markupsafe.Markup(html)
@@ -385,7 +396,7 @@ def call_grants_link(call, full=False):
     "Button with link to the page of all grants in the call."
     if not anubis.call.allow_view_grants(call):
         return ""
-    count = utils.get_count("grants", "call", call["identifier"])
+    count = anubis.database.get_count("grants", "call", call["identifier"])
     url = flask.url_for("grants.call", cid=call["identifier"])
     html = f' <a href="{url}" role="button" class="btn btn-sm btn-success">{count} {full and "grants" or ""}</a>'
     return markupsafe.Markup(html)

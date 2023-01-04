@@ -83,14 +83,16 @@ def database():
     "Display CouchDB database information."
     server = anubis.database.get_server()
     identifier = flask.request.args.get("identifier") or None
-    return flask.render_template("admin/database.html",
-                                 doc=utils.get_document(identifier),
-                                 counts=json.dumps(utils.get_counts(), indent=2),
-                                 db_info=json.dumps(flask.g.db.get_info(), indent=2),
-                                 server_data=json.dumps(server(), indent=2),
-                                 databases=", ".join([str(d) for d in server]),
-                                 system_stats=json.dumps(server.get_node_system(), indent=2),
-                                 node_stats=json.dumps(server.get_node_stats(), indent=2))
+    return flask.render_template(
+        "admin/database.html",
+        doc=utils.get_document(identifier),
+        counts=json.dumps(anubis.database.get_counts(), indent=2),
+        db_info=json.dumps(flask.g.db.get_info(), indent=2),
+        server_data=json.dumps(server(), indent=2),
+        databases=", ".join([str(d) for d in server]),
+        system_stats=json.dumps(server.get_node_system(), indent=2),
+        node_stats=json.dumps(server.get_node_stats(), indent=2)
+    )
 
 
 @blueprint.route("/document/<identifier>")

@@ -12,6 +12,7 @@ import zipfile
 import flask
 
 import anubis.call
+import anubis.database
 import anubis.proposal
 import anubis.user
 import anubis.decision
@@ -104,7 +105,7 @@ def display(gid):
         grant=grant,
         proposal=anubis.proposal.get_proposal(grant["proposal"]),
         call=anubis.call.get_call(grant["call"]),
-        call_grants_count=utils.get_count("grants", "call", gid),
+        call_grants_count=anubis.database.get_count("grants", "call", gid),
         email_lists=email_lists,
         allow_view=allow_view(grant),
         allow_edit=allow_edit(grant),

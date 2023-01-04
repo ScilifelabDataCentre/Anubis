@@ -59,64 +59,6 @@ def cache_get(identifier):
         flask.g.cache = dict()
         raise KeyError
 
-def get_count(designname, viewname, key=None):
-    "Get the count for the given view and key."
-    if key is None:
-        result = flask.g.db.view(designname, viewname, reduce=True)
-    else:
-        result = flask.g.db.view(designname, viewname, key=key, reduce=True)
-    if result:
-        return result[0].value
-    else:
-        return 0
-
-
-def get_counts():
-    "Get counts of some entities in the database."
-    result = {}
-    for key, design, view in [("n_calls", "calls", "owner"),
-                              ("n_users", "users", "username"),
-                              ("n_proposals", "proposals", "call"),
-                              ("n_reviews", "reviews", "call"),
-                              ("n_grants", "grants", "call")]:
-        try:
-            result[key] = list(flask.g.db.view(design, view, reduce=True))[0].value
-        except IndexError:
-            result[key] = 0
-    return result
-
-def get_call_proposals_count(cid):
-    "Get the count for all proposals in the given call."
-    return get_count("proposals", "call", cid)
-
-
-def get_call_reviewer_reviews_count(cid, username, archived=False):
-    "Get the count of all reviews for the reviewer in the given call."
-    if archived:
-        return get_count("reviews", "call_reviewer_archived", [cid, username])
-    else:
-        return get_count("reviews", "call_reviewer", [cid, username])
-
-
-def get_proposal_reviews_count(pid, archived=False):
-    """Get the count of all reviews for the given proposal.
-    Optionally for archived reviews.
-    """
-    if archived:
-        return get_count("reviews", "proposal_archived", pid)
-    else:
-        return get_count("reviews", "proposal", pid)
-
-
-def get_user_grants_count(username):
-    """Return the number of grants for the user,
-    including those she has access to.
-    """
-    return get_count("grants", "user", username) + get_count(
-        "grants", "access", username
-    )
-
-
 def get_docs_view(designname, viewname, key):
     "Get the documents from the view. Add them to the cache."
     result = [
@@ -352,11 +294,6 @@ def flash_warning(msg):
 def flash_message(msg):
     "Flash information message."
     flask.flash(str(msg), "message")
-
-
-def get_banner_fields(fields):
-    "Return fields flagged as banner fields. Avoid repeated fields."
-    return [f for f in fields if f.get("banner") and not f.get("repeat")]
 
 
 def markdown2html(value):

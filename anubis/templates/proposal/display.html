@@ -98,11 +98,11 @@
   <div class="col-md">
     <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
        role="button" class="btn btn-sm btn-info my-1">
-      {{ utils.get_proposal_reviews_count(proposal['identifier']) }} reviews
+      {{ n_reviews }} reviews
     </a>
     <a href="{{ url_for('reviews.proposal_archived', pid=proposal['identifier']) }}"
        role="button" class="btn btn-sm btn-secondary ml-2 my-1">
-      {{ utils.get_proposal_reviews_count(proposal['identifier'], archived=True) }} archived reviews
+      {{ n_reviews_archived }} archived reviews
     </a>
   </div>
 </div>
