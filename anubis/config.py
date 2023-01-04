@@ -1,36 +1,39 @@
-"Configuration of the instance: default settings and reading of settings file."
+"""Configuration of this Anubis instance: default configuration,
+modified by an optional settings file or environment variables.
+"""
 
 import datetime
 import json
 import os
 import os.path
 
+import couchdb2
+import dotenv
+import flask
 import pytz
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from anubis import constants
 from anubis import utils
 
+import anubis.database
 
-# Default configurable values; modified by reading a JSON file in 'init'.
-DEFAULT_SETTINGS = dict(
-    DEBUG=False,
-    SERVER_NAME="localhost:5002",  # For URL generation; app.run() in devel.
+
+# Default configurable values, loaded and/or modified in procedure 'init'.
+DEFAULT_CONFIG = dict(
+    SETTINGS_DOTENV=False,
+    SETTINGS_FILE=None,
+    SETTINGS_ENVVAR=False,
+    FLASK_DEBUG=False,
+    SERVER_NAME=None,
     REVERSE_PROXY=False,
-    SITE_NAME="Anubis",
-    SITE_DESCRIPTION="Submit proposals for grants in open calls.",
-    HOST_NAME=None,
-    HOST_URL=None,
     SECRET_KEY=None,  # Must be set!
-    SALT_LENGTH=12,   # Must be at least 6
-    COUCHDB_URL="http://127.0.0.1:5984/",
-    COUCHDB_USERNAME=None, # Must probably be set.
-    COUCHDB_PASSWORD=None, # Must probably bet set.
+    COUCHDB_URL="http://127.0.0.1:5984/", # Likely, if CouchDB on local machine.
+    COUCHDB_USERNAME=None, # Must probably be set; depends on CouchDB setup.
+    COUCHDB_PASSWORD=None, # Must probably be set; depends on CouchDB setup.
     COUCHDB_DBNAME="anubis",
-    JSON_AS_ASCII=False,
-    JSON_SORT_KEYS=False,
     MIN_PASSWORD_LENGTH=6, # Must be at least 4.
-    PERMANENT_SESSION_LIFETIME=7 * 24 * 60 * 60,  # In seconds; 1 week.
-    # Default timezone to that of the host machine.
+    # Default timezone is that of the host machine.
     TIMEZONE=str(datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo),
     MAIL_SERVER=None,  # E.g. "localhost" or domain name. If None: emails disabled.
     MAIL_PORT=25,
@@ -43,33 +46,29 @@ DEFAULT_SETTINGS = dict(
     CALL_REMAINING_DANGER=1.0,
     CALL_REMAINING_WARNING=7.0,
     CALLS_OPEN_ORDER_KEY="closes",
-    USER_GENDERS=["Male", "Female", "Other"],
-    USER_BIRTHDATE=True,
-    USER_DEGREES=["Mr/Ms", "MSc", "MD", "PhD", "Assoc Prof", "Prof", "Other"],
-    USER_AFFILIATION=True,
-    USER_POSTALADDRESS=True,
-    USER_PHONE=True,
-    USER_ENABLE_IMMEDIATELY=False,
-    USER_ENABLE_EMAIL_WHITELIST=[],  # List of fnmatch patterns, not regexp's!
-    UNIVERSITIES=[],
 )
 
 
 def init(app):
     """Perform the configuration of the Flask app.
-    Set the defaults, and then modify the values based on:
-    1) The settings file path environment variable ANUBIS_SETTINGS_FILEPATH.
-    2) The file 'settings.json' in this directory.
-    3) The file '../site/settings.json' relative to this directory.
-    Check the environment for variables and use if defined.
-    Raise IOError if settings file could not be read.
+    1) Start with values in DEFAULT_SETTINGS.
+    2) Set environment variables from file '.env' using 'dotenv.load_dotenv'.
+    3) Collect the possible settings file paths in the following order:
+       - The environment variable ANUBIS_SETTINGS_FILEPATH, if any.
+       - The file 'settings.json' in this directory.
+       - The file '../site/settings.json' relative to this directory.
+    4) Use the first of these files that is found and can be read.
+    5) Use any environment variables defined.
     Raise KeyError if a settings variable is missing.
     Raise ValueError if a settings variable value is invalid.
     """
-    # Set the defaults specified above.
-    app.config.from_mapping(DEFAULT_SETTINGS)
+    app.config.from_mapping(DEFAULT_CONFIG)
 
-    # Modify the configuration from a JSON settings file.
+    app.config["SETTINGS_DOTENV"] = dotenv.load_dotenv()
+    if app.config["SETTINGS_DOTENV"]:
+        app.logger.info(f"set environment variables from '.env' file")
+
+    # Collect filepaths for possible settings files.
     filepaths = []
     try:
         filepaths.append(os.environ["ANUBIS_SETTINGS_FILEPATH"])
@@ -77,17 +76,25 @@ def init(app):
         pass
     for filepath in ["settings.json", "../site/settings.json"]:
         filepaths.append(os.path.normpath(os.path.join(constants.ROOT, filepath)))
+
+    # Use the first settings file that can be found.
     for filepath in filepaths:
         try:
-            app.config.from_file(filepath, load=json.load)
-        except FileNotFoundError:
+            with open(filepath) as infile:
+                config = json.load(infile)
+        except OSError:
             pass
         else:
+            for key in config.keys():
+                if key not in DEFAULT_CONFIG:
+                    app.logger.warning(f"Obsolete item '{key}' in settings file.")
+            app.config.update(**config)
             app.config["SETTINGS_FILE"] = filepath
+            app.logger.info(f"settings file: {app.config['SETTINGS_FILE']}")
             break
-
-    # Modify the configuration from environment variables.
-    for key, value in DEFAULT_SETTINGS.items():
+            
+    # Modify the configuration from environment variables; convert to correct type.
+    for key, value in DEFAULT_CONFIG.items():
         try:
             new = os.environ[key]
         except KeyError:
@@ -99,17 +106,65 @@ def init(app):
                 app.config[key] = utils.to_bool(new)
             else:
                 app.config[key] = new
+            app.logger.info(f"setting '{key}' from environment variable.")
+            app.config["SETTINGS_ENVVAR"] = True
 
-    # Cannot enable a new user account directly if no email server configured.
-    if not app.config["MAIL_SERVER"]:
-        app.config["USER_ENABLE_IMMEDIATELY"] = False
-        app.config["USER_ENABLE_EMAIL_WHITELIST"] = []
+    # Must be done after all possible settings sources have been processed.
+    if app.config["REVERSE_PROXY"]:
+        app.wsgi_app = ProxyFix(app.wsgi_app)
 
-    # Sanity checks. Exception means bad setup.
+    # Sanity checks. Any Exception raised here means bad configuration.
     if not app.config["SECRET_KEY"]:
         raise ValueError("SECRET_KEY not set")
-    if app.config["SALT_LENGTH"] <= 6:
-        raise ValueError("SALT_LENGTH is too short")
     if app.config["MIN_PASSWORD_LENGTH"] <= 4:
         raise ValueError("MIN_PASSWORD_LENGTH is too short")
     pytz.timezone(app.config["TIMEZONE"])
+
+
+def init_from_db():
+    """Set configuration from values stored in the database.
+    These are not settable by environment variables or the settings file.
+    """
+    db = anubis.database.get_db()
+    app = flask.current_app
+
+    configuration = db["site_configuration"]
+    for key, value in configuration.items():
+        if key in constants.GENERIC_FIELDS: continue
+        app.config[f"SITE_{key.upper()}"] = value
+    modified = datetime.datetime.fromisoformat(configuration["modified"].strip("Z"))
+    for filename in constants.SITE_FILES:
+        key = f"SITE_{filename.upper()}"
+        try:
+            filestub = configuration["_attachments"][filename]
+            infile = db.get_attachment(configuration, filename)
+        except (KeyError, couchdb2.NotFoundError):
+            app.config.pop(key, None)
+        else:
+            app.config[key] = {"content": infile.read(),
+                               "mimetype": filestub["content_type"],
+                               "etag": filestub["digest"],
+                               "modified": modified}
+
+    configuration = db["user_configuration"]
+    for key, value in configuration.items():
+        if key in constants.GENERIC_FIELDS: continue
+        if key == "universities":  # Special case
+            app.config["UNIVERSITIES"] = value
+        else:
+            app.config[f"USER_{key.upper()}"] = value
+    # Special case: user cannot be enabled immediately if no email server defined.
+    if not app.config["MAIL_SERVER"]:
+        app.config["USER_ENABLE_EMAIL_WHITELIST"] = []
+
+
+def get_config(hidden=True):
+    "Return the current config."
+    result = {"ROOT": constants.ROOT}
+    for key in anubis.config.DEFAULT_CONFIG:
+        result[key] = flask.current_app.config[key]
+    if hidden:
+        for key in ["SECRET_KEY", "COUCHDB_PASSWORD", "MAIL_PASSWORD"]:
+            if result[key]:
+                result[key] = "<hidden>"
+    return result

@@ -5,7 +5,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
 {% endblock %}
 
 {% block body_title %}
-<small class="text-muted mr-2">Reviews of proposal</small>
+<small class="text-muted">Reviews of proposal</small>
 {{ proposal | proposal_link }}
 {% endblock %}
 
@@ -32,7 +32,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
   <thead>
     <tr>
       <th>Review</th>
-      {% for field in utils.get_banner_fields(call['review']) %}
+      {% for field in get_banner_fields(call['review']) %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
       <th>Reviewer</th>
@@ -47,7 +47,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
     {% endif %}
     <tr>
       <td>{{ review | review_link }}</td>
-      {% for field in utils.get_banner_fields(call['review']) %}
+      {% for field in get_banner_fields(call['review']) %}
       <td>{{ field | display_field_value(review) }}</td>
       {% endfor %}
       <td>{{ get_user(reviewer) | user_link }}</td>
@@ -58,7 +58,7 @@ Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}
 {% endblock %} {# block supermain #}
 
 {% block javascript %}
-{% set nbanners = len(utils.get_banner_fields(call['review'])) %}
+{% set nbanners = len(get_banner_fields(call['review'])) %}
 <script>
   $(function() {
     $("#reviews").DataTable( {

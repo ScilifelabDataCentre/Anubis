@@ -2,9 +2,10 @@
 
 import os.path
 import re
+import string
 import sys
 
-__version__ = "1.15.3"
+__version__ = "2.0.0"
 
 
 class Constants:
@@ -182,6 +183,13 @@ class Constants:
         "allow_chair_create_reviews",
     )
 
+    # Generic fields in CouchDB document
+    GENERIC_FIELDS = frozenset(["_id", "_rev", "_attachments",
+                                "doctype", "created", "modified"])
+
+    SITE_FILE_MAX_AGE = 24 * 3600
+    SITE_FILES = frozenset(["name_logo", "host_logo"])
+
     # MIME types
     DOCX_MIMETYPE = (
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -190,6 +198,8 @@ class Constants:
     ZIP_MIMETYPE = "application/zip"
     XML_MIMETYPE = "text/xml"
     JSON_MIMETYPE = "application/json"
+
+    ALLOWED_ID_CHARACTERS = frozenset(string.ascii_lowercase + string.digits + "-_")
 
     DOCUMENTATION = (
         "Basic concepts",

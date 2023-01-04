@@ -12,41 +12,15 @@ import zipfile
 import flask
 
 import anubis.call
+import anubis.database
+import anubis.decision
 import anubis.proposal
 import anubis.user
-import anubis.decision
+
 from anubis import constants
 from anubis import utils
-from anubis.saver import AttachmentSaver, FieldMixin, AccessMixin
+from anubis.saver import Saver, FieldSaverMixin, AccessSaverMixin
 
-
-DESIGN_DOC = {
-    "views": {
-        "identifier": {
-            "map": "function (doc) {if (doc.doctype !== 'grant') return; emit(doc.identifier, doc.proposal);}"
-        },
-        "call": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'grant') return; emit(doc.call, doc.identifier);}",
-        },
-        "proposal": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'grant') return; emit(doc.proposal, doc.identifier);}",
-        },
-        "user": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'grant') return; emit(doc.user, doc.identifier);}",
-        },
-        "incomplete": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'grant') return; if (Object.keys(doc.errors).length === 0) return; emit(doc.user, doc.identifier); for (var i=0; i < doc.access_edit.length; i++) {emit(doc.access_edit[i], doc.identifier); }}",
-        },
-        "access": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'grant') return; for (var i=0; i < doc.access_view.length; i++) {emit(doc.access_view[i], doc.identifier); }}",
-        },
-    }
-}
 
 blueprint = flask.Blueprint("grant", __name__)
 
@@ -103,7 +77,7 @@ def display(gid):
         grant=grant,
         proposal=anubis.proposal.get_proposal(grant["proposal"]),
         call=anubis.call.get_call(grant["call"]),
-        call_grants_count=utils.get_count("grants", "call", gid),
+        call_grants_count=anubis.database.get_count("grants", "call", gid),
         email_lists=email_lists,
         allow_view=allow_view(grant),
         allow_edit=allow_edit(grant),
@@ -147,7 +121,7 @@ def edit(gid):
         proposal = anubis.proposal.get_proposal(grant["proposal"])
         with anubis.proposal.ProposalSaver(proposal) as saver:
             saver["grant"] = None
-        utils.delete(grant)
+        anubis.database.delete(grant)
         utils.flash_message("Deleted grant dossier.")
         return flask.redirect(
             flask.url_for("proposal.display", pid=proposal["identifier"])
@@ -345,11 +319,11 @@ def logs(gid):
         "logs.html",
         title=f"Grant {grant['identifier']}",
         back_url=flask.url_for(".display", gid=grant["identifier"]),
-        logs=utils.get_logs(grant["_id"]),
+        logs=anubis.database.get_logs(grant["_id"]),
     )
 
 
-class GrantSaver(AccessMixin, FieldMixin, AttachmentSaver):
+class GrantSaver(AccessSaverMixin, FieldSaverMixin, Saver):
     "Grant dossier document saver context."
 
     DOCTYPE = constants.GRANT
@@ -385,7 +359,7 @@ def get_grant(gid):
     """
     key = f"grant {gid}"
     try:
-        return flask.g.cache[key]
+        return utils.cache_get(key)
     except KeyError:
         docs = [
             r.doc
@@ -393,8 +367,8 @@ def get_grant(gid):
         ]
         if len(docs) == 1:
             grant = docs[0]
-            flask.g.cache[key] = grant
-            flask.g.cache[f"grant {grant['proposal']}"] = grant
+            utils.cache_put(key, grant)
+            utils.cache_put(f"grant {grant['proposal']}", grant)
             return grant
         else:
             return None
@@ -406,7 +380,7 @@ def get_grant_proposal(pid):
     """
     key = f"grant {pid}"
     try:
-        return flask.g.cache[key]
+        return utils.cache_get(key)
     except KeyError:
         docs = [
             r.doc
@@ -414,8 +388,8 @@ def get_grant_proposal(pid):
         ]
         if len(docs) == 1:
             grant = docs[0]
-            flask.g.cache[key] = grant
-            flask.g.cache[f"grant {grant['identifier']}"] = grant
+            utils.cache_put(key, grant)
+            utils.cache_put(f"grant {grant['identifier']}", grant)
             return grant
         else:
             return None

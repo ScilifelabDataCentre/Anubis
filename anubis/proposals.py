@@ -7,9 +7,11 @@ import flask
 import xlsxwriter
 
 import anubis.call
+import anubis.database
 import anubis.decision
 import anubis.proposal
 import anubis.user
+
 from anubis import constants
 from anubis import utils
 
@@ -36,6 +38,7 @@ def call(cid):
         all_emails.append(user["email"])
         if proposal.get("submitted"):
             submitted_emails.append(user["email"])
+        proposal["n_reviews"] = anubis.database.get_count("reviews", "proposal", proposal["identifier"])
     # There may be accounts that have no email!
     all_emails = sorted(set([e for e in all_emails if e]))
     submitted_emails = sorted(set([e for e in submitted_emails if e]))
@@ -168,7 +171,7 @@ def get_call_xlsx(call, submitted=False, proposals=None):
         ws.write_string(nrow, ncol, proposal.get("submitted") and "yes" or "no")
         ncol += 1
         user = anubis.user.get_user(username=proposal["user"])
-        ws.write_string(nrow, ncol, utils.get_fullname(user))
+        ws.write_string(nrow, ncol, anubis.user.get_fullname(user))
         ncol += 1
         ws.write_string(nrow, ncol, user.get("email") or "")
         ncol += 1
@@ -291,7 +294,7 @@ def user(username):
             "You may not view the user's proposals.", flask.url_for("home")
         )
     proposals = get_user_proposals(user["username"])
-    proposals.extend(utils.get_docs_view("proposals", "access", user["username"]))
+    proposals.extend(anubis.database.get_docs("proposals", "access", user["username"]))
     return flask.render_template(
         "proposals/user.html",
         user=user,
@@ -317,7 +320,7 @@ def get_call_proposals(call, submitted=False):
         result = [p for p in result if p.get("submitted")]
     result.sort(key=lambda p: p["identifier"])
     for proposal in result:
-        flask.g.cache[f"proposal {proposal['identifier']}"] = proposal
+        utils.cache_put(f"proposal {proposal['identifier']}", proposal)
     return result
 
 
@@ -331,7 +334,7 @@ def get_user_proposals(username):
     ]
     result.sort(key=lambda p: p["identifier"])
     for proposal in result:
-        flask.g.cache[f"proposal {proposal['identifier']}"] = proposal
+        utils.cache_put(f"proposal {proposal['identifier']}", proposal)
     return result
 
 
@@ -350,7 +353,7 @@ def get_review_score_fields(call, proposals):
         ]
     )
     for proposal in proposals:
-        reviews = utils.get_docs_view("reviews", "proposal", proposal["identifier"])
+        reviews = anubis.database.get_docs("reviews", "proposal", proposal["identifier"])
         # Only include finalized reviews in the calculation.
         reviews = [r for r in reviews if r.get("finalized")]
         scores = dict([(id, list()) for id in fields])
@@ -406,7 +409,7 @@ def get_review_rank_fields_errors(call, proposals):
     for id in fields.keys():
         ranks = dict()  # key: reviewer, value: dict(proposal: rank)
         for proposal in proposals:
-            reviews = utils.get_docs_view("reviews", "proposal", proposal["identifier"])
+            reviews = anubis.database.get_docs("reviews", "proposal", proposal["identifier"])
             # Only include finalized reviews in the calculation.
             reviews = [r for r in reviews if r.get("finalized")]
             for review in reviews:
@@ -424,7 +427,7 @@ def get_review_rank_fields_errors(call, proposals):
             series = list(values.values())
             if series:
                 user = anubis.user.get_user(reviewer)
-                name = utils.get_fullname(user)
+                name = anubis.user.get_fullname(user)
                 if min(series) != 1:
                     errors.append(f"{name} reviews '{id}' do not start with 1.")
                 elif set(series) != set(range(1, max(series) + 1)):

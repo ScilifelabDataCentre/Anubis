@@ -5,13 +5,12 @@ import os.path
 
 import flask
 
-import anubis.user
 from anubis import constants
 from anubis import utils
 
 
-class BaseSaver:
-    "Base document saver context."
+class Saver:
+    "Document saver context."
 
     DOCTYPE = None
     HIDDEN_FIELDS = []
@@ -56,7 +55,27 @@ class BaseSaver:
 
     def prepare(self):
         "Preparations before making any changes."
-        pass
+        self._delete_attachments = set()
+        self._add_attachments = []
+
+    def add_attachment(self, filename, content, mimetype):
+        """If the filename is already in use, add a numerical suffix.
+        Return the final filename.
+        """
+        current = set(self.doc.get("_attachments", {}).keys())
+        current.update([a["filename"] for a in self._add_attachments])
+        basename, ext = os.path.splitext(filename)
+        count = 0
+        while filename in current:
+            count += 1
+            filename = f"{basename}_{count}{ext}"
+        self._add_attachments.append(
+            {"filename": filename, "content": content, "mimetype": mimetype}
+        )
+        return filename
+
+    def delete_attachment(self, filename):
+        self._delete_attachments.add(filename)
 
     def finish(self):
         """Final changes and checks on the document before storing it.
@@ -65,10 +84,19 @@ class BaseSaver:
         self.doc.pop("tmp", None)
 
     def wrapup(self):
-        """Wrap up the save operation by performing actions that
-        must be done after the document has been stored.
+        """Delete any specified attachments.
+        Store the input files as attachments.
+        Must be done after document is stored subsequent to changes of other items.
         """
-        pass
+        for filename in self._delete_attachments:
+            self.db.delete_attachment(self.doc, filename)
+        for attachment in self._add_attachments:
+            self.db.put_attachment(
+                self.doc,
+                attachment["content"],
+                filename=attachment["filename"],
+                content_type=attachment["mimetype"],
+            )
 
     def add_log(self):
         """Add a log entry recording the the difference betweens the current and
@@ -125,49 +153,7 @@ class BaseSaver:
         self.db.put(entry)
 
 
-class AttachmentSaver(BaseSaver):
-    "Document saver context handling attachments."
-
-    def prepare(self):
-        self._delete_attachments = set()
-        self._add_attachments = []
-
-    def wrapup(self):
-        """Delete any specified attachments.
-        Store the input files as attachments.
-        Must be done after document is saved.
-        """
-        for filename in self._delete_attachments:
-            flask.g.db.delete_attachment(self.doc, filename)
-        for attachment in self._add_attachments:
-            flask.g.db.put_attachment(
-                self.doc,
-                attachment["content"],
-                filename=attachment["filename"],
-                content_type=attachment["mimetype"],
-            )
-
-    def add_attachment(self, filename, content, mimetype):
-        """If the filename is already in use, add a numerical suffix.
-        Return the final filename.
-        """
-        current = set(self.doc.get("_attachments", {}).keys())
-        current.update([a["filename"] for a in self._add_attachments])
-        orig_basename, ext = os.path.splitext(filename)
-        count = 0
-        while filename in current:
-            count += 1
-            filename = f"{orig_basename}_{count}{ext}"
-        self._add_attachments.append(
-            {"filename": filename, "content": content, "mimetype": mimetype}
-        )
-        return filename
-
-    def delete_attachment(self, filename):
-        self._delete_attachments.add(filename)
-
-
-class FieldMixin:
+class FieldSaverMixin:
     "Mixin for setting a field value in the saver."
 
     def set_fields_values(self, fields, form=dict()):
@@ -335,13 +321,14 @@ class FieldMixin:
             self.doc["errors"][fid] = "Missing value."
 
 
-class AccessMixin:
+class AccessSaverMixin:
     "Mixin to change access privileges."
 
     def set_access(self, form=dict()):
         """Set the access of the object according to the form input.
         Raise ValueError if no such user.
         """
+        import anubis.user
         username = form.get("username")
         user = anubis.user.get_user(username=username)
         if user is None:
@@ -369,6 +356,7 @@ class AccessMixin:
         """Remove the access of the object according to the form input.
         Raise ValueError if no such user.
         """
+        import anubis.user 
         username = form.get("username")
         user = anubis.user.get_user(username=username)
         if user is None:

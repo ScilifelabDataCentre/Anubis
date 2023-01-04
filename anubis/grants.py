@@ -7,9 +7,11 @@ import flask
 import xlsxwriter
 
 import anubis.call
-import anubis.user
-import anubis.proposal
+import anubis.database
 import anubis.grant
+import anubis.proposal
+import anubis.user
+
 from anubis import constants
 from anubis import utils
 
@@ -31,7 +33,7 @@ def call(cid):
             flask.url_for("call.display", cid=call["identifier"]),
         )
 
-    grants = utils.get_docs_view("grants", "call", call["identifier"])
+    grants = anubis.database.get_docs("grants", "call", call["identifier"])
     # Convert username for grant to full user dict.
     for grant in grants:
         grant["user"] = anubis.user.get_user(grant["user"])
@@ -82,7 +84,7 @@ def call_xlsx(cid):
             flask.url_for("call.display", cid=call["identifier"]),
         )
 
-    grants = utils.get_docs_view("grants", "call", call["identifier"])
+    grants = anubis.database.get_docs("grants", "call", call["identifier"])
     grants.sort(key=lambda g: g["identifier"])
     content = get_call_grants_xlsx(call, grants)
     response = flask.make_response(content)
@@ -214,7 +216,7 @@ def get_call_grants_xlsx(call, grants):
         user = anubis.user.get_user(username=proposal["user"])
         if n_merge > 1:
             ws.merge_range(nrow, ncol, nrow + n_merge - 1, ncol, "")
-        ws.write_string(nrow, ncol, utils.get_fullname(user))
+        ws.write_string(nrow, ncol, anubis.user.get_fullname(user))
         ncol += 1
         if n_merge > 1:
             ws.merge_range(nrow, ncol, nrow + n_merge - 1, ncol, "")
@@ -309,7 +311,7 @@ def call_zip(cid):
         )
     # Colon ':' is a problematic character in filenames; replace by dash '_'
     cid = cid.replace(":", "-")
-    grants = utils.get_docs_view("grants", "call", call["identifier"])
+    grants = anubis.database.get_docs("grants", "call", call["identifier"])
     output = io.BytesIO()
     with zipfile.ZipFile(output, "w") as outfile:
         outfile.writestr(f"{cid}_grants.xlsx", get_call_grants_xlsx(call, grants))
@@ -333,6 +335,6 @@ def user(username):
         return utils.error("No such user.", flask.url_for("home"))
     if not anubis.user.allow_view(user):
         return utils.error("You may not view the user's grants.", flask.url_for("home"))
-    grants = utils.get_docs_view("grants", "user", user["username"])
-    grants.extend(utils.get_docs_view("grants", "access", user["username"]))
+    grants = anubis.database.get_docs("grants", "user", user["username"])
+    grants.extend(anubis.database.get_docs("grants", "access", user["username"]))
     return flask.render_template("grants/user.html", user=user, grants=grants)

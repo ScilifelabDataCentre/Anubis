@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Database{% endblock %}
+{% block body_title %}Database{% endblock %}
+
+{% block main %}
+<div class="row mb-5">
+  <div class="col-md-7">
+    <form action="{{ url_for('admin.database') }}"
+          method="GET">
+      <div class="form-group">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <div class="input-group-text">Find document</div>
+          </div>
+          <input type="text" id="identifier" name="identifier"
+                 class="form-control" placeholder="Identifier" autofocus
+                 aria-describedby="identifierHelp">
+          <button type="submit" class="btn btn-primary">Lookup</button>
+        </div>
+      </div>
+      <div id="identifierHelp" class="form-text text-muted">
+        Look up CouchDB document given an identifier. The identifier
+        may be a user account name, email or ORCID, or a call identifier,
+        proposal identifier, grant identifier, or '_id' if the CouchDB
+        document.
+      </div>
+    </form>
+  </div>
+  {% if doc %}
+  <div class="col-md offset-md-1">
+    <a href="{{ url_for('admin.document', identifier=doc['_id']) }}"
+       class="btn btn-primary ml-2" role="button">Download {{ doc['_id'] }}</a>
+  </div>
+  {% endif %}
+</div>
+
+<div class="card bg-light">
+  <div class="card-header">
+    <h5>Document counts in the Anubis CouchDB database</h5>
+  </div>
+  <div class="card-body pb-0">
+    <pre>{{ counts }}</pre>
+  </div>
+</div>
+
+<div class="card bg-light mt-3">
+  <div class="card-header">
+    <h5>Anubis CouchDb database info</h5>
+  </div>
+  <div class="card-body pb-0">
+    <pre>{{ db_info }}</pre>
+  </div>
+</div>
+
+<div class="card bg-light mt-3">
+  <div class="card-header">
+    <h5>CouchDB server</h5>
+  </div>
+  <div class="card-body pb-0">
+    <pre>{{ server_data }}</pre>
+  </div>
+</div>
+
+<div class="card bg-light mt-3">
+  <div class="card-header">
+    <h5>All databases in CouchDB server</h5>
+  </div>
+  <div class="card-body">
+    {{ databases }}
+  </div>
+</div>
+
+<div class="card bg-light mt-3">
+  <div class="card-header">
+    <h5>CouchDB system stats</h5>
+  </div>
+  <div class="card-body pb-0">
+    <pre>{{ system_stats }}</pre>
+  </div>
+</div>
+
+<div class="card bg-light mt-3">
+  <div class="card-header">
+    <h5>CouchDB node stats</h5>
+  </div>
+  <div class="card-body pb-0">
+    <pre>{{ node_stats }}</pre>
+  </div>
+</div>
+{% endblock %} {# block main #}

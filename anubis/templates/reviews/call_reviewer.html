@@ -5,9 +5,9 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-<small class="text-muted mr-2">Reviews by</small>
+<small class="text-muted">Reviews by</small>
 {{ user | user_link}}
-<small class="text-muted mx-2">in call</small>
+<small class="text-muted">in call</small>
 {{ call | call_link }}
 {% endblock %}
 
@@ -37,11 +37,11 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
   <thead>
     <tr>
       <th>Review</th>
-      {% for field in utils.get_banner_fields(call['review']) %}
+      {% for field in get_banner_fields(call['review']) %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
       <th>Proposal</th>
-      {% for field in utils.get_banner_fields(call['proposal']) %}
+      {% for field in get_banner_fields(call['proposal']) %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
       <th>Submitter</th>
@@ -54,11 +54,11 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
     <tr>
       {% if review %}
       <td>{{ review | review_link }}</td>
-      {% for field in utils.get_banner_fields(call['review']) %}
+      {% for field in get_banner_fields(call['review']) %}
       <td>{{ field | display_field_value(review) }}</td>
       {% endfor %}
-      <td>{{ proposal | proposal_link(bold=False) }}</td>
-      {% for field in utils.get_banner_fields(call['proposal']) %}
+      <td>{{ proposal | proposal_link }}</td>
+      {% for field in get_banner_fields(call['proposal']) %}
       <td>{{ field | display_field_value(proposal) }}</td>
       {% endfor %}
       <td>{{ get_user(proposal['user']) | user_link }}</td>
@@ -72,11 +72,11 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
             Create review</button>
 	</form>
       </td>
-      {% for field in utils.get_banner_fields(call['review']) %}
+      {% for field in get_banner_fields(call['review']) %}
       <td></td>
       {% endfor %}
-      <td>{{ proposal | proposal_link(bold=False) }}</td>
-      {% for field in utils.get_banner_fields(call['proposal']) %}
+      <td>{{ proposal | proposal_link }}</td>
+      {% for field in get_banner_fields(call['proposal']) %}
       <td></td>
       {% endfor %}
       <td>{{ get_user(proposal['user']) | user_link }}</td>
@@ -88,7 +88,7 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 {% endblock %} {# block supermain #}
 
 {% block javascript %}
-{% set nbanners = len(utils.get_banner_fields(call['review'])) %}
+{% set nbanners = len(get_banner_fields(call['review'])) %}
 <script>
   $(function() {
     $("#reviews").DataTable( {

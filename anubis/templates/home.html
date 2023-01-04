@@ -1,9 +1,27 @@
 {% extends 'base.html' %}
 
-{% block body_title %}
-{{ config['SITE_NAME'] }}
-<small class="ml-4 text-muted">{{ config['SITE_DESCRIPTION'] }}</small>
-{% endblock %}
+{% block body_title_outer %}
+<table>
+  <tr>
+    <td class="pr-2">
+      {% if config['SITE_NAME_LOGO'] %}
+      <img src="/site/name_logo">
+      {% endif %}
+    </td>
+    <td>
+      <h1>{{ config['SITE_NAME'] }}</h1>
+    </td>
+  </tr>
+  {% if config['SITE_DESCRIPTION'] %}
+  <tr>
+    <td></td>
+    <td>
+      <h2><small class="text-muted">{{ config['SITE_DESCRIPTION'] }}</small></H2>
+    <td>
+  </tr>
+  {% endif %}
+</table>
+{% endblock %} {# block body_title_outer #}
 
 {% block main %}
 

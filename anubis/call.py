@@ -17,42 +17,15 @@ import zipfile
 
 import flask
 
+import anubis.database
 import anubis.proposal
 import anubis.proposals
 import anubis.user
+
 from anubis import constants
 from anubis import utils
-from anubis.saver import AttachmentSaver, AccessMixin
+from anubis.saver import Saver, AccessSaverMixin
 
-
-DESIGN_DOC = {
-    "views": {
-        "identifier": {
-            "map": "function (doc) {if (doc.doctype !== 'call') return; emit(doc.identifier, doc.title);}"
-        },
-        "closes": {
-            "map": "function (doc) {if (doc.doctype !== 'call' || !doc.closes || !doc.opens) return; emit(doc.closes, doc.identifier);}"
-        },
-        "opens": {
-            "map": "function (doc) {if (doc.doctype !== 'call' || !doc.closes || !doc.opens) return; emit(doc.opens, doc.identifier);}"
-        },
-        "undefined": {
-            "map": "function (doc) {if (doc.doctype !== 'call' || (doc.closes && doc.opens)) return; emit(doc.identifier, null);}"
-        },
-        "owner": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'call') return; emit(doc.owner, doc.identifier);}",
-        },
-        "reviewer": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'call') return; for (var i=0; i < doc.reviewers.length; i++) {emit(doc.reviewers[i], doc.identifier); }}",
-        },
-        "access": {
-            "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'call') return; for (var i=0; i < doc.access_view.length; i++) {emit(doc.access_view[i], doc.identifier); }}",
-        },
-    }
-}
 
 blueprint = flask.Blueprint("call", __name__)
 
@@ -108,13 +81,13 @@ def display(cid):
         kwargs["my_proposal"] = anubis.proposal.get_call_user_proposal(
             cid, flask.g.current_user["username"]
         )
-        kwargs["my_reviews_count"] = utils.get_call_reviewer_reviews_count(
-            cid, flask.g.current_user["username"]
+        kwargs["my_reviews_count"] = anubis.database.get_count(
+            "reviews", "call_reviewer", [cid, flask.g.current_user["username"]]
         )
-        kwargs["my_archived_reviews_count"] = utils.get_call_reviewer_reviews_count(
-            cid, flask.g.current_user["username"], archived=True
+        kwargs["my_archived_reviews_count"] = anubis.database.get_count(
+            "reviews", "call_reviewer_archived", [cid, flask.g.current_user["username"]]
         )
-    kwargs["call_proposals_count"] = utils.get_call_proposals_count(cid)
+    kwargs["call_proposals_count"] = anubis.database.get_count("proposals", "call", cid)
     # Number of archived reviews for the call.
     result = flask.g.db.view(
         "reviews",
@@ -182,7 +155,7 @@ def edit(cid):
     elif utils.http_DELETE():
         if not allow_delete(call):
             return utils.error("You are not allowed to delete the call.")
-        utils.delete(call)
+        anubis.database.delete(call)
         utils.flash_message(f"Deleted call {call['identifier']}:{call['title']}.")
         return flask.redirect(
             flask.url_for("calls.owner", username=flask.g.current_user["username"])
@@ -342,8 +315,13 @@ def reviewers(cid):
         if not allow_view_details(call):
             return utils.error("You are not allowed to edit the reviewers of the call.")
         reviewers = [anubis.user.get_user(r) for r in call["reviewers"]]
+        call["n_reviews"] = dict()
         for reviewer in reviewers:
-            reviewer["number_of_reviews"] = utils.get_call_reviewer_reviews_count(cid, reviewer["username"])
+            count = anubis.database.get_count(
+                "reviews", "call_reviewer", [cid, reviewer["username"]]
+            )
+            call["n_reviews"][reviewer["username"]] = count
+            reviewer["n_reviews"] = count
         reviewer_emails = [r["email"] for r in reviewers if r["email"]]
         email_lists = {"Emails for reviewers": ", ".join(reviewer_emails)}
         return flask.render_template(
@@ -389,7 +367,7 @@ def reviewers(cid):
         if not allow_edit(call):
             return utils.error("You are not allowed to edit the call.")
         reviewer = flask.request.form.get("reviewer")
-        if utils.get_call_reviewer_reviews_count(call["identifier"], reviewer):
+        if anubis.database.get_count("reviews", "call_reviewer", [call["identifier"], reviewed]):
             return utils.error("Cannot remove reviewer which has reviews in the call.")
         with CallSaver(call) as saver:
             try:
@@ -519,7 +497,7 @@ def grant(cid):
             "call/grant.html",
             call=call,
             repeat_fields=repeat_fields,
-            reviews_count=utils.get_count("reviews", "call", call["identifier"]),
+            reviews_count=anubis.database.get_count("reviews", "call", call["identifier"]),
         )
 
     elif utils.http_POST():
@@ -567,7 +545,7 @@ def reset_counter(cid):
         return utils.error("No such call.", flask.url_for("home"))
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
-    if utils.get_call_proposals_count(cid) != 0:
+    if anubis.database.get_count("proposals", "call", cid) != 0:
         return utils.error(
             "Cannot reset counter when there are" " proposals in the call."
         )
@@ -639,7 +617,7 @@ def logs(cid):
         "logs.html",
         title=f"Call {call['identifier']}",
         back_url=flask.url_for(".display", cid=call["identifier"]),
-        logs=utils.get_logs(call["_id"]),
+        logs=anubis.database.get_logs(call["_id"]),
     )
 
 
@@ -711,7 +689,7 @@ def call_zip(cid):
     return response
 
 
-class CallSaver(AccessMixin, AttachmentSaver):
+class CallSaver(AccessSaverMixin, Saver):
     "Call document saver context handler."
 
     DOCTYPE = constants.CALL
@@ -996,7 +974,7 @@ def get_call(cid):
     "Return the call with the given identifier."
     key = f"call {cid}"
     try:
-        return flask.g.cache[key]
+        return utils.cache_get(key)
     except KeyError:
         result = [
             r.doc
@@ -1004,10 +982,15 @@ def get_call(cid):
         ]
         if len(result) == 1:
             call = set_tmp(result[0])
-            flask.g.cache[key] = call
+            utils.cache_put(key, call)
             return call
         else:
             return None
+
+
+def get_banner_fields(fields):
+    "Return fields flagged as banner fields. Avoid repeated fields."
+    return [f for f in fields if f.get("banner") and not f.get("repeat")]
 
 
 def allow_create(user=None):
@@ -1059,13 +1042,13 @@ def allow_identifier_edit(call):
     """
     if not call.get("identifier"):
         return True
-    if utils.get_count("proposals", "call", call["identifier"]):
+    if anubis.database.get_count("proposals", "call", call["identifier"]):
         return False
-    if utils.get_count("reviews", "call", call["identifier"]):
+    if anubis.database.get_count("reviews", "call", call["identifier"]):
         return False
-    if utils.get_count("decisions", "call", call["identifier"]):
+    if anubis.database.get_count("decisions", "call", call["identifier"]):
         return False
-    if utils.get_count("grants", "call", call["identifier"]):
+    if anubis.database.get_count("grants", "call", call["identifier"]):
         return False
     if call["tmp"]["is_open"]:
         return False
@@ -1076,7 +1059,7 @@ def allow_delete(call):
     "Allow the admin or call owner to delete a call if it has no proposals."
     if not (flask.g.am_admin or am_owner(call)):
         return False
-    if utils.get_call_proposals_count(call["identifier"]) == 0:
+    if anubis.database.get_count("proposals", "call", call["identifier"]) == 0:
         return True
     return False
 

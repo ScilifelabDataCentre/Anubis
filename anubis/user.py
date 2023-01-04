@@ -10,34 +10,12 @@ import flask
 import werkzeug.security
 
 import anubis.call
+import anubis.database
+
 from anubis import constants
 from anubis import utils
-from anubis.saver import BaseSaver
+from anubis.saver import Saver
 
-
-DESIGN_DOC = {
-    "views": {
-        "username": {
-            "reduce": "_count",
-            "map": "function(doc) {if (doc.doctype !== 'user') return; emit(doc.username, null);}",
-        },
-        "email": {
-            "map": "function(doc) {if (doc.doctype !== 'user' || !doc.email) return; emit(doc.email, null);}"
-        },
-        "orcid": {
-            "map": "function(doc) {if (doc.doctype !== 'user' || !doc.orcid) return; emit(doc.orcid, null);}"
-        },
-        "role": {
-            "map": "function(doc) {if (doc.doctype !== 'user') return; emit(doc.role, doc.username);}"
-        },
-        "status": {
-            "map": "function(doc) {if (doc.doctype !== 'user') return; emit(doc.status, doc.username);}"
-        },
-        "last_login": {
-            "map": "function(doc) {if (doc.doctype !== 'user') return; if (!doc.last_login) return; emit(doc.last_login, doc.username);}"
-        },
-    }
-}
 
 blueprint = flask.Blueprint("user", __name__)
 
@@ -84,7 +62,7 @@ def register():
     "Register a new user account."
     if utils.http_GET():
         return flask.render_template(
-            "user/register.html", gdpr=utils.get_site_text("gdpr.md")
+            "user/register.html", data_policy=flask.g.db["data_policy"]
         )
 
     elif utils.http_POST():
@@ -93,11 +71,12 @@ def register():
                 saver.set_username(flask.request.form.get("username"))
                 saver.set_email(flask.request.form.get("email"))
                 saver.set_orcid(flask.request.form.get("orcid"))
-                if utils.to_bool(flask.request.form.get("enable")):
-                    saver.set_status(constants.ENABLED)
+                if flask.g.am_admin or flask.g.am_staff:
+                    if utils.to_bool(flask.request.form.get("enable")):
+                        saver.set_status(constants.ENABLED)
                 saver.set_role(constants.USER)
                 saver.set_call_creator(False)
-                saver.set_password()  # Sets code.
+                saver.set_password()  # No argument; sets code.
                 saver.set_givenname(flask.request.form.get("givenname"))
                 saver.set_familyname(flask.request.form.get("familyname"))
                 saver.set_gender(flask.request.form.get("gender"))
@@ -112,17 +91,25 @@ def register():
             user = saver.doc
         except ValueError as error:
             return utils.error(error, flask.url_for(".register"))
-        # Directly enabled; send code to the user, if so instructed.
+        # Directly enabled due to white list; send code in email to the user.
         if user["status"] == constants.ENABLED:
-            if utils.to_bool(flask.request.form.get("send_email")):
-                send_email_password_code(user, "registered")
-                utils.flash_message(
-                    "User account created; an email with a link"
-                    " to set password has been sent."
-                )
-            else:
-                utils.flash_message("User account created.")
-        # Was set to 'pending'; send email to admins.
+            try:
+                if utils.to_bool(flask.request.form.get("send_email")):
+                    send_email_password_code(user, "registered")
+                    utils.flash_message(
+                        "User account created. An email with a link"
+                        " to set the password has been sent."
+                    )
+                else:
+                    utils.flash_message("User account created. No email was sent.")
+            except ValueError:
+                utils.flash_warning(
+                    "User account created, but no email could be sent."
+                    " The email server is badly configured."
+                    " You must request the one-time password setting code"
+                    " from the admin of the site."
+                    )
+        # Was set to 'pending'; try to send email to admins.
         else:
             utils.flash_message(
                 "User account created; an email will be sent"
@@ -137,9 +124,10 @@ def register():
             try:
                 utils.send_email(recipients, title, text)
             except ValueError:
-                if flask.g.admin:
+                if flask.g.am_admin or flask.g.am_staff:
                     utils.flash_warning(
-                        "No email sent; email server not configured. The code must be sent manually to the user."
+                        "No email sent; email server badly configured."
+                        " The code must be sent manually to the user."
                     )
                     return flask.redirect(
                         flask.url_for("user.display", username=user["username"])
@@ -166,31 +154,27 @@ def reset():
             if user["status"] != constants.ENABLED:
                 raise KeyError
         except KeyError:
-            # Don't reveal whether the user exists or not.
-            utils.flash_message(
-                "An email has been sent, if a user account with the given email address exists."
-            )
+            if flask.g.am_admin:
+                utils.flash_error("No such user.")
+            else:
+                # Don't reveal whether the user exists or not.
+                utils.flash_message("An email has been sent, if a user account"
+                                    " with the given email address exists.")
         else:
             with UserSaver(user) as saver:
                 saver.set_password()
             try:
                 send_email_password_code(user, "password reset")
-                utils.flash_message(
-                    "An email has been sent, if a user account with the given email address exists."
-                )
+                utils.flash_message("An email has been sent, if a user account"
+                                    " with the given email address exists.")
             except ValueError:
                 if flask.g.am_admin:
-                    utils.flash_warning(
-                        "No automatic email can be sent. The code must be sent manually to the user."
-                    )
+                    utils.flash_warning("No automatic email can be sent. The one-time"
+                                        " code must be sent manually to the user.")
                 else:
-                    utils.flash_warning(
-                        "No automatic email can be sent. The code must be obtained from the administrator."
-                    )
-            else:
-                utils.flash_message(
-                    "An email has been sent, if a user account with the given email address exists."
-                )
+                    utils.flash_warning("No automatic email can be sent."
+                                        " The one-time code for setting your password"
+                                        " must be obtained from the administrator.")
         if flask.g.am_admin:
             return flask.redirect(
                 flask.url_for("user.display", username=user["username"])
@@ -255,22 +239,31 @@ def display(username):
             "calls", "reviewer", key=user["username"], reduce=False
         )
     ]
-    user_proposals_count = utils.get_count(
+    for call in reviewer_calls:
+        call["n_reviews"] = anubis.database.get_count(
+            "reviews", "call_reviewer", [call["identifier"], user["username"]]
+        )
+    user_proposals_count = anubis.database.get_count(
         "proposals", "user", user["username"]
-    ) + utils.get_count("proposals", "access", user["username"])
+    ) + anubis.database.get_count("proposals", "access", user["username"])
+    # The user's own grants and the ones she has access to.
+    user_grants_count = (
+        anubis.database.get_count("grants", "user", user["username"]) +
+        anubis.database.get_count("grants", "access", user["username"])
+    )
     return flask.render_template(
         "user/display.html",
         user=user,
         reviewer_calls=reviewer_calls,
         allow_create_call=anubis.call.allow_create(user),
-        user_calls_count=utils.get_count("calls", "owner", user["username"]),
+        user_calls_count=anubis.database.get_count("calls", "owner", user["username"]),
         user_proposals_count=user_proposals_count,
-        user_reviews_count=utils.get_count("reviews", "reviewer", user["username"]),
-        user_grants_count=utils.get_user_grants_count(user["username"]),
+        user_reviews_count=anubis.database.get_count("reviews", "reviewer", user["username"]),
+        user_grants_count=user_grants_count,
         allow_enable_disable=allow_enable_disable(user),
         allow_edit=allow_edit(user),
         allow_delete=allow_delete(user),
-        gdpr=utils.get_site_text("gdpr.md"),
+        data_policy=flask.g.db["data_policy"]
     )
 
 
@@ -322,7 +315,7 @@ def edit(username):
                 "Cannot delete the user account; admin or not empty.",
                 flask.url_for(".display", username=username),
             )
-        flask.g.db.delete(user)
+        anubis.database.delete(user)
         utils.flash_message(f"Deleted user {username}.")
         if flask.g.am_admin:
             return flask.redirect(flask.url_for(".all"))
@@ -343,7 +336,7 @@ def logs(username):
         "logs.html",
         title=f"User {user['username']}",
         back_url=flask.url_for(".display", username=user["username"]),
-        logs=utils.get_logs(user["_id"]),
+        logs=anubis.database.get_logs(user["_id"]),
     )
 
 
@@ -352,12 +345,16 @@ def logs(username):
 def all():
     "Display list of all user accounts."
     users = get_users()
+    # A single call using group_level 1 is much more efficient
+    # than calling once for each user.
     result = flask.g.db.view("proposals", "user", group_level=1, reduce=True)
     proposals_counts = dict([(r.key, r.value) for r in result])
     result = flask.g.db.view("reviews", "reviewer", group_level=1, reduce=True)
     reviews_counts = dict([(r.key, r.value) for r in result])
+    # User's own grants.
     result = flask.g.db.view("grants", "user", group_level=1, reduce=True)
     grants_counts = dict([(r.key, r.value) for r in result])
+    # Grants user has access to.
     result = flask.g.db.view("grants", "access", group_level=1, reduce=True)
     for row in result:
         try:
@@ -415,7 +412,7 @@ def disable(username):
     return flask.redirect(flask.url_for(".display", username=username))
 
 
-class UserSaver(BaseSaver):
+class UserSaver(Saver):
     "User document saver context manager."
 
     DOCTYPE = constants.USER
@@ -423,16 +420,13 @@ class UserSaver(BaseSaver):
 
     def initialize(self):
         "Set the status for a new user."
-        if flask.current_app.config["USER_ENABLE_IMMEDIATELY"]:
-            self.doc["status"] = constants.ENABLED
-        else:
-            self.doc["status"] = constants.PENDING
+        self.doc["status"] = constants.PENDING
 
     def finish(self):
         "Check that required fields have been set."
         for key in ["username", "role", "status"]:
             if not self.doc.get(key):
-                raise ValueError("invalid user: %s not set" % key)
+                raise ValueError(f"invalid user: {key} not set")
 
     def set_username(self, username):
         if "username" in self.doc:
@@ -504,8 +498,6 @@ class UserSaver(BaseSaver):
         self.doc["familyname"] = familyname or None
 
     def set_gender(self, gender):
-        if not flask.current_app.config["USER_GENDERS"]:
-            return
         if gender not in flask.current_app.config["USER_GENDERS"]:
             gender = None
         self.doc["gender"] = gender
@@ -521,38 +513,27 @@ class UserSaver(BaseSaver):
         self.doc["birthdate"] = birthdate
 
     def set_degree(self, degree):
-        if not flask.current_app.config["USER_DEGREES"]:
-            return
         if degree not in flask.current_app.config["USER_DEGREES"]:
             degree = None
         self.doc["degree"] = degree
 
     def set_affiliation(self, affiliation):
-        if not flask.current_app.config["USER_AFFILIATION"]:
-            return
-        self.doc["affiliation"] = affiliation or None
+        self.doc["affiliation"] = flask.current_app.config["USER_AFFILIATION"] and affiliation or None
 
     def set_postaladdress(self, postaladdress):
-        if not flask.current_app.config["USER_POSTALADDRESS"]:
-            return
-        self.doc["postaladdress"] = postaladdress or None
+        self.doc["postaladdress"] = flask.current_app.config["USER_POSTALADDRESS"] and postaladdress or None
 
     def set_phone(self, phone):
-        if not flask.current_app.config["USER_PHONE"]:
-            return
-        self.doc["phone"] = phone or None
+        self.doc["phone"] = flask.current_app.config["USER_PHONE"] and phone or None
 
     def set_password(self, password=None):
         "Set the password; a one-time code if no password provided."
-        config = flask.current_app.config
         if password:
-            if len(password) < config["MIN_PASSWORD_LENGTH"]:
+            if len(password) < flask.current_app.config["MIN_PASSWORD_LENGTH"]:
                 raise ValueError("password too short")
-            self.doc["password"] = werkzeug.security.generate_password_hash(
-                password, salt_length=config["SALT_LENGTH"]
-            )
+            self.doc["password"] = werkzeug.security.generate_password_hash(password)
         else:
-            self.doc["password"] = "code:%s" % utils.get_iuid()
+            self.doc["password"] = f"code:{utils.get_iuid()}"
 
     def set_last_login(self):
         self.doc["last_login"] = utils.get_time()
@@ -569,7 +550,7 @@ def get_user(username=None, email=None):
     if username:
         key = f"username {username}"
         try:
-            return flask.g.cache[key]
+            return utils.cache_get(key)
         except KeyError:
             docs = [
                 r.doc
@@ -579,9 +560,9 @@ def get_user(username=None, email=None):
             ]
             if len(docs) == 1:
                 user = docs[0]
-                flask.g.cache[key] = user
+                utils.cache_put(key, user)
                 if user["email"]:
-                    flask.g.cache[f"email {user['email']}"] = user
+                    utils.cache_put(f"email {user['email']}", user)
                 return user
             else:
                 return None
@@ -589,7 +570,7 @@ def get_user(username=None, email=None):
         email = email.lower()
         key = f"email {email}"
         try:
-            return flask.g.cache[key]
+            return utils.cache_get(key)
         except KeyError:
             docs = [
                 r.doc
@@ -597,8 +578,8 @@ def get_user(username=None, email=None):
             ]
             if len(docs) == 1:
                 user = docs[0]
-                flask.g.cache[key] = user
-                flask.g.cache[f"username {user['username']}"] = user
+                utils.cache_put(key, user)
+                utils.cache_put(f"username {user['username']}", user)
                 return user
             else:
                 return None
@@ -640,6 +621,16 @@ def get_current_user():
         flask.session.pop("username", None)
         return None
     return user
+
+
+def get_fullname(user):
+    "Return full name of user, or family name, or user name."
+    if user.get("familyname"):
+        name = user["familyname"]
+        if user.get("givenname"):
+            return f"{user['givenname']} {name}"
+        return name
+    return user["username"]
 
 
 def do_login(username, password):
@@ -751,11 +742,11 @@ def allow_delete(user):
     """
     if user["role"] == constants.ADMIN:
         return False
-    if utils.get_count("proposals", "user", user["username"]):
+    if anubis.database.get_count("proposals", "user", user["username"]):
         return False
-    if utils.get_count("reviews", "reviewer", user["username"]):
+    if anubis.database.get_count("reviews", "reviewer", user["username"]):
         return False
-    if utils.get_count("calls", "reviewer", user["username"]):
+    if anubis.database.get_count("calls", "reviewer", user["username"]):
         return False
     return True
 

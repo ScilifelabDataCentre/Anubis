@@ -14,25 +14,13 @@ import os.path
 import flask
 
 import anubis.call
+import anubis.database
 import anubis.proposal
+
 from anubis import constants
 from anubis import utils
-from anubis.saver import AttachmentSaver, FieldMixin
+from anubis.saver import Saver, FieldSaverMixin
 
-
-DESIGN_DOC = {
-    "views": {
-        # Decisions for all proposals in call.
-        "call": {
-            "reduce": "_count",
-            "map": "function(doc) {if (doc.doctype !== 'decision') return; emit(doc.call, doc.proposal);}",
-        },
-        # Decision for a proposal.
-        "proposal": {
-            "map": "function(doc) {if (doc.doctype !== 'decision') return; emit(doc.proposal, null);}"
-        },
-    }
-}
 
 blueprint = flask.Blueprint("decision", __name__)
 
@@ -123,7 +111,7 @@ def edit(iuid):
             return utils.error("You are not allowed to delete this decision.")
         with anubis.proposal.ProposalSaver(proposal) as saver:
             saver["decision"] = None
-        utils.delete(decision)
+        anubis.database.delete(decision)
         utils.flash_message("Deleted decision.")
         return flask.redirect(
             flask.url_for("proposal.display", pid=proposal["identifier"])
@@ -183,7 +171,7 @@ def logs(iuid):
         "logs.html",
         title=f"Decision for {decision['proposal']}",
         back_url=flask.url_for(".display", iuid=decision["_id"]),
-        logs=utils.get_logs(decision["_id"]),
+        logs=anubis.database.get_logs(decision["_id"]),
     )
 
 
@@ -218,7 +206,7 @@ def document(iuid, fid):
     return response
 
 
-class DecisionSaver(FieldMixin, AttachmentSaver):
+class DecisionSaver(FieldSaverMixin, Saver):
     "Decision document saver context."
 
     DOCTYPE = constants.DECISION
@@ -263,7 +251,7 @@ def get_decision(iuid):
         return None
     key = f"decision {iuid}"
     try:
-        return flask.g.cache[key]
+        return utils.cache_get(key)
     except KeyError:
         try:
             decision = flask.g.db[iuid]
@@ -271,7 +259,7 @@ def get_decision(iuid):
             return None
         if decision["doctype"] != constants.DECISION:
             raise ValueError
-        flask.g.cache[key] = decision
+        utils.cache_put(key, decision)
         return decision
 
 

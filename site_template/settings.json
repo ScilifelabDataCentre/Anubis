@@ -1,7 +1,0 @@
-{
-    "SECRET_KEY": "you need to change this string value",
-    "COUCHDB_USERNAME": "username",
-    "COUCHDB_PASSWORD": "password",
-    "HOST_NAME": null,
-    "HOST_URL": null
-}

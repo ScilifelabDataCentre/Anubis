@@ -46,7 +46,7 @@ User {{ user['username'] }}
       <p class="mb-2">
         <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=user['username']) }}"
            role="button" class="btn btn-sm btn-info mr-2">
-          {{ utils.get_call_reviewer_reviews_count(call['identifier'], user['username']) }} reviews
+          {{ call['n_reviews'] }} reviews
         </a>
         of proposals in call {{ call | call_link }}
       </p>
@@ -160,7 +160,7 @@ User {{ user['username'] }}
   </tr>
   {% endif %}
 
-  {% if config['USER_POSTAL_ADDRESS'] %}
+  {% if config['USER_POSTALADDRESS'] %}
   <tr>
     <th class="text-right">Postal address</th>
     <td><pre>{{ user.get('postaladdress') | display_value }}</pre></td>
@@ -175,18 +175,19 @@ User {{ user['username'] }}
   {% endif %}
 </table>
 
-{% if gdpr %}
+{% if data_policy['text'] %}
 <div class="row mt-4">
   <div class=" col-md-10 offset-md-2">
     <div class="card">
       <div class="card-header">
-        <h4 class="card-title">Personal data policy</h4>
+        <h4 class="card-title">Data policy</h4>
       </div>
-      <div class="card-body">{{ gdpr | display_markdown }}</div>
+      <div class="card-body">{{ data_policy['text'] | display_markdown }}</div>
     </div>
   </div>
 </div>
-{% endif %}
+{% endif %} {# if data_policy['text'] #}
+
 {% endblock %} {# block main #}
 
 {% block actions %}

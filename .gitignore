@@ -1,6 +1,6 @@
-*.log
-*~
-site
-tests/settings.json
+.env
+settings.json
 __pycache__
 .pytest_cache
+*.log
+*~

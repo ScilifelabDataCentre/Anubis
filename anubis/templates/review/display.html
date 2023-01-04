@@ -5,9 +5,20 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {% endblock %}
 
 {% block body_title %}
-<small class="text-muted mr-2">Review of proposal</small>
+<small class="text-muted">Review of proposal</small>
 {{ proposal | proposal_link }}
 {% endblock %}
+
+{% block meta %}
+
+{% if g.am_admin %}
+<a href="{{ url_for('admin.document', identifier=review['_id']) }}"
+   class="badge badge-pill badge-light" role="button"
+   title="Download the JSON CouchDB database document for the review.">
+  Database document</a>
+{% endif %}
+
+{% endblock %} {# block meta #}
 
 {% block main %}
 <div class="row mb-2">
@@ -25,8 +36,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   <div class="col-md-2 font-weight-bold text-right">Reviews of proposal</div>
   <div class="col-md">
     <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
-       role="button" class="btn btn-sm btn-info">
-      {{ utils.get_proposal_reviews_count(proposal['identifier']) }} reviews
+       role="button" class="btn btn-sm btn-info">{{ n_reviews }} reviews
     </a>
   </div>
 </div>

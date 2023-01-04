@@ -5,7 +5,7 @@ Archived reviews in call {{ call['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-<small class="text-muted mr-2">Archived reviews in call</small>
+<small class="text-muted">Archived reviews in call</small>
 {{ call | call_link }}
 {% endblock %}
 
@@ -19,7 +19,7 @@ Archived reviews in call {{ call['identifier'] }}
   <thead>
     <tr>
       <th>Review</th>
-      {% for field in utils.get_banner_fields(call['review']) %}
+      {% for field in get_banner_fields(call['review']) %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
       <th>Reviewer</th>
@@ -34,11 +34,11 @@ Archived reviews in call {{ call['identifier'] }}
     {% if review %}
     <tr>
       <td>{{ review | review_link }}</td>
-      {% for field in utils.get_banner_fields(call['review']) %}
+      {% for field in get_banner_fields(call['review']) %}
       <td>{{ field | display_field_value(review) }}</td>
       {% endfor %}
       <td>{{ get_user(review['reviewer']) | user_link }}</td>
-      <td>{{ proposal | proposal_link(bold=False) }}</td>
+      <td>{{ proposal | proposal_link }}</td>
       <td>{{ get_user(proposal['user']) | user_link }}</td>
     </tr>
     {% endif %}
@@ -48,7 +48,7 @@ Archived reviews in call {{ call['identifier'] }}
 {% endblock %} {# block supermain #}
 
 {% block javascript %}
-{% set nbanners = len(utils.get_banner_fields(call['review'])) %}
+{% set nbanners = len(get_banner_fields(call['review'])) %}
 <script>
   $(function() {
     $("#reviews").DataTable( {

@@ -5,7 +5,7 @@ Archived reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] o
 {% endblock %}
 
 {% block body_title %}
-<small class="text-muted mr-2">Archived reviews of proposal</small>
+<small class="text-muted">Archived reviews of proposal</small>
 {{ proposal | proposal_link }}
 {% endblock %}
 
@@ -31,7 +31,7 @@ Archived reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] o
       <td>{{ review | review_link }}</td>
       <td>
         <table class="table table-sm table-borderless">
-          {% for field in utils.get_banner_fields(review['fields']) %}
+          {% for field in get_banner_fields(review['fields']) %}
           <tr>
             <th>{{ field['identifier'] }}</th>
             <td>{{ field | display_field_value(review) }}</td>

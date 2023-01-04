@@ -3,8 +3,6 @@
   {% for page in pages %}
   <url>
     <loc>{{ page['url'] }}</loc>
-    {% if page.get('changefreq') %}<changefreq>{{ page['changefreq'] }}</changefreq>{% endif %}
-    {% if page.get('priority') %}<priority>{{ page['priority'] }}</priority>{% endif %}
   </url>
   {% endfor %}
 </urlset>

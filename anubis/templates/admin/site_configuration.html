@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Site configuration{% endblock %}
+{% block body_title %}Site configuration{% endblock %}
+
+{% block main %}
+<form action="{{ url_for('.site_configuration') }}"
+      enctype="multipart/form-data"
+      method="POST">
+  {{ csrf_token() }}
+
+  <div class="form-group row">
+    <label for="name" class="col-md-2 col-form-label text-right">
+      Name</label>
+    <div class="col-md-4">
+      <input type="text" name="name" id="name"
+	     class="form-control" aria-describedby="nameHelp"
+	     value="{{ config.get('SITE_NAME') or '' }}">
+      <small id="nameHelp" class="form-text text-muted">
+        The name of this Anubis site.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label for="name_logo" class="col-md-2 col-form-label text-right">
+      Name logo</label>
+    <div class="col-md-6">
+      <div class="custom-file">
+        <input type="file" id="name_logo" name="name_logo"
+	       class="custom-file-input">
+        <label class="custom-file-label" for="name_logo">
+          Choose a new logo file for the name of the site.</label>
+      </div>
+    </div>
+  </div>
+
+  {% if config.get("SITE_NAME_LOGO") %}
+  <div class="form-group row">
+    <div class="col-md offset-md-2">
+      <div class="form-check">
+	<input type="checkbox" name="remove_name_logo" id="remove_name_logo"
+	       class="form-check-input"
+	       aria-describedby="remove_name_logoHelp"
+	       value="true">
+	<label class="form-check-label" for="name_logo_favicon">
+	  Remove the current name logo.</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <div class="col-md offset-md-2">
+      <div class="form-check">
+	<input type="checkbox" name="name_logo_favicon" id="name_logo_favicon"
+	       class="form-check-input"
+	       aria-describedby="name_logo_faviconHelp"
+	       value="true"
+               {{ config.get("SITE_NAME_LOGO_FAVICON") and 'checked' or ''}}>
+	<label class="form-check-label" for="name_logo_favicon">
+	  Use the name logo as the favicon of site.</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <div class="col-md offset-md-2">
+      <div class="form-check">
+	<input type="checkbox" name="name_logo_menu" id="_name_logo_menu"
+	       class="form-check-input"
+	       aria-describedby="name_logo_menuHelp"
+	       value="true"
+               {{ config.get("SITE_NAME_LOGO_MENU") and 'checked' or ''}}>
+	<label class="form-check-label" for="name_logo_menu">
+	  Use the name logo for the top-level menu.</label>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="form-group row">
+    <label for="description" class="col-md-2 col-form-label text-right">
+      Description</label>
+    <div class="col-md">
+      <input type="text" name="description" id="description"
+	     class="form-control" aria-describedby="descriptionHelp"
+	     value="{{ config.get('SITE_DESCRIPTION') or '' }}">
+      <small id="descriptionHelp" class="form-text text-muted">
+        The one-line description of this Anubis site.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label for="host_name" class="col-md-2 col-form-label text-right">
+      Host name</label>
+    <div class="col-md-4">
+      <input type="text" name="host_name" id="host_name"
+	     class="form-control" aria-describedby="host_nameHelp"
+	     value="{{ config.get('SITE_HOST_NAME') or '' }}">
+      <small id="host_nameHelp" class="form-text text-muted">
+        The name of the host institution of this Anubis site.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label for="host_logo" class="col-md-2 col-form-label text-right">
+      Host logo</label>
+    <div class="col-md-6">
+      <div class="custom-file">
+        <input type="file" id="host_logo" name="host_logo"
+	       class="custom-file-input">
+        <label class="custom-file-label" for="host_logo">
+          Choose a new logo file for the host name.</label>
+      </div>
+    </div>
+  </div>
+
+  {% if config.get("SITE_HOST_LOGO") %}
+  <div class="form-group row">
+    <div class="col-md offset-md-2">
+      <div class="form-check">
+	<input type="checkbox"
+               name="remove_host_logo" id="remove_host_logo"
+	       class="form-check-input"
+	       aria-describedby="remove_host_logoHelp"
+	       value="true">
+	<label class="form-check-label" for="remove_host_logo">
+	  Remove the current host logo.</label>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="form-group row">
+    <label for="host_url" class="col-md-2 col-form-label text-right">
+      Host URL</label>
+    <div class="col-md-4">
+      <input type="text" name="host_url" id="host_url"
+	     class="form-control" aria-describedby="host_urlHelp"
+	     value="{{ config.get('SITE_HOST_URL') or '' }}">
+      <small id="host_urlHelp" class="form-text text-muted">
+        The URL of the host institution of this Anubis site.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <div class="col-md-3 offset-md-2">
+      <button type="submit" class="btn btn-block btn-primary">Save</button>
+    </div>
+  </div>
+
+</form>
+{% endblock %} {# block main #}
+
+{% block actions %}
+<div class="mt-2">
+  <a href="{{ url_for('home') }}"
+     role="button" class="btn btn-block btn-secondary">Cancel</a>
+</div>
+{% endblock %}
