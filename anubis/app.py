@@ -94,7 +94,7 @@ def setup_template_context():
 @app.before_request
 def prepare():
     "Set the database connection, get the current user."
-    utils.set_db()
+    flask.g.db = anubis.database.get_db()
     flask.g.current_user = anubis.user.get_current_user()
     flask.g.am_admin = anubis.user.am_admin()
     flask.g.am_staff = anubis.user.am_staff()

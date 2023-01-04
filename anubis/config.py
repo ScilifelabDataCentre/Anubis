@@ -21,8 +21,9 @@ import anubis.database
 
 # Default configurable values, loaded and/or modified in procedure 'init'.
 DEFAULT_CONFIG = dict(
-    SETTINGS_ENV=False,
+    SETTINGS_DOTENV=False,
     SETTINGS_FILE=None,
+    SETTINGS_ENVVAR=False,
     FLASK_DEBUG=False,
     SERVER_NAME=None,
     REVERSE_PROXY=False,
@@ -63,7 +64,8 @@ def init(app):
     """
     app.config.from_mapping(DEFAULT_CONFIG)
 
-    app.config["SETTINGS_ENV"] = dotenv.load_dotenv()
+    app.config["SETTINGS_DOTENV"] = dotenv.load_dotenv()
+    app.logger.info(f"settings from '.env' file: {app.config['SETTINGS_DOTENV']}")
 
     # Collect filepaths for possible settings files.
     filepaths = []
@@ -87,6 +89,7 @@ def init(app):
                     app.logger.warning(f"Obsolete item '{key}' in settings file.")
             app.config.update(**config)
             app.config["SETTINGS_FILE"] = filepath
+            app.logger.info(f"settings file: {app.config['SETTINGS_FILE']}")
             break
             
     # Modify the configuration from environment variables; convert to correct type.
@@ -102,6 +105,8 @@ def init(app):
                 app.config[key] = utils.to_bool(new)
             else:
                 app.config[key] = new
+            app.logger.info(f"Setting {key} from environment variable.")
+            app.config["SETTINGS_ENVVAR"] = True
 
     # Must be done after all possible settings sources have been processed.
     if app.config["REVERSE_PROXY"]:
@@ -113,9 +118,6 @@ def init(app):
     if app.config["MIN_PASSWORD_LENGTH"] <= 4:
         raise ValueError("MIN_PASSWORD_LENGTH is too short")
     pytz.timezone(app.config["TIMEZONE"])
-
-    app.logger.info(f"settings from environment variables: {app.config['SETTINGS_ENV']}")
-    app.logger.info(f"settings file: {app.config['SETTINGS_FILE']}")
 
 
 def init_from_db():

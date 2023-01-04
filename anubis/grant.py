@@ -15,6 +15,7 @@ import anubis.call
 import anubis.proposal
 import anubis.user
 import anubis.decision
+
 from anubis import constants
 from anubis import utils
 from anubis.saver import Saver, FieldSaverMixin, AccessSaverMixin
@@ -385,7 +386,7 @@ def get_grant(gid):
     """
     key = f"grant {gid}"
     try:
-        return flask.g.cache[key]
+        return utils.cache_get(key)
     except KeyError:
         docs = [
             r.doc
@@ -393,8 +394,8 @@ def get_grant(gid):
         ]
         if len(docs) == 1:
             grant = docs[0]
-            flask.g.cache[key] = grant
-            flask.g.cache[f"grant {grant['proposal']}"] = grant
+            utils.cache_put(key, grant)
+            utils.cache_put(f"grant {grant['proposal']}", grant)
             return grant
         else:
             return None
@@ -406,7 +407,7 @@ def get_grant_proposal(pid):
     """
     key = f"grant {pid}"
     try:
-        return flask.g.cache[key]
+        return utils.cache_get(key)
     except KeyError:
         docs = [
             r.doc
@@ -414,8 +415,8 @@ def get_grant_proposal(pid):
         ]
         if len(docs) == 1:
             grant = docs[0]
-            flask.g.cache[key] = grant
-            flask.g.cache[f"grant {grant['identifier']}"] = grant
+            utils.cache_put(key, grant)
+            utils.cache_put(f"grant {grant['identifier']}", grant)
             return grant
         else:
             return None

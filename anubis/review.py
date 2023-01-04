@@ -14,6 +14,7 @@ import flask
 import anubis.user
 import anubis.call
 import anubis.proposal
+
 from anubis import constants
 from anubis import utils
 from anubis.saver import Saver, FieldSaverMixin
@@ -369,7 +370,7 @@ def get_review(iuid):
         return None
     key = f"review {iuid}"
     try:
-        return flask.g.cache[key]
+        return utils.cache_get(key)
     except KeyError:
         try:
             review = flask.g.db[iuid]
@@ -377,7 +378,7 @@ def get_review(iuid):
             return None
         if review["doctype"] != constants.REVIEW:
             raise ValueError
-        flask.g.cache[key] = review
+        utils.cache_put(key, review)
         return review
 
 

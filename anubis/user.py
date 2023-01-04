@@ -10,6 +10,7 @@ import flask
 import werkzeug.security
 
 import anubis.call
+
 from anubis import constants
 from anubis import utils
 from anubis.saver import Saver
@@ -559,7 +560,7 @@ def get_user(username=None, email=None):
     if username:
         key = f"username {username}"
         try:
-            return flask.g.cache[key]
+            return utils.cache_get(key)
         except KeyError:
             docs = [
                 r.doc
@@ -569,9 +570,9 @@ def get_user(username=None, email=None):
             ]
             if len(docs) == 1:
                 user = docs[0]
-                flask.g.cache[key] = user
+                utils.cache_put(key, user)
                 if user["email"]:
-                    flask.g.cache[f"email {user['email']}"] = user
+                    utils.cache_put(f"email {user['email']}", user)
                 return user
             else:
                 return None
@@ -579,7 +580,7 @@ def get_user(username=None, email=None):
         email = email.lower()
         key = f"email {email}"
         try:
-            return flask.g.cache[key]
+            return utils.cache_get(key)
         except KeyError:
             docs = [
                 r.doc
@@ -587,8 +588,8 @@ def get_user(username=None, email=None):
             ]
             if len(docs) == 1:
                 user = docs[0]
-                flask.g.cache[key] = user
-                flask.g.cache[f"username {user['username']}"] = user
+                utils.cache_put(key, user)
+                utils.cache_put(f"username {user['username']}", user)
                 return user
             else:
                 return None

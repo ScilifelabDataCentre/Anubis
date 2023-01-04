@@ -20,6 +20,7 @@ import flask
 import anubis.proposal
 import anubis.proposals
 import anubis.user
+
 from anubis import constants
 from anubis import utils
 from anubis.saver import Saver, AccessSaverMixin
@@ -996,7 +997,7 @@ def get_call(cid):
     "Return the call with the given identifier."
     key = f"call {cid}"
     try:
-        return flask.g.cache[key]
+        return utils.cache_get(key)
     except KeyError:
         result = [
             r.doc
@@ -1004,7 +1005,7 @@ def get_call(cid):
         ]
         if len(result) == 1:
             call = set_tmp(result[0])
-            flask.g.cache[key] = call
+            utils.cache_put(key, call)
             return call
         else:
             return None

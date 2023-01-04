@@ -3,15 +3,7 @@
 import couchdb2
 import flask
 
-import anubis.call
-import anubis.proposal
-import anubis.review
-import anubis.decision
-import anubis.grant
-import anubis.user
-
 from anubis import constants
-from anubis import utils
 from anubis.saver import Saver
 
 
@@ -42,16 +34,6 @@ class MetaSaver(Saver):
         pass
 
 
-# def get_server(app=None):
-#     "Get a connection to the CouchDB server."
-#     if app is None:
-#         app = flask.current_app
-    # return couchdb2.Server(
-    #     href=app.config["COUCHDB_URL"],
-    #     username=app.config["COUCHDB_USERNAME"],
-    #     password=app.config["COUCHDB_PASSWORD"],
-    # )
-
 def get_server():
     "Get a connection to the CouchDB server."
     return couchdb2.Server(
@@ -67,6 +49,13 @@ def get_db():
 
 def update_design_documents():
     "Update all CouchDB design documents."
+    import anubis.call
+    import anubis.proposal
+    import anubis.review
+    import anubis.decision
+    import anubis.grant
+    import anubis.user
+
     db = get_db()
     app = flask.current_app
 

@@ -17,14 +17,12 @@ import markupsafe
 import pytz
 import xlsxwriter
 
-import anubis.database
-
 from anubis import constants
-from anubis.saver import Saver
 
 
 def get_software():
     "Return a list of tuples with the versions of current software."
+    import anubis.database
     return [
         ("Anubis", constants.VERSION, constants.URL),
         ("Python", constants.PYTHON_VERSION, constants.PYTHON_URL),
@@ -46,12 +44,20 @@ def get_software():
         ("Feather of Ma'at icon", constants.MAAT_VERSION, constants.MAAT_URL),
     ]
 
-def set_db():
-    "Set the database connection and create the document cache."
-    from anubis.database import get_db
-    flask.g.db = get_db()
-    flask.g.cache = {}  # key: id, value: doc.
+def cache_put(identifier, doc):
+    "Store the doc by the given identifier in the cache."
+    try:
+        flask.g.cache[identifier] = doc
+    except AttributeError:
+        flask.g.cache = dict(identifier=doc)
 
+def cache_get(identifier):
+    "Get the document by identifier from the cache. Raise KeyError if not available."
+    try:
+        return flask.g.cache[identifier]
+    except AttributeError:
+        flask.g.cache = dict()
+        raise KeyError
 
 def get_count(designname, viewname, key=None):
     "Get the count for the given view and key."
@@ -118,19 +124,19 @@ def get_docs_view(designname, viewname, key):
     ]
     for doc in result:
         if doc.get("doctype") == constants.CALL:
-            flask.g.cache[f"call {doc['identifier']}"] = doc
+            cache_put(f"call {doc['identifier']}", doc)
         elif doc.get("doctype") == constants.PROPOSAL:
-            flask.g.cache[f"proposal {doc['identifier']}"] = doc
+            cache_put(f"proposal {doc['identifier']}", doc)
         elif doc.get("doctype") == constants.REVIEW:
-            flask.g.cache[f"review {doc['_id']}"] = doc
+            cache_put(f"review {doc['_id']}", doc)
         elif doc.get("doctype") == constants.DECISION:
-            flask.g.cache[f"decision {doc['_id']}"] = doc
+            cache_put(f"decision {doc['_id']}", doc)
         elif doc.get("doctype") == constants.GRANT:
-            flask.g.cache[f"grant {doc['identifier']}"] = doc
+            cache_put(f"grant {doc['identifier']}", doc)
         elif doc.get("doctype") == constants.USER:
-            flask.g.cache[f"username {doc['username']}"] = doc
+            cache_put(f"username {doc['username']}", doc)
             if doc["email"]:
-                flask.g.cache[f"email {doc['email']}"] = doc
+                cache_put(f"email {doc['email']}", doc)
     return result
 
 

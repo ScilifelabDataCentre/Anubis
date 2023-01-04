@@ -15,6 +15,7 @@ import flask
 
 import anubis.call
 import anubis.proposal
+
 from anubis import constants
 from anubis import utils
 from anubis.saver import Saver, FieldSaverMixin
@@ -263,7 +264,7 @@ def get_decision(iuid):
         return None
     key = f"decision {iuid}"
     try:
-        return flask.g.cache[key]
+        return utils.cache_get(key)
     except KeyError:
         try:
             decision = flask.g.db[iuid]
@@ -271,7 +272,7 @@ def get_decision(iuid):
             return None
         if decision["doctype"] != constants.DECISION:
             raise ValueError
-        flask.g.cache[key] = decision
+        utils.cache_put(key, decision)
         return decision
 
 

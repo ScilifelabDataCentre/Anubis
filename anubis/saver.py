@@ -5,7 +5,6 @@ import os.path
 
 import flask
 
-import anubis.user
 from anubis import constants
 from anubis import utils
 
@@ -329,6 +328,7 @@ class AccessSaverMixin:
         """Set the access of the object according to the form input.
         Raise ValueError if no such user.
         """
+        import anubis.user
         username = form.get("username")
         user = anubis.user.get_user(username=username)
         if user is None:
@@ -356,6 +356,7 @@ class AccessSaverMixin:
         """Remove the access of the object according to the form input.
         Raise ValueError if no such user.
         """
+        import anubis.user 
         username = form.get("username")
         user = anubis.user.get_user(username=username)
         if user is None:

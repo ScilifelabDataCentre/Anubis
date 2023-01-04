@@ -10,6 +10,7 @@ import anubis.call
 import anubis.decision
 import anubis.proposal
 import anubis.user
+
 from anubis import constants
 from anubis import utils
 
@@ -317,7 +318,7 @@ def get_call_proposals(call, submitted=False):
         result = [p for p in result if p.get("submitted")]
     result.sort(key=lambda p: p["identifier"])
     for proposal in result:
-        flask.g.cache[f"proposal {proposal['identifier']}"] = proposal
+        utils.cache_put(f"proposal {proposal['identifier']}", proposal)
     return result
 
 
@@ -331,7 +332,7 @@ def get_user_proposals(username):
     ]
     result.sort(key=lambda p: p["identifier"])
     for proposal in result:
-        flask.g.cache[f"proposal {proposal['identifier']}"] = proposal
+        utils.cache_put(f"proposal {proposal['identifier']}", proposal)
     return result
 
 

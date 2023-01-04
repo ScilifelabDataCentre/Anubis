@@ -20,6 +20,7 @@ import anubis.user
 import anubis.decision
 import anubis.grant
 import anubis.review
+
 from anubis import constants
 from anubis import utils
 from anubis.saver import Saver, FieldSaverMixin, AccessSaverMixin
@@ -482,7 +483,7 @@ def get_proposal(pid, refresh=False):
     try:
         if refresh:
             raise KeyError
-        return flask.g.cache[key]
+        return utils.cache_get(key)
     except KeyError:
         docs = [
             r.doc
@@ -492,7 +493,7 @@ def get_proposal(pid, refresh=False):
         ]
         if len(docs) == 1:
             proposal = docs[0]
-            flask.g.cache[key] = proposal
+            utils.cache_put(key, proposal)
             return proposal
         else:
             return None
