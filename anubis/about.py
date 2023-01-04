@@ -18,7 +18,7 @@ def contact():
     except couchdb2.NotFoundError:
         doc = {"_id": "contact"}
     if flask.g.am_admin:
-        url = flask.url_for(".text_edit", docid=doc['_id'])
+        url = flask.url_for(".text_edit", docid=doc["_id"])
     else:
         url = None
     return flask.render_template("about/text.html", doc=doc, url=url)
@@ -32,7 +32,7 @@ def data_policy():
     except couchdb2.NotFoundError:
         doc = {"_id": "data_policy"}
     if flask.g.am_admin:
-        url = flask.url_for(".text_edit", docid=doc['_id'])
+        url = flask.url_for(".text_edit", docid=doc["_id"])
     else:
         url = None
     return flask.render_template("about/text.html", doc=doc, url=url)
@@ -44,9 +44,9 @@ def text_edit(docid):
     "Edit the text."
     doc = flask.g.db[docid]
     if utils.http_GET():
-        return flask.render_template("about/text_edit.html",
-                                     doc=doc,
-                                     url=flask.url_for(f".{docid}"))
+        return flask.render_template(
+            "about/text_edit.html", doc=doc, url=flask.url_for(f".{docid}")
+        )
     elif utils.http_POST():
         with utils.MetaSaver(doc=doc) as saver:
             saver["text"] = flask.request.form.get("text") or None

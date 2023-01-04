@@ -26,6 +26,7 @@ def get_server():
         password=flask.current_app.config["COUCHDB_PASSWORD"],
     )
 
+
 def get_db():
     "Get a connection to the database."
     return get_server()[flask.current_app.config["COUCHDB_DBNAME"]]
@@ -58,15 +59,15 @@ def get_doc(identifier):
     The identifier may be an account email, account API key, file name, info name,
     order identifier, or '_id' of the CouchDB document.
     """
-    if not identifier:          # If empty string, database info is returned.
+    if not identifier:  # If empty string, database info is returned.
         return None
     for designname, viewname in [
-            ("users", "username"),
-            ("users", "email"),
-            ("users", "orcid"),
-            ("calls", "identifier"),
-            ("proposals", "identifier"),
-            ("grants", "identifier"),
+        ("users", "username"),
+        ("users", "email"),
+        ("users", "orcid"),
+        ("calls", "identifier"),
+        ("proposals", "identifier"),
+        ("grants", "identifier"),
     ]:
         try:
             view = flask.g.db.view(
@@ -81,6 +82,7 @@ def get_doc(identifier):
         return flask.g.db[identifier]
     except couchdb2.NotFoundError:
         return None
+
 
 def get_docs(designname, viewname, key):
     "Get the documents from the view. Add them to the cache."
@@ -116,14 +118,15 @@ def get_count(designname, viewname, key=None):
     else:
         return 0
 
+
 def get_counts():
     "Get the total number of some entities."
     return dict(
-        n_calls = get_count("calls", "owner"),
-        n_users = get_count("users", "username"),
-        n_proposals = get_count("proposals", "call"),
-        n_reviews = get_count("reviews", "call"),
-        n_grants = get_count("grants", "call")
+        n_calls=get_count("calls", "owner"),
+        n_users=get_count("users", "username"),
+        n_proposals=get_count("proposals", "call"),
+        n_reviews=get_count("reviews", "call"),
+        n_grants=get_count("grants", "call"),
     )
 
 
@@ -172,11 +175,12 @@ def update():
         for key in ["opens", "closes", "reviews_due"]:
             try:
                 value = call[key]
-                if not value: raise KeyError
+                if not value:
+                    raise KeyError
             except KeyError:
                 pass
             else:
-                if "Z" not in value: # Not in UTC; then it is in TIMEZONE.
+                if "Z" not in value:  # Not in UTC; then it is in TIMEZONE.
                     changed = True
                     call[key] = utc_from_timezone_isoformat(value)
         if changed:
@@ -186,7 +190,9 @@ def update():
     # Add a meta document for 'data_policy' text.
     if "data_policy" not in db:
         try:
-            filepath = os.path.normpath(os.path.join(constants.ROOT, "../site", "gdpr.md"))
+            filepath = os.path.normpath(
+                os.path.join(constants.ROOT, "../site", "gdpr.md")
+            )
             with open(filepath) as infile:
                 text = infile.read()
         except OSError:
@@ -197,7 +203,9 @@ def update():
     # Add a meta document for 'contact' text.
     if "contact" not in db:
         try:
-            filepath = os.path.normpath(os.path.join(constants.ROOT, "../site", "contact.md"))
+            filepath = os.path.normpath(
+                os.path.join(constants.ROOT, "../site", "contact.md")
+            )
             with open(filepath) as infile:
                 text = infile.read()
         except OSError:
@@ -209,13 +217,18 @@ def update():
     if "site_configuration" not in db:
         with MetaSaver(id="site_configuration", db=db) as saver:
             saver["name"] = app.config.get("SITE_NAME") or "Anubis"
-            saver["description"] = app.config.get("SITE_DESCRIPTION") or "Submit proposals for grants in open calls."
+            saver["description"] = (
+                app.config.get("SITE_DESCRIPTION")
+                or "Submit proposals for grants in open calls."
+            )
             saver["host_name"] = app.config.get("HOST_NAME")
             saver["host_url"] = app.config.get("HOST_URL")
             if app.config.get("SITE_STATIC_DIR"):
                 dirpath = app.config.get("SITE_STATIC_DIR")
             else:
-                dirpath = os.path.normpath(os.path.join(constants.ROOT, "../site/static"))
+                dirpath = os.path.normpath(
+                    os.path.join(constants.ROOT, "../site/static")
+                )
             # Attach the site name logo file, if any.
             if app.config.get("SITE_LOGO"):
                 path = os.path.join(dirpath, app.config["SITE_LOGO"])
@@ -241,15 +254,31 @@ def update():
     if "user_configuration" not in db:
         with MetaSaver(id="user_configuration", db=db) as saver:
             saver["orcid"] = to_bool(app.config.get("USER_ORCID", True))
-            saver["genders"] = app.config.get("USER_GENDERS") or ["Male", "Female", "Other"]
+            saver["genders"] = app.config.get("USER_GENDERS") or [
+                "Male",
+                "Female",
+                "Other",
+            ]
             saver["birthdate"] = to_bool(app.config.get("USER_BIRTHDATE", True))
-            saver["degrees"] = app.config.get("USER_DEGREES") or ["Mr/Ms", "MSc", "MD", "PhD", "Assoc Prof", "Prof", "Other"]
+            saver["degrees"] = app.config.get("USER_DEGREES") or [
+                "Mr/Ms",
+                "MSc",
+                "MD",
+                "PhD",
+                "Assoc Prof",
+                "Prof",
+                "Other",
+            ]
             saver["affiliation"] = to_bool(app.config.get("USER_AFFILIATION", True))
             saver["universities"] = app.config.get("UNIVERSITIES") or []
             # Badly chosen key, but have to keep it...
-            saver["postaladdress"] = to_bool(app.config.get("USER_POSTALADDRESS", False))
+            saver["postaladdress"] = to_bool(
+                app.config.get("USER_POSTALADDRESS", False)
+            )
             saver["phone"] = to_bool(app.config.get("USER_PHONE", True))
-            saver["enable_email_whitelist"] = app.config.get("USER_ENABLE_EMAIL_WHITELIST") or []
+            saver["enable_email_whitelist"] = (
+                app.config.get("USER_ENABLE_EMAIL_WHITELIST") or []
+            )
 
 
 CALLS_DESIGN_DOC = {

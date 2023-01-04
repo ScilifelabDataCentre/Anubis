@@ -20,15 +20,18 @@ def site_configuration():
     "Display and edit site configuration."
     configuration = flask.g.db["site_configuration"]
     if utils.http_GET():
-        return flask.render_template("admin/site_configuration.html",
-                                     configuration=configuration)
+        return flask.render_template(
+            "admin/site_configuration.html", configuration=configuration
+        )
     elif utils.http_POST():
         try:
             form = flask.request.form
             with utils.MetaSaver(configuration) as saver:
                 saver["name"] = form.get("name") or "Anubis"
                 saver["description"] = form.get("description") or None
-                saver["name_logo_favicon"] = utils.to_bool(form.get("name_logo_favicon"))
+                saver["name_logo_favicon"] = utils.to_bool(
+                    form.get("name_logo_favicon")
+                )
                 saver["name_logo_menu"] = utils.to_bool(form.get("name_logo_menu"))
                 saver["host_name"] = form.get("host_name") or None
                 saver["host_url"] = form.get("host_url") or None
@@ -56,8 +59,9 @@ def user_configuration():
     "Display and edit user configuration."
     configuration = flask.g.db["user_configuration"]
     if utils.http_GET():
-        return flask.render_template("admin/user_configuration.html",
-                                     configuration=configuration)
+        return flask.render_template(
+            "admin/user_configuration.html", configuration=configuration
+        )
     elif utils.http_POST():
         try:
             form = flask.request.form
@@ -71,11 +75,14 @@ def user_configuration():
                 saver["postaladdress"] = utils.to_bool(form.get("postaladdress"))
                 saver["phone"] = utils.to_bool(form.get("phone"))
                 if flask.current_app.config.get("MAIL_SERVER"):
-                    saver["enable_email_whitelist"] = utils.to_list(form.get("enable_email_whitelist") or "")
+                    saver["enable_email_whitelist"] = utils.to_list(
+                        form.get("enable_email_whitelist") or ""
+                    )
         except ValueError as error:
             utils.flash_error(error)
         anubis.config.init_from_db(flask.g.db)
         return flask.redirect(flask.url_for(".user_configuration"))
+
 
 @blueprint.route("/database")
 @utils.admin_required
@@ -91,7 +98,7 @@ def database():
         server_data=json.dumps(server(), indent=2),
         databases=", ".join([str(d) for d in server]),
         system_stats=json.dumps(server.get_node_system(), indent=2),
-        node_stats=json.dumps(server.get_node_stats(), indent=2)
+        node_stats=json.dumps(server.get_node_stats(), indent=2),
     )
 
 

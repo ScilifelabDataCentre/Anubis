@@ -38,7 +38,9 @@ def call(cid):
         all_emails.append(user["email"])
         if proposal.get("submitted"):
             submitted_emails.append(user["email"])
-        proposal["n_reviews"] = anubis.database.get_count("reviews", "proposal", proposal["identifier"])
+        proposal["n_reviews"] = anubis.database.get_count(
+            "reviews", "proposal", proposal["identifier"]
+        )
     # There may be accounts that have no email!
     all_emails = sorted(set([e for e in all_emails if e]))
     submitted_emails = sorted(set([e for e in submitted_emails if e]))
@@ -353,7 +355,9 @@ def get_review_score_fields(call, proposals):
         ]
     )
     for proposal in proposals:
-        reviews = anubis.database.get_docs("reviews", "proposal", proposal["identifier"])
+        reviews = anubis.database.get_docs(
+            "reviews", "proposal", proposal["identifier"]
+        )
         # Only include finalized reviews in the calculation.
         reviews = [r for r in reviews if r.get("finalized")]
         scores = dict([(id, list()) for id in fields])
@@ -409,7 +413,9 @@ def get_review_rank_fields_errors(call, proposals):
     for id in fields.keys():
         ranks = dict()  # key: reviewer, value: dict(proposal: rank)
         for proposal in proposals:
-            reviews = anubis.database.get_docs("reviews", "proposal", proposal["identifier"])
+            reviews = anubis.database.get_docs(
+                "reviews", "proposal", proposal["identifier"]
+            )
             # Only include finalized reviews in the calculation.
             reviews = [r for r in reviews if r.get("finalized")]
             for review in reviews:

@@ -353,19 +353,16 @@
 </div>
 {% endif %}
 
-<div class="mt-4">
-</div>
-
 {% if allow_change_access %}
 <div class="mt-2">
   <a href="{{ url_for('.access', cid=call['identifier']) }}"
-     role="button" class="btn btn-info btn-block">Change access</a>
+     role="button" class="btn btn-primary btn-block">Change access</a>
 </div>
 {% endif %} {# if allow_change_access #}
 
 <div class="mt-4">
   <a href="{{ url_for('.clone', cid=call['identifier']) }}"
-     role="button" class="btn btn-primary btn-block">Clone</a>
+     role="button" class="btn btn-info btn-block">Clone</a>
 </div>
 {% endif %} {# if allow_edit #}
 

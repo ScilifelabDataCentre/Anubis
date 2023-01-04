@@ -3,8 +3,6 @@
 import datetime
 import functools
 import http.client
-import mimetypes
-import os.path
 import smtplib
 import uuid
 
@@ -23,6 +21,7 @@ from anubis import constants
 def get_software():
     "Return a list of tuples with the versions of current software."
     import anubis.database
+
     return [
         ("Anubis", constants.VERSION, constants.URL),
         ("Python", constants.PYTHON_VERSION, constants.PYTHON_URL),
@@ -44,12 +43,14 @@ def get_software():
         ("Feather of Ma'at icon", constants.MAAT_VERSION, constants.MAAT_URL),
     ]
 
+
 def cache_put(identifier, doc):
     "Store the doc by the given identifier in the cache."
     try:
         flask.g.cache[identifier] = doc
     except AttributeError:
         flask.g.cache = dict(identifier=doc)
+
 
 def cache_get(identifier):
     "Get the document by identifier from the cache. Raise KeyError if not available."
@@ -58,6 +59,7 @@ def cache_get(identifier):
     except AttributeError:
         flask.g.cache = dict()
         raise KeyError
+
 
 def login_required(f):
     """Resource endpoint decorator for checking if logged in.
@@ -114,10 +116,12 @@ def to_bool(s):
     else:
         return bool(s)
 
+
 def to_list(value):
     "Convert string value to list: one item per line, excluding empty lines."
     values = [s.strip() for s in value.split("\n")]
     return [s for s in values if s]
+
 
 def get_time():
     "Current UTC datetime in ISO format (including Z) with millisecond precision."
@@ -139,7 +143,7 @@ def timezone_from_utc_isoformat(dts, tz=True):
 
 
 def utc_from_timezone_isoformat(dts):
-    """Convert the given datetime ISO string in the site timezone to UTC, and 
+    """Convert the given datetime ISO string in the site timezone to UTC, and
     output in the same ISO format as in 'get_time' with dummy millisecond precision.
     """
     try:
@@ -221,12 +225,9 @@ def error(message, url=None, home=False):
     elif home:
         return flask.redirect(flask.url_for("home"))
     else:
-        return flask.redirect(url or referrer_or_home())
-
-
-def referrer_or_home():
-    "Return the URL for the referring page 'referer' or the home page."
-    return flask.request.headers.get("referer") or flask.url_for("home")
+        return flask.redirect(
+            flask.request.headers.get("referer") or flask.url_for("home")
+        )
 
 
 def flash_error(msg):
@@ -266,9 +267,11 @@ class HtmlRenderer(marko.html_renderer.HTMLRenderer):
             if element.title
             else ""
         )
-        return template.format(url=self.escape_url(element.dest),
-                               title=title,
-                               body=self.render_children(element))
+        return template.format(
+            url=self.escape_url(element.dest),
+            title=title,
+            body=self.render_children(element),
+        )
 
     def render_heading(self, element):
         "Add id to all headings."
@@ -292,6 +295,7 @@ def send_email(recipients, title, text):
     Raise KeyError if email could not be sent; server misconfigured.
     """
     import anubis
+
     if not flask.current_app.config["MAIL_SERVER"]:
         raise ValueError
     if isinstance(recipients, str):

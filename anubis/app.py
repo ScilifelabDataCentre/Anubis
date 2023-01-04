@@ -1,14 +1,11 @@
 "Flask app setup and creation; main entry point.."
 
-import base64
 import http.client
 import io
-import os.path
 
 import flask
 import flask_mail
 import markupsafe
-import pytz
 import werkzeug.routing
 
 import anubis.database
@@ -51,10 +48,12 @@ mail.init_app(app)
 # Add a custom converter to handle IUID URLs.
 class IuidConverter(werkzeug.routing.BaseConverter):
     "URL route converter for a IUID."
+
     def to_python(self, value):
         if not constants.IUID_RX.match(value):
             raise werkzeug.routing.ValidationError
         return value.lower()  # Case-insensitive
+
 
 app.url_map.converters["iuid"] = IuidConverter
 
@@ -101,18 +100,21 @@ def prepare():
     if flask.g.current_user:
         username = flask.g.current_user["username"]
         flask.g.allow_create_call = anubis.call.allow_create()
-        flask.g.my_proposals_count = anubis.database.get_count("proposals", "user", username)
+        flask.g.my_proposals_count = anubis.database.get_count(
+            "proposals", "user", username
+        )
         flask.g.my_unsubmitted_proposals_count = anubis.database.get_count(
             "proposals", "unsubmitted", username
         )
-        flask.g.my_reviews_count = anubis.database.get_count("reviews", "reviewer", username)
+        flask.g.my_reviews_count = anubis.database.get_count(
+            "reviews", "reviewer", username
+        )
         flask.g.my_unfinalized_reviews_count = anubis.database.get_count(
             "reviews", "unfinalized", username
         )
-        flask.g.my_grants_count = (
-            anubis.database.get_count("grants", "user", username) +
-            anubis.database.get_count("grants", "access", username)
-        )
+        flask.g.my_grants_count = anubis.database.get_count(
+            "grants", "user", username
+        ) + anubis.database.get_count("grants", "access", username)
         flask.g.my_incomplete_grants_count = anubis.database.get_count(
             "grants", "incomplete", username
         )
@@ -142,15 +144,17 @@ def site(filename):
     if filename in constants.SITE_FILES:
         try:
             filedata = flask.current_app.config[f"SITE_{filename.upper()}"]
-            return flask.send_file(io.BytesIO(filedata["content"]),
-                                   mimetype=filedata["mimetype"],
-                                   etag=filedata["etag"],
-                                   last_modified=filedata["modified"],
-                                   max_age=constants.SITE_FILE_MAX_AGE)
+            return flask.send_file(
+                io.BytesIO(filedata["content"]),
+                mimetype=filedata["mimetype"],
+                etag=filedata["etag"],
+                last_modified=filedata["modified"],
+                max_age=constants.SITE_FILE_MAX_AGE,
+            )
         except KeyError:
             pass
     flask.abort(http.client.NOT_FOUND)
-    
+
 
 @app.route("/sitemap")
 def sitemap():
@@ -165,12 +169,16 @@ def sitemap():
     for call in anubis.calls.get_open_calls():
         pages.append(
             dict(
-                url=flask.url_for("call.display", cid=call["identifier"], _external=True))
+                url=flask.url_for(
+                    "call.display", cid=call["identifier"], _external=True
+                )
+            )
         )
     xml = flask.render_template("sitemap.xml", pages=pages)
     response = flask.current_app.make_response(xml)
     response.mimetype = constants.XML_MIMETYPE
     return response
+
 
 # Set up the URL map.
 app.register_blueprint(anubis.user.blueprint, url_prefix="/user")
@@ -403,7 +411,7 @@ def proposal_link(proposal):
         return "-"
     url = flask.url_for("proposal.display", pid=proposal["identifier"])
     title = proposal.get("title") or "[No title]"
-    html = f'''<a href="{url}" title="{title}">{proposal['identifier']} {title}</a>'''
+    html = f"""<a href="{url}" title="{title}">{proposal['identifier']} {title}</a>"""
     return markupsafe.Markup(html)
 
 
@@ -472,7 +480,6 @@ def grant_link(grant, small=False, status=False):
     return markupsafe.Markup(
         f'<a href="{url}" role="button"' f' class="btn {color} my-1">{label}</a>'
     )
-
 
 
 # This code is used only during development.

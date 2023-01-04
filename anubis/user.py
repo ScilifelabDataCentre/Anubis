@@ -108,7 +108,7 @@ def register():
                     " The email server is badly configured."
                     " You must request the one-time password setting code"
                     " from the admin of the site."
-                    )
+                )
         # Was set to 'pending'; try to send email to admins.
         else:
             utils.flash_message(
@@ -158,23 +158,31 @@ def reset():
                 utils.flash_error("No such user.")
             else:
                 # Don't reveal whether the user exists or not.
-                utils.flash_message("An email has been sent, if a user account"
-                                    " with the given email address exists.")
+                utils.flash_message(
+                    "An email has been sent, if a user account"
+                    " with the given email address exists."
+                )
         else:
             with UserSaver(user) as saver:
                 saver.set_password()
             try:
                 send_email_password_code(user, "password reset")
-                utils.flash_message("An email has been sent, if a user account"
-                                    " with the given email address exists.")
+                utils.flash_message(
+                    "An email has been sent, if a user account"
+                    " with the given email address exists."
+                )
             except ValueError:
                 if flask.g.am_admin:
-                    utils.flash_warning("No automatic email can be sent. The one-time"
-                                        " code must be sent manually to the user.")
+                    utils.flash_warning(
+                        "No automatic email can be sent. The one-time"
+                        " code must be sent manually to the user."
+                    )
                 else:
-                    utils.flash_warning("No automatic email can be sent."
-                                        " The one-time code for setting your password"
-                                        " must be obtained from the administrator.")
+                    utils.flash_warning(
+                        "No automatic email can be sent."
+                        " The one-time code for setting your password"
+                        " must be obtained from the administrator."
+                    )
         if flask.g.am_admin:
             return flask.redirect(
                 flask.url_for("user.display", username=user["username"])
@@ -247,10 +255,9 @@ def display(username):
         "proposals", "user", user["username"]
     ) + anubis.database.get_count("proposals", "access", user["username"])
     # The user's own grants and the ones she has access to.
-    user_grants_count = (
-        anubis.database.get_count("grants", "user", user["username"]) +
-        anubis.database.get_count("grants", "access", user["username"])
-    )
+    user_grants_count = anubis.database.get_count(
+        "grants", "user", user["username"]
+    ) + anubis.database.get_count("grants", "access", user["username"])
     return flask.render_template(
         "user/display.html",
         user=user,
@@ -258,12 +265,14 @@ def display(username):
         allow_create_call=anubis.call.allow_create(user),
         user_calls_count=anubis.database.get_count("calls", "owner", user["username"]),
         user_proposals_count=user_proposals_count,
-        user_reviews_count=anubis.database.get_count("reviews", "reviewer", user["username"]),
+        user_reviews_count=anubis.database.get_count(
+            "reviews", "reviewer", user["username"]
+        ),
         user_grants_count=user_grants_count,
         allow_enable_disable=allow_enable_disable(user),
         allow_edit=allow_edit(user),
         allow_delete=allow_delete(user),
-        data_policy=flask.g.db["data_policy"]
+        data_policy=flask.g.db["data_policy"],
     )
 
 
@@ -462,14 +471,19 @@ class UserSaver(Saver):
     def set_orcid(self, orcid):
         "Set the ORCID of the account."
         if orcid:
-            if len(orcid) == 16: # Add in dashes.
+            if len(orcid) == 16:  # Add in dashes.
                 orcid = f"{orcid[0:4]}-{orcid[4:8]}-{orcid[8:12]}-{orcid[12:16]}"
-            if len(orcid) != 19 or not (orcid[4] == "-" and orcid[9] == "-" and orcid[14] == "-"):
-                raise ValueError("Invalid ORCID format; length is wrong, or dashes in the wrong places.")
+            if len(orcid) != 19 or not (
+                orcid[4] == "-" and orcid[9] == "-" and orcid[14] == "-"
+            ):
+                raise ValueError(
+                    "Invalid ORCID format; length is wrong, or dashes in the wrong places."
+                )
             # Compute checksum according to https://support.orcid.org/hc/en-us/articles/360006897674-Structure-of-the-ORCID-Identifier
             total = 0
             for c in orcid[:-1]:
-                if c == "-": continue
+                if c == "-":
+                    continue
                 digit = int(c)
                 total = (total + digit) * 2
             remainder = total % 11
@@ -518,10 +532,14 @@ class UserSaver(Saver):
         self.doc["degree"] = degree
 
     def set_affiliation(self, affiliation):
-        self.doc["affiliation"] = flask.current_app.config["USER_AFFILIATION"] and affiliation or None
+        self.doc["affiliation"] = (
+            flask.current_app.config["USER_AFFILIATION"] and affiliation or None
+        )
 
     def set_postaladdress(self, postaladdress):
-        self.doc["postaladdress"] = flask.current_app.config["USER_POSTALADDRESS"] and postaladdress or None
+        self.doc["postaladdress"] = (
+            flask.current_app.config["USER_POSTALADDRESS"] and postaladdress or None
+        )
 
     def set_phone(self, phone):
         self.doc["phone"] = flask.current_app.config["USER_PHONE"] and phone or None
@@ -755,7 +773,9 @@ def allow_enable_disable(user):
     """Is the current user allowed to enable or disable the user account?
     Yes, if current user is admin or staff and not self.
     """
-    if (flask.g.am_admin or flask.g.am_staff) and flask.g.current_user["username"] != user["username"]:
+    if (flask.g.am_admin or flask.g.am_staff) and flask.g.current_user[
+        "username"
+    ] != user["username"]:
         return True
     return False
 
