@@ -1,37 +1,18 @@
 {% extends 'base.html' %}
 
-{% block head_title %}{{ doc.front_matter["title"] }}{% endblock %}
+{% block head_title %}Documentation{% endblock %}
 
-{% block body_title %}{{ doc.front_matter["title"] }}{% endblock %}
+{% block body_title_outer %}{% endblock %}
 
-{% block main %}
+{% block supermain %}
 <div class="row">
-  <div class="col-md-10 offset-md-1">
-    {{ doc.md | display_markdown }}
+  <div class="col-md-9 offset-md-1">
+    {{ text | display_markdown }}
+  </div>
+  <div class="col-md-2">
+    <small class="sticky-top">
+      {{ toc | toc_list }}
+    </small>
   </div>
 </div>
-{% endblock %} {# block main #}
-
-{% block doclinks %}
-{% set level = [] %}
-<ul class="list-unstyled">
-  {% for d in docs %}
-  {% if len(level) < d.level %}
-    <ul style="list-style-type: none; padding-left: 20px;">
-    {% do level.append(1) %}
-  {% elif len(level) > d.level %}
-    </ul>
-    {% do level.pop() %}
-  {% endif %}
-  <li>
-    <a href="{{ url_for('.page', page=d.slug) }}">{{ d.title }}</a>
-  </li>
-  {% endfor %}
-  {% for i in range(len(level)) %}
-  </ul>
-  {% endfor %}
-  <li>
-    <a href="{{ url_for('.page', page='endpoints') }}">URL endpoints</a>
-  </li>
-</ul>
-{% endblock %} {# block doclinks #}
+{% endblock %} {# block supermain #}

@@ -12,8 +12,8 @@ Reviews by user {{ user['username'] }}
 {% block supermain %}
 <div class="row mb-2">
   <div class="col-md-2 text-right font-weight-bold">User's reviews</div>
-  <div class="col-md-8">
 
+  <div class="col-md-8">
     {% for call in reviewer_calls %}
     <p class="mb-2">
       <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=user['username']) }}"
@@ -23,12 +23,13 @@ Reviews by user {{ user['username'] }}
       of proposals in call {{ call | call_link }}
     </p>
     {% endfor %}
-
   </div>
+
   <div class="col-md-2 d-print-none">
-    <a href="{{ url_for('documentation.page', page='instructions-for-reviewers') }}"
-       role="button" class="btn btn-block btn-outline-secondary"
-       target="_blank">
+    <a href="{{ url_for('documentation') }}#instructions-for-reviewers"
+       target="documentation"
+       role="button"
+       class="btn btn-block btn-outline-secondary">
       Instructions for reviewers</a>
   </div>
 </div>

@@ -74,11 +74,6 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {% block actions %}
 {% if allow_edit %}
 <div class="mt-2">
-  <a href="{{ url_for('documentation.page', page='instructions-for-reviewers') }}"
-     role="button" class="btn btn-block btn-outline-secondary"
-     target="_blank">Instructions for reviewers</a>
-</div>
-<div class="mt-2">
   <a href="{{ url_for('.edit', iuid=review['_id']) }}"
      role="button" class="btn btn-block btn-primary">Edit</a>
 </div>
@@ -148,10 +143,19 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 
 {% block doclinks %}
 {{ super() }}
-<a href="{{ url_for('documentation.page', page='review') }}"
+<a href="{{ url_for('documentation) }}#review"
    target="documentation"
    class="btn btn-outline-primary btn-block">
   Documentation: Review</a>
+{% if allow_edit %}
+<div class="mt-2">
+  <a href="{{ url_for('documentation') }}#instructions-to-for-reviewers"
+     target="documentation"
+     role="button"
+     class="btn btn-block btn-outline-secondary">
+    Instructions for reviewers</a>
+</div>
+{% endif %} {# if allow_edit #}
 {% endblock %} {# block doclinks #}
 
 {% block info %}
