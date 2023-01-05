@@ -64,7 +64,7 @@ class Constants:
         "https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"
     )
 
-    MARKDOWN_URL = "https://www.markdownguide.org/basic-syntax/",
+    MARKDOWN_URL = ("https://www.markdownguide.org/basic-syntax/",)
 
     CLIPBOARD_URL = "https://clipboardjs.com/"
     CLIPBOARD_VERSION = "2.0.6"
@@ -184,8 +184,9 @@ class Constants:
     )
 
     # Generic fields in CouchDB document
-    GENERIC_FIELDS = frozenset(["_id", "_rev", "_attachments",
-                                "doctype", "created", "modified"])
+    GENERIC_FIELDS = frozenset(
+        ["_id", "_rev", "_attachments", "doctype", "created", "modified"]
+    )
 
     SITE_FILE_MAX_AGE = 24 * 3600
     SITE_FILES = frozenset(["name_logo", "host_logo"])

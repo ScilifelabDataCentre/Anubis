@@ -100,8 +100,9 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 
 {% block doclinks %}
 {{ super() }}
-<a href="{{ url_for('documentation.page', page='decision') }}"
+<a href="{{ url_for('documentation') }}#decision"
    target="documentation"
+   role="button"
    class="btn btn-outline-primary btn-block">
   Documentation: Decision</a>
 {% endblock %} {# block doclinks #}

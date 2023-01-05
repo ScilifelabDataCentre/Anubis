@@ -367,7 +367,9 @@ def reviewers(cid):
         if not allow_edit(call):
             return utils.error("You are not allowed to edit the call.")
         reviewer = flask.request.form.get("reviewer")
-        if anubis.database.get_count("reviews", "call_reviewer", [call["identifier"], reviewed]):
+        if anubis.database.get_count(
+            "reviews", "call_reviewer", [call["identifier"], reviewed]
+        ):
             return utils.error("Cannot remove reviewer which has reviews in the call.")
         with CallSaver(call) as saver:
             try:
@@ -497,7 +499,9 @@ def grant(cid):
             "call/grant.html",
             call=call,
             repeat_fields=repeat_fields,
-            reviews_count=anubis.database.get_count("reviews", "call", call["identifier"]),
+            reviews_count=anubis.database.get_count(
+                "reviews", "call", call["identifier"]
+            ),
         )
 
     elif utils.http_POST():

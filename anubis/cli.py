@@ -35,7 +35,9 @@ def destroy_database():
         except couchdb2.NotFoundError as error:
             raise click.ClickException(str(error))
         db.destroy()
-        click.echo(f"""Destroyed database '{anubis.app.app.config["COUCHDB_DBNAME"]}'.""")
+        click.echo(
+            f"""Destroyed database '{anubis.app.app.config["COUCHDB_DBNAME"]}'."""
+        )
 
 
 @cli.command
@@ -192,7 +194,7 @@ def undump(dumpfile, progressbar):
                 f"The database '{anubis.app.app.config['COUCHDB_DBNAME']}'"
                 " is not empty."
             )
-        
+
         ndocs, nfiles = flask.g.db.undump(dumpfile, progressbar=progressbar)
         click.echo(f"Loaded {ndocs} documents and {nfiles} files.")
 
@@ -229,7 +231,7 @@ def versions():
 
 def to_json(data):
     "Convert data structure to indented JSON."
-    return json.dumps(data, ensure_ascii=False, indent=2)    
+    return json.dumps(data, ensure_ascii=False, indent=2)
 
 
 if __name__ == "__main__":

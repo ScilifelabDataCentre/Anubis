@@ -75,8 +75,12 @@ def display(pid):
         call=call,
         decision=decision,
         grant=grant,
-        n_reviews=anubis.database.get_count("reviews", "proposal", proposal["identifier"]),
-        n_reviews_archived=anubis.database.get_count("reviews", "proposal_archived", proposal["identifier"]),
+        n_reviews=anubis.database.get_count(
+            "reviews", "proposal", proposal["identifier"]
+        ),
+        n_reviews_archived=anubis.database.get_count(
+            "reviews", "proposal_archived", proposal["identifier"]
+        ),
         email_lists=email_lists,
         allow_edit=allow_edit(proposal),
         allow_delete=allow_delete(proposal),
@@ -189,7 +193,9 @@ def edit(pid):
         decision = anubis.decision.get_decision(proposal.get("decision"))
         if decision:
             anubis.database.delete(decision)
-        reviews = anubis.database.get_docs("reviews", "proposal", proposal["identifier"])
+        reviews = anubis.database.get_docs(
+            "reviews", "proposal", proposal["identifier"]
+        )
         for review in reviews:
             anubis.database.delete(review)
         anubis.database.delete(proposal)

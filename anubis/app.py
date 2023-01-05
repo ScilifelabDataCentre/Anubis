@@ -1,14 +1,11 @@
 "Flask app setup and creation; main entry point.."
 
-import base64
 import http.client
 import io
-import os.path
 
 import flask
 import flask_mail
 import markupsafe
-import pytz
 import werkzeug.routing
 
 import anubis.database
@@ -24,7 +21,6 @@ import anubis.grant
 import anubis.grants
 import anubis.about
 import anubis.admin
-import anubis.doc
 import anubis.user
 
 from anubis import constants
@@ -51,17 +47,18 @@ mail.init_app(app)
 # Add a custom converter to handle IUID URLs.
 class IuidConverter(werkzeug.routing.BaseConverter):
     "URL route converter for a IUID."
+
     def to_python(self, value):
         if not constants.IUID_RX.match(value):
             raise werkzeug.routing.ValidationError
         return value.lower()  # Case-insensitive
+
 
 app.url_map.converters["iuid"] = IuidConverter
 
 with app.app_context():
     # Ensure the design documents in the database are current.
     anubis.database.update_design_documents()
-    anubis.doc.init()  # XXX To be refactored away.
     # Update the database to this version.
     anubis.database.update()
     # Get config values that nowadays are stored in the database.
@@ -101,18 +98,21 @@ def prepare():
     if flask.g.current_user:
         username = flask.g.current_user["username"]
         flask.g.allow_create_call = anubis.call.allow_create()
-        flask.g.my_proposals_count = anubis.database.get_count("proposals", "user", username)
+        flask.g.my_proposals_count = anubis.database.get_count(
+            "proposals", "user", username
+        )
         flask.g.my_unsubmitted_proposals_count = anubis.database.get_count(
             "proposals", "unsubmitted", username
         )
-        flask.g.my_reviews_count = anubis.database.get_count("reviews", "reviewer", username)
+        flask.g.my_reviews_count = anubis.database.get_count(
+            "reviews", "reviewer", username
+        )
         flask.g.my_unfinalized_reviews_count = anubis.database.get_count(
             "reviews", "unfinalized", username
         )
-        flask.g.my_grants_count = (
-            anubis.database.get_count("grants", "user", username) +
-            anubis.database.get_count("grants", "access", username)
-        )
+        flask.g.my_grants_count = anubis.database.get_count(
+            "grants", "user", username
+        ) + anubis.database.get_count("grants", "access", username)
         flask.g.my_incomplete_grants_count = anubis.database.get_count(
             "grants", "incomplete", username
         )
@@ -129,6 +129,27 @@ def home():
     )
 
 
+@app.route("/documentation")
+def documentation():
+    "Documentation page; the README page of the GitHub repo."
+    with open("../README.md") as infile:
+        lines = infile.readlines()
+    # Find the headers for table of contents.
+    toc = []
+    for line in lines:
+        if line.startswith("#"):
+            parts = line.split()
+            level = len(parts[0])
+            title = " ".join(parts[1:])
+            # All headers in README are "clean", i.e. text only, no markup.
+            id = title.strip().replace(" ", "-").lower()
+            id = "".join(c for c in id if c in constants.ALLOWED_ID_CHARACTERS)
+            toc.append((level, title, id))
+    import json
+    print(json.dumps(toc, indent=2))
+    return flask.render_template("documentation.html", text="".join(lines), toc=toc)
+
+
 @app.route("/status")
 def status():
     "Return JSON for the current status and some counts for the database."
@@ -142,15 +163,17 @@ def site(filename):
     if filename in constants.SITE_FILES:
         try:
             filedata = flask.current_app.config[f"SITE_{filename.upper()}"]
-            return flask.send_file(io.BytesIO(filedata["content"]),
-                                   mimetype=filedata["mimetype"],
-                                   etag=filedata["etag"],
-                                   last_modified=filedata["modified"],
-                                   max_age=constants.SITE_FILE_MAX_AGE)
+            return flask.send_file(
+                io.BytesIO(filedata["content"]),
+                mimetype=filedata["mimetype"],
+                etag=filedata["etag"],
+                last_modified=filedata["modified"],
+                max_age=constants.SITE_FILE_MAX_AGE,
+            )
         except KeyError:
             pass
     flask.abort(http.client.NOT_FOUND)
-    
+
 
 @app.route("/sitemap")
 def sitemap():
@@ -165,12 +188,16 @@ def sitemap():
     for call in anubis.calls.get_open_calls():
         pages.append(
             dict(
-                url=flask.url_for("call.display", cid=call["identifier"], _external=True))
+                url=flask.url_for(
+                    "call.display", cid=call["identifier"], _external=True
+                )
+            )
         )
     xml = flask.render_template("sitemap.xml", pages=pages)
     response = flask.current_app.make_response(xml)
     response.mimetype = constants.XML_MIMETYPE
     return response
+
 
 # Set up the URL map.
 app.register_blueprint(anubis.user.blueprint, url_prefix="/user")
@@ -185,7 +212,6 @@ app.register_blueprint(anubis.grant.blueprint, url_prefix="/grant")
 app.register_blueprint(anubis.grants.blueprint, url_prefix="/grants")
 app.register_blueprint(anubis.about.blueprint, url_prefix="/about")
 app.register_blueprint(anubis.admin.blueprint, url_prefix="/admin")
-app.register_blueprint(anubis.doc.blueprint, url_prefix="/documentation")
 
 
 @app.template_filter()
@@ -403,7 +429,7 @@ def proposal_link(proposal):
         return "-"
     url = flask.url_for("proposal.display", pid=proposal["identifier"])
     title = proposal.get("title") or "[No title]"
-    html = f'''<a href="{url}" title="{title}">{proposal['identifier']} {title}</a>'''
+    html = f"""<a href="{url}" title="{title}">{proposal['identifier']} {title}</a>"""
     return markupsafe.Markup(html)
 
 
@@ -473,6 +499,25 @@ def grant_link(grant, small=False, status=False):
         f'<a href="{url}" role="button"' f' class="btn {color} my-1">{label}</a>'
     )
 
+@app.template_filter()
+def toc_list(toc, max_level=2):
+    "Display table of contents."
+    result = []
+    current_level = 0
+    for level, title, id in toc:
+        if level > max_level: continue
+        if level > current_level:
+            for l in range(current_level, level):
+                result.append('<ul class="list-unstyled ml-3">')
+            current_level = level
+        elif level < current_level:
+            for l in range(level, current_level):
+                result.append("</ul>")
+            current_level = level
+        result.append(f'<li><a href="#{id}">{title}</a></li>')
+    for level in range(current_level):
+        result.append("</ul>")
+    return markupsafe.Markup("\n".join(result))
 
 
 # This code is used only during development.
