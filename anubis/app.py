@@ -145,8 +145,6 @@ def documentation():
             id = title.strip().replace(" ", "-").lower()
             id = "".join(c for c in id if c in constants.ALLOWED_ID_CHARACTERS)
             toc.append((level, title, id))
-    import json
-    print(json.dumps(toc, indent=2))
     return flask.render_template("documentation.html", text="".join(lines), toc=toc)
 
 
