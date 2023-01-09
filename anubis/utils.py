@@ -277,7 +277,7 @@ class HtmlRenderer(marko.html_renderer.HTMLRenderer):
         "Add id to all headings."
         id = self.get_text_only(element).replace(" ", "-").lower()
         id = "".join(c for c in id if c in constants.ALLOWED_ID_CHARACTERS)
-        return '<h{level}><a id="{id}">{children}</a></h{level}>\n'.format(
+        return '<h{level} id="{id}">{children}</h{level}>\n'.format(
             level=element.level, id=id, children=self.render_children(element)
         )
 

@@ -20,8 +20,7 @@ reviews, decisions and grant dossiers. It allows:
 The source code is available the
 [Anubis GitHub repo](https://github.com/pekrau/Anubis).
 
-Anubis requires Python >= 3.9 and [CouchDB >= 2.3.1](https://couchdb.apache.org/);
-installation of those systems is not documented here.
+Anubis requires Python >= 3.9.
 
 ### Source code
 
@@ -56,7 +55,8 @@ A Docker container of the
 
 ## CouchDB database
 
-The Anubis system relies on the [CouchDB database system](https://couchdb.apache.org/).
+The Anubis system relies on the [CouchDB database system](https://couchdb.apache.org/),
+version >= 2.3.1.
 This has to be installed and running. Refer to the CouchDB documentation.
 
 A user account has to be created in the CouchDB system with sufficient privileges
@@ -76,7 +76,7 @@ The configuration values can be set in one of two ways:
 1. Setting environment variables that specify the configuration values.
 2. Using a file `settings.json` containing the configuration values. This file
    can be located in the source directory `Anubis/anubis` or in a directory
-   `Anubis/site`, which you may create.
+   `Anubis/site`, which you must then create.
 
 The following configuration settings need to be set:
 
