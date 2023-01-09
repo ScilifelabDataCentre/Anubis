@@ -238,7 +238,7 @@ def display(username):
     "Display the given user."
     user = get_user(username=username)
     if user is None:
-        return utils.error("No such user.", flask.url_for("home"))
+        return utils.error("No such user.", home=True)
     if not allow_view(user):
         return utils.error("Access to user display not allowed.")
     reviewer_calls = [
@@ -282,7 +282,7 @@ def edit(username):
     "Edit the user. Or delete the user."
     user = get_user(username=username)
     if user is None:
-        return utils.error("No such user.", flask.url_for("home"))
+        return utils.error("No such user.", home=True)
     if not allow_edit(user):
         return utils.error("Access to user edit not allowed.")
 
@@ -338,7 +338,7 @@ def logs(username):
     "Display the log records for the given user account."
     user = get_user(username=username)
     if user is None:
-        return utils.error("No such user.", flask.url_for("home"))
+        return utils.error("No such user.", home=True)
     if not allow_view(user):
         return utils.error("Access to user logs not allowed.")
     return flask.render_template(
@@ -400,7 +400,7 @@ def enable(username):
     "Enable the given user account."
     user = get_user(username=username)
     if user is None:
-        return utils.error("No such user.", flask.url_for("home"))
+        return utils.error("No such user.", home=True)
     with UserSaver(user) as saver:
         saver.set_status(constants.ENABLED)
         saver.set_password()
@@ -415,7 +415,7 @@ def disable(username):
     "Disable the given user account."
     user = get_user(username=username)
     if user is None:
-        return utils.error("No such user.", flask.url_for("home"))
+        return utils.error("No such user.", home=True)
     with UserSaver(user) as saver:
         saver.set_status(constants.DISABLED)
     return flask.redirect(flask.url_for(".display", username=username))

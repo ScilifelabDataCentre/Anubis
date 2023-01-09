@@ -36,7 +36,7 @@ def display(pid):
     "Display the proposal."
     proposal = get_proposal(pid)
     if proposal is None:
-        return utils.error("No such proposal.", flask.url_for("home"))
+        return utils.error("No such proposal.", home=True)
     if not allow_view(proposal):
         return utils.error("You are not allowed to view this proposal.")
     call = anubis.call.get_call(proposal["call"])
@@ -104,7 +104,7 @@ def display_docx(pid):
     "Return a DOCX file containing the proposal information."
     proposal = get_proposal(pid)
     if proposal is None:
-        return utils.error("No such proposal.", flask.url_for("home"))
+        return utils.error("No such proposal.", home=True)
     if not allow_view(proposal):
         return utils.error("You are not allowed to view this proposal.")
     content = get_proposal_docx(proposal).getvalue()
@@ -122,7 +122,7 @@ def display_xlsx(pid):
     "Return an XLSX file containing the proposal information."
     proposal = get_proposal(pid)
     if proposal is None:
-        return utils.error("No such proposal.", flask.url_for("home"))
+        return utils.error("No such proposal.", home=True)
     if not allow_view(proposal):
         return utils.error("You are not allowed to view this proposal.")
     content = get_proposal_xlsx(proposal).getvalue()
@@ -140,7 +140,7 @@ def edit(pid):
     "Edit the proposal."
     proposal = get_proposal(pid)
     if proposal is None:
-        return utils.error("No such proposal.", flask.url_for("home"))
+        return utils.error("No such proposal.", home=True)
     call = anubis.call.get_call(proposal["call"])
 
     if utils.http_GET():
@@ -213,7 +213,7 @@ def transfer(pid):
     "Transfer ownership of he proposal."
     proposal = get_proposal(pid)
     if proposal is None:
-        return utils.error("No such proposal.", flask.url_for("home"))
+        return utils.error("No such proposal.", home=True)
     if not allow_transfer(proposal):
         return utils.error(
             "You are not allowed to transfer ownership of" " this proposal."
@@ -243,7 +243,7 @@ def submit(pid):
     "Submit the proposal."
     proposal = get_proposal(pid)
     if proposal is None:
-        return utils.error("No such proposal.", flask.url_for("home"))
+        return utils.error("No such proposal.", home=True)
 
     if utils.http_POST():
         try:
@@ -291,7 +291,7 @@ def unsubmit(pid):
     "Unsubmit the proposal."
     proposal = get_proposal(pid)
     if proposal is None:
-        return utils.error("No such proposal.", flask.url_for("home"))
+        return utils.error("No such proposal.", home=True)
 
     if utils.http_POST():
         try:
@@ -310,7 +310,7 @@ def access(pid):
     "Edit the access privileges for the proposal record."
     proposal = get_proposal(pid)
     if proposal is None:
-        return utils.error("No such proposal.", flask.url_for("home"))
+        return utils.error("No such proposal.", home=True)
     if not allow_edit(proposal):
         return utils.error("You are not allowed to edit this proposal.")
     call = anubis.call.get_call(proposal["call"])
@@ -352,11 +352,9 @@ def document(pid, fid):
     "Download the proposal document (attachment file) for the given field id."
     proposal = get_proposal(pid)
     if proposal is None:
-        return utils.error("No such proposal.", flask.url_for("home"))
+        return utils.error("No such proposal.", home=True)
     if not allow_view(proposal):
-        return utils.error(
-            "You are not allowed to read this proposal.", flask.url_for("home")
-        )
+        return utils.error("You are not allowed to read this proposal.", home=True)
     try:
         doc = get_document(proposal, fid)
     except KeyError:
@@ -390,10 +388,10 @@ def logs(pid):
     "Display the log records of the given proposal."
     proposal = get_proposal(pid)
     if proposal is None:
-        return utils.error("No such proposal.", flask.url_for("home"))
+        return utils.error("No such proposal.", home=True)
     if not allow_view(proposal):
         return utils.error(
-            "You are not allowed to read this proposal.", flask.url_for("home")
+            "You are not allowed to read this proposal.", home=True
         )
 
     return flask.render_template(

@@ -56,7 +56,7 @@ def display(cid):
     "Display the call."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.", home=True)
     if not allow_view(call):
         return utils.error("You are not allowed to view the call.")
     kwargs = {}
@@ -120,7 +120,7 @@ def edit(cid):
     "Edit the call, or delete it."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.", home=True)
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -208,7 +208,7 @@ def documents(cid):
     "Display documents for delete, or add document (attachment file)."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.", home=True)
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -231,7 +231,7 @@ def document(cid, documentname):
     "Download the given document (attachment file), or delete it."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.", home=True)
 
     if utils.http_GET():
         if not allow_view(call):
@@ -260,7 +260,7 @@ def proposal(cid):
     "Display proposal field definitions for edit, delete, or add field."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.", home=True)
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -282,7 +282,7 @@ def proposal_field(cid, fid):
     "Edit or delete the proposal field definition."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.", home=True)
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -309,7 +309,7 @@ def reviewers(cid):
     "Edit the list of reviewers."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.", home=True)
 
     if utils.http_GET():
         if not allow_view_details(call):
@@ -389,7 +389,7 @@ def review(cid):
     "Display review field definitions for delete, and add field."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.", home=True)
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -411,7 +411,7 @@ def review_field(cid, fid):
     "Edit or delete the review field definition."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.", home=True)
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -438,7 +438,7 @@ def decision(cid):
     "Display decision field definitions for delete, and add field."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.", home=True)
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -460,7 +460,7 @@ def decision_field(cid, fid):
     "Edit or delete the decision field definition."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.", home=True)
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -487,7 +487,7 @@ def grant(cid):
     "Display grant field definitions for delete, and add field."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.", home=True)
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -519,7 +519,7 @@ def grant_field(cid, fid):
     "Edit or delete the grant field definition."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.", home=True)
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -546,7 +546,7 @@ def reset_counter(cid):
     "Reset the counter of the call. Only if no proposals in it."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.", home=True)
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
     if anubis.database.get_count("proposals", "call", cid) != 0:
@@ -578,7 +578,7 @@ def clone(cid):
     """
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.", home=True)
 
     if not allow_create():
         return utils.error("You are not allowed to create a call.")
@@ -612,7 +612,7 @@ def logs(cid):
     "Display the log records of the call."
     call = get_call(cid)
     if call is None:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.", home=True)
 
     if not (flask.g.am_admin or am_owner(call)):
         return utils.error("You are not admin or owner of the call.")
@@ -631,7 +631,7 @@ def create_proposal(cid):
     "Create a new proposal within the call. Redirect to an existing proposal."
     call = get_call(cid)
     if call is None:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.", home=True)
     if not anubis.proposal.allow_create(call):
         return utils.error("You may not create a proposal.")
 
@@ -661,7 +661,7 @@ def call_zip(cid):
     """
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.", home=True)
     if not (allow_view_details(call) or allow_view_grants(call)):
         return utils.error("You are not allowed to view the call proposals.")
     proposals = anubis.proposals.get_call_proposals(call, submitted=True)

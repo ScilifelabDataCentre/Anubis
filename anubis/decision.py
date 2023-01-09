@@ -31,7 +31,7 @@ def create(pid):
     "Create a decision for the proposal."
     proposal = anubis.proposal.get_proposal(pid)
     if proposal is None:
-        return utils.error("No such proposal.", flask.url_for("home"))
+        return utils.error("No such proposal.", home=True)
     try:
         if not allow_create(proposal):
             raise ValueError("You may not create a decision for the proposal.")
@@ -55,7 +55,7 @@ def display(iuid):
     try:
         decision = get_decision(iuid)
     except KeyError:
-        return utils.error("No such decision.", flask.url_for("home"))
+        return utils.error("No such decision.", home=True)
     proposal = anubis.proposal.get_proposal(decision["proposal"])
     call = anubis.call.get_call(decision["call"])
 
@@ -83,7 +83,7 @@ def edit(iuid):
     try:
         decision = get_decision(iuid)
     except KeyError:
-        return utils.error("No such decision.", flask.url_for("home"))
+        return utils.error("No such decision.", home=True)
     proposal = anubis.proposal.get_proposal(decision["proposal"])
     call = anubis.call.get_call(decision["call"])
 
@@ -125,7 +125,7 @@ def finalize(iuid):
     try:
         decision = get_decision(iuid)
     except KeyError:
-        return utils.error("No such decision.", flask.url_for("home"))
+        return utils.error("No such decision.", home=True)
     if not allow_finalize(decision):
         return utils.error("You are not allowed to finalize this decision.")
 
@@ -145,7 +145,7 @@ def unfinalize(iuid):
     try:
         decision = get_decision(iuid)
     except KeyError:
-        return utils.error("No such decision.", flask.url_for("home"))
+        return utils.error("No such decision.", home=True)
     if not allow_unfinalize(decision):
         return utils.error("You are not allowed to unfinalize this decision.")
 
@@ -165,7 +165,7 @@ def logs(iuid):
     try:
         decision = get_decision(iuid)
     except KeyError:
-        return utils.error("No such decision.", flask.url_for("home"))
+        return utils.error("No such decision.", home=True)
 
     return flask.render_template(
         "logs.html",
@@ -182,10 +182,10 @@ def document(iuid, fid):
     try:
         decision = get_decision(iuid)
     except KeyError:
-        return utils.error("No such decision.", flask.url_for("home"))
+        return utils.error("No such decision.", home=True)
     if not allow_link(decision):
         return utils.error(
-            "You are not allowed to read this decision.", flask.url_for("home")
+            "You are not allowed to read this decision.", home=True
         )
 
     try:

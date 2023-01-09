@@ -30,7 +30,7 @@ def create(pid, username):
     "Create a new review for the proposal for the given reviewer."
     proposal = anubis.proposal.get_proposal(pid)
     if proposal is None:
-        return utils.error("No such proposal.", flask.url_for("home"))
+        return utils.error("No such proposal.", home=True)
     call = anubis.call.get_call(proposal["call"])
 
     try:
@@ -63,7 +63,7 @@ def display(iuid):
     try:
         review = get_review(iuid)
     except KeyError:
-        return utils.error("No such review.", flask.url_for("home"))
+        return utils.error("No such review.", home=True)
     call = anubis.call.get_call(review["call"])
     proposal = anubis.proposal.get_proposal(review["proposal"])
     if not allow_view(review):
@@ -95,7 +95,7 @@ def edit(iuid):
     try:
         review = get_review(iuid)
     except KeyError:
-        return utils.error("No such review.", flask.url_for("home"))
+        return utils.error("No such review.", home=True)
     proposal = anubis.proposal.get_proposal(review["proposal"])
     call = anubis.call.get_call(review["call"])
 
@@ -132,7 +132,7 @@ def finalize(iuid):
     try:
         review = get_review(iuid)
     except KeyError:
-        return utils.error("No such review.", flask.url_for("home"))
+        return utils.error("No such review.", home=True)
     if not allow_finalize(review):
         return utils.error("You are not allowed to finalize this review.")
 
@@ -152,7 +152,7 @@ def unfinalize(iuid):
     try:
         review = get_review(iuid)
     except KeyError:
-        return utils.error("No such review.", flask.url_for("home"))
+        return utils.error("No such review.", home=True)
     if not allow_unfinalize(review):
         return utils.error("You are not allowed to unfinalize this review.")
 
@@ -172,7 +172,7 @@ def archive(iuid):
     try:
         review = get_review(iuid)
     except KeyError:
-        return utils.error("No such review.", flask.url_for("home"))
+        return utils.error("No such review.", home=True)
     # In a sense similar to deleting, so requires same priviliege.
     if not allow_delete(review):
         return utils.error("You are not allowed to archive this review.")
@@ -193,7 +193,7 @@ def unarchive(iuid):
     try:
         review = get_review(iuid)
     except KeyError:
-        return utils.error("No such archived review.", flask.url_for("home"))
+        return utils.error("No such archived review.", home=True)
     if not allow_delete(review):
         return utils.error("You are not allowed to unarchive this review.")
     if get_reviewer_review(
@@ -218,7 +218,7 @@ def logs(iuid):
     try:
         review = get_review(iuid)
     except KeyError:
-        return utils.error("No such review.", flask.url_for("home"))
+        return utils.error("No such review.", home=True)
 
     return flask.render_template(
         "logs.html",
@@ -235,10 +235,10 @@ def document(iuid, fid):
     try:
         review = get_review(iuid)
     except KeyError:
-        return utils.error("No such review.", flask.url_for("home"))
+        return utils.error("No such review.", home=True)
     if not allow_view(review):
         return utils.error(
-            "You are not allowed to read this review.", flask.url_for("home")
+            "You are not allowed to read this review.", home=True
         )
 
     try:
