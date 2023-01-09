@@ -59,7 +59,7 @@ app.url_map.converters["iuid"] = IuidConverter
 with app.app_context():
     # Ensure the design documents in the database are current.
     anubis.database.update_design_documents()
-    # Update the database to this version.
+    # Update the database content to this version.
     anubis.database.update()
     # Get config values that nowadays are stored in the database.
     anubis.config.init_from_db()
@@ -132,22 +132,7 @@ def home():
 @app.route("/documentation")
 def documentation():
     "Documentation page; the README page of the GitHub repo."
-    with open("../README.md") as infile:
-        lines = infile.readlines()
-    # Find the headers for table of contents.
-    toc = []
-    for line in lines:
-        if line.startswith("#"):
-            parts = line.split()
-            level = len(parts[0])
-            title = " ".join(parts[1:])
-            # All headers in README are "clean", i.e. text only, no markup.
-            id = title.strip().replace(" ", "-").lower()
-            id = "".join(c for c in id if c in constants.ALLOWED_ID_CHARACTERS)
-            toc.append((level, title, id))
-    import json
-    print(json.dumps(toc, indent=2))
-    return flask.render_template("documentation.html", text="".join(lines), toc=toc)
+    return flask.render_template("documentation.html")
 
 
 @app.route("/status")
@@ -498,26 +483,6 @@ def grant_link(grant, small=False, status=False):
     return markupsafe.Markup(
         f'<a href="{url}" role="button"' f' class="btn {color} my-1">{label}</a>'
     )
-
-@app.template_filter()
-def toc_list(toc, max_level=2):
-    "Display table of contents."
-    result = []
-    current_level = 0
-    for level, title, id in toc:
-        if level > max_level: continue
-        if level > current_level:
-            for l in range(current_level, level):
-                result.append('<ul class="list-unstyled ml-3">')
-            current_level = level
-        elif level < current_level:
-            for l in range(level, current_level):
-                result.append("</ul>")
-            current_level = level
-        result.append(f'<li><a href="#{id}">{title}</a></li>')
-    for level in range(current_level):
-        result.append("</ul>")
-    return markupsafe.Markup("\n".join(result))
 
 
 # This code is used only during development.

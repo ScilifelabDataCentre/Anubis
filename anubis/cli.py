@@ -55,6 +55,20 @@ def create_database():
 
 
 @cli.command
+def update_database():
+    "Update the contents of the database for changes in new version(s)."
+    with anubis.app.app.app_context():
+        server = anubis.database.get_server()
+        if not anubis.app.app.config["COUCHDB_DBNAME"] in server:
+            raise click.ClickException(
+                f"""Database '{anubis.app.app.config["COUCHDB_DBNAME"]}' does not exist."""
+            )
+        anubis.database.update_design_documents()
+        anubis.database.update()
+        click.echo(f"""Updated database '{anubis.app.app.config["COUCHDB_DBNAME"]}'.""")
+
+
+@cli.command
 def counts():
     "Output counts of entities in the system."
     with anubis.app.app.app_context():

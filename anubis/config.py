@@ -21,28 +21,24 @@ import anubis.database
 
 # Default configurable values, loaded and/or modified in procedure 'init'.
 DEFAULT_CONFIG = dict(
-    SETTINGS_DOTENV=False,
-    SETTINGS_FILE=None,
-    SETTINGS_ENVVAR=False,
     FLASK_DEBUG=False,
-    SERVER_NAME=None,
-    REVERSE_PROXY=False,
-    SECRET_KEY=None,  # Must be set!
+    REVERSE_PROXY=False,    # Use 'werkzeug.middleware.proxy_fix.ProxyFix'
+    SECRET_KEY=None,        # Must be set for proper session handling!
     COUCHDB_URL="http://127.0.0.1:5984/",  # Likely, if CouchDB on local machine.
     COUCHDB_USERNAME=None,  # Must probably be set; depends on CouchDB setup.
     COUCHDB_PASSWORD=None,  # Must probably be set; depends on CouchDB setup.
-    COUCHDB_DBNAME="anubis",
+    COUCHDB_DBNAME="anubis",# The database instance within CouchDB to use.
     MIN_PASSWORD_LENGTH=6,  # Must be at least 4.
     # Default timezone is that of the host machine.
     TIMEZONE=str(datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo),
-    MAIL_SERVER=None,  # E.g. "localhost" or domain name. If None: emails disabled.
-    MAIL_PORT=25,
-    MAIL_USE_TLS=False,
-    MAIL_USE_SSL=False,
-    MAIL_USERNAME=None,
-    MAIL_PASSWORD=None,
-    MAIL_DEFAULT_SENDER=None,  # Should be set if email is enabled.
-    MAIL_REPLY_TO=None,
+    MAIL_SERVER=None,       # E.g. "localhost" or domain name. If None: email disabled.
+    MAIL_PORT=25,           # Must be changed if TLS or SSL is used.
+    MAIL_USE_TLS=False,     # Use TLS for email or not.
+    MAIL_USE_SSL=False,     # Use SSL for email or not.
+    MAIL_USERNAME=None,     # Email server account; most likely an email address.
+    MAIL_PASSWORD=None,     # Email server account password.
+    MAIL_DEFAULT_SENDER=None,  # Email address from which Anubis emails are sent.
+    MAIL_REPLY_TO=None,        # If different from default sender.
     CALL_REMAINING_DANGER=1.0,
     CALL_REMAINING_WARNING=7.0,
     CALLS_OPEN_ORDER_KEY="closes",
@@ -120,6 +116,35 @@ def init(app):
         raise ValueError("MIN_PASSWORD_LENGTH is too short")
     pytz.timezone(app.config["TIMEZONE"])
 
+    # Read and preprocess the documentation.
+    with open("documentation.md") as infile:
+        lines = infile.readlines()
+    toc = []
+    current_level = 0
+    for line in lines:
+        if line.startswith("#"):
+            parts = line.split()
+            level = len(parts[0])
+            title = " ".join(parts[1:])
+            # All headers in README are "clean", i.e. text only, no markup.
+            id = title.strip().replace(" ", "-").lower()
+            id = "".join(c for c in id if c in constants.ALLOWED_ID_CHARACTERS)
+            # Add to table of contents.
+            if level <= 2:
+                if level > current_level:
+                    for l in range(current_level, level):
+                        toc.append('<ul class="list-unstyled ml-3">')
+                    current_level = level
+                elif level < current_level:
+                    for l in range(level, current_level):
+                        toc.append("</ul>")
+                    current_level = level
+                toc.append(f'<li><a href="#{id}">{title}</a></li>')
+    for level in range(current_level):
+        toc.append("</ul>")
+    app.config["DOCUMENTATION_TOC"] = "\n".join(toc)
+    app.config["DOCUMENTATION"] = utils.markdown2html("".join(lines))
+
 
 def init_from_db():
     """Set configuration from values stored in the database.
@@ -163,8 +188,12 @@ def init_from_db():
 
 
 def get_config(hidden=True):
-    "Return the current config."
+    """Return the current config. Only those items that are supposed to
+    be set for a site, not those that are set by the software.
+    """
     result = {"ROOT": constants.ROOT}
+    for key in ["SETTINGS_DOTENV", "SETTINGS_ENVVAR", "SETTINGS_FILE"]:
+        result[key] = flask.current_app.config.get(key)
     for key in anubis.config.DEFAULT_CONFIG:
         result[key] = flask.current_app.config[key]
     if hidden:
