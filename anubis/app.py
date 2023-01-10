@@ -116,6 +116,9 @@ def prepare():
         flask.g.my_incomplete_grants_count = anubis.database.get_count(
             "grants", "incomplete", username
         )
+        flask.g.orcid_require = (flask.current_app.config.get("USER_REQUEST_ORCID") and
+                                 not (flask.g.am_admin or flask.g.am_staff) and
+                                 not flask.g.current_user.get("orcid"))
 
 
 @app.route("/")

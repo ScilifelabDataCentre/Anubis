@@ -67,6 +67,7 @@ def user_configuration():
             form = flask.request.form
             with anubis.database.MetaSaver(configuration) as saver:
                 saver["orcid"] = utils.to_bool(form.get("orcid"))
+                saver["request_orcid"] = utils.to_bool(form.get("request_orcid"))
                 saver["genders"] = utils.to_list(form.get("genders") or "")
                 saver["birthdate"] = utils.to_bool(form.get("birthdate"))
                 saver["degrees"] = utils.to_list(form.get("degrees") or "")
