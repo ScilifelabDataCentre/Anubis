@@ -104,6 +104,8 @@ def get_docs(designname, viewname, key):
             utils.cache_put(f"username {doc['username']}", doc)
             if doc["email"]:
                 utils.cache_put(f"email {doc['email']}", doc)
+            if doc.get("orcid"):
+                utils.cache_put(f"orcid {doc['orcid']}", doc)
     return result
 
 

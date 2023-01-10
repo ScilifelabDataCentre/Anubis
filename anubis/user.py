@@ -569,8 +569,8 @@ class UserSaver(Saver):
         self.doc["last_login"] = utils.get_time()
 
 
-def get_user(username=None, email=None):
-    """Return the user for the given username or email.
+def get_user(username=None, email=None, orcid=None):
+    """Return the user for the given username, email or ORCID.
     Return None if no such user.
     """
     if username:
@@ -578,38 +578,54 @@ def get_user(username=None, email=None):
     if email:
         email = email.strip()
     if username:
-        key = f"username {username}"
         try:
-            return utils.cache_get(key)
+            return utils.cache_get(f"username {username}")
         except KeyError:
-            docs = [
-                r.doc
-                for r in flask.g.db.view(
-                    "users", "username", key=username, include_docs=True
-                )
-            ]
+            docs = anubis.database.get_docs("users", "username", username)
+            # docs = [
+            #     r.doc
+            #     for r in flask.g.db.view(
+            #         "users", "username", key=username, include_docs=True
+            #     )
+            # ]
             if len(docs) == 1:
                 user = docs[0]
-                utils.cache_put(key, user)
-                if user["email"]:
-                    utils.cache_put(f"email {user['email']}", user)
+                # utils.cache_put(key, user)
+                # if user["email"]:
+                #     utils.cache_put(f"email {user['email']}", user)
                 return user
             else:
                 return None
     elif email:
         email = email.lower()
-        key = f"email {email}"
         try:
-            return utils.cache_get(key)
+            return utils.cache_get(f"email {email}")
         except KeyError:
-            docs = [
-                r.doc
-                for r in flask.g.db.view("users", "email", key=email, include_docs=True)
-            ]
+            docs = anubis.database.get_docs("users", "email", email)
+            # docs = [
+            #     r.doc
+            #     for r in flask.g.db.view("users", "email", key=email, include_docs=True)
+            # ]
             if len(docs) == 1:
                 user = docs[0]
-                utils.cache_put(key, user)
-                utils.cache_put(f"username {user['username']}", user)
+                # utils.cache_put(key, user)
+                # utils.cache_put(f"username {user['username']}", user)
+                return user
+            else:
+                return None
+    elif orcid:
+        try:
+            return utils.cache_get(f"orcid {orcid}")
+        except KeyError:
+            docs = anubis.database.get_docs("users", "orcid", orcid)
+            # docs = [
+            #     r.doc
+            #     for r in flask.g.db.view("users", "email", key=email, include_docs=True)
+            # ]
+            if len(docs) == 1:
+                user = docs[0]
+                # utils.cache_put(key, user)
+                # utils.cache_put(f"username {user['username']}", user)
                 return user
             else:
                 return None
@@ -665,6 +681,7 @@ def get_fullname(user):
 
 def do_login(username, password):
     """Set the session cookie if successful login.
+    The username can also be the email address or the ORCID of the user account.
     Raise ValueError if some problem.
     """
     if not username:
@@ -675,7 +692,9 @@ def do_login(username, password):
     if not user:
         user = get_user(email=username)
         if not user:
-            raise ValueError
+            user = get_user(orcid=username)
+            if not user:
+                raise ValueError
     if not werkzeug.security.check_password_hash(user["password"], password):
         raise ValueError
     if user["status"] != constants.ENABLED:
