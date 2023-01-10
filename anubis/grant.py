@@ -32,13 +32,15 @@ def create(pid):
     proposal = anubis.proposal.get_proposal(pid)
     if proposal is None:
         return utils.error("No such proposal.")
+    if not allow_create(proposal):
+        raise utils.error("You may not create a grant dossier for the proposal.")
+
+    grant = get_grant_proposal(pid)
+    if grant is not None:
+        utils.flash_message("The grant dossier already exists.")
+        return flask.redirect(flask.url_for(".display", gid=grant["identifier"]))
+
     try:
-        if not allow_create(proposal):
-            raise ValueError("You may not create a grant dossier for the proposal.")
-        grant = get_grant_proposal(pid)
-        if grant is not None:
-            utils.flash_message("The grant dossier already exists.")
-            return flask.redirect(flask.url_for(".display", gid=grant["identifier"]))
         with GrantSaver(proposal=proposal) as saver:
             pass
         grant = saver.doc
@@ -58,6 +60,7 @@ def display(gid):
         return utils.error("No such grant dossier.")
     if not allow_view(grant):
         return utils.error("You are not allowed to view this grant dossier.")
+
     receiver_email = anubis.user.get_user(username=grant["user"])["email"]
     access_emails = []
     for username in grant.get("access_view", []):
@@ -94,16 +97,15 @@ def edit(gid):
     grant = get_grant(gid)
     if grant is None:
         return utils.error("No such grant.")
+    if not allow_edit(grant):
+        return utils.error("You are not allowed to edit this grant dossier.")
+
     call = anubis.call.get_call(grant["call"])
 
     if utils.http_GET():
-        if not allow_edit(grant):
-            return utils.error("You are not allowed to edit this grant dossier.")
         return flask.render_template("grant/edit.html", grant=grant, call=call)
 
     elif utils.http_POST():
-        if not allow_edit(grant):
-            return utils.error("You are not allowed to edit this grant dossier.")
         try:
             with GrantSaver(doc=grant) as saver:
                 saver.set_fields_values(call.get("grant", []), form=flask.request.form)
@@ -137,7 +139,7 @@ def access(gid):
         return utils.error("No such grant.")
     if not allow_change_access(grant):
         return utils.error(
-            "You are not allowed to change access" " for this grant dossier."
+            "You are not allowed to change access for this grant dossier."
         )
     call = anubis.call.get_call(grant["call"])
 
@@ -225,7 +227,9 @@ def document(gid, fid):
         documentname = grant["values"][fid]
         stub = grant["_attachments"][documentname]
     except KeyError:
-        return utils.error("No such document in grant dossier.")
+        return utils.error("No such document in grant dossier.",
+                           flask.url_for("grant.display", gid=gid))
+
     # Colon ':' is a problematic character in filenames; replace by dash '-'.
     gid = gid.replace(":", "-")
     ext = os.path.splitext(documentname)[1]
@@ -248,6 +252,7 @@ def grant_zip(gid):
         return utils.error("No such grant dossier.")
     if not allow_view(grant):
         return utils.error("You are not allowed to read this grant dossier.")
+
     # Colon ':' is a problematic character in filenames; replace by dash '_'
     gid = gid.replace(":", "-")
     output = io.BytesIO()

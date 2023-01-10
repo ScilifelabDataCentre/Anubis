@@ -132,42 +132,42 @@ User {{ user['username'] }}
     <td>{{ user.get('familyname') | display_value }}</td>
   </tr>
 
-  {% if config['USER_GENDERS'] %}
+  {% if config.USER_GENDERS %}
   <tr>
     <th class="text-right">Gender</th>
     <td>{{ user.get('gender') | display_value }}</td>
   </tr>
   {% endif %}
 
-  {% if config['USER_BIRTHDATE'] %}
+  {% if config.USER_BIRTHDATE %}
   <tr>
     <th class="text-right">Birth date</th>
     <td>{{ user.get('birthdate') | display_value }}</td>
   </tr>
   {% endif %}
 
-  {% if config['USER_DEGREES'] %}
+  {% if config.USER_DEGREES %}
   <tr>
     <th class="text-right">Academic degree</th>
     <td>{{ user.get('degree') | display_value }}</td>
   </tr>
   {% endif %}
 
-  {% if config['USER_AFFILIATION'] %}
+  {% if config.USER_AFFILIATION %}
   <tr>
     <th class="text-right">Affiliation</th>
     <td>{{ user.get('affiliation') | display_value }}</td>
   </tr>
   {% endif %}
 
-  {% if config['USER_POSTALADDRESS'] %}
+  {% if config.USER_POSTALADDRESS %}
   <tr>
     <th class="text-right">Postal address</th>
     <td><pre>{{ user.get('postaladdress') | display_value }}</pre></td>
   </tr>
   {% endif %}
 
-  {% if config['USER_PHONE'] %}
+  {% if config.USER_PHONE %}
   <tr>
     <th class="text-right">Phone</th>
     <td>{{ user.get('phone') | display_value }}</td>

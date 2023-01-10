@@ -26,7 +26,7 @@ def site_configuration():
     elif utils.http_POST():
         try:
             form = flask.request.form
-            with utils.MetaSaver(configuration) as saver:
+            with anubis.database.MetaSaver(configuration) as saver:
                 saver["name"] = form.get("name") or "Anubis"
                 saver["description"] = form.get("description") or None
                 saver["name_logo_favicon"] = utils.to_bool(
@@ -49,7 +49,7 @@ def site_configuration():
                     saver.add_attachment("host_logo", infile.read(), infile.mimetype)
         except ValueError as error:
             utils.flash_error(error)
-        anubis.config.init_from_db(flask.g.db)
+        anubis.config.init_from_db()
         return flask.redirect(flask.url_for(".site_configuration"))
 
 
@@ -65,7 +65,7 @@ def user_configuration():
     elif utils.http_POST():
         try:
             form = flask.request.form
-            with utils.MetaSaver(configuration) as saver:
+            with anubis.database.MetaSaver(configuration) as saver:
                 saver["orcid"] = utils.to_bool(form.get("orcid"))
                 saver["genders"] = utils.to_list(form.get("genders") or "")
                 saver["birthdate"] = utils.to_bool(form.get("birthdate"))
@@ -80,7 +80,7 @@ def user_configuration():
                     )
         except ValueError as error:
             utils.flash_error(error)
-        anubis.config.init_from_db(flask.g.db)
+        anubis.config.init_from_db()
         return flask.redirect(flask.url_for(".user_configuration"))
 
 

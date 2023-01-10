@@ -9,7 +9,7 @@
       method="POST">
   {{ csrf_token() }}
 
-  {% if not config['MAIL_SERVER'] %}
+  {% if not config.MAIL_SERVER %}
   <div class="row">
     <div class="col-md offset-md-2 my-4">
       <strong>

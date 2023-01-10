@@ -36,7 +36,7 @@ def owner(username):
         or flask.g.am_staff
         or flask.g.current_user["username"] == username
     ):
-        return utils.error("Either of roles 'admin' or 'staff' is required.", home=True)
+        return utils.error("Either of roles 'admin' or 'staff' is required.")
 
     calls = [
         anubis.call.set_tmp(r.doc)

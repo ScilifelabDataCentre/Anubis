@@ -7,6 +7,10 @@
     <br>
     <span class="text-danger">Visible to staff only.</span>
     {% endif %}
+    {% if error %}
+    <br>
+    <span class="text-danger">Error: {{ error }}</span>
+    {% endif %}
   </label>
   <div class="col-md">
 
@@ -244,9 +248,6 @@
 
     <small id="{{ fid }}Help" class="form-text">
       <div class="row">
-        {% if error %}
-	<div class="col-md-2 text-danger">Error: {{ error }}</div>
-        {% endif %}
 	<div class="col-md">
           {% if field.get('staff') and not (g.am_admin or g.am_staff) %}
           Can be edited only by staff.

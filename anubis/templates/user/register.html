@@ -68,7 +68,7 @@
         on how to set your password will be sent to this email
         address.
         <br>
-        {% if config["USER_ENABLE_EMAIL_WHITELIST"] %}
+        {% if config.USER_ENABLE_EMAIL_WHITELIST %}
         Some email addresses allow your account to be immediately
         enabled, depending on the configuration of this particular
         site.
@@ -83,7 +83,7 @@
     </div>
   </div>
 
-  {% if config['USER_ORCID'] %}
+  {% if config.USER_ORCID %}
   <div class="form-group row">
     <label for="orcid" class="col-md-2 col-form-label text-right">ORCID</label>
     <div class="col-md">
@@ -134,12 +134,12 @@
     </div>
   </div>
 
-  {% if config['USER_GENDERS'] %}
+  {% if config.USER_GENDERS %}
   <div class="form-group row">
     <label for="gender" class="col-md-2 col-form-label text-right">
       Gender</label>
     <div class="col-md form-row">
-      {% for pos, gender in enumerate(config['USER_GENDERS']) %}
+      {% for pos, gender in enumerate(config.USER_GENDERS) %}
       <div class="form-check form-check-inline pl-2">
 	<input type="radio" name="gender" id="gender{{ pos }}"
                class="form-check-input"
@@ -152,7 +152,7 @@
   </div>
   {% endif %}
 
-  {% if config['USER_BIRTHDATE'] %}
+  {% if config.USER_BIRTHDATE %}
   <div class="form-group row">
     <label for="birthdate" class="col-md-2 col-form-label text-right">
       Birth date</label>
@@ -171,12 +171,12 @@
   </div>
   {% endif %}
 
-  {% if config['USER_DEGREES'] %}
+  {% if config.USER_DEGREES %}
   <div class="form-group row">
     <label for="degree" class="col-md-2 col-form-label text-right">
       Academic degree</label>
     <div class="col-md form-row">
-      {% for pos, degree in enumerate(config['USER_DEGREES']) %}
+      {% for pos, degree in enumerate(config.USER_DEGREES) %}
       <div class="form-check form-check-inline pl-2">
 	<input type="radio" name="degree" id="degree{{ pos }}"
                class="form-check-input"
@@ -189,24 +189,24 @@
   </div>
   {% endif %}
 
-  {% if config['USER_AFFILIATION'] %}
+  {% if config.USER_AFFILIATION %}
   <div class="form-group row">
     <label for="affiliation" class="col-md-2 col-form-label text-right">
       Affiliation</label>
     <div class="col-md">
       <div id="affiliation" class="row">
-        {% if config['UNIVERSITIES'] %}
+        {% if config.UNIVERSITIES %}
         <div class="col-md-6">
           <select name="affiliation" id="affiliation"
                   class="form-control"
                   aria-describedby="affiliationHelp">
             <option value="">[select]</option>
-            {% for university in config['UNIVERSITIES'] %}
+            {% for university in config.UNIVERSITIES %}
             <option>{{ university }}</option>
             {% endfor %}
           </select>
         </div>
-        {% endif %} {# if config['UNIVERSITIES'] #}
+        {% endif %} {# if config.UNIVERSITIES #}
         <div class="col-md-6">
           <input type="text" id="affiliation_other" name="affiliation_other"
                  class="form-control"
@@ -214,7 +214,7 @@
         </div>
       </div>
       <small id="affiliationHelp" class="form-text text-muted">
-        {% if config['UNIVERSITIES'] %}
+        {% if config.UNIVERSITIES %}
         Abbreviated name of the university; select from the drop-down
         menu, if present.
         <br>
@@ -222,13 +222,13 @@
         university or company in the field to the right.
         {% else %}
         Write the abbreviated name of university or company.
-        {% endif %} {# if config['UNIVERSITIES'] #}
+        {% endif %} {# if config.UNIVERSITIES #}
       </small>
     </div>
   </div>
   {% endif %}
 
-  {% if config['USER_POSTALADDRESS'] %}
+  {% if config.USER_POSTALADDRESS %}
   <div class="form-group row">
     <label for="postaladdress" class="col-md-2 col-form-label text-right">
       Postal address</label>
@@ -247,7 +247,7 @@
   </div>
   {% endif %}
 
-  {% if config['USER_PHONE'] %}
+  {% if config.USER_PHONE %}
   <div class="form-group row">
     <label for="phone" class="col-md-2 col-form-label text-right">
       Phone</label>
@@ -287,12 +287,12 @@
       Send email</label>
     <div class="col-md form-row">
       <div class="form-check form-check-inline pl-2">
-        {% if config['MAIL_SERVER'] %}
+        {% if config.MAIL_SERVER %}
 	<input type="checkbox" name="send_email" id="send_email"
                class="form-check-input" value="true" checked>
         {% endif %}
 	<label class="form-check-label" for="send_email">
-          {% if config['MAIL_SERVER'] %}
+          {% if config.MAIL_SERVER %}
 	  Send email to the user with password-setting code and instructions.
           {% else %}
           <i>Email cannot be sent automatically; email server has not been configured.</i>

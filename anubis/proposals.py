@@ -25,9 +25,10 @@ def call(cid):
     "List all proposals in a call."
     call = anubis.call.get_call(cid)
     if not call:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
     if not anubis.call.allow_view(call):
-        return utils.error("You may not view the call.", home=True)
+        return utils.error("You may not view the call.")
+
     proposals = get_call_proposals(call)
     all_emails = []
     submitted_emails = []
@@ -74,9 +75,10 @@ def call_xlsx(cid):
     "Produce an XLSX file of all proposals in a call."
     call = anubis.call.get_call(cid)
     if not call:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
     if not anubis.call.allow_view(call):
-        return utils.error("You may not view the call.", home=True)
+        return utils.error("You may not view the call.")
+
     submitted = utils.to_bool(flask.request.args.get("submitted", ""))
     response = flask.make_response(get_call_xlsx(call, submitted=submitted))
     response.headers.set("Content-Type", constants.XLSX_MIMETYPE)
@@ -290,11 +292,10 @@ def user(username):
     "List all proposals for a user."
     user = anubis.user.get_user(username=username)
     if user is None:
-        return utils.error("No such user.", home=True)
+        return utils.error("No such user.")
     if not anubis.user.allow_view(user):
-        return utils.error(
-            "You may not view the user's proposals.", home=True
-        )
+        return utils.error("You may not view the user's proposals.")
+
     proposals = get_user_proposals(user["username"])
     proposals.extend(anubis.database.get_docs("proposals", "access", user["username"]))
     return flask.render_template(

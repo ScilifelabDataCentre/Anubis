@@ -15,7 +15,7 @@
     <div class="col-md-4">
       <input type="text" name="name" id="name"
 	     class="form-control" aria-describedby="nameHelp"
-	     value="{{ config.get('SITE_NAME') or '' }}">
+	     value="{{ config.SITE_NAME or '' }}">
       <small id="nameHelp" class="form-text text-muted">
         The name of this Anubis site.
       </small>
@@ -30,12 +30,12 @@
         <input type="file" id="name_logo" name="name_logo"
 	       class="custom-file-input">
         <label class="custom-file-label" for="name_logo">
-          Choose a new logo file for the name of the site.</label>
+          Choose a new site name logo file for this Anubis site.</label>
       </div>
     </div>
   </div>
 
-  {% if config.get("SITE_NAME_LOGO") %}
+  {% if config.SITE_NAME_LOGO %}
   <div class="form-group row">
     <div class="col-md offset-md-2">
       <div class="form-check">
@@ -44,7 +44,9 @@
 	       aria-describedby="remove_name_logoHelp"
 	       value="true">
 	<label class="form-check-label" for="name_logo_favicon">
-	  Remove the current name logo.</label>
+	  Remove the current site name logo.
+          <img src="{{ url_for('site', filename='name_logo') }}">
+        </label>
       </div>
     </div>
   </div>
@@ -56,9 +58,9 @@
 	       class="form-check-input"
 	       aria-describedby="name_logo_faviconHelp"
 	       value="true"
-               {{ config.get("SITE_NAME_LOGO_FAVICON") and 'checked' or ''}}>
+               {{ config.SITE_NAME_LOGO_FAVICON and 'checked' or '' }}>
 	<label class="form-check-label" for="name_logo_favicon">
-	  Use the name logo as the favicon of site.</label>
+	  Use the site name logo as the favicon of this Anubis site.</label>
       </div>
     </div>
   </div>
@@ -70,9 +72,9 @@
 	       class="form-check-input"
 	       aria-describedby="name_logo_menuHelp"
 	       value="true"
-               {{ config.get("SITE_NAME_LOGO_MENU") and 'checked' or ''}}>
+               {{ config.SITE_NAME_LOGO_MENU and 'checked' or '' }}>
 	<label class="form-check-label" for="name_logo_menu">
-	  Use the name logo for the top-level menu.</label>
+	  Use the site name logo for the top-level menu.</label>
       </div>
     </div>
   </div>
@@ -84,7 +86,7 @@
     <div class="col-md">
       <input type="text" name="description" id="description"
 	     class="form-control" aria-describedby="descriptionHelp"
-	     value="{{ config.get('SITE_DESCRIPTION') or '' }}">
+	     value="{{ config.SITE_DESCRIPTION or '' }}">
       <small id="descriptionHelp" class="form-text text-muted">
         The one-line description of this Anubis site.
       </small>
@@ -97,9 +99,9 @@
     <div class="col-md-4">
       <input type="text" name="host_name" id="host_name"
 	     class="form-control" aria-describedby="host_nameHelp"
-	     value="{{ config.get('SITE_HOST_NAME') or '' }}">
+	     value="{{ config.SITE_HOST_NAME or '' }}">
       <small id="host_nameHelp" class="form-text text-muted">
-        The name of the host institution of this Anubis site.
+        The name of the host institution for this Anubis site.
       </small>
     </div>
   </div>
@@ -112,12 +114,12 @@
         <input type="file" id="host_logo" name="host_logo"
 	       class="custom-file-input">
         <label class="custom-file-label" for="host_logo">
-          Choose a new logo file for the host name.</label>
+          Choose a new host logo file.</label>
       </div>
     </div>
   </div>
 
-  {% if config.get("SITE_HOST_LOGO") %}
+  {% if config.SITE_HOST_LOGO %}
   <div class="form-group row">
     <div class="col-md offset-md-2">
       <div class="form-check">
@@ -127,7 +129,9 @@
 	       aria-describedby="remove_host_logoHelp"
 	       value="true">
 	<label class="form-check-label" for="remove_host_logo">
-	  Remove the current host logo.</label>
+	  Remove the current host logo.
+          <img src="/site/host_logo">
+        </label>
       </div>
     </div>
   </div>
@@ -139,9 +143,9 @@
     <div class="col-md-4">
       <input type="text" name="host_url" id="host_url"
 	     class="form-control" aria-describedby="host_urlHelp"
-	     value="{{ config.get('SITE_HOST_URL') or '' }}">
+	     value="{{ config.SITE_HOST_URL or '' }}">
       <small id="host_urlHelp" class="form-text text-muted">
-        The URL of the host institution of this Anubis site.
+        The URL of the host institution for this Anubis site.
       </small>
     </div>
   </div>

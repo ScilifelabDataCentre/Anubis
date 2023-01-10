@@ -30,23 +30,24 @@ def create(pid, username):
     "Create a new review for the proposal for the given reviewer."
     proposal = anubis.proposal.get_proposal(pid)
     if proposal is None:
-        return utils.error("No such proposal.", home=True)
+        return utils.error("No such proposal.")
+    if not allow_create(proposal):
+        return utils.error("You may not create a review for the proposal.")
+
     call = anubis.call.get_call(proposal["call"])
+    user = anubis.user.get_user(username=username)
+    if user is None:
+        raise utils.error(f"No such user '{username}'.")
 
     try:
-        if not allow_create(proposal):
-            raise ValueError("You may not create a review for the proposal.")
-        user = anubis.user.get_user(username=username)
-        if user is None:
-            raise ValueError("No such user.")
         if user["username"] not in call["reviewers"]:
             raise ValueError("User is not a reviewer in the call.")
+        if user["username"] == proposal["user"]:
+            raise ValueError("Reviewer not allowed to review their own proposal.")
         review = get_reviewer_review(proposal, user)
         if review is not None:
             utils.flash_message("The review already exists.")
             return flask.redirect(flask.url_for(".display", iuid=review["_id"]))
-        if proposal["user"] == user["username"]:
-            raise ValueError("Reviewer not allowed to review their own proposal.")
         with ReviewSaver(proposal=proposal, user=user) as saver:
             pass
     except ValueError as error:
@@ -63,14 +64,13 @@ def display(iuid):
     try:
         review = get_review(iuid)
     except KeyError:
-        return utils.error("No such review.", home=True)
+        return utils.error("No such review.")
+    if not allow_view(review):
+        return utils.error("You are not allowed to view this review.")
+
     call = anubis.call.get_call(review["call"])
     proposal = anubis.proposal.get_proposal(review["proposal"])
-    if not allow_view(review):
-        return utils.error(
-            "You are not allowed to view this review.",
-            flask.url_for("proposal.display", pid=review["proposal"]),
-        )
+
     allow_view_reviews = anubis.call.allow_view_reviews(call)
     return flask.render_template(
         "review/display.html",
@@ -95,31 +95,31 @@ def edit(iuid):
     try:
         review = get_review(iuid)
     except KeyError:
-        return utils.error("No such review.", home=True)
+        return utils.error("No such review.")
+    if not allow_edit(review):
+        return utils.error("You are not allowed to edit this review.")
+
     proposal = anubis.proposal.get_proposal(review["proposal"])
     call = anubis.call.get_call(review["call"])
 
     if utils.http_GET():
-        if not allow_edit(review):
-            return utils.error("You are not allowed to edit this review.")
         return flask.render_template(
             "review/edit.html", review=review, proposal=proposal, call=call
         )
 
     elif utils.http_POST():
-        if not allow_edit(review):
-            return utils.error("You are not allowed to edit this review.")
         try:
             # NOTE: Repeat field has not been implemented for review.
             with ReviewSaver(doc=review) as saver:
                 saver.set_fields_values(call["review"], form=flask.request.form)
         except ValueError as error:
             return utils.error(error)
-        return flask.redirect(flask.url_for(".display", iuid=review["_id"]))
+        return flask.redirect(flask.url_for("review.display", iuid=review["_id"]))
 
     elif utils.http_DELETE():
         if not allow_delete(review):
             return utils.error("You are not allowed to delete this review.")
+
         anubis.database.delete(review)
         utils.flash_message("Deleted review.")
         return flask.redirect(flask.url_for("proposal.display", pid=review["proposal"]))
@@ -132,9 +132,10 @@ def finalize(iuid):
     try:
         review = get_review(iuid)
     except KeyError:
-        return utils.error("No such review.", home=True)
+        return utils.error("No such review.")
     if not allow_finalize(review):
-        return utils.error("You are not allowed to finalize this review.")
+        return utils.error("You are not allowed to finalize this review.",
+                           flask.url_for("review.display", iuid=iuid))
 
     if utils.http_POST():
         try:
@@ -152,9 +153,10 @@ def unfinalize(iuid):
     try:
         review = get_review(iuid)
     except KeyError:
-        return utils.error("No such review.", home=True)
+        return utils.error("No such review.")
     if not allow_unfinalize(review):
-        return utils.error("You are not allowed to unfinalize this review.")
+        return utils.error("You are not allowed to unfinalize this review.",
+                           flask.url_for("review.display", iuid=iuid))
 
     if utils.http_POST():
         try:
@@ -172,10 +174,11 @@ def archive(iuid):
     try:
         review = get_review(iuid)
     except KeyError:
-        return utils.error("No such review.", home=True)
+        return utils.error("No such review.")
     # In a sense similar to deleting, so requires same priviliege.
     if not allow_delete(review):
-        return utils.error("You are not allowed to archive this review.")
+        return utils.error("You are not allowed to archive this review.",
+                           flask.url_for("review.display", iuid=iuid))
 
     if utils.http_POST():
         try:
@@ -193,14 +196,16 @@ def unarchive(iuid):
     try:
         review = get_review(iuid)
     except KeyError:
-        return utils.error("No such archived review.", home=True)
+        return utils.error("No such archived review.")
     if not allow_delete(review):
-        return utils.error("You are not allowed to unarchive this review.")
+        return utils.error("You are not allowed to unarchive this review.",
+                           flask.url_for("review.display", iuid=iuid))
+
     if get_reviewer_review(
         anubis.proposal.get_proposal(review["proposal"]),
         anubis.user.get_user(review["reviewer"]),
     ):
-        return utils.error("Unarchived review exists for proposal and reviewer.")
+        return utils.error("Unarchived review exists. Cannot overwrite.")
 
     if utils.http_POST():
         try:
@@ -218,7 +223,9 @@ def logs(iuid):
     try:
         review = get_review(iuid)
     except KeyError:
-        return utils.error("No such review.", home=True)
+        return utils.error("No such review.")
+    if not allow_view(review):
+        return utils.error("You are not allowed to view this review.")
 
     return flask.render_template(
         "logs.html",
@@ -235,17 +242,16 @@ def document(iuid, fid):
     try:
         review = get_review(iuid)
     except KeyError:
-        return utils.error("No such review.", home=True)
+        return utils.error("No such review.")
     if not allow_view(review):
-        return utils.error(
-            "You are not allowed to read this review.", home=True
-        )
-
+        return utils.error("You are not allowed to read this review.")
     try:
         documentname = review["values"][fid]
         stub = review["_attachments"][documentname]
     except KeyError:
-        return utils.error("No such document in review.")
+        return utils.error("No such document in review.",
+                           flask.url_for("review.display", iuid=iuid))
+
     # Colon ':' is a problematic character in filenames.
     # Replace it by dash '-'; used as general glue character here.
     pid = review["proposal"].replace(":", "-")

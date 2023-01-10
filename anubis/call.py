@@ -48,7 +48,7 @@ def create():
             call = saver.doc
         except ValueError as error:
             return utils.error(error)
-        return flask.redirect(flask.url_for(".edit", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.edit", cid=call["identifier"]))
 
 
 @blueprint.route("/<cid>")
@@ -56,9 +56,10 @@ def display(cid):
     "Display the call."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
     if not allow_view(call):
         return utils.error("You are not allowed to view the call.")
+
     kwargs = {}
     if allow_view_details(call):
         reviewers = [anubis.user.get_user(r) for r in call["reviewers"]]
@@ -120,7 +121,7 @@ def edit(cid):
     "Edit the call, or delete it."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -150,7 +151,7 @@ def edit(cid):
             call = saver.doc
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".display", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.display", cid=call["identifier"]))
 
     elif utils.http_DELETE():
         if not allow_delete(call):
@@ -171,6 +172,7 @@ def access(cid):
         return utils.error("No such call.")
     if not allow_change_access(call):
         return utils.error("You are not allowed to change access for this call.")
+
     if utils.http_GET():
         users = {}
         for user in call.get("access_view", []):
@@ -180,9 +182,9 @@ def access(cid):
         return flask.render_template(
             "access.html",
             title=f"Call {call['identifier']}",
-            url=flask.url_for(".access", cid=call["identifier"]),
+            url=flask.url_for("call.access", cid=call["identifier"]),
             users=users,
-            back_url=flask.url_for(".display", cid=call["identifier"]),
+            back_url=flask.url_for("call.display", cid=call["identifier"]),
         )
 
     elif utils.http_POST():
@@ -191,7 +193,7 @@ def access(cid):
                 saver.set_access(form=flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".access", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.access", cid=call["identifier"]))
 
     elif utils.http_DELETE():
         try:
@@ -199,7 +201,7 @@ def access(cid):
                 saver.remove_access(form=flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".access", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.access", cid=call["identifier"]))
 
 
 @blueprint.route("/<cid>/documents", methods=["GET", "POST"])
@@ -208,7 +210,7 @@ def documents(cid):
     "Display documents for delete, or add document (attachment file)."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -223,7 +225,7 @@ def documents(cid):
                 saver.add_document(infile, description)
         else:
             utils.flash_error("No document selected.")
-        return flask.redirect(flask.url_for(".documents", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.documents", cid=call["identifier"]))
 
 
 @blueprint.route("/<cid>/documents/<documentname>", methods=["GET", "POST", "DELETE"])
@@ -231,11 +233,11 @@ def document(cid, documentname):
     "Download the given document (attachment file), or delete it."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
+    if not allow_view(call):
+        return utils.error("You may not view the call.")
 
     if utils.http_GET():
-        if not allow_view(call):
-            return utils.error(f"You may not view the call {call['title']}.")
         try:
             stub = call["_attachments"][documentname]
         except KeyError:
@@ -251,7 +253,7 @@ def document(cid, documentname):
             return utils.error("You are not allowed to edit the call.")
         with CallSaver(call) as saver:
             saver.delete_document(documentname)
-        return flask.redirect(flask.url_for(".documents", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.documents", cid=call["identifier"]))
 
 
 @blueprint.route("/<cid>/proposal", methods=["GET", "POST"])
@@ -260,7 +262,7 @@ def proposal(cid):
     "Display proposal field definitions for edit, delete, or add field."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -273,7 +275,7 @@ def proposal(cid):
                 saver.add_proposal_field(flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".proposal", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.proposal", cid=call["identifier"]))
 
 
 @blueprint.route("/<cid>/proposal/<fid>", methods=["POST", "DELETE"])
@@ -282,7 +284,7 @@ def proposal_field(cid, fid):
     "Edit or delete the proposal field definition."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -292,7 +294,7 @@ def proposal_field(cid, fid):
                 saver.edit_proposal_field(fid, flask.request.form)
         except (KeyError, ValueError) as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".proposal", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.proposal", cid=call["identifier"]))
 
     elif utils.http_DELETE():
         try:
@@ -300,7 +302,7 @@ def proposal_field(cid, fid):
                 saver.delete_proposal_field(fid)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".proposal", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.proposal", cid=call["identifier"]))
 
 
 @blueprint.route("/<cid>/reviewers", methods=["GET", "POST", "DELETE"])
@@ -309,11 +311,12 @@ def reviewers(cid):
     "Edit the list of reviewers."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
 
     if utils.http_GET():
         if not allow_view_details(call):
-            return utils.error("You are not allowed to edit the reviewers of the call.")
+            return utils.error("You are not allowed to view the reviewers the call.")
+
         reviewers = [anubis.user.get_user(r) for r in call["reviewers"]]
         call["n_reviews"] = dict()
         for reviewer in reviewers:
@@ -336,18 +339,19 @@ def reviewers(cid):
     elif utils.http_POST():
         if not allow_edit(call):
             return utils.error("You are not allowed to edit the call.")
+
         reviewer = flask.request.form.get("reviewer")
         if not reviewer:
-            return flask.redirect(flask.url_for(".display", cid=cid))
+            return flask.redirect(flask.url_for("call.display", cid=cid))
         user = anubis.user.get_user(username=reviewer)
         if user is None:
             user = anubis.user.get_user(email=reviewer)
         if user is None:
-            return utils.error("No such user.")
+            return utils.error(f"No such user '{reviewer}'.",
+                               flask.url_for("call.reviewers", cid=cid))
         if anubis.proposal.get_call_user_proposal(cid, user["username"]):
             utils.flash_warning(
-                "User has a proposal in the call. Allowing"
-                " her to be a reviewer is questionable."
+                "The user has a proposal in the call. Allowing her to be a reviewer is questionable."
             )
         with CallSaver(call) as saver:
             try:
@@ -361,16 +365,18 @@ def reviewers(cid):
             saver["reviewers"].append(user["username"])
             if utils.to_bool(flask.request.form.get("chair")):
                 saver["chairs"].append(user["username"])
-        return flask.redirect(flask.url_for(".reviewers", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.reviewers", cid=call["identifier"]))
 
     elif utils.http_DELETE():
         if not allow_edit(call):
             return utils.error("You are not allowed to edit the call.")
+
         reviewer = flask.request.form.get("reviewer")
         if anubis.database.get_count(
             "reviews", "call_reviewer", [call["identifier"], reviewed]
         ):
-            return utils.error("Cannot remove reviewer which has reviews in the call.")
+            return utils.error("Cannot remove reviewer which has reviews in the call.",
+                               flask.url_for("call.reviewers", cid=cid))
         with CallSaver(call) as saver:
             try:
                 saver["reviewers"].remove(reviewer)
@@ -380,7 +386,7 @@ def reviewers(cid):
                 saver["chairs"].remove(reviewer)
             except ValueError:
                 pass
-        return flask.redirect(flask.url_for(".reviewers", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.reviewers", cid=call["identifier"]))
 
 
 @blueprint.route("/<cid>/review", methods=["GET", "POST"])
@@ -389,7 +395,7 @@ def review(cid):
     "Display review field definitions for delete, and add field."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -402,7 +408,7 @@ def review(cid):
                 saver.add_review_field(flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".review", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.review", cid=call["identifier"]))
 
 
 @blueprint.route("/<cid>/review/<fid>", methods=["POST", "DELETE"])
@@ -411,7 +417,7 @@ def review_field(cid, fid):
     "Edit or delete the review field definition."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -421,7 +427,7 @@ def review_field(cid, fid):
                 saver.edit_review_field(fid, flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".review", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.review", cid=call["identifier"]))
 
     elif utils.http_DELETE():
         try:
@@ -429,7 +435,7 @@ def review_field(cid, fid):
                 saver.delete_review_field(fid)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".review", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.review", cid=call["identifier"]))
 
 
 @blueprint.route("/<cid>/decision", methods=["GET", "POST"])
@@ -438,7 +444,7 @@ def decision(cid):
     "Display decision field definitions for delete, and add field."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -451,7 +457,7 @@ def decision(cid):
                 saver.add_decision_field(flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".decision", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.decision", cid=call["identifier"]))
 
 
 @blueprint.route("/<cid>/decision/<fid>", methods=["POST", "DELETE"])
@@ -460,7 +466,7 @@ def decision_field(cid, fid):
     "Edit or delete the decision field definition."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -470,7 +476,7 @@ def decision_field(cid, fid):
                 saver.edit_decision_field(fid, flask.request.form)
         except (KeyError, ValueError) as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".decision", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.decision", cid=call["identifier"]))
 
     elif utils.http_DELETE():
         try:
@@ -478,7 +484,7 @@ def decision_field(cid, fid):
                 saver.delete_decision_field(fid)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".decision", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.decision", cid=call["identifier"]))
 
 
 @blueprint.route("/<cid>/grant", methods=["GET", "POST"])
@@ -487,7 +493,7 @@ def grant(cid):
     "Display grant field definitions for delete, and add field."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -510,7 +516,7 @@ def grant(cid):
                 saver.add_grant_field(flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".grant", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.grant", cid=call["identifier"]))
 
 
 @blueprint.route("/<cid>/grant/<fid>", methods=["POST", "DELETE"])
@@ -519,7 +525,7 @@ def grant_field(cid, fid):
     "Edit or delete the grant field definition."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
 
@@ -529,7 +535,7 @@ def grant_field(cid, fid):
                 saver.edit_grant_field(fid, flask.request.form)
         except (KeyError, ValueError) as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".grant", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.grant", cid=call["identifier"]))
 
     elif utils.http_DELETE():
         try:
@@ -537,7 +543,7 @@ def grant_field(cid, fid):
                 saver.delete_grant_field(fid)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".grant", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.grant", cid=call["identifier"]))
 
 
 @blueprint.route("/<cid>/reset_counter", methods=["POST"])
@@ -546,18 +552,17 @@ def reset_counter(cid):
     "Reset the counter of the call. Only if no proposals in it."
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
     if anubis.database.get_count("proposals", "call", cid) != 0:
-        return utils.error(
-            "Cannot reset counter when there are" " proposals in the call."
-        )
+        return utils.error("Cannot reset counter when there are proposals in the call.",
+                           flask.url_for("call.display", cid=cid))
 
     with CallSaver(call) as saver:
         saver["counter"] = None
     utils.flash_message("Counter for proposals in call reset.")
-    return flask.redirect(flask.url_for(".display", cid=call["identifier"]))
+    return flask.redirect(flask.url_for("call.display", cid=call["identifier"]))
 
 
 @blueprint.route("/<cid>/clone", methods=["GET", "POST"])
@@ -578,7 +583,7 @@ def clone(cid):
     """
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
 
     if not allow_create():
         return utils.error("You are not allowed to create a call.")
@@ -603,7 +608,7 @@ def clone(cid):
             new = saver.doc
         except ValueError as error:
             return utils.error(error)
-        return flask.redirect(flask.url_for(".edit", cid=new["identifier"]))
+        return flask.redirect(flask.url_for("call.edit", cid=new["identifier"]))
 
 
 @blueprint.route("/<cid>/logs")
@@ -612,15 +617,15 @@ def logs(cid):
     "Display the log records of the call."
     call = get_call(cid)
     if call is None:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
 
-    if not (flask.g.am_admin or am_owner(call)):
-        return utils.error("You are not admin or owner of the call.")
+    if not allow_edit(call):
+        return utils.error("You are not allowed to view the logs of the call.")
 
     return flask.render_template(
         "logs.html",
         title=f"Call {call['identifier']}",
-        back_url=flask.url_for(".display", cid=call["identifier"]),
+        back_url=flask.url_for("call.display", cid=call["identifier"]),
         logs=anubis.database.get_logs(call["_id"]),
     )
 
@@ -631,9 +636,9 @@ def create_proposal(cid):
     "Create a new proposal within the call. Redirect to an existing proposal."
     call = get_call(cid)
     if call is None:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
     if not anubis.proposal.allow_create(call):
-        return utils.error("You may not create a proposal.")
+        return utils.error("You may not create a proposal in the call.")
 
     if utils.http_POST():
         proposal = anubis.proposal.get_call_user_proposal(
@@ -661,9 +666,10 @@ def call_zip(cid):
     """
     call = get_call(cid)
     if not call:
-        return utils.error("No such call.", home=True)
+        return utils.error("No such call.")
     if not (allow_view_details(call) or allow_view_grants(call)):
         return utils.error("You are not allowed to view the call proposals.")
+
     proposals = anubis.proposals.get_call_proposals(call, submitted=True)
     output = io.BytesIO()
     with zipfile.ZipFile(output, "w") as zip:
@@ -1012,7 +1018,7 @@ def allow_create(user=None):
 
 def allow_view(call):
     """The admin, staff and call owner may view any call.
-    Others may view a call if it has an opens date.
+    Others may view a call if it has an opens date, i.e. is published.
     """
     if flask.g.am_admin:
         return True

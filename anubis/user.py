@@ -38,7 +38,7 @@ def login():
         except ValueError:
             return utils.error(
                 "Invalid username/email or password, or account disabled.",
-                url=flask.url_for(".login"),
+                flask.url_for("user.login"),
             )
         try:
             url = flask.session.pop("login_target_url")
@@ -71,6 +71,7 @@ def register():
                 saver.set_username(flask.request.form.get("username"))
                 saver.set_email(flask.request.form.get("email"))
                 saver.set_orcid(flask.request.form.get("orcid"))
+                # Admin or staff may enable an account directly.
                 if flask.g.am_admin or flask.g.am_staff:
                     if utils.to_bool(flask.request.form.get("enable")):
                         saver.set_status(constants.ENABLED)
@@ -238,9 +239,10 @@ def display(username):
     "Display the given user."
     user = get_user(username=username)
     if user is None:
-        return utils.error("No such user.", home=True)
+        return utils.error("No such user.")
     if not allow_view(user):
         return utils.error("Access to user display not allowed.")
+
     reviewer_calls = [
         anubis.call.get_call(r.value)
         for r in flask.g.db.view(
@@ -282,7 +284,7 @@ def edit(username):
     "Edit the user. Or delete the user."
     user = get_user(username=username)
     if user is None:
-        return utils.error("No such user.", home=True)
+        return utils.error("No such user.")
     if not allow_edit(user):
         return utils.error("Access to user edit not allowed.")
 
@@ -321,7 +323,7 @@ def edit(username):
     elif utils.http_DELETE():
         if not allow_delete(user):
             return utils.error(
-                "Cannot delete the user account; admin or not empty.",
+                "Cannot delete the user account; is admin or owns entities.",
                 flask.url_for(".display", username=username),
             )
         anubis.database.delete(user)
@@ -338,9 +340,10 @@ def logs(username):
     "Display the log records for the given user account."
     user = get_user(username=username)
     if user is None:
-        return utils.error("No such user.", home=True)
+        return utils.error("No such user.")
     if not allow_view(user):
         return utils.error("Access to user logs not allowed.")
+
     return flask.render_template(
         "logs.html",
         title=f"User {user['username']}",
@@ -400,7 +403,10 @@ def enable(username):
     "Enable the given user account."
     user = get_user(username=username)
     if user is None:
-        return utils.error("No such user.", home=True)
+        return utils.error("No such user.")
+    if not allow_enable_disable(user):
+        return utils.error("You may not enable the user account.")
+
     with UserSaver(user) as saver:
         saver.set_status(constants.ENABLED)
         saver.set_password()
@@ -415,14 +421,17 @@ def disable(username):
     "Disable the given user account."
     user = get_user(username=username)
     if user is None:
-        return utils.error("No such user.", home=True)
+        return utils.error("No such user.")
+    if not allow_enable_disable(user):
+        return utils.error("You may not disable the user account.")
+
     with UserSaver(user) as saver:
         saver.set_status(constants.DISABLED)
     return flask.redirect(flask.url_for(".display", username=username))
 
 
 class UserSaver(Saver):
-    "User document saver context manager."
+    "User account saver context manager."
 
     DOCTYPE = constants.USER
     HIDDEN_FIELDS = ["password"]
@@ -773,9 +782,9 @@ def allow_enable_disable(user):
     """Is the current user allowed to enable or disable the user account?
     Yes, if current user is admin or staff and not self.
     """
-    if (flask.g.am_admin or flask.g.am_staff) and flask.g.current_user[
-        "username"
-    ] != user["username"]:
+    if (flask.g.am_admin or
+        flask.g.am_staff and
+        flask.g.current_user["username"] != user["username"]):
         return True
     return False
 
