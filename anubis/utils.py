@@ -214,20 +214,14 @@ def check_csrf_token():
     if not token or token != flask.request.form.get("_csrf_token"):
         flask.abort(http.client.BAD_REQUEST)
 
-
-def error(message, url=None, home=False):
-    """Return redirect response to the given URL, or referrer, or home page.
-    Flash the given message.
+def error(message, url=None):
+    """Flash the given error message, and return a redirect response
+    to the home page, or the given URL.
     """
     flash_error(message)
     if url:
         return flask.redirect(url)
-    elif home:
-        return flask.redirect(flask.url_for("home"))
-    else:
-        return flask.redirect(
-            flask.request.headers.get("referer") or flask.url_for("home")
-        )
+    return flask.redirect(flask.url_for("home"))
 
 
 def flash_error(msg):

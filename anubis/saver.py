@@ -217,7 +217,7 @@ class FieldSaverMixin:
             text = form.get(fid)
             if text:
                 text = text.replace("\r\n", "\n")
-            self.doc["values"][fid] = text or None
+            self.doc["values"][fid] = text.strip() or None
 
         elif field["type"] == constants.BOOLEAN:
             value = form.get(fid) or None

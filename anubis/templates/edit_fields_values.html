@@ -7,8 +7,9 @@
 
 {# Not repeat fields. #}
 
+{# These variables are used by the included template below. #}
 {% set field = field1 %}
-{% set fid = field['identifier']%}
+{% set fid = field.identifier%}
 {% set value = values.get(fid) %}
 {% set error = errors.get(fid) %}
 

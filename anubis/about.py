@@ -3,6 +3,8 @@
 import couchdb2
 import flask
 
+import anubis.database
+
 from anubis import constants
 from anubis import utils
 
@@ -48,7 +50,7 @@ def text_edit(docid):
             "about/text_edit.html", doc=doc, url=flask.url_for(f".{docid}")
         )
     elif utils.http_POST():
-        with utils.MetaSaver(doc=doc) as saver:
+        with anubis.database.MetaSaver(doc=doc) as saver:
             saver["text"] = flask.request.form.get("text") or None
         return flask.redirect(flask.url_for(f".{docid}"))
 

@@ -38,7 +38,7 @@ def login():
         except ValueError:
             return utils.error(
                 "Invalid username/email or password, or account disabled.",
-                url=flask.url_for(".login"),
+                flask.url_for("user.login"),
             )
         try:
             url = flask.session.pop("login_target_url")
@@ -71,6 +71,7 @@ def register():
                 saver.set_username(flask.request.form.get("username"))
                 saver.set_email(flask.request.form.get("email"))
                 saver.set_orcid(flask.request.form.get("orcid"))
+                # Admin or staff may enable an account directly.
                 if flask.g.am_admin or flask.g.am_staff:
                     if utils.to_bool(flask.request.form.get("enable")):
                         saver.set_status(constants.ENABLED)
@@ -238,9 +239,10 @@ def display(username):
     "Display the given user."
     user = get_user(username=username)
     if user is None:
-        return utils.error("No such user.", flask.url_for("home"))
+        return utils.error("No such user.")
     if not allow_view(user):
         return utils.error("Access to user display not allowed.")
+
     reviewer_calls = [
         anubis.call.get_call(r.value)
         for r in flask.g.db.view(
@@ -282,7 +284,7 @@ def edit(username):
     "Edit the user. Or delete the user."
     user = get_user(username=username)
     if user is None:
-        return utils.error("No such user.", flask.url_for("home"))
+        return utils.error("No such user.")
     if not allow_edit(user):
         return utils.error("Access to user edit not allowed.")
 
@@ -321,7 +323,7 @@ def edit(username):
     elif utils.http_DELETE():
         if not allow_delete(user):
             return utils.error(
-                "Cannot delete the user account; admin or not empty.",
+                "Cannot delete the user account; is admin or owns entities.",
                 flask.url_for(".display", username=username),
             )
         anubis.database.delete(user)
@@ -338,9 +340,10 @@ def logs(username):
     "Display the log records for the given user account."
     user = get_user(username=username)
     if user is None:
-        return utils.error("No such user.", flask.url_for("home"))
+        return utils.error("No such user.")
     if not allow_view(user):
         return utils.error("Access to user logs not allowed.")
+
     return flask.render_template(
         "logs.html",
         title=f"User {user['username']}",
@@ -400,7 +403,10 @@ def enable(username):
     "Enable the given user account."
     user = get_user(username=username)
     if user is None:
-        return utils.error("No such user.", flask.url_for("home"))
+        return utils.error("No such user.")
+    if not allow_enable_disable(user):
+        return utils.error("You may not enable the user account.")
+
     with UserSaver(user) as saver:
         saver.set_status(constants.ENABLED)
         saver.set_password()
@@ -415,14 +421,17 @@ def disable(username):
     "Disable the given user account."
     user = get_user(username=username)
     if user is None:
-        return utils.error("No such user.", flask.url_for("home"))
+        return utils.error("No such user.")
+    if not allow_enable_disable(user):
+        return utils.error("You may not disable the user account.")
+
     with UserSaver(user) as saver:
         saver.set_status(constants.DISABLED)
     return flask.redirect(flask.url_for(".display", username=username))
 
 
 class UserSaver(Saver):
-    "User document saver context manager."
+    "User account saver context manager."
 
     DOCTYPE = constants.USER
     HIDDEN_FIELDS = ["password"]
@@ -490,6 +499,9 @@ class UserSaver(Saver):
             result = (12 - remainder) % 11
             if not ((result == 10 and orcid[-1] == "X") or (result == int(orcid[-1]))):
                 raise ValueError("Invalid ORCID; checksum is wrong.")
+            view = flask.g.db.view("users", "orcid", key=orcid)
+            if set([r.value for r in view]).difference([self.doc["username"]]):
+                raise ValueError("ORCID is already in use for another user account.")
         self.doc["orcid"] = orcid or None
 
     def set_status(self, status):
@@ -557,8 +569,8 @@ class UserSaver(Saver):
         self.doc["last_login"] = utils.get_time()
 
 
-def get_user(username=None, email=None):
-    """Return the user for the given username or email.
+def get_user(username=None, email=None, orcid=None):
+    """Return the user for the given username, email or ORCID.
     Return None if no such user.
     """
     if username:
@@ -566,38 +578,54 @@ def get_user(username=None, email=None):
     if email:
         email = email.strip()
     if username:
-        key = f"username {username}"
         try:
-            return utils.cache_get(key)
+            return utils.cache_get(f"username {username}")
         except KeyError:
-            docs = [
-                r.doc
-                for r in flask.g.db.view(
-                    "users", "username", key=username, include_docs=True
-                )
-            ]
+            docs = anubis.database.get_docs("users", "username", username)
+            # docs = [
+            #     r.doc
+            #     for r in flask.g.db.view(
+            #         "users", "username", key=username, include_docs=True
+            #     )
+            # ]
             if len(docs) == 1:
                 user = docs[0]
-                utils.cache_put(key, user)
-                if user["email"]:
-                    utils.cache_put(f"email {user['email']}", user)
+                # utils.cache_put(key, user)
+                # if user["email"]:
+                #     utils.cache_put(f"email {user['email']}", user)
                 return user
             else:
                 return None
     elif email:
         email = email.lower()
-        key = f"email {email}"
         try:
-            return utils.cache_get(key)
+            return utils.cache_get(f"email {email}")
         except KeyError:
-            docs = [
-                r.doc
-                for r in flask.g.db.view("users", "email", key=email, include_docs=True)
-            ]
+            docs = anubis.database.get_docs("users", "email", email)
+            # docs = [
+            #     r.doc
+            #     for r in flask.g.db.view("users", "email", key=email, include_docs=True)
+            # ]
             if len(docs) == 1:
                 user = docs[0]
-                utils.cache_put(key, user)
-                utils.cache_put(f"username {user['username']}", user)
+                # utils.cache_put(key, user)
+                # utils.cache_put(f"username {user['username']}", user)
+                return user
+            else:
+                return None
+    elif orcid:
+        try:
+            return utils.cache_get(f"orcid {orcid}")
+        except KeyError:
+            docs = anubis.database.get_docs("users", "orcid", orcid)
+            # docs = [
+            #     r.doc
+            #     for r in flask.g.db.view("users", "email", key=email, include_docs=True)
+            # ]
+            if len(docs) == 1:
+                user = docs[0]
+                # utils.cache_put(key, user)
+                # utils.cache_put(f"username {user['username']}", user)
                 return user
             else:
                 return None
@@ -653,6 +681,7 @@ def get_fullname(user):
 
 def do_login(username, password):
     """Set the session cookie if successful login.
+    The username can also be the email address or the ORCID of the user account.
     Raise ValueError if some problem.
     """
     if not username:
@@ -663,7 +692,9 @@ def do_login(username, password):
     if not user:
         user = get_user(email=username)
         if not user:
-            raise ValueError
+            user = get_user(orcid=username)
+            if not user:
+                raise ValueError
     if not werkzeug.security.check_password_hash(user["password"], password):
         raise ValueError
     if user["status"] != constants.ENABLED:
@@ -773,9 +804,9 @@ def allow_enable_disable(user):
     """Is the current user allowed to enable or disable the user account?
     Yes, if current user is admin or staff and not self.
     """
-    if (flask.g.am_admin or flask.g.am_staff) and flask.g.current_user[
-        "username"
-    ] != user["username"]:
+    if (flask.g.am_admin or
+        flask.g.am_staff and
+        flask.g.current_user["username"] != user["username"]):
         return True
     return False
 

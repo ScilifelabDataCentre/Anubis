@@ -24,14 +24,11 @@ def call(cid):
     "List all grants for a call."
     call = anubis.call.get_call(cid)
     if call is None:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.")
     if not anubis.call.allow_view(call):
-        return utils.error("You may not view the call.", flask.url_for("home"))
+        return utils.error("You may not view the call.")
     if not anubis.call.allow_view_grants(call):
-        return utils.error(
-            "You may not view the grants of the call.",
-            flask.url_for("call.display", cid=call["identifier"]),
-        )
+        return utils.error("You may not view the grants of the call.")
 
     grants = anubis.database.get_docs("grants", "call", call["identifier"])
     # Convert username for grant to full user dict.
@@ -75,14 +72,11 @@ def call_xlsx(cid):
     "Produce an XLSX file of all grants for a call."
     call = anubis.call.get_call(cid)
     if call is None:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.")
     if not anubis.call.allow_view(call):
-        return utils.error("You may not view the call.", flask.url_for("home"))
+        return utils.error("You may not view the call.")
     if not anubis.call.allow_view_grants(call):
-        return utils.error(
-            "You may not view the grants of the call.",
-            flask.url_for("call.display", cid=call["identifier"]),
-        )
+        return utils.error("You may not view the grants of the call.")
 
     grants = anubis.database.get_docs("grants", "call", call["identifier"])
     grants.sort(key=lambda g: g["identifier"])
@@ -301,14 +295,12 @@ def call_zip(cid):
     """
     call = anubis.call.get_call(cid)
     if call is None:
-        return utils.error("No such call.", flask.url_for("home"))
+        return utils.error("No such call.")
     if not anubis.call.allow_view(call):
-        return utils.error("You may not view the call.", flask.url_for("home"))
+        return utils.error("You may not view the call.")
     if not anubis.call.allow_view_grants(call):
-        return utils.error(
-            "You may not view the grants of the call.",
-            flask.url_for("call.display", cid=call["identifier"]),
-        )
+        return utils.error("You may not view the grants of the call.")
+
     # Colon ':' is a problematic character in filenames; replace by dash '_'
     cid = cid.replace(":", "-")
     grants = anubis.database.get_docs("grants", "call", call["identifier"])
@@ -332,9 +324,10 @@ def user(username):
     "List all grants for a user, including the grants the user has access to."
     user = anubis.user.get_user(username=username)
     if user is None:
-        return utils.error("No such user.", flask.url_for("home"))
+        return utils.error("No such user.")
     if not anubis.user.allow_view(user):
-        return utils.error("You may not view the user's grants.", flask.url_for("home"))
+        return utils.error("You may not view the user's grants.")
+
     grants = anubis.database.get_docs("grants", "user", user["username"])
     grants.extend(anubis.database.get_docs("grants", "access", user["username"]))
     return flask.render_template("grants/user.html", user=user, grants=grants)

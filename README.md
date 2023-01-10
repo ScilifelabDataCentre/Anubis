@@ -34,7 +34,7 @@ development machine, I am using the `virtualenv` system:
 ```bash
 $ mkvirtualenv Anubis
 $ cd Anubis
-$ add2virtualenv        # To add the top Anubis dir to Python path.
+$ add2virtualenv $PWD   # To add the top Anubis dir to Python path.
 $ setvirtualenvproject  # To make this dir the default when doing 'workon'.
 ```
 

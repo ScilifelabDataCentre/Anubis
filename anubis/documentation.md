@@ -183,7 +183,7 @@ reviews are done.
 
 ## Instructions for staff
 
-## Instructions for admin
+## Instructions for admins
 
 The admin is a user account which has full privileges for the Anubis
 site. She may perform all operations that are possible to do via the

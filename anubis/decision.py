@@ -31,7 +31,7 @@ def create(pid):
     "Create a decision for the proposal."
     proposal = anubis.proposal.get_proposal(pid)
     if proposal is None:
-        return utils.error("No such proposal.", flask.url_for("home"))
+        return utils.error("No such proposal.")
     try:
         if not allow_create(proposal):
             raise ValueError("You may not create a decision for the proposal.")
@@ -55,15 +55,12 @@ def display(iuid):
     try:
         decision = get_decision(iuid)
     except KeyError:
-        return utils.error("No such decision.", flask.url_for("home"))
+        return utils.error("No such decision.")
     proposal = anubis.proposal.get_proposal(decision["proposal"])
     call = anubis.call.get_call(decision["call"])
-
     if not allow_link(decision):
-        return utils.error(
-            "You are not allowed to view this decision.",
-            flask.url_for("proposal.display", pid=decision["proposal"]),
-        )
+        return utils.error("You are not allowed to view this decision.")
+
     return flask.render_template(
         "decision/display.html",
         decision=decision,
@@ -83,20 +80,19 @@ def edit(iuid):
     try:
         decision = get_decision(iuid)
     except KeyError:
-        return utils.error("No such decision.", flask.url_for("home"))
+        return utils.error("No such decision.")
+    if not allow_edit(decision):
+        return utils.error("You are not allowed to edit this decision.")
+
     proposal = anubis.proposal.get_proposal(decision["proposal"])
     call = anubis.call.get_call(decision["call"])
 
     if utils.http_GET():
-        if not allow_edit(decision):
-            return utils.error("You are not allowed to edit this decision.")
         return flask.render_template(
             "decision/edit.html", decision=decision, proposal=proposal, call=call
         )
 
     elif utils.http_POST():
-        if not allow_edit(decision):
-            return utils.error("You are not allowed to edit this decision.")
         try:
             # NOTE: Repeat field has not been implemented for decision.
             with DecisionSaver(doc=decision) as saver:
@@ -109,6 +105,7 @@ def edit(iuid):
     elif utils.http_DELETE():
         if not allow_delete(decision):
             return utils.error("You are not allowed to delete this decision.")
+
         with anubis.proposal.ProposalSaver(proposal) as saver:
             saver["decision"] = None
         anubis.database.delete(decision)
@@ -125,9 +122,10 @@ def finalize(iuid):
     try:
         decision = get_decision(iuid)
     except KeyError:
-        return utils.error("No such decision.", flask.url_for("home"))
+        return utils.error("No such decision.")
     if not allow_finalize(decision):
-        return utils.error("You are not allowed to finalize this decision.")
+        return utils.error("You are not allowed to finalize this decision.",
+                           flask.url_for("decision.display", iuid=iuid))
 
     if utils.http_POST():
         try:
@@ -145,9 +143,10 @@ def unfinalize(iuid):
     try:
         decision = get_decision(iuid)
     except KeyError:
-        return utils.error("No such decision.", flask.url_for("home"))
+        return utils.error("No such decision.")
     if not allow_unfinalize(decision):
-        return utils.error("You are not allowed to unfinalize this decision.")
+        return utils.error("You are not allowed to unfinalize this decision.",
+                           flask.url_for("decision.display", iuid=iuid))
 
     if utils.http_POST():
         try:
@@ -165,7 +164,9 @@ def logs(iuid):
     try:
         decision = get_decision(iuid)
     except KeyError:
-        return utils.error("No such decision.", flask.url_for("home"))
+        return utils.error("No such decision.")
+    if not allow_view(decision):
+        return utils.error("You are not allowed to view this decision.")
 
     return flask.render_template(
         "logs.html",
@@ -182,17 +183,17 @@ def document(iuid, fid):
     try:
         decision = get_decision(iuid)
     except KeyError:
-        return utils.error("No such decision.", flask.url_for("home"))
+        return utils.error("No such decision.")
     if not allow_link(decision):
-        return utils.error(
-            "You are not allowed to read this decision.", flask.url_for("home")
-        )
+        return utils.error("You are not allowed to read this decision.")
 
     try:
         documentname = decision["values"][fid]
         stub = decision["_attachments"][documentname]
     except KeyError:
-        return utils.error("No such document in decision.")
+        return utils.error("No such document in decision.",
+                           flask.url_for("decision.display", iuid=iuid))
+
     # Colon ':' is a problematic character in filenames.
     # Replace it by dash '-'; used as general glue character here.
     pid = decision["proposal"].replace(":", "-")

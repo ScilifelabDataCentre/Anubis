@@ -104,6 +104,8 @@ def get_docs(designname, viewname, key):
             utils.cache_put(f"username {doc['username']}", doc)
             if doc["email"]:
                 utils.cache_put(f"email {doc['email']}", doc)
+            if doc.get("orcid"):
+                utils.cache_put(f"orcid {doc['orcid']}", doc)
     return result
 
 
@@ -425,7 +427,7 @@ USERS_DESIGN_DOC = {
             "map": "function(doc) {if (doc.doctype !== 'user' || !doc.email) return; emit(doc.email, null);}"
         },
         "orcid": {
-            "map": "function(doc) {if (doc.doctype !== 'user' || !doc.orcid) return; emit(doc.orcid, null);}"
+            "map": "function(doc) {if (doc.doctype !== 'user' || !doc.orcid) return; emit(doc.orcid, doc.username);}"
         },
         "role": {
             "map": "function(doc) {if (doc.doctype !== 'user') return; emit(doc.role, doc.username);}"

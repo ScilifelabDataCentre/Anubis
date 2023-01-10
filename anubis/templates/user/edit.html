@@ -127,12 +127,12 @@
     </div>
   </div>
 
-  {% if config['USER_GENDERS'] %}
+  {% if config.USER_GENDERS %}
   <div class="form-group row">
     <label for="gender" class="col-md-2 col-form-label text-right">
       Gender</label>
     <div class="col-md mt-1">
-      {% for pos, gender in enumerate(config['USER_GENDERS']) %}
+      {% for pos, gender in enumerate(config.USER_GENDERS) %}
       <div class="custom-control custom-radio custom-control-inline">
 	<input type="radio" name="gender" id="gender{{ pos }}"
                class="custom-control-input"
@@ -146,7 +146,7 @@
   </div>
   {% endif %}
 
-  {% if config['USER_BIRTHDATE'] %}
+  {% if config.USER_BIRTHDATE %}
   <div class="form-group row">
     <label for="birthdate" class="col-md-2 col-form-label text-right">
       Birth date</label>
@@ -166,12 +166,12 @@
   </div>
   {% endif %}
 
-  {% if config['USER_DEGREES'] %}
+  {% if config.USER_DEGREES %}
   <div class="form-group row">
     <label for="degree" class="col-md-2 col-form-label text-right">
       Academic degree</label>
     <div class="col-md mt-1">
-      {% for pos, degree in enumerate(config['USER_DEGREES']) %}
+      {% for pos, degree in enumerate(config.USER_DEGREES) %}
       <div class="custom-control custom-radio custom-control-inline">
 	<input type="radio" name="degree" id="degree{{ pos }}"
                class="custom-control-input"
@@ -185,19 +185,19 @@
   </div>
   {% endif %}
 
-  {% if config['USER_AFFILIATION'] %}
+  {% if config.USER_AFFILIATION %}
   <div class="form-group row">
     <label for="affiliation" class="col-md-2 col-form-label text-right">
       Affiliation</label>
     <div class="col-md">
        <div id="affiliation" class="row">
-        {% if config['UNIVERSITIES'] %}
+        {% if config.UNIVERSITIES %}
         <div class="col-md-6">
           <select name="affiliation" id="affiliation"
                   class="form-control"
                   aria-describedby="affiliationHelp">
             <option value="">[select]</option>
-            {% for university in config['UNIVERSITIES'] %}
+            {% for university in config.UNIVERSITIES %}
             {% if university == user.get('affiliation') %}
             <option selected>{{ university }}</option>
             {% else %}
@@ -206,7 +206,7 @@
             {% endfor %}
           </select>
         </div>
-        {% if user.get('affiliation') in config['UNIVERSITIES'] %}
+        {% if user.get('affiliation') in config.UNIVERSITIES %}
         {% set affiliation = '' %}
         {% else %}
         {% set affiliation = user.get('affiliation') %}
@@ -232,7 +232,7 @@
   </div>
   {% endif %}
 
-  {% if config['USER_POSTAL_ADDRESS'] %}
+  {% if config.USER_POSTAL_ADDRESS %}
   <div class="form-group row">
     <label for="postaladdress" class="col-md-2 col-form-label text-right">
       Postal address</label>
@@ -252,7 +252,7 @@
   </div>
   {% endif %}
 
-  {% if config['USER_PHONE'] %}
+  {% if config.USER_PHONE %}
   <div class="form-group row">
     <label for="phone" class="col-md-2 col-form-label text-right">
       Phone</label>

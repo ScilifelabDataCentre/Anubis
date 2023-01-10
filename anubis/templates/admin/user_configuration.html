@@ -10,7 +10,7 @@
 
   <div class="form-group row">
     <label for="orcid" class="col-md-2 col-form-label text-right">
-      Orcid</label>
+      ORCID</label>
     <div class="col-md">
       <div class="form-check">
 	<input type="checkbox"
@@ -18,12 +18,32 @@
 	       class="form-check-input"
 	       aria-describedby="orcidHelp"
 	       value="yes"
-	       {{ config['USER_ORCID'] and 'checked' or '' }}>
+	       {{ config.USER_ORCID and 'checked' or '' }}>
         <label class="form-check-label" for="orcid">
-	  Yes</label>
+	  The ORCID field is present when registering a user account.</label>
       </div>
       <small id="orcidHelp" class="form-text text-muted">
-	The ORCID field is present when registering a user account.
+	Unchecking this will not actually remove any information from the user accounts.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label for="orcid" class="col-md-2 col-form-label text-right">
+      Request ORCID</label>
+    <div class="col-md">
+      <div class="form-check">
+	<input type="checkbox"
+               name="request_orcid" id="request_orcid"
+	       class="form-check-input"
+	       aria-describedby="request_orcidHelp"
+	       value="yes"
+	       {{ config.USER_REQUEST_ORCID and 'checked' or '' }}>
+        <label class="form-check-label" for="request_orcid">
+	  Ask the logged-in user to set her ORCID if not done.</label>
+      </div>
+      <small id="orcidHelp" class="form-text text-muted">
+        Admins and staff will be exempt from this.
       </small>
     </div>
   </div>
@@ -31,16 +51,16 @@
   <div class="form-group row">
     <label for="genders" class="col-md-2 col-form-label text-right">
       Genders</label>
-    <div class="col-md-4">
+    <div class="col-md-5">
       <textarea id="genders" name="genders"
 		class="form-control"
                 rows="{{ min(8, max(2, len(configuration['genders']))) }}"
 		aria-describedby="gendersHelp"
-		>{{ '\n'.join(config['USER_GENDERS']) }}</textarea>
+		>{{ '\n'.join(config.USER_GENDERS) }}</textarea>
       <small id="gendersHelp" class="form-text text-muted">
 	Gender alternatives to select among when registering a user account.
         <br>
-        Specify gender one per line.
+        Specify gender one per line. If none, no such field will be present.
       </small>
     </div>
   </div>
@@ -55,12 +75,12 @@
 	       class="form-check-input"
 	       aria-describedby="birthdateHelp"
 	       value="yes"
-	       {{ config['USER_BIRTHDATE'] and 'checked' or '' }}>
+	       {{ config.USER_BIRTHDATE and 'checked' or '' }}>
         <label class="form-check-label" for="birthdate">
-	  Yes</label>
+	  The birthdate field is present when registering a user account.</label>
       </div>
       <small id="birthdateHelp" class="form-text text-muted">
-	The birthdate field is present when registering a user account.
+	Unchecking this will not actually remove any information from the user accounts.
       </small>
     </div>
   </div>
@@ -68,16 +88,16 @@
   <div class="form-group row">
     <label for="degrees" class="col-md-2 col-form-label text-right">
       Degrees</label>
-    <div class="col-md-4">
+    <div class="col-md-5">
       <textarea id="degrees" name="degrees"
 		class="form-control"
                 rows="{{ min(8, max(2, len(configuration['degrees']))) }}"
 		aria-describedby="degreesHelp"
-		>{{ '\n'.join(config['USER_DEGREES']) }}</textarea>
+		>{{ '\n'.join(config.USER_DEGREES) }}</textarea>
       <small id="degreesHelp" class="form-text text-muted">
         Academic degrees to select among when registering a user account.
         <br>
-        Specify one degree per line.
+        Specify one degree per line. If none, no such field will be present.
       </small>
     </div>
   </div>
@@ -92,12 +112,12 @@
 	       class="form-check-input"
 	       aria-describedby="affiliationHelp"
 	       value="yes"
-	       {{ config['USER_AFFILIATION'] and 'checked' or '' }}>
+	       {{ config.USER_AFFILIATION and 'checked' or '' }}>
         <label class="form-check-label" for="affiliation">
-	  Yes</label>
+	  The affiliation field is present when registering a user account.</label>
       </div>
       <small id="affiliationHelp" class="form-text text-muted">
-	The affiliation field is present when registering a user account.
+	Unchecking this will not actually remove any information from the user accounts.
       </small>
     </div>
   </div>
@@ -105,12 +125,12 @@
   <div class="form-group row">
     <label for="universities" class="col-md-2 col-form-label text-right">
       Universities</label>
-    <div class="col-md-4">
+    <div class="col-md-5">
       <textarea id="universities" name="universities"
 		class="form-control"
                 rows="{{ min(8, max(2, len(configuration['universities']))) }}"
 		aria-describedby="universitiesHelp"
-		>{{ '\n'.join(config['UNIVERSITIES']) }}</textarea>
+		>{{ '\n'.join(config.UNIVERSITIES) }}</textarea>
       <small id="universitiesHelp" class="form-text text-muted">
         List of universities to choose from when registering a user account.
         Relevant only if affiliation is requested (see above).
@@ -130,12 +150,12 @@
 	       class="form-check-input"
 	       aria-describedby="postaladdressHelp"
 	       value="yes"
-	       {{ config['USER_POSTALADDRESS'] and 'checked' or '' }}>
+	       {{ config.USER_POSTALADDRESS and 'checked' or '' }}>
         <label class="form-check-label" for="postaladdress">
-	  Yes</label>
+	  The postal address field is present when registering a user account.</label>
       </div>
       <small id="postaladdressHelp" class="form-text text-muted">
-	The postal address field is present when registering a user account.
+	Unchecking this will not actually remove any information from the user accounts.
       </small>
     </div>
   </div>
@@ -150,12 +170,12 @@
 	       class="form-check-input"
 	       aria-describedby="phoneHelp"
 	       value="yes"
-	       {{ config['USER_PHONE'] and 'checked' or '' }}>
+	       {{ config.USER_PHONE and 'checked' or '' }}>
         <label class="form-check-label" for="phone">
-	  Yes</label>
+	  The phone field is present when registering a user account.</label>
       </div>
       <small id="phoneHelp" class="form-text text-muted">
-	The phone field is present when registering a user account.
+	Unchecking this will not actually remove any information from the user accounts.
       </small>
     </div>
   </div>
@@ -164,12 +184,12 @@
     <label for="enable_email_whitelist" class="col-md-2 col-form-label text-right">
       Email patterns whitelist</label>
     <div class="col-md-6">
-      {% if config['MAIL_SERVER'] %}
+      {% if config.MAIL_SERVER %}
       <textarea id="enable_email_whitelist" name="enable_email_whitelist"
 		class="form-control"
-                rows="{{ min(8, max(2, len(config['USER_ENABLE_EMAIL_WHITELIST']))) }}"
+                rows="{{ min(8, max(2, len(config.USER_ENABLE_EMAIL_WHITELIST))) }}"
 		aria-describedby="enable_email_whitelistHelp"
-		>{{ '\n'.join(config['USER_ENABLE_EMAIL_WHITELIST']) }}</textarea>
+		>{{ '\n'.join(config.USER_ENABLE_EMAIL_WHITELIST) }}</textarea>
       <small id="enable_email_whitelistHelp" class="form-text text-muted">
         List of email patterns for user accounts that will be enabled
         directly without intervention by the admin.

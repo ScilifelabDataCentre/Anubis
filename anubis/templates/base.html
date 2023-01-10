@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block head_title %}{{ config['SITE_NAME'] }}{% endblock %}</title>
-    {% if config["SITE_NAME_LOGO_FAVICON"] %}
+    <title>{% block head_title %}{{ config.SITE_NAME }}{% endblock %}</title>
+    {% if config.SITE_NAME_LOGO_FAVICON %}
     <link rel="icon" href="{{ url_for('site', filename='name_logo') }}">
     {% else %}
     <link rel="icon" href="{{ url_for('static', filename='feather_of_maat.png') }}">
@@ -19,14 +19,14 @@
     <nav class="navbar navbar-expand-md navbar-light"
          style="background-color: #e8e8e8;">
       <a class="navbar-brand" href="{{ url_for('home') }}">
-        {% if config["SITE_NAME_LOGO_MENU"] %}
+        {% if config.SITE_NAME_LOGO_MENU %}
         <img src="{{ url_for('site', filename='name_logo') }}"
 	     class="d-inline-block align-top">
         {% else %}
         <img src="{{ url_for('static', filename='feather_of_maat.png') }}"
 	     class="d-inline-block align-top">
         {% endif %}
-        {{ config['SITE_NAME'] }}</a>
+        {{ config.SITE_NAME }}</a>
       <button type="button" class="navbar-toggler navbar-toggler-right"
               data-toggle="collapse" data-target="#top_navbar"
               aria-controls="top_navbar" aria-expanded="false"
@@ -167,7 +167,7 @@
       <div class="row">
         <div class="col-md offset-md-1 pt-3 pb-1">
           {% block body_title_outer %}
-          <h2>{% block body_title %}{{ config['SITE_NAME'] }}{% endblock %}</h2>
+          <h2>{% block body_title %}{{ config.SITE_NAME }}{% endblock %}</h2>
           {% endblock %} {# block body_title_outer #}
         </div>
         <div class="col-md-2 py-1 d-print-none">
@@ -230,7 +230,7 @@
             <a href="{{ url_for('documentation') }}#instructions-for-admins"
                target="documentation"
                class="btn btn-outline-primary btn-block">
-              Instructions for administrators</a>
+              Instructions for admins</a>
             {% endif %}
 
             {% endblock %} {# block doclinks #}
@@ -243,14 +243,14 @@
       <hr>
       <div class="row">
         <div class="col-md-3">
-          {% if config['SITE_HOST_URL'] %}
-          <a href="{{ config['SITE_HOST_URL'] }}">
+          {% if config.SITE_HOST_URL %}
+          <a href="{{ config.SITE_HOST_URL }}">
           {% endif %}
-          {% if config['SITE_HOST_LOGO'] %}
+          {% if config.SITE_HOST_LOGO %}
           <img src="/site/host_logo">
           {% endif %}
-          {{ config['SITE_HOST_NAME'] or '' }}
-          {% if config['SITE_HOST_URL'] %}
+          {{ config.SITE_HOST_NAME or '' }}
+          {% if config.SITE_HOST_URL %}
           </a>
           {% endif %}
         </div>

@@ -143,13 +143,13 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 
 {% block doclinks %}
 {{ super() }}
-<a href="{{ url_for('documentation) }}#review"
+<a href="{{ url_for('documentation') }}#review"
    target="documentation"
    class="btn btn-outline-primary btn-block">
   Documentation: Review</a>
 {% if allow_edit %}
 <div class="mt-2">
-  <a href="{{ url_for('documentation') }}#instructions-to-for-reviewers"
+  <a href="{{ url_for('documentation') }}#instructions-for-reviewers"
      target="documentation"
      role="button"
      class="btn btn-block btn-outline-secondary">
