@@ -499,6 +499,9 @@ class UserSaver(Saver):
             result = (12 - remainder) % 11
             if not ((result == 10 and orcid[-1] == "X") or (result == int(orcid[-1]))):
                 raise ValueError("Invalid ORCID; checksum is wrong.")
+            view = flask.g.db.view("users", "orcid", key=orcid)
+            if set([r.value for r in view]).difference([self.doc["username"]]):
+                raise ValueError("ORCID is already in use for another user account.")
         self.doc["orcid"] = orcid or None
 
     def set_status(self, status):

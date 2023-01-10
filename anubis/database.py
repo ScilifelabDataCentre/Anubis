@@ -425,7 +425,7 @@ USERS_DESIGN_DOC = {
             "map": "function(doc) {if (doc.doctype !== 'user' || !doc.email) return; emit(doc.email, null);}"
         },
         "orcid": {
-            "map": "function(doc) {if (doc.doctype !== 'user' || !doc.orcid) return; emit(doc.orcid, null);}"
+            "map": "function(doc) {if (doc.doctype !== 'user' || !doc.orcid) return; emit(doc.orcid, doc.username);}"
         },
         "role": {
             "map": "function(doc) {if (doc.doctype !== 'user') return; emit(doc.role, doc.username);}"
