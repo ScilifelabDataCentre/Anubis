@@ -84,7 +84,7 @@ def init(app):
             for key in config.keys():
                 if key not in DEFAULT_CONFIG:
                     app.logger.warning(f"Obsolete item '{key}' in settings file.")
-            app.config.update(**config)
+            app.config.from_mapping(config)
             app.config["SETTINGS_FILE"] = filepath
             app.logger.info(f"settings file: {app.config['SETTINGS_FILE']}")
             break

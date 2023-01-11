@@ -73,22 +73,22 @@ similar. The app to be executed is
 Some configuration needs to be done before the app can be executed.
 The configuration values can be set in one of two ways:
 
-1. Setting environment variables that specify the configuration values.
+1. Environment variables that specify the configuration values.
 2. Using a file `settings.json` containing the configuration values. This file
    can be located in the source directory `Anubis/anubis` or in a directory
-   `Anubis/site`, which you must then create.
+   `Anubis/site`, which you must create.
 
 The following configuration settings need to be set:
 
-- `COUCHDB_URL`: The URL to the CouchDB instance.
+- `COUCHDB_URL`: The URL to the running CouchDB instance.
 - `COUCHDB_DBNAME`: The name of the CouchDB database for Anubis.
 - `COUCHDB_USERNAME`: The name of the CouchDB user account with privileges to
   create, read and write the Anubis database within CouchDB.
 - `COUCHDB_PASSWORD`: The password for the CouchDB account.
 - `SECRET_KEY`: A longish string of random characters required for proper
   session handling.
-- `TIMEZONE`: The software attempts to fetch this value from the environment,
-  but it may have to be set explicitly.
+- `TIMEZONE`: The Anubis system attempts to fetch this value from the environment
+  at startup, but it may have to be set explicitly.
 - `MAIL_SERVER`: The name of the mail server for outgoing email. Anubis
   can execute without mail, but several account handling features will be restricted
   or missing, such as set and reset of passwords.
