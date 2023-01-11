@@ -105,6 +105,7 @@ def create_admin(username, email, password):
                 saver.set_status(constants.ENABLED)
         except ValueError as error:
             raise click.ClickException(str(error))
+        click.echo(f"Created admin user account '{username}'.")
 
 
 @cli.command
@@ -129,6 +130,7 @@ def create_user(username, email, password):
                 saver.set_status(constants.ENABLED)
         except ValueError as error:
             raise click.ClickException(str(error))
+        click.echo(f"Created user account '{username}'.")
 
 
 @cli.command
@@ -149,6 +151,7 @@ def set_password(username, password):
                 saver.set_password(password)
         else:
             raise click.ClickException("No such user.")
+        click.echo(f"Set password for user account '{username}'.")
 
 
 @cli.command
@@ -191,7 +194,7 @@ def dump(dumpfile, dumpdir, progressbar):
         ndocs, nfiles = flask.g.db.dump(
             dumpfile, exclude_designs=True, progressbar=progressbar
         )
-        click.echo(f"Dumped {ndocs} documents and {nfiles} files to {dumpfile}")
+        click.echo(f"Dumped {ndocs} documents and {nfiles} files to '{dumpfile}'.")
 
 
 @cli.command
@@ -214,9 +217,13 @@ def undump(dumpfile, progressbar):
 
 
 @cli.command
+@click.option(
+    "-f", "--filepath", type=str, help="The path of the downloaded file."
+)
 @click.argument("identifier")
-def output(identifier):
-    """Output the JSON for the single document in the database.
+def download(filepath, identifier):
+    """Download the JSON for the single document in the database.
+    Write to the filepath if given, else to stdout.
     The identifier may be a user account name, email or ORCID, or a call identifier,
     proposal identifier, grant identifier, or '_id' if the CouchDB document.
     """
@@ -224,13 +231,58 @@ def output(identifier):
         flask.g.db = anubis.database.get_db()
         doc = anubis.database.get_doc(identifier)
         if doc is None:
-            raise click.ClickException("No such item in the database.")
-        click.echo(to_json(doc))
+            raise click.ClickException("No such document in the database.")
+        if filepath:
+            with open(filepath, "w") as outfile:
+                outfile.write(to_json(doc))
+            click.echo(f"Wrote JSON document to '{filepath}'.")
+        else:
+            click.echo(to_json(doc))
+
+
+@cli.command
+@click.argument("filepath", type=click.Path(exists=True))
+def upload(filepath):
+    """Upload a JSON document from a file into the database.
+    If the document does not contain an '_id' entry, it will be set.
+    If the document with the given '_id' entry exists in the database,
+    the '_rev' entry must be present and correct.
+    """
+    try:
+        with open(filepath) as infile:
+            doc = json.load(infile)
+    except json.JSONDecodeError as error:
+        raise click.ClickException(str(error))
+    with anubis.app.app.app_context():
+        flask.g.db = anubis.database.get_db()
+        if "_id" in doc and doc["_id"] in flask.g.db:
+            click.confirm("A document with the '_id' already exists. Overwrite it?",
+                          abort=True)
+        try:
+            flask.g.db.put(doc)
+        except couchdb2.CouchDB2Exception as error:
+            raise click.ClickException(str(error))
+    click.echo(f"""Uploaded JSON document '{doc["_id"]}' from '{filepath}'.""")
+
+
+@cli.command
+@click.argument("identifier")
+def delete(identifier):
+    "Delete the JSON document with the given identifier from the database."
+    with anubis.app.app.app_context():
+        flask.g.db = anubis.database.get_db()
+        try:
+            doc = flask.g.db[identifier]
+            click.confirm("Really delete the document?", abort=True)
+            flask.g.db.delete(doc)
+        except couchdb2.CouchDB2Exception as error:
+            raise click.ClickException(str(error))
+    click.echo(f"Deleted JSON document '{identifier}'.")
 
 
 @cli.command
 def config():
-    "Output the current config."
+    "Output the current config as a JSON document."
     with anubis.app.app.app_context():
         config = anubis.config.get_config(hidden=False)
     click.echo(to_json(config))
@@ -238,7 +290,7 @@ def config():
 
 @cli.command
 def versions():
-    "Version of various software in the Anubis system."
+    "Versions of various software in the Anubis system as a JSON document."
     with anubis.app.app.app_context():
         click.echo(to_json(anubis.utils.get_software()))
 
