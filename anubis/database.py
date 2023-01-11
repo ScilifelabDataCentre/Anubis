@@ -282,6 +282,13 @@ def update():
                 app.config.get("USER_ENABLE_EMAIL_WHITELIST") or []
             )
 
+    # Add a meta document for call configurations.
+    if "call_configuration" not in db:
+        with MetaSaver(id="call_configuration", db=db) as saver:
+            saver["remaining_danger"] = app.config.get("CALL_REMAINING_DANGER") or 1.0
+            saver["remaining_warning"] = app.config.get("CALL_REMAINING_WARNING") or 7.0
+            saver["open_order_key"] = app.config.get("CALLS_OPEN_ORDER_KEY") or "closes"
+
 
 CALLS_DESIGN_DOC = {
     "views": {

@@ -143,7 +143,6 @@ def edit(cid):
                 )
                 for key in ["opens", "closes", "reviews_due"]:
                     value = flask.request.form.get(key).strip() or None
-                    print(key, value)
                     if value:
                         value = utils.utc_from_timezone_isoformat(value)
                     saver[key] = value
@@ -1233,7 +1232,7 @@ def set_tmp(call):
     """Set the temporary, non-saved values for the call.
     Returns the call object.
     """
-    tmp = {}
+    call["tmp"] = tmp = {}
     # Set the current state of the call, computed from open/close and today.
     if call["opens"]:
         if call["opens"] > utils.get_time():
@@ -1243,31 +1242,24 @@ def set_tmp(call):
             tmp["color"] = "secondary"
         elif call["closes"]:
             remaining = utils.days_remaining(call["closes"])
-            if remaining > 7:
+            if remaining > 0:
                 tmp["is_open"] = True
                 tmp["is_closed"] = False
-                tmp["text"] = f"{remaining:.0f} days remaining."
-                tmp["color"] = "success"
-            elif remaining >= 2:
-                tmp["is_open"] = True
-                tmp["is_closed"] = False
-                tmp["text"] = f"{remaining:.0f} days remaining."
-                tmp["color"] = "warning"
-            elif remaining >= 5.0 / 24.0:
-                tmp["is_open"] = True
-                tmp["is_closed"] = False
-                tmp["text"] = f"{int(24*remaining):.0f} hours remaining."
-                tmp["color"] = "danger"
-            elif remaining >= 1.0 / 24.0:
-                tmp["is_open"] = True
-                tmp["is_closed"] = False
-                tmp["text"] = f"{24*remaining:.1f} hours remaining."
-                tmp["color"] = "danger"
-            elif remaining >= 0:
-                tmp["is_open"] = True
-                tmp["is_closed"] = False
-                tmp["text"] = f"{24*60*remaining:.0f} minutes remaining."
-                tmp["color"] = "danger"
+                if remaining > 7:
+                    tmp["text"] = f"{remaining:.0f} days remaining."
+                    tmp["color"] = "success"
+                elif remaining >= 2:
+                    tmp["text"] = f"{remaining:.0f} days remaining."
+                    tmp["color"] = "warning"
+                elif remaining >= 5.0 / 24.0:
+                    tmp["text"] = f"{int(24*remaining):.0f} hours remaining."
+                    tmp["color"] = "danger"
+                elif remaining >= 1.0 / 24.0:
+                    tmp["text"] = f"{24*remaining:.1f} hours remaining."
+                    tmp["color"] = "danger"
+                elif remaining >= 0:
+                    tmp["text"] = f"{24*60*remaining:.0f} minutes remaining."
+                    tmp["color"] = "danger"
             else:
                 tmp["is_open"] = False
                 tmp["is_closed"] = True
@@ -1290,5 +1282,4 @@ def set_tmp(call):
             tmp["text"] = "No open or close dates set."
             tmp["color"] = "secondary"
     tmp["is_published"] = tmp["is_open"] or tmp["is_closed"]
-    call["tmp"] = tmp
     return call

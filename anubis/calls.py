@@ -128,7 +128,8 @@ def get_open_calls():
     result = [
         doc for doc in result if (doc["tmp"]["is_open"] or doc["tmp"]["is_closed"])
     ]
-    order_key = flask.current_app.config["CALLS_OPEN_ORDER_KEY"]
+    order_key = flask.current_app.config["CALL_OPEN_ORDER_KEY"]
+    # The possible values are listed in 'constants.CALL_ORDER_KEYS'
     if order_key == "closes":
         result.sort(key=lambda k: (k["closes"], k["title"]))
     elif order_key == "title":

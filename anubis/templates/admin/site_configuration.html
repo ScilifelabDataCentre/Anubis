@@ -4,7 +4,7 @@
 {% block body_title %}Site configuration{% endblock %}
 
 {% block main %}
-<form action="{{ url_for('.site_configuration') }}"
+<form action="{{ url_for('admin.site_configuration') }}"
       enctype="multipart/form-data"
       method="POST">
   {{ csrf_token() }}

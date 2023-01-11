@@ -39,9 +39,6 @@ DEFAULT_CONFIG = dict(
     MAIL_PASSWORD=None,     # Email server account password.
     MAIL_DEFAULT_SENDER=None,  # Email address from which Anubis emails are sent.
     MAIL_REPLY_TO=None,        # If different from default sender.
-    CALL_REMAINING_DANGER=1.0,
-    CALL_REMAINING_WARNING=7.0,
-    CALLS_OPEN_ORDER_KEY="closes",
 )
 
 
@@ -153,6 +150,7 @@ def init_from_db():
     db = anubis.database.get_db()
     app = flask.current_app
 
+    # Site configuration values from database to Flask config.
     configuration = db["site_configuration"]
     for key, value in configuration.items():
         if key in constants.GENERIC_FIELDS:
@@ -174,6 +172,7 @@ def init_from_db():
                 "modified": modified,
             }
 
+    # User configuration values from database to Flask config.
     configuration = db["user_configuration"]
     for key, value in configuration.items():
         if key in constants.GENERIC_FIELDS:
@@ -185,6 +184,13 @@ def init_from_db():
     # Special case: user cannot be enabled immediately if no email server defined.
     if not app.config["MAIL_SERVER"]:
         app.config["USER_ENABLE_EMAIL_WHITELIST"] = []
+
+    # Call configuration values from database to Flask config.
+    configuration = db["call_configuration"]
+    for key, value in configuration.items():
+        if key in constants.GENERIC_FIELDS:
+            continue
+        app.config[f"CALL_{key.upper()}"] = value
 
 
 def get_config(hidden=True):

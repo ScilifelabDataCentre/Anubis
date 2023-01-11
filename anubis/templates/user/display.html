@@ -197,7 +197,7 @@ User {{ user['username'] }}
   <form action="{{ url_for('.logout') }}"
 	method="POST">
     {{ csrf_token() }}
-    <button type="submit" class="btn btn-warning btn-block">Logout</button>
+    <button type="submit" class="btn btn-dark btn-block">Logout</button>
   </form>
 </div>
 {% endif %} {# if g.current_user... #}

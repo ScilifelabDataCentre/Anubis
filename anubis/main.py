@@ -324,6 +324,16 @@ def display_datetime_timezone(value, due=False, tz=True, dash=True):
     return ""
 
 
+# @app.template_filter()
+# def display_call_remaining(value):
+#     pass
+
+
+# @app.template_filter()
+# def display_review_due(value):
+#     pass
+
+
 @app.template_filter()
 def display_boolean(value):
     "Display field value boolean."
