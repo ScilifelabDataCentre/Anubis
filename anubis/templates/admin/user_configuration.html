@@ -4,7 +4,7 @@
 {% block body_title %}User configuration{% endblock %}
 
 {% block main %}
-<form action="{{ url_for('.user_configuration') }}"
+<form action="{{ url_for('admin.user_configuration') }}"
       method="POST">
   {{ csrf_token() }}
 

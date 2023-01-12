@@ -50,7 +50,7 @@ def site_configuration():
         except ValueError as error:
             utils.flash_error(error)
         anubis.config.init_from_db()
-        return flask.redirect(flask.url_for(".site_configuration"))
+        return flask.redirect(flask.url_for("admin.site_configuration"))
 
 
 @blueprint.route("/user_configuration", methods=["GET", "POST"])
@@ -82,7 +82,38 @@ def user_configuration():
         except ValueError as error:
             utils.flash_error(error)
         anubis.config.init_from_db()
-        return flask.redirect(flask.url_for(".user_configuration"))
+        return flask.redirect(flask.url_for("admin.user_configuration"))
+
+
+@blueprint.route("/call_configuration", methods=["GET", "POST"])
+@utils.admin_required
+def call_configuration():
+    "Display and edit call configuration."
+    configuration = flask.g.db["call_configuration"]
+    if utils.http_GET():
+        return flask.render_template(
+            "admin/call_configuration.html", configuration=configuration
+        )
+    elif utils.http_POST():
+        try:
+            form = flask.request.form
+            with anubis.database.MetaSaver(configuration) as saver:
+                value = float(form.get("remaining_danger") or '')
+                if value <= 0.0:
+                    raise ValueError("'Remaining danger' value must be positive.")
+                saver["remaining_danger"] = value
+                value = float(form.get("remaining_warning") or '')
+                if value <= 0.0:
+                    raise ValueError("'Remaining warning' value must be positive.")
+                saver["remaining_warning"] = value
+                value = form.get("open_order_key")
+                if value not in constants.CALL_ORDER_KEYS:
+                    raise ValueError("Invalid order key.")
+                saver["open_order_key"] = value
+        except ValueError as error:
+            utils.flash_error(error)
+        anubis.config.init_from_db()
+        return flask.redirect(flask.url_for("admin.call_configuration"))
 
 
 @blueprint.route("/database")
@@ -109,7 +140,7 @@ def document(identifier):
     try:
         doc = flask.g.db[identifier]
     except couchdb2.NotFoundError:
-        return utils.error("No such document.", flask.url_for(".database"))
+        return utils.error("No such document.", flask.url_for("admin.database"))
     response = flask.make_response(doc)
     response.headers.set("Content-Type", constants.JSON_MIMETYPE)
     response.headers.set(

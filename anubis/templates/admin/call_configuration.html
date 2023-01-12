@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Call configuration{% endblock %}
+{% block body_title %}Call configuration{% endblock %}
+
+{% block main %}
+<form action="{{ url_for('admin.call_configuration') }}"
+      method="POST">
+  {{ csrf_token() }}
+
+  <div class="form-group">
+    <div class="row">
+      <label for="remaining_warning" class="col-md-2 col-form-label text-right">
+        Remaining warning</label>
+      <div class="col-md-2">
+        <input type="number" min="0.1" step="0.1"
+               name="remaining_warning" id="remaining_warning"
+	       class="form-control"
+	       aria-describedby="remaining_warningHelp"
+	       value="{{ config.CALL_REMAINING_WARNING }}">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md offset-md-2">
+        <small id="remaining_warningHelp" class="form-text text-muted">
+          The number of days below which the call is flagged by the warning color yellow.
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div class="row">
+      <label for="remaining_danger" class="col-md-2 col-form-label text-right">
+        Remaining danger</label>
+      <div class="col-md-2">
+        <input type="number" min="0.1" step="0.1"
+               name="remaining_danger" id="remaining_danger"
+	       class="form-control"
+	       aria-describedby="remaining_dangerHelp"
+	       value="{{ config.CALL_REMAINING_DANGER }}">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md offset-md-2">
+        <small id="remaining_dangerHelp" class="form-text text-muted">
+          The number of days below which the call is flagged by the danger color red.
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div class="row">
+      <label for="open_order_key" class="col-md-2 col-form-label text-right">
+        Open order key</label>
+      <div class="col-md-3">
+        <select name="open_order_key" id="open_order_key"
+                class="form-control"
+                aria-describedby="open_order_keyHelp">
+          {% for order_key in constants.CALL_ORDER_KEYS %}
+          <option {{ order_key == config.CALL_OPEN_ORDER_KEY and 'selected' or '' }}>
+            {{ order_key }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md offset-md-2">
+        <small id="open_order_keyHelp" class="form-text text-muted">
+          The field to use to sort the open calls in the display list.
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <div class="col-md-3 offset-md-2">
+      <button type="submit" class="btn btn-block btn-primary">Save</button>
+    </div>
+  </div>
+
+</form>
+{% endblock %} {# block main #}
+
+{% block actions %}
+<div class="mt-2">
+  <a href="{{ url_for('home') }}"
+     role="button" class="btn btn-block btn-secondary">Cancel</a>
+</div>
+{% endblock %}

@@ -13,13 +13,9 @@ blueprint = flask.Blueprint("calls", __name__)
 @blueprint.route("")
 @utils.admin_or_staff_required
 def all():
-    """All calls.
-    Includes calls that have not been opened,
-    and those with neither opens nor closes dates set.
-    """
+    "Display All calls."
     calls = [
-        anubis.call.set_tmp(r.doc)
-        for r in flask.g.db.view("calls", "identifier", include_docs=True)
+        r.doc for r in flask.g.db.view("calls", "identifier", include_docs=True)
     ]
     return flask.render_template("calls/all.html", calls=calls)
 
@@ -39,8 +35,7 @@ def owner(username):
         return utils.error("Either of roles 'admin' or 'staff' is required.")
 
     calls = [
-        anubis.call.set_tmp(r.doc)
-        for r in flask.g.db.view(
+        r.doc for r in flask.g.db.view(
             "calls", "owner", key=username, reduce=False, include_docs=True
         )
     ]
@@ -56,12 +51,11 @@ def owner(username):
 def closed():
     "Closed calls."
     calls = [
-        anubis.call.set_tmp(r.doc)
-        for r in flask.g.db.view(
+        r.doc for r in flask.g.db.view(
             "calls",
             "closes",
             startkey="",
-            endkey=utils.get_time(),
+            endkey=utils.get_now(),
             include_docs=True,
         )
     ]
@@ -91,18 +85,16 @@ def open():
 @blueprint.route("/unpublished")
 @utils.admin_or_staff_required
 def unpublished():
-    "Unpublished calls; undefined opens and/or closes date, or not yet published."
+    "Unpublished calls; undefined opens and/or closes date, or not yet open."
     calls = [
-        anubis.call.set_tmp(r.doc)
-        for r in flask.g.db.view("calls", "undefined", include_docs=True)
+        r.doc for r in flask.g.db.view("calls", "undefined", include_docs=True)
     ]
     calls.extend(
         [
-            anubis.call.set_tmp(r.doc)
-            for r in flask.g.db.view(
+            r.doc for r in flask.g.db.view(
                 "calls",
                 "opens",
-                startkey=utils.get_time(),
+                startkey=utils.get_now(),
                 endkey="ZZZZZZ",
                 include_docs=True,
             )
@@ -115,20 +107,18 @@ def get_open_calls():
     "Return a list of open calls, sorted according to configuration."
     # It is more computationally efficient to use closes date for first selection.
     result = [
-        anubis.call.set_tmp(r.doc)
-        for r in flask.g.db.view(
+        r.doc for r in flask.g.db.view(
             "calls",
             "closes",
-            startkey=utils.get_time(),
+            startkey=utils.get_now(),
             endkey="ZZZZZZ",
             include_docs=True,
         )
     ]
     # Exclude not yet open calls.
-    result = [
-        doc for doc in result if (doc["tmp"]["is_open"] or doc["tmp"]["is_closed"])
-    ]
-    order_key = flask.current_app.config["CALLS_OPEN_ORDER_KEY"]
+    result = [call for call in result if anubis.call.is_open(call)]
+    order_key = flask.current_app.config["CALL_OPEN_ORDER_KEY"]
+    # The possible values are listed in 'constants.CALL_ORDER_KEYS'
     if order_key == "closes":
         result.sort(key=lambda k: (k["closes"], k["title"]))
     elif order_key == "title":
@@ -145,7 +135,7 @@ def get_open_calls():
 def grants():
     "All calls with grants."
     calls = set([r.key for r in flask.g.db.view("grants", "call", reduce=False)])
-    calls = [anubis.call.set_tmp(anubis.call.get_call(c)) for c in calls]
+    calls = [anubis.call.get_call(c) for c in calls]
     return flask.render_template(
         "calls/grants.html",
         calls=calls,

@@ -18,7 +18,7 @@ class Saver:
     def __init__(self, doc=None, id=None, db=None):
         if doc is None:
             self.original = {}
-            self.doc = {"_id": id or utils.get_iuid(), "created": utils.get_time()}
+            self.doc = {"_id": id or utils.get_iuid(), "created": utils.get_now()}
             self.initialize()
         else:
             self.original = copy.deepcopy(doc)
@@ -38,7 +38,7 @@ class Saver:
             return False
         self.finish()
         self.doc["doctype"] = self.DOCTYPE
-        self.doc["modified"] = utils.get_time()
+        self.doc["modified"] = utils.get_now()
         self.db.put(self.doc)
         self.wrapup()
         self.add_log()
@@ -78,10 +78,8 @@ class Saver:
         self._delete_attachments.add(filename)
 
     def finish(self):
-        """Final changes and checks on the document before storing it.
-        Remove any temporary data from the document.
-        """
-        self.doc.pop("tmp", None)
+        "Final changes and checks on the document before storing it."
+        pass
 
     def wrapup(self):
         """Delete any specified attachments.
@@ -138,7 +136,7 @@ class Saver:
             "added": added,
             "updated": updated,
             "removed": removed,
-            "timestamp": utils.get_time(),
+            "timestamp": utils.get_now(),
         }
         if hasattr(flask.g, "current_user") and flask.g.current_user:
             entry["username"] = flask.g.current_user["username"]

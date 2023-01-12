@@ -14,7 +14,6 @@ Calls by {{ get_user(username) | user_link }}
       <th>Call title</th>
       <th>Opens</th>
       <th>Closes</th>
-      <th></th>
       <th title="Includes only proposals marked by the user as 'submitted'.">
 	Proposals</th>
       <th>Reviews</a>
@@ -27,11 +26,10 @@ Calls by {{ get_user(username) | user_link }}
     <tr>
       <td>{{ call | call_link(proposals_link=False) }}</td>
       <td>{{ call.get('title') or '[No title]' }}</td>
-      <td class="text-nowrap pl-2">{{ call['opens'] | display_datetime_timezone }}</td>
-      <td class="text-nowrap pl-2">{{ call['closes'] | display_datetime_timezone }}</td>
-      <td>
-        <span class="badge badge-pill badge-{{ call['tmp']['color'] }}">
-          {{ call['tmp']['text'] }}</span>
+      <td class="pl-2">{{ call['opens'] | display_datetime_timezone }}</td>
+      <td class="pl-2">
+        {{ call['closes'] | display_datetime_timezone }}
+        {{ call | display_call_closes }}
       </td>
       <td>{{ call | call_proposals_link }}</td>
       <td>{{ call | call_reviews_link }}</td>

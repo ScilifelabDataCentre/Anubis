@@ -56,15 +56,17 @@
 
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Opens</div>
-  <div class="col-md">{{ call['opens'] | display_datetime_timezone }}</div>
+  <div class="col-md">
+    {{ call['opens'] | display_datetime_timezone }}
+    {{ call | display_call_opens }}
+  </div>
 </div>
 
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
   <div class="col-md">
     {{ call['closes'] | display_datetime_timezone }}
-    <span class="badge badge-pill badge-{{ call['tmp']['color'] }} ml-3">
-      {{ call['tmp']['text'] }}</span>
+    {{ call | display_call_closes }}
   </div>
 </div>
 
@@ -128,9 +130,7 @@
 {% if allow_view_details %}
 <div class="row mt-1">
   <div class="col-md-2 font-weight-bold text-right">Reviews due</div>
-  <div class="col-md">
-    {{ call.get('reviews_due') | display_datetime_timezone(due=True) }}
-  </div>
+  <div class="col-md">{{ call | display_reviews_due }}</div>
 </div>
 {% endif %} {# if allow_view_details #}
 
@@ -171,7 +171,7 @@
     </form>
   </div>
 
-  {% elif call['tmp']['is_closed'] %}
+  {% elif is_closed %}
   <div class="col-md">Call is closed; a proposal cannot be created.</div>
   {% elif not g.current_user %}
   <div class="col-md text-danger">

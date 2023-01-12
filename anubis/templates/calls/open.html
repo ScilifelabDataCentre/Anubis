@@ -11,7 +11,6 @@
       <th>Call id</th>
       <th>Call title</th>
       <th>Closes</th>
-      <th></th>
       {% if allow_create %}
       <th>Proposals</th>
       <th>Reviews</a>
@@ -24,10 +23,9 @@
     <tr>
       <td>{{ call | call_link(proposals_link=False) }}</td>
       <td>{{ call.get('title') or '[No title]' }}</td>
-      <td class="text-nowrap pl-2">{{ call['closes'] | display_datetime_timezone }}</td>
-      <td>
-        <span class="badge badge-pill badge-{{ call['tmp']['color'] }}">
-          {{ call['tmp']['text'] }}</span>
+      <td class="pl-2">
+        {{ call['closes'] | display_datetime_timezone }}
+        {{ call | display_call_closes }}
       </td>
       {% if allow_create %}
       <td>{{ call | call_proposals_link }}</td>
@@ -45,7 +43,7 @@
     $("#calls").DataTable( {
       pagingType: "full_numbers",
       pageLength: 25,
-      order: [[2, "desc"]]
+      order: [[2, "asc"]]
     });
   });
 </script>

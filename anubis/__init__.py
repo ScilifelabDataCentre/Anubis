@@ -78,7 +78,7 @@ class Constants:
     EMAIL_RX = re.compile(r"^[a-z0-9_.+-]+@[a-z0-9-]+\.[a-z0-9-.]+$")
     FRONT_MATTER_RX = re.compile(r"^---(.*)---", re.DOTALL | re.MULTILINE)
 
-    # CouchDB document types
+    # CouchDB document types.
     USER = "user"
     CALL = "call"
     PROPOSAL = "proposal"
@@ -88,19 +88,24 @@ class Constants:
     LOG = "log"
     META = "meta"
 
-    # User roles
+    # Generic fields in CouchDB document.
+    GENERIC_FIELDS = frozenset(
+        ["_id", "_rev", "_attachments", "doctype", "created", "modified"]
+    )
+
+    # User roles.
     ADMIN = "admin"
     STAFF = "staff"
     # USER  = 'user' # Defined above
     USER_ROLES = (ADMIN, STAFF, USER)
 
-    # User statuses
+    # User statuses.
     PENDING = "pending"
     ENABLED = "enabled"
     DISABLED = "disabled"
     USER_STATUSES = (PENDING, ENABLED, DISABLED)
 
-    # Input field types
+    # Input field types.
     LINE = "line"
     EMAIL = "email"
     BOOLEAN = "boolean"
@@ -112,7 +117,8 @@ class Constants:
     TEXT = "text"
     DOCUMENT = "document"
     REPEAT = "repeat"
-    FIELD_TYPES = (
+
+    CALL_FIELD_TYPES = (
         LINE,
         EMAIL,
         BOOLEAN,
@@ -125,6 +131,7 @@ class Constants:
         DOCUMENT,
         REPEAT,
     )
+
     # Exclude RANK (not meaningful) and REPEAT (not yet implemented).
     PROPOSAL_FIELD_TYPES = (
         LINE,
@@ -137,6 +144,7 @@ class Constants:
         TEXT,
         DOCUMENT,
     )
+
     # Exclude REPEAT (not yet implemented).
     REVIEW_FIELD_TYPES = (
         LINE,
@@ -150,6 +158,7 @@ class Constants:
         TEXT,
         DOCUMENT,
     )
+
     # Exclude RANK (not meaningful) and REPEAT (not yet implemented).
     DECISION_FIELD_TYPES = (
         LINE,
@@ -162,6 +171,7 @@ class Constants:
         TEXT,
         DOCUMENT,
     )
+
     # Exclude RANK (not meaningful).
     GRANT_FIELD_TYPES = (
         LINE,
@@ -176,20 +186,19 @@ class Constants:
         REPEAT,
     )
 
-    # Access flags for each call
+    # Access flags for each call.
     ACCESS = (
         "allow_reviewer_view_all_reviews",
         "allow_submitter_view_decision",
         "allow_chair_create_reviews",
     )
 
-    # Generic fields in CouchDB document
-    GENERIC_FIELDS = frozenset(
-        ["_id", "_rev", "_attachments", "doctype", "created", "modified"]
-    )
+    # Call order key alternatives.
+    CALL_ORDER_KEYS = frozenset(["closes", "title", "identifier"])
 
-    SITE_FILE_MAX_AGE = 24 * 3600
+    # Site files, caching timeout.
     SITE_FILES = frozenset(["name_logo", "host_logo"])
+    SITE_FILE_MAX_AGE = 24 * 3600
 
     # MIME types
     DOCX_MIMETYPE = (
@@ -201,15 +210,6 @@ class Constants:
     JSON_MIMETYPE = "application/json"
 
     ALLOWED_ID_CHARACTERS = frozenset(string.ascii_lowercase + string.digits + "-_")
-
-    DOCUMENTATION = (
-        "Basic concepts",
-        "Instructions for users",
-        "Instructions for reviewers",
-        "Instructions for admins",
-        "Input field types",
-        "Privileges",
-    )
 
 
 constants = Constants()

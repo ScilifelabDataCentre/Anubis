@@ -14,7 +14,7 @@ Archived reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 {% block supermain %}
 <div class="row mb-2">
   <div class="col-md-2 text-right font-weight-bold">Due</div>
-  <div class="col-md-8">{{ call.get('reviews_due') | display_datetime_timezone(due=True) }}</div>
+  <div class="col-md-8">{{ call | display_reviews_due }}</div>
   <div class="col-md">
     <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=user['username']) }}"
        role="button" class="btn btn-block btn-info">Reviews</a>

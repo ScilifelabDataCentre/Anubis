@@ -130,7 +130,7 @@ def finalize(iuid):
     if utils.http_POST():
         try:
             with DecisionSaver(doc=decision) as saver:
-                saver["finalized"] = utils.get_time()
+                saver["finalized"] = utils.get_now()
         except ValueError as error:
             utils.flash_error(error)
         return flask.redirect(flask.url_for(".display", iuid=decision["_id"]))
@@ -260,8 +260,7 @@ def get_decision(iuid):
             return None
         if decision["doctype"] != constants.DECISION:
             raise ValueError
-        utils.cache_put(key, decision)
-        return decision
+        return utils.cache_put(key, decision)
 
 
 def allow_create(proposal):
