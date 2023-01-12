@@ -28,8 +28,7 @@ Reviews by user {{ user['username'] }}
   <div class="col-md-2 d-print-none">
     <a href="{{ url_for('documentation') }}#instructions-for-reviewers"
        target="documentation"
-       role="button"
-       class="btn btn-block btn-outline-secondary">
+       role="button" class="btn btn-block btn-outline-secondary">
       Instructions for reviewers</a>
   </div>
 </div>
@@ -51,7 +50,13 @@ Reviews by user {{ user['username'] }}
     {% set proposal = get_proposal(review['proposal']) %}
     <tr>
       <td>{{ review | review_link }}</td>
-      <td>{{ call.get('reviews_due') | display_datetime_timezone(due=not review.get('finalized')) }}</td>
+      <td>
+        {% if review.get('finalized') %}
+        {{ call | display_reviews_due }}
+        {% else %}
+        {{ call.get('reviews_due') | display_datetime_timezone }}
+        {% endif %}
+      </td>
       <td>{{ proposal | proposal_link }}</td>
       <td>{{ get_user(proposal['user']) | user_link }}</td>
       <td>{{ call | call_link(title=False) }}</td>

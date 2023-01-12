@@ -45,11 +45,12 @@ def get_software():
 
 
 def cache_put(identifier, doc):
-    "Store the doc by the given identifier in the cache."
+    "Store the doc by the given identifier in the cache. Return the doc."
     try:
         flask.g.cache[identifier] = doc
     except AttributeError:
         flask.g.cache = dict(identifier=doc)
+    return doc
 
 
 def cache_get(identifier):
@@ -123,7 +124,7 @@ def to_list(value):
     return [s for s in values if s]
 
 
-def get_time():
+def get_now():
     "Current UTC datetime in ISO format (including Z) with millisecond precision."
     now = datetime.datetime.utcnow().isoformat()
     return now[:17] + "{:06.3f}".format(float(now[17:])) + "Z"
@@ -143,8 +144,8 @@ def timezone_from_utc_isoformat(dts, tz=True):
 
 
 def utc_from_timezone_isoformat(dts):
-    """Convert the given datetime ISO string in the site timezone to UTC, and
-    output in the same ISO format as in 'get_time' with dummy millisecond precision.
+    """Convert the given datetime ISO string in the local timezone to UTC, and
+    output in the same ISO format as in 'get_now' with dummy millisecond precision.
     """
     try:
         dt = dateutil.parser.isoparse(dts)

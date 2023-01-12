@@ -140,7 +140,7 @@ def finalize(iuid):
     if utils.http_POST():
         try:
             with ReviewSaver(doc=review) as saver:
-                saver["finalized"] = utils.get_time()
+                saver["finalized"] = utils.get_now()
         except ValueError as error:
             utils.flash_error(error)
         return flask.redirect(flask.url_for(".display", iuid=review["_id"]))
@@ -352,8 +352,7 @@ def get_review(iuid):
             return None
         if review["doctype"] != constants.REVIEW:
             raise ValueError
-        utils.cache_put(key, review)
-        return review
+        return utils.cache_put(key, review)
 
 
 def get_reviewer_review(proposal, reviewer=None):
@@ -480,7 +479,7 @@ def allow_unfinalize(review):
     call = anubis.call.get_call(review["call"])
     if anubis.call.am_owner(call):
         return True
-    if call.get("reviews_due") and call["reviews_due"] < utils.get_time():
+    if call.get("reviews_due") and call["reviews_due"] < utils.get_now():
         return False
     if flask.g.current_user["username"] == review["reviewer"]:
         return True

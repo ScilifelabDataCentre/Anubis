@@ -447,7 +447,7 @@ class ProposalSaver(AccessSaverMixin, FieldSaverMixin, Saver):
             raise ValueError(
                 "Submit cannot be done; proposal is incomplete," " or call is closed."
             )
-        self.doc["submitted"] = utils.get_time()
+        self.doc["submitted"] = utils.get_now()
 
     def set_unsubmitted(self):
         if not allow_submit(self.doc):
@@ -466,15 +466,12 @@ def get_proposal(pid, refresh=False):
         return utils.cache_get(key)
     except KeyError:
         docs = [
-            r.doc
-            for r in flask.g.db.view(
+            r.doc for r in flask.g.db.view(
                 "proposals", "identifier", key=pid, include_docs=True
             )
         ]
         if len(docs) == 1:
-            proposal = docs[0]
-            utils.cache_put(key, proposal)
-            return proposal
+            return utils.cache_put(key, docs[0])
         else:
             return None
 
@@ -678,7 +675,7 @@ def allow_create(call):
         return True
     if anubis.call.allow_view(call):
         return True
-    return call["tmp"]["is_open"] and not call["tmp"]["is_closed"]
+    return anubis.call.is_open(call)
 
 
 def allow_view(proposal):
@@ -764,9 +761,11 @@ def allow_submit(proposal):
     call = anubis.call.get_call(proposal["call"])
     if anubis.call.am_owner(call):
         return True
-    if flask.g.current_user["username"] == proposal["user"] and call["tmp"]["is_open"]:
-        return True
-    return False
+    if flask.g.current_user["username"] != proposal["user"]:
+        return False
+    if not anubis.call.is_open(call):
+        return False
+    return True
 
 
 def allow_transfer(proposal):

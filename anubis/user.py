@@ -566,7 +566,7 @@ class UserSaver(Saver):
             self.doc["password"] = f"code:{utils.get_iuid()}"
 
     def set_last_login(self):
-        self.doc["last_login"] = utils.get_time()
+        self.doc["last_login"] = utils.get_now()
 
 
 def get_user(username=None, email=None, orcid=None):
@@ -582,18 +582,8 @@ def get_user(username=None, email=None, orcid=None):
             return utils.cache_get(f"username {username}")
         except KeyError:
             docs = anubis.database.get_docs("users", "username", username)
-            # docs = [
-            #     r.doc
-            #     for r in flask.g.db.view(
-            #         "users", "username", key=username, include_docs=True
-            #     )
-            # ]
             if len(docs) == 1:
-                user = docs[0]
-                # utils.cache_put(key, user)
-                # if user["email"]:
-                #     utils.cache_put(f"email {user['email']}", user)
-                return user
+                return docs[0]
             else:
                 return None
     elif email:
@@ -602,15 +592,8 @@ def get_user(username=None, email=None, orcid=None):
             return utils.cache_get(f"email {email}")
         except KeyError:
             docs = anubis.database.get_docs("users", "email", email)
-            # docs = [
-            #     r.doc
-            #     for r in flask.g.db.view("users", "email", key=email, include_docs=True)
-            # ]
             if len(docs) == 1:
-                user = docs[0]
-                # utils.cache_put(key, user)
-                # utils.cache_put(f"username {user['username']}", user)
-                return user
+                return docs[0]
             else:
                 return None
     elif orcid:
@@ -618,15 +601,8 @@ def get_user(username=None, email=None, orcid=None):
             return utils.cache_get(f"orcid {orcid}")
         except KeyError:
             docs = anubis.database.get_docs("users", "orcid", orcid)
-            # docs = [
-            #     r.doc
-            #     for r in flask.g.db.view("users", "email", key=email, include_docs=True)
-            # ]
             if len(docs) == 1:
-                user = docs[0]
-                # utils.cache_put(key, user)
-                # utils.cache_put(f"username {user['username']}", user)
-                return user
+                return docs[0]
             else:
                 return None
     else:

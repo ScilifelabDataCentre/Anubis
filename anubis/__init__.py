@@ -88,6 +88,11 @@ class Constants:
     LOG = "log"
     META = "meta"
 
+    # Generic fields in CouchDB document.
+    GENERIC_FIELDS = frozenset(
+        ["_id", "_rev", "_attachments", "doctype", "created", "modified"]
+    )
+
     # User roles.
     ADMIN = "admin"
     STAFF = "staff"
@@ -112,7 +117,8 @@ class Constants:
     TEXT = "text"
     DOCUMENT = "document"
     REPEAT = "repeat"
-    FIELD_TYPES = (
+
+    CALL_FIELD_TYPES = (
         LINE,
         EMAIL,
         BOOLEAN,
@@ -125,6 +131,7 @@ class Constants:
         DOCUMENT,
         REPEAT,
     )
+
     # Exclude RANK (not meaningful) and REPEAT (not yet implemented).
     PROPOSAL_FIELD_TYPES = (
         LINE,
@@ -137,6 +144,7 @@ class Constants:
         TEXT,
         DOCUMENT,
     )
+
     # Exclude REPEAT (not yet implemented).
     REVIEW_FIELD_TYPES = (
         LINE,
@@ -150,6 +158,7 @@ class Constants:
         TEXT,
         DOCUMENT,
     )
+
     # Exclude RANK (not meaningful) and REPEAT (not yet implemented).
     DECISION_FIELD_TYPES = (
         LINE,
@@ -162,6 +171,7 @@ class Constants:
         TEXT,
         DOCUMENT,
     )
+
     # Exclude RANK (not meaningful).
     GRANT_FIELD_TYPES = (
         LINE,
@@ -183,16 +193,12 @@ class Constants:
         "allow_chair_create_reviews",
     )
 
-    # Generic fields in CouchDB document.
-    GENERIC_FIELDS = frozenset(
-        ["_id", "_rev", "_attachments", "doctype", "created", "modified"]
-    )
-
     # Call order key alternatives.
     CALL_ORDER_KEYS = frozenset(["closes", "title", "identifier"])
 
-    SITE_FILE_MAX_AGE = 24 * 3600
+    # Site files, caching timeout.
     SITE_FILES = frozenset(["name_logo", "host_logo"])
+    SITE_FILE_MAX_AGE = 24 * 3600
 
     # MIME types
     DOCX_MIMETYPE = (

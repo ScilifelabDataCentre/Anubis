@@ -17,10 +17,14 @@ reviews, decisions and grant dossiers. It allows:
 
 ## Call
 
-This is a call for proposals, with a description, optional files
+A call for proposals, with a description, optional files
 attached, and open and close dates. It is a container for proposals,
 reviews, decisions and grants. The input fields of these entities
 are created and defined within their call.
+
+A call is open when its `opens` date has passed, but its `closes` date as not.
+A call that does not have both of these values set is not published. This means
+that there can be no open call without a `closes` date.
 
 ## Proposal
 

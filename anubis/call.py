@@ -60,7 +60,20 @@ def display(cid):
     if not allow_view(call):
         return utils.error("You are not allowed to view the call.")
 
-    kwargs = {}
+    kwargs = dict(
+        am_owner=am_owner(call),
+        am_reviewer=am_reviewer(call),
+        allow_edit=allow_edit(call),
+        allow_delete=allow_delete(call),
+        allow_change_access=allow_change_access(call),
+        allow_create_proposal=anubis.proposal.allow_create(call),
+        allow_view_details=allow_view_details(call),
+        allow_view_proposals=allow_view_proposals(call),
+        allow_view_reviews=allow_view_reviews(call),
+        allow_view_grants=allow_view_grants(call),
+        is_open=is_open(call),
+        is_closed=is_closed(call),
+    )
     if allow_view_details(call):
         reviewers = [anubis.user.get_user(r) for r in call["reviewers"]]
         reviewer_emails = [r["email"] for r in reviewers if r["email"]]
@@ -98,21 +111,7 @@ def display(cid):
         reduce=True,
     )
     kwargs["archived_reviews_count"] = result and result[0].value or 0
-    return flask.render_template(
-        "call/display.html",
-        call=call,
-        am_owner=am_owner(call),
-        am_reviewer=am_reviewer(call),
-        allow_edit=allow_edit(call),
-        allow_delete=allow_delete(call),
-        allow_change_access=allow_change_access(call),
-        allow_create_proposal=anubis.proposal.allow_create(call),
-        allow_view_details=allow_view_details(call),
-        allow_view_proposals=allow_view_proposals(call),
-        allow_view_reviews=allow_view_reviews(call),
-        allow_view_grants=allow_view_grants(call),
-        **kwargs,
-    )
+    return flask.render_template("call/display.html", call=call, **kwargs)
 
 
 @blueprint.route("/<cid>/edit", methods=["GET", "POST", "DELETE"])
@@ -130,6 +129,8 @@ def edit(cid):
             "call/edit.html",
             call=call,
             allow_identifier_edit=allow_identifier_edit(call),
+            is_open=is_open(call),
+            is_closed=is_closed(call),
         )
 
     elif utils.http_POST():
@@ -214,7 +215,10 @@ def documents(cid):
         return utils.error("You are not allowed to edit the call.")
 
     if utils.http_GET():
-        return flask.render_template("call/documents.html", call=call)
+        return flask.render_template("call/documents.html",
+                                     call=call,
+                                     is_open=is_open(call),
+                                     is_closed=is_closed(call))
 
     elif utils.http_POST():
         infile = flask.request.files.get("document")
@@ -266,7 +270,10 @@ def proposal(cid):
         return utils.error("You are not allowed to edit the call.")
 
     if utils.http_GET():
-        return flask.render_template("call/proposal.html", call=call)
+        return flask.render_template("call/proposal.html",
+                                     call=call,
+                                     is_open=is_open(call),
+                                     is_closed=is_closed(call))
 
     elif utils.http_POST():
         try:
@@ -399,7 +406,9 @@ def review(cid):
         return utils.error("You are not allowed to edit the call.")
 
     if utils.http_GET():
-        return flask.render_template("call/review.html", call=call)
+        return flask.render_template("call/review.html",
+                                     call=call,
+                                     is_closed=is_closed(call))
 
     elif utils.http_POST():
         try:
@@ -740,7 +749,7 @@ class CallSaver(AccessSaverMixin, Saver):
     def add_field(self, form):
         "Get the field definition from the form."
         type = form.get("type")
-        if type not in constants.FIELD_TYPES:
+        if type not in constants.CALL_FIELD_TYPES:
             raise ValueError("Invalid field type.")
         fid = form.get("identifier")
         if not (fid and constants.ID_RX.match(fid)):
@@ -990,9 +999,7 @@ def get_call(cid):
             for r in flask.g.db.view("calls", "identifier", key=cid, include_docs=True)
         ]
         if len(result) == 1:
-            call = set_tmp(result[0])
-            utils.cache_put(key, call)
-            return call
+            return utils.cache_put(key, result[0])
         else:
             return None
 
@@ -1059,7 +1066,7 @@ def allow_identifier_edit(call):
         return False
     if anubis.database.get_count("grants", "call", call["identifier"]):
         return False
-    if call["tmp"]["is_open"]:
+    if not is_open(call):
         return False
     return True
 
@@ -1164,7 +1171,7 @@ def allow_view_decisions(call):
         return True
     due = call.get("reviews_due")
     if due:
-        return am_reviewer(call) and due < utils.get_time()
+        return am_reviewer(call) and due < utils.get_now()
     return False
 
 
@@ -1228,58 +1235,36 @@ def has_access_edit(call):
     return False
 
 
-def set_tmp(call):
-    """Set the temporary, non-saved values for the call.
-    Returns the call object.
-    """
-    call["tmp"] = tmp = {}
-    # Set the current state of the call, computed from open/close and today.
-    if call["opens"]:
-        if call["opens"] > utils.get_time():
-            tmp["is_open"] = False
-            tmp["is_closed"] = False
-            tmp["text"] = "Not yet open."
-            tmp["color"] = "secondary"
-        elif call["closes"]:
-            remaining = utils.days_remaining(call["closes"])
-            if remaining > 0:
-                tmp["is_open"] = True
-                tmp["is_closed"] = False
-                if remaining > 7:
-                    tmp["text"] = f"{remaining:.0f} days remaining."
-                    tmp["color"] = "success"
-                elif remaining >= 2:
-                    tmp["text"] = f"{remaining:.0f} days remaining."
-                    tmp["color"] = "warning"
-                elif remaining >= 5.0 / 24.0:
-                    tmp["text"] = f"{int(24*remaining):.0f} hours remaining."
-                    tmp["color"] = "danger"
-                elif remaining >= 1.0 / 24.0:
-                    tmp["text"] = f"{24*remaining:.1f} hours remaining."
-                    tmp["color"] = "danger"
-                elif remaining >= 0:
-                    tmp["text"] = f"{24*60*remaining:.0f} minutes remaining."
-                    tmp["color"] = "danger"
-            else:
-                tmp["is_open"] = False
-                tmp["is_closed"] = True
-                tmp["text"] = "Closed."
-                tmp["color"] = "dark"
-        else:
-            tmp["is_open"] = True
-            tmp["is_closed"] = False
-            tmp["text"] = "No closing date set."
-            tmp["color"] = "secondary"
-    else:
-        if call["closes"]:
-            tmp["is_open"] = False
-            tmp["is_closed"] = False
-            tmp["text"] = "No open date set."
-            tmp["color"] = "secondary"
-        else:
-            tmp["is_open"] = False
-            tmp["is_closed"] = False
-            tmp["text"] = "No open or close dates set."
-            tmp["color"] = "secondary"
-    tmp["is_published"] = tmp["is_open"] or tmp["is_closed"]
-    return call
+def is_open(call):
+    "Is the call open? Excludes undefined."
+    if is_undefined(call):
+        return False
+    now = utils.get_now()
+    if call["opens"] > now:
+        return False
+    if call["closes"] < now:
+        return False
+    return True
+
+
+def is_closed(call):
+    "Is the call closed? Excludes undefined."
+    if is_undefined(call):
+        return False
+    if call["closes"] > utils.get_now():
+        return False
+    return True
+
+
+def is_undefined(call):
+    "Is either of the call opens or closes dates undefined?"
+    return not call["opens"] or not call["closes"]
+
+
+def is_unpublished(call):
+    "Are the call opens and closes dates undefined, or has opens date not been reached?"
+    if is_undefined(call):
+        return True
+    if calls["open"] > utils.get_now():
+        return True
+    return False

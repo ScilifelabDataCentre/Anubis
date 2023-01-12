@@ -38,8 +38,8 @@ Proposals by user {{ user['username'] }}
       <td>{{ get_user(proposal['user']) | user_link }}</td>
       <td>{{ call | call_link(title=False, proposals_link=False) }}</td>
       <td>
-        <span class="badge badge-pill badge-{{ call['tmp']['color'] }}">
-          {{ call['tmp']['text'] }}</span>
+        {{ call['closes'] | display_datetime_timezone }}
+        {{ call | display_call_closes }}
       </td>
       <td>
         {% set decision = get_decision(proposal.get('decision')) %}

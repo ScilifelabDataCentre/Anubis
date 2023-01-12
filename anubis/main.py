@@ -293,48 +293,6 @@ def display_value(value, default="-"):
 
 
 @app.template_filter()
-def display_datetime_timezone(value, due=False, tz=True, dash=True):
-    """Convert UTC datetime ISO string to the timezone of the site.
-    Optionally output warning for approaching due date, and the timezone.
-    """
-    if value:
-        dts = utils.timezone_from_utc_isoformat(value, tz=tz)
-        if due:
-            remaining = utils.days_remaining(value)
-            if remaining > flask.current_app.config["CALL_REMAINING_WARNING"]:
-                return dts
-            elif remaining >= flask.current_app.config["CALL_REMAINING_DANGER"]:
-                return markupsafe.Markup(
-                    f'{dts} <div class="badge badge-warning ml-2">'
-                    f"{remaining:.1f} days until due.</div>"
-                )
-            elif remaining >= 0:
-                return markupsafe.Markup(
-                    f'{dts} <div class="badge badge-danger ml-2">'
-                    f"{remaining:.1f} days until due.</div>"
-                )
-            else:
-                return markupsafe.Markup(
-                    f'{dts} <div class="badge badge-danger ml-2">Overdue!</div>'
-                )
-        else:
-            return dts
-    elif dash:
-        return "-"
-    return ""
-
-
-# @app.template_filter()
-# def display_call_remaining(value):
-#     pass
-
-
-# @app.template_filter()
-# def display_review_due(value):
-#     pass
-
-
-@app.template_filter()
 def display_boolean(value):
     "Display field value boolean."
     if value is None:
@@ -344,6 +302,97 @@ def display_boolean(value):
     else:
         return "No"
 
+
+@app.template_filter()
+def display_datetime_timezone(value, tz=True, dash=True):
+    """Return the datetime in the local timezone for the given UTC datetime ISO string.
+    By default, the name of the timezone is included.
+    By default, an undefined values is show as a dash.
+    """
+    if value:
+        value = utils.timezone_from_utc_isoformat(value, tz=tz)
+        result = f'<span class="text-nowrap">{value}</span>'
+    elif dash:
+        result = "-"
+    else:
+        result = ""
+    return markupsafe.Markup(result)
+
+
+@app.template_filter()
+def display_call_opens(call):
+    "Return a badge highlighting the implication of the opens date of the call."
+    if anubis.call.is_open(call):
+        result = f'<div class="badge badge-pill badge-success mx-2">Open.</div>'
+    elif anubis.call.is_undefined(call):
+        result = ""
+    elif not anubis.call.is_closed(call):
+        result = f'<div class="badge badge-pill badge-secondary mx-2">Not yet open.</div>'
+    else:
+        result = ""
+    return markupsafe.Markup(result)
+
+
+@app.template_filter()
+def display_call_closes(call):
+    "Return a badge highlighting the implication of the closes date of the call."
+    if anubis.call.is_open(call):
+        remaining = utils.days_remaining(call["closes"])
+        if remaining > flask.current_app.config["CALL_REMAINING_WARNING"]:
+            result = (
+                f'<div class="badge badge-pill badge-success mx-2">'
+                f"{remaining:.0f} days remaining.</div>"
+            )
+        elif remaining >= flask.current_app.config["CALL_REMAINING_DANGER"]:
+            result = (
+                f'<div class="badge badge-pill badge-warning mx-2">'
+                f"{remaining:.0f} days remaining.</div>"
+            )
+        elif remaining > 3.0 / 24.0:
+            result = (
+                f'<div class="badge badge-pill badge-danger mx-2">'
+                f"{24*remaining:.0f} hours remaining.</div>"
+            )
+        elif remaining >= 0:
+            result = (
+                f'<div class="badge badge-pill badge-danger mx-2">'
+                f"{24*remaining:.1f} hours remaining.</div>"
+            )
+    elif anubis.call.is_closed(call):
+        result = f'<div class="badge badge-pill badge-dark mx-2">Closed.</div>'
+    else:
+        result = ""
+    return markupsafe.Markup(result)
+
+
+@app.template_filter()
+def display_reviews_due(call):
+    """Return the datetime in the local timezone for the reviews due date
+    of the call, with a badge highlighting the implication of it.
+    """
+    if call.get("reviews_due"):
+        dts = utils.timezone_from_utc_isoformat(call["reviews_due"])
+        remaining = utils.days_remaining(call["reviews_due"])
+        if remaining > 7.0:
+            result = (
+                f'{dts} <div class="badge badge-pill badge-success mx-2">'
+                f"{remaining:.0f} days remaining.</div>"
+            )
+        elif remaining >= 1.0:
+            result = (
+                f'{dts} <div class="badge badge-pill badge-warning mx-2">'
+                f"{remaining:.0f} days remaining.</div>"
+            )
+        elif remaining >= 0:
+            result = (
+                f'{dts} <div class="badge badge-pill badge-danger mx-2">'
+                f"{24*remaining:.1f} hours remaining.</div>"
+            )
+        else:
+            result = f'{dts} <div class="badge badge-pill badge-danger mx-2">Overdue!</div>'
+    else:
+        result = ""
+    return markupsafe.Markup(result)
 
 @app.template_filter()
 def user_link(user, fullname=True, affiliation=False):
@@ -437,15 +486,15 @@ def review_link(review):
     if not review:
         return "-"
     url = flask.url_for("review.display", iuid=review["_id"])
-    html = f"""<a href="{url}" class="text-info">Review """
+    result = f"""<a href="{url}" class="text-info">Review """
     if review.get("archived"):
-        html += '<span class="badge badge-pill badge-secondary">Archived</span>'
+        result += '<span class="badge badge-pill badge-secondary">Archived</span>'
     elif review.get("finalized"):
-        html += '<span class="badge badge-pill badge-success">Finalized</span>'
+        result += '<span class="badge badge-pill badge-success">Finalized</span>'
     else:
-        html += '<span class="badge badge-pill badge-warning">Not finalized</span>'
-    html += "</a>"
-    return markupsafe.Markup(html)
+        result += '<span class="badge badge-pill badge-warning">Not finalized</span>'
+    result += "</a>"
+    return markupsafe.Markup(result)
 
 
 @app.template_filter()
