@@ -108,7 +108,7 @@
 	<div class="col-md-3">
 	  <input type="text" name="opens" id="opens"
 		 class="form-control" aria-describedby="opensHelp"
-		 value="{{ call['opens'] | display_datetime_timezone(tz=False, dash=False) }}">
+		 value="{{ call['opens'] | display_datetime_timezone(plain=True) }}">
 	</div>
       </div>
       <small id="opensHelp" class="form-text text-muted">
@@ -135,7 +135,7 @@
 	<div class="col-md-3">
 	  <input type="text" name="closes" id="closes"
 		 class="form-control" aria-describedby="closesHelp"
-		 value="{{ call['closes'] | display_datetime_timezone(tz=False, dash=False) }}">
+		 value="{{ call['closes'] | display_datetime_timezone(plain=True) }}">
 	</div>
       </div>
       <small id="closesHelp" class="form-text text-muted">
@@ -162,7 +162,7 @@
 	<div class="col-md-3">
 	  <input type="text" name="reviews_due" id="reviews_due"
 		 class="form-control" aria-describedby="reviews_dueHelp"
-		 value="{{ call['reviews_due'] | display_datetime_timezone(tz=False, dash=False) }}">
+		 value="{{ call['reviews_due'] | display_datetime_timezone(plain=True) }}">
 	</div>
       </div>
       <small id="reviews_dueHelp" class="form-text text-muted">

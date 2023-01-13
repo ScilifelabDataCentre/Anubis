@@ -39,7 +39,8 @@ def cli():
 
 
 @cli.command
-def destroy_database():
+@click.option("--force", is_flag=True, help="Do not ask for confirmation.")
+def destroy_database(force):
     "Irrevocable delete of the entire database, including the instance within CouchDB."
     with anubis.main.app.app_context():
         server = anubis.database.get_server()
@@ -47,6 +48,10 @@ def destroy_database():
             db = server[anubis.main.app.config["COUCHDB_DBNAME"]]
         except couchdb2.NotFoundError as error:
             raise click.ClickException(error)
+        if not force:
+            click.confirm(
+                "The entire database will be irrevocably deleted: Continue?", abort=True
+            )
         db.destroy()
         click.echo(
             f"""Destroyed database '{anubis.main.app.config["COUCHDB_DBNAME"]}'."""
@@ -286,14 +291,16 @@ def upload_document(filepath):
 
 
 @cli.command
+@click.option("--force", is_flag=True, help="Do not ask for confirmation.")
 @click.argument("identifier")
-def delete_document(identifier):
+def delete_document(force, identifier):
     "Delete the JSON document with the given identifier from the database."
     with anubis.main.app.app_context():
         set_db()
         try:
             doc = flask.g.db[identifier]
-            click.confirm("Really delete the document?", abort=True)
+            if not force:
+                click.confirm("Really delete the document?", abort=True)
             flask.g.db.delete(doc)
         except couchdb2.CouchDB2Exception as error:
             raise click.ClickException(error)
