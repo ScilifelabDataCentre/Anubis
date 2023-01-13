@@ -307,18 +307,19 @@ def display_boolean(value):
 
 
 @app.template_filter()
-def display_datetime_timezone(value, tz=True, dash=True):
+def display_datetime_timezone(value, plain=False):
     """Return the datetime in the local timezone for the given UTC datetime ISO string.
     By default, the name of the timezone is included.
     By default, an undefined values is show as a dash.
     """
     if value:
-        value = utils.timezone_from_utc_isoformat(value, tz=tz)
-        result = f'<span class="text-nowrap">{value}</span>'
-    elif dash:
-        result = "-"
-    else:
+        result = utils.timezone_from_utc_isoformat(value, tz=not plain)
+        if not plain:
+            result = f'<span class="text-nowrap">{result}</span>'
+    elif plain:
         result = ""
+    else:
+        result = "-"
     return markupsafe.Markup(result)
 
 
