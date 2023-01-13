@@ -124,8 +124,10 @@ def finalize(iuid):
     except KeyError:
         return utils.error("No such decision.")
     if not allow_finalize(decision):
-        return utils.error("You are not allowed to finalize this decision.",
-                           flask.url_for("decision.display", iuid=iuid))
+        return utils.error(
+            "You are not allowed to finalize this decision.",
+            flask.url_for("decision.display", iuid=iuid),
+        )
 
     if utils.http_POST():
         try:
@@ -145,8 +147,10 @@ def unfinalize(iuid):
     except KeyError:
         return utils.error("No such decision.")
     if not allow_unfinalize(decision):
-        return utils.error("You are not allowed to unfinalize this decision.",
-                           flask.url_for("decision.display", iuid=iuid))
+        return utils.error(
+            "You are not allowed to unfinalize this decision.",
+            flask.url_for("decision.display", iuid=iuid),
+        )
 
     if utils.http_POST():
         try:
@@ -191,8 +195,10 @@ def document(iuid, fid):
         documentname = decision["values"][fid]
         stub = decision["_attachments"][documentname]
     except KeyError:
-        return utils.error("No such document in decision.",
-                           flask.url_for("decision.display", iuid=iuid))
+        return utils.error(
+            "No such document in decision.",
+            flask.url_for("decision.display", iuid=iuid),
+        )
 
     # Colon ':' is a problematic character in filenames.
     # Replace it by dash '-'; used as general glue character here.

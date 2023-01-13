@@ -28,7 +28,6 @@ from anubis import utils
 
 # The global Flask app.
 app = flask.Flask(__name__)
-app.logger.info(f"Anubis version {constants.VERSION}")
 
 # Config Flask app from settings file and/or environment variables.
 anubis.config.init(app)
@@ -56,7 +55,9 @@ class IuidConverter(werkzeug.routing.BaseConverter):
 
 app.url_map.converters["iuid"] = IuidConverter
 
-with app.app_context():
+
+@app.before_request
+def update_initialize():
     # Ensure the design documents in the database are current.
     anubis.database.update_design_documents()
     # Update the database content to this version.
@@ -116,9 +117,11 @@ def prepare():
         flask.g.my_incomplete_grants_count = anubis.database.get_count(
             "grants", "incomplete", username
         )
-        flask.g.orcid_require = (flask.current_app.config.get("USER_REQUEST_ORCID") and
-                                 not (flask.g.am_admin or flask.g.am_staff) and
-                                 not flask.g.current_user.get("orcid"))
+        flask.g.orcid_require = (
+            flask.current_app.config.get("USER_REQUEST_ORCID")
+            and not (flask.g.am_admin or flask.g.am_staff)
+            and not flask.g.current_user.get("orcid")
+        )
 
 
 @app.route("/")
@@ -327,7 +330,9 @@ def display_call_opens(call):
     elif anubis.call.is_undefined(call):
         result = ""
     elif not anubis.call.is_closed(call):
-        result = f'<div class="badge badge-pill badge-secondary mx-2">Not yet open.</div>'
+        result = (
+            f'<div class="badge badge-pill badge-secondary mx-2">Not yet open.</div>'
+        )
     else:
         result = ""
     return markupsafe.Markup(result)
@@ -389,10 +394,13 @@ def display_reviews_due(call):
                 f"{24*remaining:.1f} hours remaining.</div>"
             )
         else:
-            result = f'{dts} <div class="badge badge-pill badge-danger mx-2">Overdue!</div>'
+            result = (
+                f'{dts} <div class="badge badge-pill badge-danger mx-2">Overdue!</div>'
+            )
     else:
         result = ""
     return markupsafe.Markup(result)
+
 
 @app.template_filter()
 def user_link(user, fullname=True, affiliation=False):

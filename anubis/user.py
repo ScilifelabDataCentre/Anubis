@@ -780,9 +780,11 @@ def allow_enable_disable(user):
     """Is the current user allowed to enable or disable the user account?
     Yes, if current user is admin or staff and not self.
     """
-    if (flask.g.am_admin or
-        flask.g.am_staff and
-        flask.g.current_user["username"] != user["username"]):
+    if (
+        flask.g.am_admin
+        or flask.g.am_staff
+        and flask.g.current_user["username"] != user["username"]
+    ):
         return True
     return False
 

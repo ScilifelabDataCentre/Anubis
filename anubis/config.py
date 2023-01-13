@@ -4,6 +4,7 @@ modified by an optional settings file or environment variables.
 
 import datetime
 import json
+import logging
 import os
 import os.path
 
@@ -22,23 +23,23 @@ import anubis.database
 # Default configurable values, loaded and/or modified in procedure 'init'.
 DEFAULT_CONFIG = dict(
     FLASK_DEBUG=False,
-    REVERSE_PROXY=False,    # Use 'werkzeug.middleware.proxy_fix.ProxyFix'
-    SECRET_KEY=None,        # Must be set for proper session handling!
+    REVERSE_PROXY=False,  # Use 'werkzeug.middleware.proxy_fix.ProxyFix'
+    SECRET_KEY=None,  # Must be set for proper session handling!
     COUCHDB_URL="http://127.0.0.1:5984/",  # Likely, if CouchDB on local machine.
     COUCHDB_USERNAME=None,  # Must probably be set; depends on CouchDB setup.
     COUCHDB_PASSWORD=None,  # Must probably be set; depends on CouchDB setup.
-    COUCHDB_DBNAME="anubis",# The database instance within CouchDB to use.
+    COUCHDB_DBNAME="anubis",  # The database instance within CouchDB to use.
     MIN_PASSWORD_LENGTH=6,  # Must be at least 4.
     # Default timezone is that of the host machine.
     TIMEZONE=str(datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo),
-    MAIL_SERVER=None,       # E.g. "localhost" or domain name. If None: email disabled.
-    MAIL_PORT=25,           # Must be changed if TLS or SSL is used.
-    MAIL_USE_TLS=False,     # Use TLS for email or not.
-    MAIL_USE_SSL=False,     # Use SSL for email or not.
-    MAIL_USERNAME=None,     # Email server account; most likely an email address.
-    MAIL_PASSWORD=None,     # Email server account password.
+    MAIL_SERVER=None,  # E.g. "localhost" or domain name. If None: email disabled.
+    MAIL_PORT=25,  # Must be changed if TLS or SSL is used.
+    MAIL_USE_TLS=False,  # Use TLS for email or not.
+    MAIL_USE_SSL=False,  # Use SSL for email or not.
+    MAIL_USERNAME=None,  # Email server account; most likely an email address.
+    MAIL_PASSWORD=None,  # Email server account password.
     MAIL_DEFAULT_SENDER=None,  # Email address from which Anubis emails are sent.
-    MAIL_REPLY_TO=None,        # If different from default sender.
+    MAIL_REPLY_TO=None,  # If different from default sender.
 )
 
 
@@ -58,8 +59,6 @@ def init(app):
     app.config.from_mapping(DEFAULT_CONFIG)
 
     app.config["SETTINGS_DOTENV"] = dotenv.load_dotenv()
-    if app.config["SETTINGS_DOTENV"]:
-        app.logger.info(f"set environment variables from '.env' file")
 
     # Collect filepaths for possible settings files.
     filepaths = []
@@ -78,15 +77,13 @@ def init(app):
         except OSError:
             pass
         else:
-            for key in config.keys():
-                if key not in DEFAULT_CONFIG:
-                    app.logger.warning(f"Obsolete item '{key}' in settings file.")
             app.config.from_mapping(config)
             app.config["SETTINGS_FILE"] = filepath
-            app.logger.info(f"settings file: {app.config['SETTINGS_FILE']}")
+            obsolete_keys = set(config.keys()).difference(DEFAULT_CONFIG)
             break
 
     # Modify the configuration from environment variables; convert to correct type.
+    envvar_keys = []
     for key, value in DEFAULT_CONFIG.items():
         try:
             new = os.environ[key]
@@ -99,7 +96,7 @@ def init(app):
                 app.config[key] = utils.to_bool(new)
             else:
                 app.config[key] = new
-            app.logger.info(f"setting '{key}' from environment variable.")
+            envvar_keys.append(key)
             app.config["SETTINGS_ENVVAR"] = True
 
     # Must be done after all possible settings sources have been processed.
@@ -141,6 +138,19 @@ def init(app):
         toc.append("</ul>")
     app.config["DOCUMENTATION_TOC"] = "\n".join(toc)
     app.config["DOCUMENTATION"] = utils.markdown2html("".join(lines))
+
+    # Modify the Flask logger after all previous configuration has been done.
+    if not app.logger.isEnabledFor(logging.DEBUG):
+        app.logger.setLevel(logging.INFO)
+    app.logger.info(f"Anubis version {constants.VERSION}")
+    if app.config["SETTINGS_DOTENV"]:
+        app.logger.info(f"environment variables set from '.env' file")
+    if app.config.get("SETTINGS_FILE"):
+        app.logger.info(f"settings file: {app.config['SETTINGS_FILE']}")
+        for key in obsolete_keys:
+            app.logger.warning(f"Obsolete item '{key}' in settings file.")
+    for key in envvar_keys:
+        app.logger.info(f"'{key}' setting from environment variable.")
 
 
 def init_from_db():
