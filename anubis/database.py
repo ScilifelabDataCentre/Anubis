@@ -1,5 +1,8 @@
 "CouchDB operations."
 
+import mimetypes
+import os.path
+
 import couchdb2
 import flask
 
@@ -184,10 +187,10 @@ def update():
             else:
                 if "Z" not in value:  # Not in UTC; then it is in TIMEZONE.
                     changed = True
-                    call[key] = utc_from_timezone_isoformat(value)
+                    call[key] = utils.utc_from_timezone_isoformat(value)
         if changed:
-            app.logger.info(f"Updated call {call['identifier']} document.")
             db.put(call)
+            app.logger.info(f"Updated call {call['identifier']} document.")
 
     # Add a meta document for 'data_policy' text.
     if "data_policy" not in db:
@@ -201,6 +204,7 @@ def update():
             text = None
         with MetaSaver(id="data_policy", db=db) as saver:
             saver["text"] = text
+        app.logger.info("Created 'data_policy' meta document.")
 
     # Add a meta document for 'contact' text.
     if "contact" not in db:
@@ -214,6 +218,7 @@ def update():
             text = None
         with MetaSaver(id="contact", db=db) as saver:
             saver["text"] = text
+        app.logger.info("Created 'contact' meta document.")
 
     # Add a meta document for site configuration.
     if "site_configuration" not in db:
@@ -225,12 +230,15 @@ def update():
             )
             saver["host_name"] = app.config.get("HOST_NAME")
             saver["host_url"] = app.config.get("HOST_URL")
+
+            # Get the directory for the site static files.
             if app.config.get("SITE_STATIC_DIR"):
                 dirpath = app.config.get("SITE_STATIC_DIR")
             else:
                 dirpath = os.path.normpath(
                     os.path.join(constants.ROOT, "../site/static")
                 )
+
             # Attach the site name logo file, if any.
             if app.config.get("SITE_LOGO"):
                 path = os.path.join(dirpath, app.config["SITE_LOGO"])
@@ -241,6 +249,7 @@ def update():
                     saver.add_attachment("name_logo", data, mimetype)
                 except OSError:
                     pass
+
             # Attach the host logo file, if any.
             if app.config.get("HOST_LOGO"):
                 path = os.path.join(dirpath, app.config["HOST_LOGO"])
@@ -251,17 +260,18 @@ def update():
                     saver.add_attachment("host_logo", data, mimetype)
                 except OSError:
                     pass
+        app.logger.info("Created 'site_configuration' meta document.")
 
     # Add a meta document for user account configurations.
     if "user_configuration" not in db:
         with MetaSaver(id="user_configuration", db=db) as saver:
-            saver["orcid"] = to_bool(app.config.get("USER_ORCID", True))
+            saver["orcid"] = utils.to_bool(app.config.get("USER_ORCID", True))
             saver["genders"] = app.config.get("USER_GENDERS") or [
                 "Male",
                 "Female",
                 "Other",
             ]
-            saver["birthdate"] = to_bool(app.config.get("USER_BIRTHDATE", True))
+            saver["birthdate"] = utils.to_bool(app.config.get("USER_BIRTHDATE", True))
             saver["degrees"] = app.config.get("USER_DEGREES") or [
                 "Mr/Ms",
                 "MSc",
@@ -271,16 +281,19 @@ def update():
                 "Prof",
                 "Other",
             ]
-            saver["affiliation"] = to_bool(app.config.get("USER_AFFILIATION", True))
+            saver["affiliation"] = utils.to_bool(
+                app.config.get("USER_AFFILIATION", True)
+            )
             saver["universities"] = app.config.get("UNIVERSITIES") or []
             # Badly chosen key, but have to keep it...
-            saver["postaladdress"] = to_bool(
+            saver["postaladdress"] = utils.to_bool(
                 app.config.get("USER_POSTALADDRESS", False)
             )
-            saver["phone"] = to_bool(app.config.get("USER_PHONE", True))
+            saver["phone"] = utils.to_bool(app.config.get("USER_PHONE", True))
             saver["enable_email_whitelist"] = (
                 app.config.get("USER_ENABLE_EMAIL_WHITELIST") or []
             )
+        app.logger.info("Created 'user_configuration' meta document.")
 
     # Add a meta document for call configurations.
     if "call_configuration" not in db:
@@ -288,6 +301,7 @@ def update():
             saver["remaining_danger"] = app.config.get("CALL_REMAINING_DANGER") or 1.0
             saver["remaining_warning"] = app.config.get("CALL_REMAINING_WARNING") or 7.0
             saver["open_order_key"] = app.config.get("CALLS_OPEN_ORDER_KEY") or "closes"
+        app.logger.info("Created 'call_configuration' meta document.")
 
 
 CALLS_DESIGN_DOC = {

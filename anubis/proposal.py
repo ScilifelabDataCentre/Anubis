@@ -217,7 +217,9 @@ def transfer(pid):
     if proposal is None:
         return utils.error("No such proposal.")
     if not allow_transfer(proposal):
-        return utils.error("You are not allowed to transfer ownership of this proposal.")
+        return utils.error(
+            "You are not allowed to transfer ownership of this proposal."
+        )
 
     if utils.http_GET():
         return flask.render_template("proposal/transfer.html", proposal=proposal)
@@ -358,8 +360,10 @@ def document(pid, fid):
     try:
         doc = get_document(proposal, fid)
     except KeyError:
-        return utils.error("No such document in the proposal.",
-                           flask.url_for("proposal.display", pid=pid))
+        return utils.error(
+            "No such document in the proposal.",
+            flask.url_for("proposal.display", pid=pid),
+        )
 
     response = flask.make_response(doc["content"])
     response.headers.set("Content-Type", doc["content_type"])
@@ -466,7 +470,8 @@ def get_proposal(pid, refresh=False):
         return utils.cache_get(key)
     except KeyError:
         docs = [
-            r.doc for r in flask.g.db.view(
+            r.doc
+            for r in flask.g.db.view(
                 "proposals", "identifier", key=pid, include_docs=True
             )
         ]

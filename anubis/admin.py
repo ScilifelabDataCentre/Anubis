@@ -98,11 +98,11 @@ def call_configuration():
         try:
             form = flask.request.form
             with anubis.database.MetaSaver(configuration) as saver:
-                value = float(form.get("remaining_danger") or '')
+                value = float(form.get("remaining_danger") or "")
                 if value <= 0.0:
                     raise ValueError("'Remaining danger' value must be positive.")
                 saver["remaining_danger"] = value
-                value = float(form.get("remaining_warning") or '')
+                value = float(form.get("remaining_warning") or "")
                 if value <= 0.0:
                     raise ValueError("'Remaining warning' value must be positive.")
                 saver["remaining_warning"] = value

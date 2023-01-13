@@ -134,8 +134,10 @@ def finalize(iuid):
     except KeyError:
         return utils.error("No such review.")
     if not allow_finalize(review):
-        return utils.error("You are not allowed to finalize this review.",
-                           flask.url_for("review.display", iuid=iuid))
+        return utils.error(
+            "You are not allowed to finalize this review.",
+            flask.url_for("review.display", iuid=iuid),
+        )
 
     if utils.http_POST():
         try:
@@ -155,8 +157,10 @@ def unfinalize(iuid):
     except KeyError:
         return utils.error("No such review.")
     if not allow_unfinalize(review):
-        return utils.error("You are not allowed to unfinalize this review.",
-                           flask.url_for("review.display", iuid=iuid))
+        return utils.error(
+            "You are not allowed to unfinalize this review.",
+            flask.url_for("review.display", iuid=iuid),
+        )
 
     if utils.http_POST():
         try:
@@ -177,8 +181,10 @@ def archive(iuid):
         return utils.error("No such review.")
     # In a sense similar to deleting, so requires same priviliege.
     if not allow_delete(review):
-        return utils.error("You are not allowed to archive this review.",
-                           flask.url_for("review.display", iuid=iuid))
+        return utils.error(
+            "You are not allowed to archive this review.",
+            flask.url_for("review.display", iuid=iuid),
+        )
 
     if utils.http_POST():
         try:
@@ -198,8 +204,10 @@ def unarchive(iuid):
     except KeyError:
         return utils.error("No such archived review.")
     if not allow_delete(review):
-        return utils.error("You are not allowed to unarchive this review.",
-                           flask.url_for("review.display", iuid=iuid))
+        return utils.error(
+            "You are not allowed to unarchive this review.",
+            flask.url_for("review.display", iuid=iuid),
+        )
 
     if get_reviewer_review(
         anubis.proposal.get_proposal(review["proposal"]),
@@ -249,8 +257,9 @@ def document(iuid, fid):
         documentname = review["values"][fid]
         stub = review["_attachments"][documentname]
     except KeyError:
-        return utils.error("No such document in review.",
-                           flask.url_for("review.display", iuid=iuid))
+        return utils.error(
+            "No such document in review.", flask.url_for("review.display", iuid=iuid)
+        )
 
     # Colon ':' is a problematic character in filenames.
     # Replace it by dash '-'; used as general glue character here.

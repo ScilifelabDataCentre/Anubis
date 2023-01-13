@@ -215,10 +215,12 @@ def documents(cid):
         return utils.error("You are not allowed to edit the call.")
 
     if utils.http_GET():
-        return flask.render_template("call/documents.html",
-                                     call=call,
-                                     is_open=is_open(call),
-                                     is_closed=is_closed(call))
+        return flask.render_template(
+            "call/documents.html",
+            call=call,
+            is_open=is_open(call),
+            is_closed=is_closed(call),
+        )
 
     elif utils.http_POST():
         infile = flask.request.files.get("document")
@@ -270,10 +272,12 @@ def proposal(cid):
         return utils.error("You are not allowed to edit the call.")
 
     if utils.http_GET():
-        return flask.render_template("call/proposal.html",
-                                     call=call,
-                                     is_open=is_open(call),
-                                     is_closed=is_closed(call))
+        return flask.render_template(
+            "call/proposal.html",
+            call=call,
+            is_open=is_open(call),
+            is_closed=is_closed(call),
+        )
 
     elif utils.http_POST():
         try:
@@ -353,8 +357,9 @@ def reviewers(cid):
         if user is None:
             user = anubis.user.get_user(email=reviewer)
         if user is None:
-            return utils.error(f"No such user '{reviewer}'.",
-                               flask.url_for("call.reviewers", cid=cid))
+            return utils.error(
+                f"No such user '{reviewer}'.", flask.url_for("call.reviewers", cid=cid)
+            )
         if anubis.proposal.get_call_user_proposal(cid, user["username"]):
             utils.flash_warning(
                 "The user has a proposal in the call. Allowing her to be a reviewer is questionable."
@@ -381,8 +386,10 @@ def reviewers(cid):
         if anubis.database.get_count(
             "reviews", "call_reviewer", [call["identifier"], reviewed]
         ):
-            return utils.error("Cannot remove reviewer which has reviews in the call.",
-                               flask.url_for("call.reviewers", cid=cid))
+            return utils.error(
+                "Cannot remove reviewer which has reviews in the call.",
+                flask.url_for("call.reviewers", cid=cid),
+            )
         with CallSaver(call) as saver:
             try:
                 saver["reviewers"].remove(reviewer)
@@ -406,9 +413,9 @@ def review(cid):
         return utils.error("You are not allowed to edit the call.")
 
     if utils.http_GET():
-        return flask.render_template("call/review.html",
-                                     call=call,
-                                     is_closed=is_closed(call))
+        return flask.render_template(
+            "call/review.html", call=call, is_closed=is_closed(call)
+        )
 
     elif utils.http_POST():
         try:
@@ -564,8 +571,10 @@ def reset_counter(cid):
     if not allow_edit(call):
         return utils.error("You are not allowed to edit the call.")
     if anubis.database.get_count("proposals", "call", cid) != 0:
-        return utils.error("Cannot reset counter when there are proposals in the call.",
-                           flask.url_for("call.display", cid=cid))
+        return utils.error(
+            "Cannot reset counter when there are proposals in the call.",
+            flask.url_for("call.display", cid=cid),
+        )
 
     with CallSaver(call) as saver:
         saver["counter"] = None

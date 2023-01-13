@@ -19,6 +19,19 @@ from anubis import constants
 from anubis import utils
 
 
+def set_db():
+    "Must be called from within a Flask app context."
+    try:
+        flask.g.db = anubis.database.get_db()
+    except couchdb2.NotFoundError as error:
+        raise click.ClickException(error)
+
+
+def to_json(data):
+    "Convert data structure to indented JSON."
+    return json.dumps(data, ensure_ascii=False, indent=2)
+
+
 @click.group
 def cli():
     "Command line interface for operations on the Anubis database."
@@ -33,7 +46,7 @@ def destroy_database():
         try:
             db = server[anubis.main.app.config["COUCHDB_DBNAME"]]
         except couchdb2.NotFoundError as error:
-            raise click.ClickException(str(error))
+            raise click.ClickException(error)
         db.destroy()
         click.echo(
             f"""Destroyed database '{anubis.main.app.config["COUCHDB_DBNAME"]}'."""
@@ -51,7 +64,9 @@ def create_database():
             )
         server.create(anubis.main.app.config["COUCHDB_DBNAME"])
         anubis.database.update_design_documents()
-        click.echo(f"""Created database '{anubis.main.app.config["COUCHDB_DBNAME"]}'.""")
+        click.echo(
+            f"""Created database '{anubis.main.app.config["COUCHDB_DBNAME"]}'."""
+        )
 
 
 @cli.command
@@ -65,14 +80,16 @@ def update_database():
             )
         anubis.database.update_design_documents()
         anubis.database.update()
-        click.echo(f"""Updated database '{anubis.main.app.config["COUCHDB_DBNAME"]}'.""")
+        click.echo(
+            f"""Updated database '{anubis.main.app.config["COUCHDB_DBNAME"]}'."""
+        )
 
 
 @cli.command
 def counts():
     "Output counts of entities in the system."
     with anubis.main.app.app_context():
-        flask.g.db = anubis.database.get_db()
+        set_db()
         click.echo(f"{anubis.database.get_count('calls', 'owner'):>5} calls")
         click.echo(f"{anubis.database.get_count('proposals', 'user'):>5} proposals")
         click.echo(f"{anubis.database.get_count('reviews', 'call'):>5} reviews")
@@ -95,7 +112,7 @@ def counts():
 def create_admin(username, email, password):
     "Create a new admin account."
     with anubis.main.app.app_context():
-        flask.g.db = anubis.database.get_db()
+        set_db()
         try:
             with anubis.user.UserSaver() as saver:
                 saver.set_username(username)
@@ -104,7 +121,7 @@ def create_admin(username, email, password):
                 saver.set_role(constants.ADMIN)
                 saver.set_status(constants.ENABLED)
         except ValueError as error:
-            raise click.ClickException(str(error))
+            raise click.ClickException(error)
         click.echo(f"Created admin user account '{username}'.")
 
 
@@ -120,7 +137,7 @@ def create_admin(username, email, password):
 def create_user(username, email, password):
     "Create a new user account."
     with anubis.main.app.app_context():
-        flask.g.db = anubis.database.get_db()
+        set_db()
         try:
             with anubis.user.UserSaver() as saver:
                 saver.set_username(username)
@@ -129,7 +146,7 @@ def create_user(username, email, password):
                 saver.set_role(constants.USER)
                 saver.set_status(constants.ENABLED)
         except ValueError as error:
-            raise click.ClickException(str(error))
+            raise click.ClickException(error)
         click.echo(f"Created user account '{username}'.")
 
 
@@ -144,7 +161,7 @@ def create_user(username, email, password):
 def set_password(username, password):
     "Set the password for a user account."
     with anubis.main.app.app_context():
-        flask.g.db = anubis.database.get_db()
+        set_db()
         user = anubis.user.get_user(username)
         if user:
             with anubis.user.UserSaver(user) as saver:
@@ -159,7 +176,7 @@ def set_password(username, password):
 def reset_password(username):
     "Reset the password for a user account."
     with anubis.main.app.app_context():
-        flask.g.db = anubis.database.get_db()
+        set_db()
         user = anubis.user.get_user(username)
         if user:
             with anubis.user.UserSaver(user) as saver:
@@ -186,7 +203,7 @@ def reset_password(username):
 def dump(dumpfile, dumpdir, progressbar):
     "Dump all data in the database to a '.tar.gz' dump file."
     with anubis.main.app.app_context():
-        flask.g.db = anubis.database.get_db()
+        set_db()
         if not dumpfile:
             dumpfile = "dump_{0}.tar.gz".format(time.strftime("%Y-%m-%d"))
             if dumpdir:
@@ -205,7 +222,7 @@ def dump(dumpfile, dumpdir, progressbar):
 def undump(dumpfile, progressbar):
     "Load an Anubis database dump file. The database must be empty."
     with anubis.main.app.app_context():
-        flask.g.db = anubis.database.get_db()
+        set_db()
         if anubis.database.get_count("users", "username") != 0:
             raise click.ClickException(
                 f"The database '{anubis.main.app.config['COUCHDB_DBNAME']}'"
@@ -217,9 +234,7 @@ def undump(dumpfile, progressbar):
 
 
 @cli.command
-@click.option(
-    "-f", "--filepath", type=str, help="The path of the downloaded file."
-)
+@click.option("-f", "--filepath", type=str, help="The path of the downloaded file.")
 @click.argument("identifier")
 def download_document(filepath, identifier):
     """Download the JSON for the single document in the database.
@@ -230,7 +245,7 @@ def download_document(filepath, identifier):
     proposal identifier, grant identifier, or '_id' if the CouchDB document.
     """
     with anubis.main.app.app_context():
-        flask.g.db = anubis.database.get_db()
+        set_db()
         doc = anubis.database.get_doc(identifier)
         if doc is None:
             raise click.ClickException("No such document in the database.")
@@ -256,16 +271,17 @@ def upload_document(filepath):
         with open(filepath) as infile:
             doc = json.load(infile)
     except json.JSONDecodeError as error:
-        raise click.ClickException(str(error))
+        raise click.ClickException(error)
     with anubis.main.app.app_context():
-        flask.g.db = anubis.database.get_db()
+        set_db()
         if "_id" in doc and doc["_id"] in flask.g.db:
-            click.confirm("A document with the '_id' already exists. Overwrite it?",
-                          abort=True)
+            click.confirm(
+                "A document with the '_id' already exists. Overwrite it?", abort=True
+            )
         try:
             flask.g.db.put(doc)
         except couchdb2.CouchDB2Exception as error:
-            raise click.ClickException(str(error))
+            raise click.ClickException(error)
     click.echo(f"""Uploaded JSON document '{doc["_id"]}' from '{filepath}'.""")
 
 
@@ -274,13 +290,13 @@ def upload_document(filepath):
 def delete_document(identifier):
     "Delete the JSON document with the given identifier from the database."
     with anubis.main.app.app_context():
-        flask.g.db = anubis.database.get_db()
+        set_db()
         try:
             doc = flask.g.db[identifier]
             click.confirm("Really delete the document?", abort=True)
             flask.g.db.delete(doc)
         except couchdb2.CouchDB2Exception as error:
-            raise click.ClickException(str(error))
+            raise click.ClickException(error)
     click.echo(f"Deleted JSON document '{identifier}'.")
 
 
@@ -301,11 +317,6 @@ def versions():
     with anubis.main.app.app_context():
         for name, version, url in anubis.utils.get_software():
             click.echo(f"{name:>20} {version:>10}   {url}")
-
-
-def to_json(data):
-    "Convert data structure to indented JSON."
-    return json.dumps(data, ensure_ascii=False, indent=2)
 
 
 if __name__ == "__main__":

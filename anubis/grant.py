@@ -227,8 +227,10 @@ def document(gid, fid):
         documentname = grant["values"][fid]
         stub = grant["_attachments"][documentname]
     except KeyError:
-        return utils.error("No such document in grant dossier.",
-                           flask.url_for("grant.display", gid=gid))
+        return utils.error(
+            "No such document in grant dossier.",
+            flask.url_for("grant.display", gid=gid),
+        )
 
     # Colon ':' is a problematic character in filenames; replace by dash '-'.
     gid = gid.replace(":", "-")
@@ -372,8 +374,7 @@ def get_grant(gid):
         ]
         if len(docs) == 1:
             return utils.cache_put(
-                f"grant {grant['proposal']}",
-                utils.cache_put(key, doc[0])
+                f"grant {grant['proposal']}", utils.cache_put(key, doc[0])
             )
         else:
             return None
@@ -393,8 +394,7 @@ def get_grant_proposal(pid):
         ]
         if len(docs) == 1:
             return utils.cache_put(
-                f"grant {grant['identifier']}", 
-                utils.cache_put(key, docs[0])
+                f"grant {grant['identifier']}", utils.cache_put(key, docs[0])
             )
         else:
             return None

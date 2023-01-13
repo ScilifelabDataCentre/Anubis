@@ -14,9 +14,7 @@ blueprint = flask.Blueprint("calls", __name__)
 @utils.admin_or_staff_required
 def all():
     "Display All calls."
-    calls = [
-        r.doc for r in flask.g.db.view("calls", "identifier", include_docs=True)
-    ]
+    calls = [r.doc for r in flask.g.db.view("calls", "identifier", include_docs=True)]
     return flask.render_template("calls/all.html", calls=calls)
 
 
@@ -35,7 +33,8 @@ def owner(username):
         return utils.error("Either of roles 'admin' or 'staff' is required.")
 
     calls = [
-        r.doc for r in flask.g.db.view(
+        r.doc
+        for r in flask.g.db.view(
             "calls", "owner", key=username, reduce=False, include_docs=True
         )
     ]
@@ -51,7 +50,8 @@ def owner(username):
 def closed():
     "Closed calls."
     calls = [
-        r.doc for r in flask.g.db.view(
+        r.doc
+        for r in flask.g.db.view(
             "calls",
             "closes",
             startkey="",
@@ -86,12 +86,11 @@ def open():
 @utils.admin_or_staff_required
 def unpublished():
     "Unpublished calls; undefined opens and/or closes date, or not yet open."
-    calls = [
-        r.doc for r in flask.g.db.view("calls", "undefined", include_docs=True)
-    ]
+    calls = [r.doc for r in flask.g.db.view("calls", "undefined", include_docs=True)]
     calls.extend(
         [
-            r.doc for r in flask.g.db.view(
+            r.doc
+            for r in flask.g.db.view(
                 "calls",
                 "opens",
                 startkey=utils.get_now(),
@@ -107,7 +106,8 @@ def get_open_calls():
     "Return a list of open calls, sorted according to configuration."
     # It is more computationally efficient to use closes date for first selection.
     result = [
-        r.doc for r in flask.g.db.view(
+        r.doc
+        for r in flask.g.db.view(
             "calls",
             "closes",
             startkey=utils.get_now(),
