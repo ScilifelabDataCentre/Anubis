@@ -56,10 +56,10 @@ class IuidConverter(werkzeug.routing.BaseConverter):
 app.url_map.converters["iuid"] = IuidConverter
 
 
-@app.before_request
+@app.before_first_request
 def update_initialize():
-    """- Update design document
-    - Update contents of db for version changes
+    """- Update design document.
+    - Update contents of db for version changes.
     - Get configuration values that are nowadays stored in the database.
     """
     anubis.database.update_design_documents()

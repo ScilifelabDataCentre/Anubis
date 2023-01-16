@@ -1075,7 +1075,7 @@ def allow_identifier_edit(call):
         return False
     if anubis.database.get_count("grants", "call", call["identifier"]):
         return False
-    if not is_open(call):
+    if is_open(call):
         return False
     return True
 
