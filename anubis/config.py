@@ -28,7 +28,7 @@ DEFAULT_CONFIG = dict(
     COUCHDB_URL="http://127.0.0.1:5984/",  # Likely, if CouchDB on local machine.
     COUCHDB_USERNAME=None,  # Must probably be set; depends on CouchDB setup.
     COUCHDB_PASSWORD=None,  # Must probably be set; depends on CouchDB setup.
-    COUCHDB_DBNAME="anubis",  # The database instance within CouchDB to use.
+    COUCHDB_DBNAME="anubis",  # The database instance within CouchDB.
     MIN_PASSWORD_LENGTH=6,  # Must be at least 4.
     # Default timezone is that of the host machine.
     TIMEZONE=str(datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo),
@@ -58,9 +58,10 @@ def init(app):
     """
     app.config.from_mapping(DEFAULT_CONFIG)
 
+    # Dotenv file '.env' is optional, and mostly useful for development.
     app.config["SETTINGS_DOTENV"] = dotenv.load_dotenv()
 
-    # Collect filepaths for possible settings files.
+    # Collect filepaths for possible locations of a settings file.
     filepaths = []
     try:
         filepaths.append(os.environ["ANUBIS_SETTINGS_FILEPATH"])
@@ -108,7 +109,13 @@ def init(app):
         raise ValueError("SECRET_KEY not set")
     if app.config["MIN_PASSWORD_LENGTH"] <= 4:
         raise ValueError("MIN_PASSWORD_LENGTH is too short")
+    # Is the timezone recognizable?
     pytz.timezone(app.config["TIMEZONE"])
+    # Checks that the CouchDB server is reachable, and its version.
+    with app.app_context():
+        server = anubis.database.get_server()
+        if server.version < "2.3.1":
+            raise ValueError("CouchDB server is too old; upgrade to >= 2.3.1.")
 
     # Read and preprocess the documentation.
     with open("documentation.md") as infile:
@@ -142,6 +149,8 @@ def init(app):
     # Modify the Flask logger after all previous configuration has been done.
     if not app.logger.isEnabledFor(logging.DEBUG):
         app.logger.setLevel(logging.INFO)
+
+    # Output the sources of settings, for easier configuration debug.
     app.logger.info(f"Anubis version {constants.VERSION}")
     if app.config["SETTINGS_DOTENV"]:
         app.logger.info(f"environment variables set from '.env' file")
@@ -155,7 +164,7 @@ def init(app):
 
 def init_from_db():
     """Set configuration from values stored in the database.
-    These are not settable by environment variables or the settings file.
+    These are no longer settable by environment variables or the settings file.
     """
     db = anubis.database.get_db()
     app = flask.current_app
@@ -204,8 +213,8 @@ def init_from_db():
 
 
 def get_config(hidden=True):
-    """Return the current config. Only those items that are supposed to
-    be set for a site, not those that are set by the software.
+    """Return the current configuration. Only those items that are supposed
+    to be set by the admin for a site, not those that are set by the software.
     """
     result = {"ROOT": constants.ROOT}
     for key in ["SETTINGS_DOTENV", "SETTINGS_ENVVAR", "SETTINGS_FILE"]:

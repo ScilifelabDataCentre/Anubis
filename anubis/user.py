@@ -467,9 +467,10 @@ class UserSaver(Saver):
                 raise ValueError("email already in use")
             self.doc["email"] = email
             if self.doc.get("status") == constants.PENDING:
-                # Filename matching instead of regexp; easier to specify.
-                for ep in flask.current_app.config["USER_ENABLE_EMAIL_WHITELIST"]:
-                    if fnmatch.fnmatch(email, ep):
+                # Filename pattern matching instead of regexp; easier to specify.
+                # The whitelist has not been fetched if the CLI is calling this.
+                for p in flask.current_app.config.get("USER_ENABLE_EMAIL_WHITELIST",[]):
+                    if fnmatch.fnmatch(email, p):
                         self.set_status(constants.ENABLED)
                         break
         elif require:
