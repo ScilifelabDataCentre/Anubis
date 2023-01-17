@@ -45,8 +45,8 @@ DEFAULT_CONFIG = dict(
 
 def init(app):
     """Perform the configuration of the Flask app.
-    1) Start with values in DEFAULT_SETTINGS.
-    2) Set environment variables from file '.env' using 'dotenv.load_dotenv'.
+    1) Start with values in DEFAULT_CONFIG.
+    2) Set environment variables from file '.env', if any, using 'dotenv.load_dotenv'.
     3) Collect the possible settings file paths in the following order:
        - The environment variable ANUBIS_SETTINGS_FILEPATH, if any.
        - The file 'settings.json' in this directory.
@@ -84,6 +84,7 @@ def init(app):
             break
 
     # Modify the configuration from environment variables; convert to correct type.
+    app.config["SETTINGS_ENVVAR"] = False
     envvar_keys = []
     for key, value in DEFAULT_CONFIG.items():
         try:

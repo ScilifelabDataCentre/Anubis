@@ -4,7 +4,6 @@ import http.client
 import io
 
 import flask
-import flask_mail
 import markupsafe
 import werkzeug.routing
 
@@ -30,18 +29,30 @@ from anubis import utils
 # The global Flask app.
 app = flask.Flask(__name__)
 
-# Configure Flask app from settings file and/or environment variables.
-anubis.config.init(app)
-
 # Hard-wired Flask configuration.
 app.json.ensure_ascii = False
 app.json.sort_keys = False
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = constants.SITE_FILE_MAX_AGE
+
+# Configure Flask app from settings file and/or environment variables.
+anubis.config.init(app)
+anubis.utils.init(app)
 anubis.display.init(app)
 
-# Global instance of the mail interface.
-mail = flask_mail.Mail()
-mail.init_app(app)
+
+@app.before_first_request
+def update_initialize():
+    """The CLI cannot create a database if this code is executed when the app is
+    created in the code above. That is why this code is in this special procedure
+    which Flask executes once before handling the first request after starting up.
+    - Update design document.
+    - Update contents of db for version changes.
+    - Get configuration values that are nowadays stored in the database.
+    """
+    anubis.database.update_design_documents()
+    anubis.database.update()
+    anubis.config.init_from_db()
+
 
 # Add a custom converter to handle IUID URLs.
 class IuidConverter(werkzeug.routing.BaseConverter):
@@ -54,17 +65,6 @@ class IuidConverter(werkzeug.routing.BaseConverter):
 
 
 app.url_map.converters["iuid"] = IuidConverter
-
-
-@app.before_first_request
-def update_initialize():
-    """- Update design document.
-    - Update contents of db for version changes.
-    - Get configuration values that are nowadays stored in the database.
-    """
-    anubis.database.update_design_documents()
-    anubis.database.update()
-    anubis.config.init_from_db()
 
 
 @app.context_processor
