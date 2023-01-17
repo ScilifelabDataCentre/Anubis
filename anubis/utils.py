@@ -9,6 +9,7 @@ import uuid
 import couchdb2
 import dateutil.parser
 import flask
+import flask_mail
 import jinja2
 import marko
 import markupsafe
@@ -16,6 +17,35 @@ import pytz
 import xlsxwriter
 
 from anubis import constants
+
+
+# Global instance of the mail interface.
+MAIL = flask_mail.Mail()
+
+
+def init(app):
+    "Initialize the mail interface."
+    MAIL.init_app(app)
+
+
+def send_email(recipients, title, text):
+    """Send an email.
+    Raise ValueError if the email server is not configured.
+    Raise KeyError if email could not be sent; server misconfigured.
+    """
+    if not flask.current_app.config["MAIL_SERVER"]:
+        raise ValueError
+    if isinstance(recipients, str):
+        recipients = [recipients]
+    message = flask_mail.Message(
+        title, recipients=recipients, reply_to=flask.current_app.config["MAIL_REPLY_TO"]
+    )
+    message.body = text
+    try:
+        MAIL.send(message)
+    except (ConnectionRefusedError, smtplib.SMTPAuthenticationError) as error:
+        flask.current_app.logger.error(str(error))
+        raise KeyError
 
 
 def get_software():
@@ -283,25 +313,3 @@ class HtmlRenderer(marko.html_renderer.HTMLRenderer):
             return element.children
         else:
             return "".join([self.get_text_only(el) for el in element.children])
-
-
-def send_email(recipients, title, text):
-    """Send an email.
-    Raise ValueError if the email server is not configured.
-    Raise KeyError if email could not be sent; server misconfigured.
-    """
-    import anubis
-
-    if not flask.current_app.config["MAIL_SERVER"]:
-        raise ValueError
-    if isinstance(recipients, str):
-        recipients = [recipients]
-    message = flask_mail.Message(
-        title, recipients=recipients, reply_to=flask.current_app.config["MAIL_REPLY_TO"]
-    )
-    message.body = text
-    try:
-        anubis.mail.send(message)
-    except (ConnectionRefusedError, smtplib.SMTPAuthenticationError) as error:
-        app.logger.error(str(error))
-        raise KeyError
