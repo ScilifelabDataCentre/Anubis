@@ -373,8 +373,9 @@ def get_grant(gid):
             for r in flask.g.db.view("grants", "identifier", key=gid, include_docs=True)
         ]
         if len(docs) == 1:
+            grant = docs[0]
             return utils.cache_put(
-                f"grant {grant['proposal']}", utils.cache_put(key, doc[0])
+                f"grant {grant['proposal']}", utils.cache_put(key, grant)
             )
         else:
             return None
@@ -393,8 +394,9 @@ def get_grant_proposal(pid):
             for r in flask.g.db.view("grants", "proposal", key=pid, include_docs=True)
         ]
         if len(docs) == 1:
+            grant = docs[0]
             return utils.cache_put(
-                f"grant {grant['identifier']}", utils.cache_put(key, docs[0])
+                f"grant {grant['identifier']}", utils.cache_put(key, grant)
             )
         else:
             return None
