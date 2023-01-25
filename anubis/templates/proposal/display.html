@@ -264,13 +264,11 @@
 {% endblock %} {# block doclinks #}
 
 {% block info %}
-<div class="small">
-  Modified <span class="localtime">{{ proposal['modified'] }}</span>
-  <span class="ml-4">
-    Created <span class="localtime">{{ proposal['created'] }}</span>
-  </span>
-  <span class="ml-4">
-    <a href="{{ url_for('.logs', pid=proposal['identifier']) }}">Logs</a>
-  </span>
+<div class="mt-4 small">
+  Modified <span class="localtime text-nowrap">{{ proposal['modified'] }}</span>
+  <br>
+  Created <span class="localtime text-nowrap">{{ proposal['created'] }}</span>
+  <br>
+  <a href="{{ url_for('.logs', pid=proposal['identifier']) }}">Logs</a>
 </div>
 {% endblock %} {# block info #}

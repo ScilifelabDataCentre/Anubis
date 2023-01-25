@@ -267,21 +267,18 @@ User {{ user['username'] }}
 {% endblock %} {# block actions #}
 
 {% block info %}
-<div class="small">
-  Modified <span class="localtime">{{ user['modified'] }}</span>
-  <span class="ml-4">
-    Last login
-    {% if user.get('last_login') %}
-    <span class="localtime">{{ user['last_login'] }}</span>
-    {% else %}
-    ?
-    {% endif %}
-  </span>
-  <span class="ml-4">
-    Created <span class="localtime">{{ user['created'] }}</span>
-  </span>
-  <span class="ml-4">
-    <a href="{{ url_for('.logs', username=user['username']) }}">Logs</a>
-  </span>
+<div class="mt-4 small">
+  Modified <span class="localtime text-nowrap">{{ user['modified'] }}</span>
+  <br>
+  Login
+  {% if user.get('last_login') %}
+  <span class="localtime text-nowrap">{{ user['last_login'] }}</span>
+  {% else %}
+  ?
+  {% endif %}
+  <br>
+  Created <span class="localtime text-nowrap">{{ user['created'] }}</span>
+  <br>
+  <a href="{{ url_for('.logs', username=user['username']) }}">Logs</a>
 </div>
 {% endblock %} {# block info #}

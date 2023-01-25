@@ -220,8 +220,8 @@
           {% block main %}
           {% endblock %}
         </div>
-        <div class="col-md-2 d-print-none">
-          <div class="mt-2">
+        <div class="col-md-2">
+          <div class="mt-2 d-print-none">
             {% block actions %}
             {% endblock %}
           </div>
@@ -251,6 +251,8 @@
 
             {% endblock %} {# block doclinks #}
           </div>
+          {% block info %}
+          {% endblock %}
         </div>
       </div>
       {% endblock %} {# block supermain #}
@@ -270,16 +272,12 @@
           </a>
           {% endif %}
         </div>
-        <div class="col-md-6 mt-1 text-center">
-          {% block info %}
-          <small>
+        <div class="col-md-6 mt-1 small text-center">
           {% if g.current_user %}
           A cookie is used to keep track of your login session.
           {% else %}
           No cookies are used.
           {% endif %}
-          </small>
-          {% endblock %}
         </div>
         <div class="col-md-3 text-right">
           <img src="{{ url_for('static', filename='feather_of_maat.png') }}">

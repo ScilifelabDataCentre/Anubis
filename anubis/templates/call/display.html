@@ -394,14 +394,12 @@
 
 {% block info %}
 {% if allow_view_details %}
-<div class="small">
-  Modified <span class="localtime">{{ call['modified'] }}</span>
-  <span class="ml-4">
-    Created <span class="localtime">{{ call['created'] }}</span>
-  </span>
-  <span class="ml-4">
-    <a href="{{ url_for('.logs', cid=call['identifier']) }}">Logs</a>
-  </span>
+<div class="mt-4 small">
+  Modified <span class="localtime text-nowrap">{{ call['modified'] }}</span>
+  <br>
+  Created <span class="localtime text-nowrap">{{ call['created'] }}</span>
+  <br>
+  <a href="{{ url_for('.logs', cid=call['identifier']) }}">Logs</a>
 </div>
 {% endif %} {# if allow_view_details #}
 {% endblock %} {# block info #}
