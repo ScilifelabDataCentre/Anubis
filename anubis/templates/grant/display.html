@@ -142,13 +142,11 @@
 {% endblock %} {# block doclinks #}
 
 {% block info %}
-<div class="small">
-  Modified <span class="localtime">{{ grant['modified'] }}</span>
-  <span class="ml-4">
-    Created <span class="localtime">{{ grant['created'] }}</span>
-  </span>
-  <span class="ml-4">
-    <a href="{{ url_for('.logs', gid=grant['identifier']) }}">Logs</a>
-  </span>
+<div class="mt-4 small">
+  Modified <span class="localtime text-nowrap">{{ grant['modified'] }}</span>
+  <br>
+  Created <span class="localtime text-nowrap">{{ grant['created'] }}</span>
+  <br>
+  <a href="{{ url_for('.logs', gid=grant['identifier']) }}">Logs</a>
 </div>
 {% endblock %} {# block info #}
