@@ -270,9 +270,16 @@
           </a>
           {% endif %}
         </div>
-        <div class="col-md-6">
-            {% block info %}
-            {% endblock %}
+        <div class="col-md-6 mt-1 text-center">
+          {% block info %}
+          <small>
+          {% if g.current_user %}
+          A cookie is used to keep track of your login session.
+          {% else %}
+          No cookies are used.
+          {% endif %}
+          </small>
+          {% endblock %}
         </div>
         <div class="col-md-3 text-right">
           <img src="{{ url_for('static', filename='feather_of_maat.png') }}">
