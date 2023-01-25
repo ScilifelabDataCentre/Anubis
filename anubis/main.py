@@ -97,6 +97,10 @@ def prepare():
     flask.g.current_user = anubis.user.get_current_user()
     flask.g.am_admin = anubis.user.am_admin()
     flask.g.am_staff = anubis.user.am_staff()
+    try:
+        flask.g.alert_text = flask.g.db["alert"]["text"]
+    except couchdb2.NotFoundError:
+        flask.g.alert_text = None
     if flask.g.current_user:
         username = flask.g.current_user["username"]
         flask.g.allow_create_call = anubis.call.allow_create()

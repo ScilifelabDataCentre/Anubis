@@ -107,6 +107,8 @@
               <a class="dropdown-item"
                  href="{{ url_for('admin.call_configuration') }}">Call configuration</a>
               <a class="dropdown-item"
+                 href="{{ url_for('admin.alert_text') }}">Alert text</a>
+              <a class="dropdown-item"
                  href="{{ url_for('admin.database') }}">Database</a>
               <a class="dropdown-item"
                  href="{{ url_for('admin.settings') }}">Settings</a>
@@ -160,11 +162,23 @@
     </nav>
 
     <div class="container-fluid">
-      {% if g.alert %}
+
+      {% if g.alert_text %}
       <div class="row">
-        <div class="col-md-10 alert alert-warning" role="alert">{{ g.alert }}</div>
+        <div class="col-md">
+          <div class="alert alert-danger pb-0 my-2" role="alert">
+            {{ g.alert_text | display_markdown }}
+          </div>
+        </div>
+        {% if g.am_admin %}
+        <div class="col-md-1">
+          <a href="{{ url_for('admin.alert_text') }}"
+             role="button"
+             class="btn btn-sm btn-primary mt-3">Edit</a>
+        </div>
+        {% endif %}
       </div>
-      {% endif %}
+      {% endif %} {# if g.alert_text #}
 
       <div class="row">
         <div class="col-md offset-md-1 pt-3 pb-1">

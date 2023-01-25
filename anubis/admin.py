@@ -3,6 +3,7 @@
 import json
 
 import flask
+import couchdb2
 
 from anubis import constants
 from anubis import utils
@@ -83,6 +84,32 @@ def user_configuration():
             utils.flash_error(error)
         anubis.config.init_from_db()
         return flask.redirect(flask.url_for("admin.user_configuration"))
+
+
+@blueprint.route("/alert_text", methods=["GET", "POST"])
+@utils.admin_required
+def alert_text():
+    "Display and edit the site-wide alert text."
+    try:
+        alert = flask.g.db["alert"]
+        alert_text = alert["text"]
+    except couchdb2.NotFoundError:
+        alert = None
+        alert_text = None
+    if utils.http_GET():
+        return flask.render_template("admin/alert_text.html", alert_text=alert_text)
+    elif utils.http_POST():
+        try:
+            alert_text = flask.request.form.get("alert_text") or None
+            if alert:
+                with anubis.database.MetaSaver(alert) as saver:
+                    saver["text"] = alert_text
+            else:
+                with anubis.database.MetaSaver(id="alert") as saver:
+                    saver["text"] = alert_text
+        except ValueError as error:
+            utils.flash_error(error)
+        return flask.redirect(flask.url_for("admin.alert_text"))
 
 
 @blueprint.route("/call_configuration", methods=["GET", "POST"])
