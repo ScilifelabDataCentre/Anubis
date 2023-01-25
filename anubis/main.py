@@ -3,6 +3,7 @@
 import http.client
 import io
 
+import couchdb2
 import flask
 import markupsafe
 import werkzeug.routing
