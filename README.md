@@ -68,7 +68,7 @@ access and modify its data. Refer to the CouchDB documentation.
 In production mode, the Anubis `flask` uwsgi-compliant app should be
 run by another web server, such as Apache, NGINX, Gunicorn or
 similar. The app to be executed is
-`anubis.app.app`. This setup not documented here.
+`anubis.main.app`. This setup not documented here.
 
 Some configuration needs to be done before the app can be executed.
 The configuration values can be set in one of two ways:
