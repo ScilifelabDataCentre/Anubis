@@ -76,11 +76,17 @@
   <div class="col-md">{{ get_user(call['owner']) | user_link }}</div>
 </div>
 
-<div class="row mb-2">
-  <div class="col-md-2 font-weight-bold text-right">Access</div>
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Access to view</div>
   <div class="col-md">
-    {% set item = call %}
-    {% include 'display_access.html' %}
+    {{ set(call.get('access_view', [])).difference(call.get('access_edit', [])) | users_links_list }}
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Access to edit</div>
+  <div class="col-md">
+    {{ call.get('access_edit', []) | users_links_list }}
   </div>
 </div>
 {% endif %} {# if allow_view_details #}
@@ -234,7 +240,7 @@
 
 {% if allow_view_details %}
 <div class="row">
-  <div class="col-md-2 font-weight-bold text-right">Access</div>
+  <div class="col-md-2 font-weight-bold text-right">Privileges</div>
   <div class="col-md-5">
     <table class="table table-sm">
       <tbody>

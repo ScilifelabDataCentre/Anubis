@@ -166,7 +166,7 @@ def edit(cid):
 @blueprint.route("/<cid>/access", methods=["GET", "POST", "DELETE"])
 @utils.login_required
 def access(cid):
-    "Edit the access privileges for the call."
+    "Edit the view & edit access rights for the call."
     call = get_call(cid)
     if call is None:
         return utils.error("No such call.")

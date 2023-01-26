@@ -23,6 +23,7 @@ def init(app):
                  display_call_closes,
                  display_reviews_due,
                  user_link,
+                 users_links_list,
                  call_link,
                  call_proposals_link,
                  call_reviews_link,
@@ -237,6 +238,25 @@ def user_link(user, fullname=True, affiliation=False):
         return markupsafe.Markup(f'<a href="{url}">{name}</a>')
     else:
         return markupsafe.Markup(name)
+
+
+def users_links_list(usernames):
+    "List of links to users."
+    print(usernames)
+    users = []
+    for username in sorted(usernames):
+        user = anubis.user.get_user(username)
+        if not user: continue
+        name = anubis.user.get_fullname(user)
+        if anubis.user.allow_view(user):
+            url = flask.url_for("user.display", username=user["username"])
+            users.append(f'<a href="{url}">{name}</a>')
+        else:
+            users.append(name)
+    if users:
+        return markupsafe.Markup(", ".join(users))
+    else:
+        return "-"
 
 
 def call_link(

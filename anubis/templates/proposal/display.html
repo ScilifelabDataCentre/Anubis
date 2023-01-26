@@ -69,11 +69,17 @@
   <div class="col-md">{{ get_user(proposal['user']) | user_link }}</div>
 </div>
 
-<div class="row mb-2 d-print-none">
-  <div class="col-md-2 font-weight-bold text-right">Access</div>
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Access to view</div>
   <div class="col-md">
-    {% set item = proposal %}
-    {% include 'display_access.html' %}
+    {{ set(proposal.get('access_view', [])).difference(proposal.get('access_edit', [])) | users_links_list }}
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Access to edit</div>
+  <div class="col-md">
+    {{ proposal.get('access_edit', []) | users_links_list }}
   </div>
 </div>
 
