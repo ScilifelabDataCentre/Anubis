@@ -69,11 +69,17 @@
   <div class="col-md">{{ get_user(proposal['user']) | user_link }}</div>
 </div>
 
-<div class="row mb-2 d-print-none">
-  <div class="col-md-2 font-weight-bold text-right">Access</div>
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Access to view</div>
   <div class="col-md">
-    {% set item = proposal %}
-    {% include 'display_access.html' %}
+    {{ set(proposal.get('access_view', [])).difference(proposal.get('access_edit', [])) | users_links_list }}
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Access to edit</div>
+  <div class="col-md">
+    {{ proposal.get('access_edit', []) | users_links_list }}
   </div>
 </div>
 
@@ -191,21 +197,21 @@
 
 {% if allow_edit %}
 <div class="mt-2">
-  <a href="{{ url_for('.edit', pid=proposal['identifier']) }}"
+  <a href="{{ url_for('proposal.edit', pid=proposal['identifier']) }}"
      role="button" class="btn btn-block btn-primary">Edit</a>
 </div>
 {% endif %} {# if allow_edit #}
 
 {% if allow_edit %}
 <div class="mt-2">
-  <a href="{{ url_for('.access', pid=proposal['identifier']) }}"
+  <a href="{{ url_for('proposal.change_access', pid=proposal['identifier']) }}"
      role="button" class="btn btn-block btn-primary btn-sm">Change access</a>
 </div>
 {% endif %} {# if allow_edit #}
 
 {% if allow_transfer %}
 <div class="mt-2">
-  <a href="{{ url_for('.transfer', pid=proposal['identifier']) }}"
+  <a href="{{ url_for('proposal.transfer', pid=proposal['identifier']) }}"
      role="button" class="btn btn-sm btn-primary btn-block">Transfer ownership</a>
 </div>
 {% endif %} {# if allow_transfer #}
@@ -214,7 +220,7 @@
 
 {% if proposal.get('submitted') %}
 <div class="mt-2">
-  <form action="{{ url_for('.unsubmit', pid=proposal['identifier']) }}"
+  <form action="{{ url_for('proposal.unsubmit', pid=proposal['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-block btn-warning">Unsubmit</button>
@@ -223,7 +229,7 @@
 
 {% else %}
 <div class="mt-2">
-  <form action="{{ url_for('.submit', pid=proposal['identifier']) }}"
+  <form action="{{ url_for('proposal.submit', pid=proposal['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-block btn-success">
@@ -242,7 +248,7 @@
 
 {% if allow_delete %}
 <div class="mt-4">
-  <form action="{{ url_for('.edit', pid=proposal['identifier']) }}"
+  <form action="{{ url_for('proposal.edit', pid=proposal['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
     <input type="hidden" name="_http_method" value="DELETE">
@@ -269,6 +275,6 @@
   <br>
   Created <span class="localtime text-nowrap">{{ proposal['created'] }}</span>
   <br>
-  <a href="{{ url_for('.logs', pid=proposal['identifier']) }}">Logs</a>
+  <a href="{{ url_for('proposal.logs', pid=proposal['identifier']) }}">Logs</a>
 </div>
 {% endblock %} {# block info #}

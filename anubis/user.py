@@ -11,7 +11,6 @@ import werkzeug.security
 
 import anubis.call
 import anubis.database
-
 from anubis import constants
 from anubis import utils
 from anubis.saver import Saver
@@ -91,7 +90,7 @@ def register():
                 saver.set_phone(flask.request.form.get("phone"))
             user = saver.doc
         except ValueError as error:
-            return utils.error(error, flask.url_for(".register"))
+            return utils.error(error, flask.url_for("user.register"))
         # Directly enabled due to white list; send code in email to the user.
         if user["status"] == constants.ENABLED:
             try:
@@ -120,7 +119,7 @@ def register():
             recipients = [u["email"] for u in admins if u["email"]]
             site = flask.current_app.config["SITE_NAME"]
             title = f"{site} user account pending"
-            url = flask.url_for(".display", username=user["username"], _external=True)
+            url = flask.url_for("user.display", username=user["username"], _external=True)
             text = f"To enable the user account, go to {url}\n\n" "/The Anubis system"
             try:
                 utils.send_email(recipients, title, text)
@@ -221,13 +220,13 @@ def password():
                 raise ValueError("Too short password.")
         except ValueError as error:
             return utils.error(
-                error, flask.url_for(".password", username=username, code=code)
+                error, flask.url_for("user.password", username=username, code=code)
             )
         with UserSaver(user) as saver:
             saver.set_password(password)
         utils.flash_message("Password set.")
         if flask.g.am_admin:
-            return flask.redirect(flask.url_for(".all"))
+            return flask.redirect(flask.url_for("user.all"))
         else:
             do_login(username, password)
             return flask.redirect(flask.url_for("home"))
@@ -318,18 +317,18 @@ def edit(username):
                 saver.set_phone(flask.request.form.get("phone"))
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".display", username=user["username"]))
+        return flask.redirect(flask.url_for("user.display", username=user["username"]))
 
     elif utils.http_DELETE():
         if not allow_delete(user):
             return utils.error(
                 "Cannot delete the user account; is admin or owns entities.",
-                flask.url_for(".display", username=username),
+                flask.url_for("user.display", username=username),
             )
         anubis.database.delete(user)
         utils.flash_message(f"Deleted user {username}.")
         if flask.g.am_admin:
-            return flask.redirect(flask.url_for(".all"))
+            return flask.redirect(flask.url_for("user.all"))
         else:
             return flask.redirect(flask.url_for("home"))
 
@@ -347,7 +346,7 @@ def logs(username):
     return flask.render_template(
         "logs.html",
         title=f"User {user['username']}",
-        back_url=flask.url_for(".display", username=user["username"]),
+        back_url=flask.url_for("user.display", username=user["username"]),
         logs=anubis.database.get_logs(user["_id"]),
     )
 
@@ -412,7 +411,7 @@ def enable(username):
         saver.set_password()
     send_email_password_code(user, "enabled")
     utils.flash_message("User account enabled; email sent.")
-    return flask.redirect(flask.url_for(".display", username=username))
+    return flask.redirect(flask.url_for("user.display", username=username))
 
 
 @blueprint.route("/disable/<username>", methods=["POST"])
@@ -427,7 +426,7 @@ def disable(username):
 
     with UserSaver(user) as saver:
         saver.set_status(constants.DISABLED)
-    return flask.redirect(flask.url_for(".display", username=username))
+    return flask.redirect(flask.url_for("user.display", username=username))
 
 
 class UserSaver(Saver):

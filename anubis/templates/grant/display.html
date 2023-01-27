@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block meta %}
-<a href="{{ url_for('.grant_zip', gid=grant['identifier']) }}"
+<a href="{{ url_for('grant.grant_zip', gid=grant['identifier']) }}"
    title="All documents for the grant."
    class="badge badge-pill badge-dark"
    title="Download zip file containing all grant documents.">
@@ -48,11 +48,17 @@
   <div class="col-md">{{ get_user(grant['user']) | user_link }}</div>
 </div>
 
-<div class="row mb-2">
-  <div class="col-md-2 font-weight-bold text-right">Access</div>
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Access to view</div>
   <div class="col-md">
-    {% set item = grant %}
-    {% include 'display_access.html' %}
+    {{ set(grant.get('access_view', [])).difference(grant.get('access_edit', [])) | users_links_list }}
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Access to edit</div>
+  <div class="col-md">
+    {{ grant.get('access_edit', []) | users_links_list }}
   </div>
 </div>
 
@@ -82,7 +88,7 @@
 {% block actions %}
 {% if allow_edit %}
 <div class="mt-2">
-  <a href="{{ url_for('.edit', gid=grant['identifier']) }}"
+  <a href="{{ url_for('grant.edit', gid=grant['identifier']) }}"
      role="button" class="btn btn-block btn-primary">Edit</a>
 </div>
 {% endif %} {# if allow_edit #}
@@ -92,7 +98,7 @@
 
 {% if allow_change_access %}
 <div class="mt-2">
-  <a href="{{ url_for('.access', gid=grant['identifier']) }}"
+  <a href="{{ url_for('grant.change_access', gid=grant['identifier']) }}"
      role="button" class="btn btn-info btn-block btn-sm">Change access</a>
 </div>
 {% endif %} {# if allow_change_access #}
@@ -100,7 +106,7 @@
 {% if allow_lock %}
 <div class="mt-2">
   {% if grant.get('locked') %}
-  <form action="{{ url_for('.unlock', gid=grant['identifier']) }}"
+  <form action="{{ url_for('grant.unlock', gid=grant['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-sm btn-block btn-warning"
@@ -108,7 +114,7 @@
       Unlock</button>
   </form>
   {% else %}
-  <form action="{{ url_for('.lock', gid=grant['identifier']) }}"
+  <form action="{{ url_for('grant.lock', gid=grant['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-sm btn-block btn-warning"
@@ -121,7 +127,7 @@
 
 {% if allow_delete %}
 <div class="mt-2">
-  <form action="{{ url_for('.edit', gid=grant['identifier']) }}"
+  <form action="{{ url_for('grant.edit', gid=grant['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
     <input type="hidden" name="_http_method" value="DELETE">
@@ -147,6 +153,6 @@
   <br>
   Created <span class="localtime text-nowrap">{{ grant['created'] }}</span>
   <br>
-  <a href="{{ url_for('.logs', gid=grant['identifier']) }}">Logs</a>
+  <a href="{{ url_for('grant.logs', gid=grant['identifier']) }}">Logs</a>
 </div>
 {% endblock %} {# block info #}

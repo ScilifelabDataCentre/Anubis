@@ -16,7 +16,6 @@ import flask
 import anubis.call
 import anubis.database
 import anubis.proposal
-
 from anubis import constants
 from anubis import utils
 from anubis.saver import Saver, FieldSaverMixin
@@ -38,7 +37,7 @@ def create(pid):
         decision = get_decision(proposal.get("decision"))
         if decision is not None:
             utils.flash_message("The decision already exists.")
-            return flask.redirect(flask.url_for(".display", iuid=decision["_id"]))
+            return flask.redirect(flask.url_for("decision.display", iuid=decision["_id"]))
         with DecisionSaver(proposal=proposal) as saver:
             pass
         decision = saver.doc
@@ -46,7 +45,7 @@ def create(pid):
             saver["decision"] = decision["_id"]
     except ValueError as error:
         utils.flash_error(error)
-    return flask.redirect(flask.url_for(".display", iuid=decision["_id"]))
+    return flask.redirect(flask.url_for("decision.display", iuid=decision["_id"]))
 
 
 @blueprint.route("/<iuid:iuid>")
@@ -100,7 +99,7 @@ def edit(iuid):
                 saver.set_fields_values(call["decision"], form=flask.request.form)
         except ValueError as error:
             return utils.error(error)
-        return flask.redirect(flask.url_for(".display", iuid=decision["_id"]))
+        return flask.redirect(flask.url_for("decision.display", iuid=decision["_id"]))
 
     elif utils.http_DELETE():
         if not allow_delete(decision):
@@ -135,7 +134,7 @@ def finalize(iuid):
                 saver["finalized"] = utils.get_now()
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".display", iuid=decision["_id"]))
+        return flask.redirect(flask.url_for("decision.display", iuid=decision["_id"]))
 
 
 @blueprint.route("/<iuid:iuid>/unfinalize", methods=["POST"])
@@ -158,7 +157,7 @@ def unfinalize(iuid):
                 saver["finalized"] = None
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".display", iuid=decision["_id"]))
+        return flask.redirect(flask.url_for("decision.display", iuid=decision["_id"]))
 
 
 @blueprint.route("/<iuid:iuid>/logs")
@@ -175,7 +174,7 @@ def logs(iuid):
     return flask.render_template(
         "logs.html",
         title=f"Decision for {decision['proposal']}",
-        back_url=flask.url_for(".display", iuid=decision["_id"]),
+        back_url=flask.url_for("decision.display", iuid=decision["_id"]),
         logs=anubis.database.get_logs(decision["_id"]),
     )
 
@@ -300,7 +299,7 @@ def allow_view(decision):
     call = anubis.call.get_call(decision["call"])
     if anubis.call.am_owner(call):
         return True
-    if not call["access"]["allow_submitter_view_decision"]:
+    if not call["privileges"].get("allow_submitter_view_decision"):
         return False
     proposal = anubis.proposal.get_proposal(decision["proposal"])
     if proposal["user"] != flask.g.current_user["username"]:

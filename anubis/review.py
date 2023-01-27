@@ -15,7 +15,6 @@ import anubis.call
 import anubis.database
 import anubis.proposal
 import anubis.user
-
 from anubis import constants
 from anubis import utils
 from anubis.saver import Saver, FieldSaverMixin
@@ -47,7 +46,7 @@ def create(pid, username):
         review = get_reviewer_review(proposal, user)
         if review is not None:
             utils.flash_message("The review already exists.")
-            return flask.redirect(flask.url_for(".display", iuid=review["_id"]))
+            return flask.redirect(flask.url_for("review.display", iuid=review["_id"]))
         with ReviewSaver(proposal=proposal, user=user) as saver:
             pass
     except ValueError as error:
@@ -145,7 +144,7 @@ def finalize(iuid):
                 saver["finalized"] = utils.get_now()
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".display", iuid=review["_id"]))
+        return flask.redirect(flask.url_for("review.display", iuid=review["_id"]))
 
 
 @blueprint.route("/<iuid:iuid>/unfinalize", methods=["POST"])
@@ -168,7 +167,7 @@ def unfinalize(iuid):
                 saver["finalized"] = None
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".display", iuid=review["_id"]))
+        return flask.redirect(flask.url_for("review.display", iuid=review["_id"]))
 
 
 @blueprint.route("/<iuid:iuid>/archive", methods=["POST"])
@@ -192,7 +191,7 @@ def archive(iuid):
                 saver.set_archived()
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".display", iuid=review["_id"]))
+        return flask.redirect(flask.url_for("review.display", iuid=review["_id"]))
 
 
 @blueprint.route("/<iuid:iuid>/unarchive", methods=["POST"])
@@ -221,7 +220,7 @@ def unarchive(iuid):
                 saver.set_unarchived()
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".display", iuid=review["_id"]))
+        return flask.redirect(flask.url_for("review.display", iuid=review["_id"]))
 
 
 @blueprint.route("/<iuid:iuid>/logs")
@@ -238,7 +237,7 @@ def logs(iuid):
     return flask.render_template(
         "logs.html",
         title=f"Review of {review['proposal']} by {review['reviewer']}",
-        back_url=flask.url_for(".display", iuid=review["_id"]),
+        back_url=flask.url_for("review.display", iuid=review["_id"]),
         logs=anubis.database.get_logs(review["_id"]),
     )
 

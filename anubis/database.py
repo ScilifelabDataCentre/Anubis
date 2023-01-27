@@ -190,7 +190,20 @@ def update():
                     call[key] = utils.utc_from_timezone_isoformat(value)
         if changed:
             db.put(call)
-            app.logger.info(f"Updated call {call['identifier']} document.")
+            app.logger.info(f"Updated call {call['identifier']} for UTC datetimes.")
+
+    # Change name of item 'access' to 'privileges'.
+    calls = [row.doc for row in db.view("calls", "identifier", include_docs=True)]
+    for call in calls:
+        changed = False
+        try:
+            call["privileges"] = call.pop("access")
+            changed = True
+        except KeyError:
+            pass
+        if changed:
+            db.put(call)
+            app.logger.info(f"Updated call {call['identifier']} changing 'access' to 'privileges'.")
 
     # Add a meta document for 'data_policy' text.
     if "data_policy" not in db:

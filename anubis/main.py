@@ -78,6 +78,7 @@ def setup_template_context():
         len=len,
         min=min,
         max=max,
+        set=set,
         constants=constants,
         csrf_token=utils.csrf_token,
         get_user=anubis.user.get_user,

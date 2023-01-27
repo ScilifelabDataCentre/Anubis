@@ -1,0 +1,149 @@
+{# Change access to an object. #}
+
+{% extends 'base.html' %}
+
+{% block head_title %}Change access for {{ title }}{% endblock %}
+
+{% block body_title %}Change access for <strong>{{ title }}</strong>{% endblock %}
+
+{% block main %}
+<div class="form-group row">
+  <label for="users_view" class="col-md-2 col-form-label text-right font-weight-bold">
+    Access to view</label>
+  <div class="col-md" id="users_view">
+
+    {% if users_view %}
+    <table class="table table-sm table-hover table-borderless">
+      {% for username in users_view %}
+      <tr>
+        <td>{{ get_user(username) | user_link() }}</td>
+        <td>
+          <form action="{{ url }}"
+	        method="POST">
+	    {{ csrf_token() }}
+            <input type="hidden" name="_http_method" value="DELETE">
+            <input type="hidden" name="username" value="{{ username }}">
+	    <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    -
+    {% endif %} {# if users #}
+  </div>
+</div>
+
+<div class="form-group row">
+  <label for="access_view" class="col-md-2 col-form-label text-right font-weight-bold">
+    Add access to view</label>
+  <div class="col-md" id="access_view">
+
+    <form action="{{ url }}" method="POST">
+      {{ csrf_token() }}
+
+      <div class="form-group">
+        <div class="row">
+          <div class="col-md-8">
+            <input type="text" name="add_access_view" id="add_access_view"
+                   class="form-control"
+                   aria-describedby="add_access_viewHelp"
+                   placeholder="Username or email">
+            <small id="add_access_viewHelp" class="form-text">
+              Provide the username or the email address of the user to add
+              access privileges for. The user must have an account in this
+              system.
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="row"> 
+        <div class="col-md-3">
+          <div class="form-group">
+            <button type="submit" class="btn btn-block btn-primary">
+              Add access to view</button>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<div class="form-group row">
+  <label for="users_edit" class="col-md-2 col-form-label text-right font-weight-bold">
+    Access to edit</label>
+  <div class="col-md" id="users_edit">
+
+    {% if users_edit %}
+    <table class="table table-sm table-hover table-borderless">
+      {% for username in users_edit %}
+      <tr>
+        <td>{{ get_user(username) | user_link() }}</td>
+        <td>
+          <form action="{{ url }}"
+	        method="POST">
+	    {{ csrf_token() }}
+            <input type="hidden" name="_http_method" value="DELETE">
+            <input type="hidden" name="username" value="{{ username }}">
+	    <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    -
+    {% endif %} {# if users #}
+  </div>
+</div>
+
+<div class="form-group row">
+  <label for="access_edit" class="col-md-2 col-form-label text-right font-weight-bold">
+    Add access to edit</label>
+  <div class="col-md" id="access_edit">
+
+    <form action="{{ url }}" method="POST">
+      {{ csrf_token() }}
+
+      <div class="form-group">
+        <div class="row">
+          <div class="col-md-8">
+            <input type="text" name="add_access_edit" id="add_access_edit"
+                   class="form-control"
+                   aria-describedby="add_access_editHelp"
+                   placeholder="Username or email">
+            <small id="add_access_editHelp" class="form-text">
+              Provide the username or the email address of the user to add
+              access privileges for. The user must have an account in this
+              system.
+              <br>
+              Access to edit implies access to view.
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="row"> 
+        <div class="col-md-3">
+          <div class="form-group">
+            <button type="submit" class="btn btn-block btn-primary">
+              Add access to edit</button>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+{% endblock %} {# block main #}
+
+{% block actions %}
+<div class="mt-2">
+  <a href="{{ back_url }}"
+     role="button" class="btn btn-block btn-secondary">Back</a>
+</div>
+{% endblock %}

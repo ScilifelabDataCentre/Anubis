@@ -16,7 +16,6 @@ import anubis.database
 import anubis.decision
 import anubis.proposal
 import anubis.user
-
 from anubis import constants
 from anubis import utils
 from anubis.saver import Saver, FieldSaverMixin, AccessSaverMixin
@@ -38,7 +37,7 @@ def create(pid):
     grant = get_grant_proposal(pid)
     if grant is not None:
         utils.flash_message("The grant dossier already exists.")
-        return flask.redirect(flask.url_for(".display", gid=grant["identifier"]))
+        return flask.redirect(flask.url_for("grant.display", gid=grant["identifier"]))
 
     try:
         with GrantSaver(proposal=proposal) as saver:
@@ -48,7 +47,7 @@ def create(pid):
             saver["grant"] = grant["identifier"]
     except ValueError as error:
         utils.flash_error(error)
-    return flask.redirect(flask.url_for(".display", gid=grant["identifier"]))
+    return flask.redirect(flask.url_for("grant.display", gid=grant["identifier"]))
 
 
 @blueprint.route("/<gid>")
@@ -112,9 +111,9 @@ def edit(gid):
         except ValueError as error:
             return utils.error(error)
         if saver.repeat_changed:
-            url = flask.url_for(".edit", gid=grant["identifier"])
+            url = flask.url_for("grant.edit", gid=grant["identifier"])
         else:
-            url = flask.url_for(".display", gid=grant["identifier"])
+            url = flask.url_for("grant.display", gid=grant["identifier"])
         return flask.redirect(url)
 
     elif utils.http_DELETE():
@@ -132,8 +131,8 @@ def edit(gid):
 
 @blueprint.route("/<gid>/access", methods=["GET", "POST", "DELETE"])
 @utils.login_required
-def access(gid):
-    "Edit the access privileges for the grant record."
+def change_access(gid):
+    "Change the access rights for the grant record."
     grant = get_grant(gid)
     if grant is None:
         return utils.error("No such grant.")
@@ -150,11 +149,11 @@ def access(gid):
         for user in grant.get("access_edit", []):
             users[user] = True
         return flask.render_template(
-            "access.html",
+            "change_access.html",
             title=f"Grant {grant['identifier']}",
-            url=flask.url_for(".access", gid=grant["identifier"]),
+            url=flask.url_for("grant.change_access", gid=grant["identifier"]),
             users=users,
-            back_url=flask.url_for(".display", gid=grant["identifier"]),
+            back_url=flask.url_for("grant.display", gid=grant["identifier"]),
         )
 
     elif utils.http_POST():
@@ -163,7 +162,7 @@ def access(gid):
                 saver.set_access(form=flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".access", gid=grant["identifier"]))
+        return flask.redirect(flask.url_for("grant.change_access", gid=grant["identifier"]))
 
     elif utils.http_DELETE():
         try:
@@ -171,7 +170,7 @@ def access(gid):
                 saver.remove_access(form=flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".access", gid=grant["identifier"]))
+        return flask.redirect(flask.url_for("grant.change_access", gid=grant["identifier"]))
 
 
 @blueprint.route("/<gid>/lock", methods=["POST"])
@@ -190,7 +189,7 @@ def lock(gid):
                 saver["locked"] = utils.get_now()
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".display", gid=grant["identifier"]))
+        return flask.redirect(flask.url_for("grant.display", gid=grant["identifier"]))
 
 
 @blueprint.route("/<gid>/unlock", methods=["POST"])
@@ -209,7 +208,7 @@ def unlock(gid):
                 saver["locked"] = False
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".display", gid=grant["identifier"]))
+        return flask.redirect(flask.url_for("grant.display", gid=grant["identifier"]))
 
 
 @blueprint.route("/<gid>/document/<fid>")
@@ -325,7 +324,7 @@ def logs(gid):
     return flask.render_template(
         "logs.html",
         title=f"Grant {grant['identifier']}",
-        back_url=flask.url_for(".display", gid=grant["identifier"]),
+        back_url=flask.url_for("grant.display", gid=grant["identifier"]),
         logs=anubis.database.get_logs(grant["_id"]),
     )
 
