@@ -12,7 +12,6 @@ import anubis.proposal
 import anubis.proposals
 import anubis.review
 import anubis.user
-
 from anubis import constants
 from anubis import utils
 

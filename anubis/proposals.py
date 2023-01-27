@@ -11,7 +11,6 @@ import anubis.database
 import anubis.decision
 import anubis.proposal
 import anubis.user
-
 from anubis import constants
 from anubis import utils
 

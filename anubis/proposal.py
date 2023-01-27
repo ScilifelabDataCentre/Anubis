@@ -21,7 +21,6 @@ import anubis.decision
 import anubis.grant
 import anubis.review
 import anubis.user
-
 from anubis import constants
 from anubis import utils
 from anubis.saver import Saver, FieldSaverMixin, AccessSaverMixin
@@ -162,7 +161,7 @@ def edit(pid):
 
         # If a repeat field was changed, then redisplay edit page.
         if saver.repeat_changed:
-            return flask.redirect(flask.url_for(".edit", pid=proposal["identifier"]))
+            return flask.redirect(flask.url_for("proposal.edit", pid=proposal["identifier"]))
 
         if flask.request.form.get("_save") == "submit":
             proposal = get_proposal(pid, refresh=True)  # Get up-to-date info.
@@ -187,7 +186,7 @@ def edit(pid):
                 "Proposal was saved but not submitted."
                 " You must explicitly submit it!"
             )
-        return flask.redirect(flask.url_for(".display", pid=proposal["identifier"]))
+        return flask.redirect(flask.url_for("proposal.display", pid=proposal["identifier"]))
 
     elif utils.http_DELETE():
         if not allow_delete(proposal):
@@ -236,7 +235,7 @@ def transfer(pid):
                         raise ValueError("No such user.")
         except ValueError as error:
             return utils.error(error)
-        return flask.redirect(flask.url_for(".display", pid=proposal["identifier"]))
+        return flask.redirect(flask.url_for("proposal.display", pid=proposal["identifier"]))
 
 
 @blueprint.route("/<pid>/submit", methods=["POST"])
@@ -263,7 +262,7 @@ def submit(pid):
                 utils.flash_error(
                     "Could not send confirmation email; misconfiguration in the Anubis setup."
                 )
-        return flask.redirect(flask.url_for(".display", pid=pid))
+        return flask.redirect(flask.url_for("proposal.display", pid=pid))
 
 
 def send_email_submission(proposal):
@@ -276,7 +275,7 @@ def send_email_submission(proposal):
         return
     site = flask.current_app.config["SITE_NAME"]
     title = f"Proposal {proposal['identifier']} has been submitted in {site}"
-    url = flask.url_for(".display", pid=proposal["identifier"], _external=True)
+    url = flask.url_for("proposal.display", pid=proposal["identifier"], _external=True)
     text = (
         "Your proposal\n\n"
         f"  {proposal['identifier']} {proposal['title']}\n\n"
@@ -303,12 +302,12 @@ def unsubmit(pid):
             utils.flash_error(error)
         else:
             utils.flash_warning("Proposal was unsubmitted.")
-        return flask.redirect(flask.url_for(".display", pid=pid))
+        return flask.redirect(flask.url_for("proposal.display", pid=pid))
 
 
 @blueprint.route("/<pid>/access", methods=["GET", "POST", "DELETE"])
 @utils.login_required
-def access(pid):
+def change_access(pid):
     "Edit the access privileges for the proposal record."
     proposal = get_proposal(pid)
     if proposal is None:
@@ -324,11 +323,11 @@ def access(pid):
         for user in proposal.get("access_edit", []):
             users[user] = True
         return flask.render_template(
-            "access.html",
+            "change_access.html",
             title=f"Proposal {proposal['identifier']}",
-            url=flask.url_for(".access", pid=proposal["identifier"]),
+            url=flask.url_for("proposal.change_access", pid=proposal["identifier"]),
             users=users,
-            back_url=flask.url_for(".display", pid=proposal["identifier"]),
+            back_url=flask.url_for("proposal.display", pid=proposal["identifier"]),
         )
 
     elif utils.http_POST():
@@ -337,7 +336,7 @@ def access(pid):
                 saver.set_access(form=flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".access", pid=proposal["identifier"]))
+        return flask.redirect(flask.url_for("proposal.change_access", pid=proposal["identifier"]))
 
     elif utils.http_DELETE():
         try:
@@ -345,7 +344,7 @@ def access(pid):
                 saver.remove_access(form=flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for(".access", pid=proposal["identifier"]))
+        return flask.redirect(flask.url_for("proposal.change_access", pid=proposal["identifier"]))
 
 
 @blueprint.route("/<pid>/document/<fid>")
@@ -401,7 +400,7 @@ def logs(pid):
     return flask.render_template(
         "logs.html",
         title=f"Proposal {proposal['identifier']}",
-        back_url=flask.url_for(".display", pid=proposal["identifier"]),
+        back_url=flask.url_for("proposal.display", pid=proposal["identifier"]),
         logs=anubis.database.get_logs(proposal["_id"]),
     )
 

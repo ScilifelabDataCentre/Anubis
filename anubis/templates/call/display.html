@@ -23,7 +23,7 @@
 {% endif %} {# if allow_view_proposals or allow_view_grants #}
 
 {% if allow_view_proposals %}
-<a href="{{ url_for('.call_zip', cid=call['identifier']) }}"
+<a href="{{ url_for('call.call_zip', cid=call['identifier']) }}"
    title="Excel file and documents for submitted proposals."
    class="badge badge-pill badge-dark"
    title="Download zip file of all submitted proposals in the call.">
@@ -144,7 +144,7 @@
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Reviewers</div>
   <div class="col-md">
-    <a href="{{ url_for('.reviewers', cid=call['identifier']) }}"
+    <a href="{{ url_for('call.reviewers', cid=call['identifier']) }}"
        role="button" class="btn btn-primary btn-sm">
       {{ len(call.get('reviewers', [])) }} reviewers
     </a>
@@ -170,7 +170,7 @@
 
   {% elif allow_create_proposal %}
   <div class="col-md">
-    <form action="{{ url_for('.create_proposal', cid=call['identifier']) }}"
+    <form action="{{ url_for('call.create_proposal', cid=call['identifier']) }}"
 	  method="POST">
       {{ csrf_token() }}
       <button type="submit" class="btn btn-primary">Create proposal</button>
@@ -184,7 +184,7 @@
     You need to be logged in to create a proposal.
   </div>
   <div class="col-md">
-    <a href="{{ url_for('user.login', login_target_url=url_for('.display', cid=call['identifier'])) }}"
+    <a href="{{ url_for('user.login', login_target_url=url_for('call.display', cid=call['identifier'])) }}"
        class="btn btn-primary px-3">
       Login</a>
   </div>
@@ -319,38 +319,38 @@
 {% block actions %}
 {% if allow_edit %}
 <div class="mt-2">
-  <a href="{{ url_for('.edit', cid=call['identifier']) }}"
+  <a href="{{ url_for('call.edit', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
 
 <div class="mt-2">
-  <a href="{{ url_for('.documents', cid=call['identifier']) }}"
+  <a href="{{ url_for('call.documents', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit documents</a>
 </div>
 
 <div class="mt-2">
-  <a href="{{ url_for('.proposal', cid=call['identifier']) }}"
+  <a href="{{ url_for('call.proposal', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit proposal fields</a>
 </div>
 
 <div class="mt-2">
-  <a href="{{ url_for('.review', cid=call['identifier']) }}"
+  <a href="{{ url_for('call.review', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit review fields</a>
 </div>
 
 <div class="mt-2">
-  <a href="{{ url_for('.decision', cid=call['identifier']) }}"
+  <a href="{{ url_for('call.decision', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit decision fields</a>
 </div>
 
 <div class="mt-2">
-  <a href="{{ url_for('.grant', cid=call['identifier']) }}"
+  <a href="{{ url_for('call.grant', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Edit grant fields</a>
 </div>
 
 {% if call_proposals_count == 0 %}
 <div class="mt-2">
-  <form action="{{ url_for('.reset_counter', cid=call['identifier']) }}"
+  <form action="{{ url_for('call.reset_counter', cid=call['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-primary btn-block">
@@ -361,13 +361,13 @@
 
 {% if allow_change_access %}
 <div class="mt-2">
-  <a href="{{ url_for('.access', cid=call['identifier']) }}"
+  <a href="{{ url_for('call.change_access', cid=call['identifier']) }}"
      role="button" class="btn btn-primary btn-block">Change access</a>
 </div>
 {% endif %} {# if allow_change_access #}
 
 <div class="mt-4">
-  <a href="{{ url_for('.clone', cid=call['identifier']) }}"
+  <a href="{{ url_for('call.clone', cid=call['identifier']) }}"
      role="button" class="btn btn-info btn-block">Clone</a>
 </div>
 {% endif %} {# if allow_edit #}
@@ -377,7 +377,7 @@
 
 {% if allow_delete %}
 <div class="mt-2">
-  <form action="{{ url_for('.edit', cid=call['identifier']) }}"
+  <form action="{{ url_for('call.edit', cid=call['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
     <input type="hidden" name="_http_method" value="DELETE">
@@ -405,7 +405,7 @@
   <br>
   Created <span class="localtime text-nowrap">{{ call['created'] }}</span>
   <br>
-  <a href="{{ url_for('.logs', cid=call['identifier']) }}">Logs</a>
+  <a href="{{ url_for('call.logs', cid=call['identifier']) }}">Logs</a>
 </div>
 {% endif %} {# if allow_view_details #}
 {% endblock %} {# block info #}

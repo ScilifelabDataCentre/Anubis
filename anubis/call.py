@@ -21,7 +21,6 @@ import anubis.database
 import anubis.proposal
 import anubis.proposals
 import anubis.user
-
 from anubis import constants
 from anubis import utils
 from anubis.saver import Saver, AccessSaverMixin
@@ -165,8 +164,8 @@ def edit(cid):
 
 @blueprint.route("/<cid>/access", methods=["GET", "POST", "DELETE"])
 @utils.login_required
-def access(cid):
-    "Edit the view & edit access rights for the call."
+def change_access(cid):
+    "Change the view & edit access rights for the call."
     call = get_call(cid)
     if call is None:
         return utils.error("No such call.")
@@ -174,16 +173,14 @@ def access(cid):
         return utils.error("You are not allowed to change access for this call.")
 
     if utils.http_GET():
-        users = {}
-        for user in call.get("access_view", []):
-            users[user] = False
-        for user in call.get("access_edit", []):
-            users[user] = True
+        users_edit = sorted(call.get("access_edit", []))
+        users_view = sorted(set(call.get("access_view", [])).difference(users_edit))
         return flask.render_template(
-            "access.html",
+            "change_access.html",
             title=f"Call {call['identifier']}",
-            url=flask.url_for("call.access", cid=call["identifier"]),
-            users=users,
+            url=flask.url_for("call.change_access", cid=call["identifier"]),
+            users_view=users_view,
+            users_edit=users_edit,
             back_url=flask.url_for("call.display", cid=call["identifier"]),
         )
 
@@ -193,7 +190,7 @@ def access(cid):
                 saver.set_access(form=flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for("call.access", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.change_access", cid=call["identifier"]))
 
     elif utils.http_DELETE():
         try:
@@ -201,7 +198,7 @@ def access(cid):
                 saver.remove_access(form=flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for("call.access", cid=call["identifier"]))
+        return flask.redirect(flask.url_for("call.change_access", cid=call["identifier"]))
 
 
 @blueprint.route("/<cid>/documents", methods=["GET", "POST"])

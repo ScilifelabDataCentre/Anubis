@@ -320,7 +320,7 @@ class FieldSaverMixin:
 
 
 class AccessSaverMixin:
-    "Mixin to change access privileges."
+    "Mixin to change view & edit access rights."
 
     def set_access(self, form=dict()):
         """Set the access of the object according to the form input.
@@ -328,28 +328,36 @@ class AccessSaverMixin:
         """
         import anubis.user
 
-        username = form.get("username")
-        user = anubis.user.get_user(username=username)
-        if user is None:
-            user = anubis.user.get_user(email=username)
-        if user is None:
-            raise ValueError("No such user.")
-        if form.get("access") == "view":
+        username = form.get("add_access_view")
+        if username:
+            user = anubis.user.get_user(username=username)
+            if user is None:
+                user = anubis.user.get_user(email=username)
+            if user is None:
+                raise ValueError(f"No such user '{username}'.")
             # Remove edit access if view access explicitly specified.
             try:
                 self.doc["access_edit"].remove(user["username"])
             except (KeyError, ValueError):
                 pass
-            view = set(self.doc.setdefault("access_view", []))
-            view.add(user["username"])
-            self.doc["access_view"] = list(view)
-        elif form.get("access") == "edit":
-            view = set(self.doc.setdefault("access_view", []))
-            view.add(user["username"])
-            self.doc["access_view"] = list(view)
-            edit = set(self.doc.setdefault("access_edit", []))
-            edit.add(user["username"])
-            self.doc["access_edit"] = list(edit)
+            access_view = set(self.doc.setdefault("access_view", []))
+            access_view.add(user["username"])
+            self.doc["access_view"] = list(access_view)
+
+        username = form.get("add_access_edit")
+        if username:
+            user = anubis.user.get_user(username=username)
+            if user is None:
+                user = anubis.user.get_user(email=username)
+            if user is None:
+                raise ValueError(f"No such user '{username}'.")
+
+            access_view = set(self.doc.setdefault("access_view", []))
+            access_view.add(user["username"])
+            self.doc["access_view"] = list(access_view)
+            access_edit = set(self.doc.setdefault("access_edit", []))
+            access_edit.add(user["username"])
+            self.doc["access_edit"] = list(access_edit)
 
     def remove_access(self, form=dict()):
         """Remove the access of the object according to the form input.
@@ -362,7 +370,7 @@ class AccessSaverMixin:
         if user is None:
             user = anubis.user.get_user(email=username)
         if user is None:
-            raise ValueError("No such user.")
+            raise ValueError(f"No such user '{username}'.")
         try:
             self.doc["access_view"].remove(user["username"])
         except (KeyError, ValueError):
