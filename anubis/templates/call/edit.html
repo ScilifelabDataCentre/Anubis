@@ -183,7 +183,7 @@
 	   class="col-md-2 col-form-label text-right font-weight-bold">
       Privileges</label>
     <div class="col-md">
-      {% for flag in constants.ACCESS %}
+      {% for flag in constants.PRIVILEGES %}
       <div class="form-group row">
         <label for="{{ flag }}" class="col-md-4 col-form-label">
           {{ flag|capitalize|replace('_',' ') }}</label>
@@ -191,7 +191,7 @@
           <div class="form-check form-check-inline pt-1">
 	    <input type="checkbox" id="{{ flag }}" name="{{ flag }}"
 	           class="form-check-input" value="true"
-                   {{ call.get('access', {}).get(flag) and 'checked' or '' }}>
+                   {{ call.get('privileges', {}).get(flag) and 'checked' or '' }}>
 	    <label class="form-check-label" for="{{ flag }}">Yes</label>
           </div>
         </div>

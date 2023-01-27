@@ -146,7 +146,7 @@ def edit(cid):
                     if value:
                         value = utils.utc_from_timezone_isoformat(value)
                     saver[key] = value
-                saver.edit_access(flask.request.form)
+                saver.edit_privileges(flask.request.form)
             call = saver.doc
         except ValueError as error:
             utils.flash_error(error)
@@ -585,7 +585,7 @@ def clone(cid):
     """Clone the call. Copies:
     - Title
     - Description
-    - Access fields
+    - Privileges fields
     - Proposal fields
     - Review fields
     - Decision fields
@@ -611,7 +611,7 @@ def clone(cid):
                 saver.set_identifier(flask.request.form.get("identifier"))
                 saver.set_title(flask.request.form.get("title"))
                 saver.doc["description"] = call["description"]
-                saver.doc["access"] = call["access"]
+                saver.doc["privileges"] = call["privileges"]
                 saver.doc["proposal"] = copy.deepcopy(call["proposal"])
                 saver.doc["review"] = copy.deepcopy(call["review"])
                 saver.doc["decision"] = copy.deepcopy(call.get("decision", []))
@@ -727,7 +727,7 @@ class CallSaver(AccessSaverMixin, Saver):
         self.doc["review"] = []
         self.doc["reviewers"] = []
         self.doc["chairs"] = []
-        self.doc["access"] = {k: False for k in constants.ACCESS}
+        self.doc["privileges"] = {k: False for k in constants.PRIVILEGES}
         self.doc["decision"] = []
         self.doc["grant"] = []
 
@@ -987,11 +987,11 @@ class CallSaver(AccessSaverMixin, Saver):
                 self.doc["documents"].pop(pos)
                 break
 
-    def edit_access(self, form):
-        "Edit the access flags."
-        self.doc["access"] = {}
-        for flag in constants.ACCESS:
-            self.doc["access"][flag] = utils.to_bool(form.get(flag))
+    def edit_privileges(self, form):
+        "Edit the privileges flags."
+        self.doc["privileges"] = {}
+        for flag in constants.PRIVILEGES:
+            self.doc["privileges"][flag] = utils.to_bool(form.get(flag))
 
 
 def get_call(cid):
@@ -1145,7 +1145,7 @@ def allow_view_proposals(call):
 def allow_view_reviews(call):
     """The admin, staff and call owner may view all reviews in the call.
     Review chairs may view all reviews.
-    Other reviewers may view depending on the access flag for the call.
+    Other reviewers may view depending on the privileges flag for the call.
     """
     if not flask.g.current_user:
         return False
@@ -1158,7 +1158,7 @@ def allow_view_reviews(call):
     if am_reviewer(call):
         if am_chair(call):
             return True
-        return bool(call["access"].get("allow_reviewer_view_all_reviews"))
+        return bool(call["privileges"].get("allow_reviewer_view_all_reviews"))
     return False
 
 

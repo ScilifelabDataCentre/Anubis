@@ -299,7 +299,7 @@ def allow_view(decision):
     call = anubis.call.get_call(decision["call"])
     if anubis.call.am_owner(call):
         return True
-    if not call["access"]["allow_submitter_view_decision"]:
+    if not call["privileges"].get("allow_submitter_view_decision"):
         return False
     proposal = anubis.proposal.get_proposal(decision["proposal"])
     if proposal["user"] != flask.g.current_user["username"]:

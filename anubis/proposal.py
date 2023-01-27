@@ -66,7 +66,7 @@ def display(pid):
         decision
         and decision.get("finalized")
         and not (flask.g.am_admin or flask.g.am_staff)
-        and call["access"].get("allow_submitter_view_decision")
+        and call["privileges"].get("allow_submitter_view_decision")
     )
     grant = anubis.grant.get_grant_proposal(proposal["identifier"])
     return flask.render_template(
@@ -619,7 +619,6 @@ def get_proposal_xlsx(proposal):
         row = [field["title"] or field["identifier"].capitalize()]
         ws.write_row(nrow, 0, row)
         value = proposal["values"].get(field["identifier"])
-        print(field["type"], value)
         if value is None:
             ws.write_string(nrow, 1, "")
         elif field["type"] in (

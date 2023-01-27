@@ -244,11 +244,11 @@
   <div class="col-md-5">
     <table class="table table-sm">
       <tbody>
-        {% for flag in constants.ACCESS %}
+        {% for flag in constants.PRIVILEGES %}
         <tr>
           <td>{{ flag|capitalize|replace('_',' ') }}</td>
           <td class="font-weight-bold">
-            {{ call.get('access', {}).get(flag) and 'Yes' or 'No' }}
+            {{ call.get('privileges', {}).get(flag) and 'Yes' or 'No' }}
           </td>
         </tr>
         {% endfor %}

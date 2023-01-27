@@ -242,7 +242,6 @@ def user_link(user, fullname=True, affiliation=False):
 
 def users_links_list(usernames):
     "List of links to users."
-    print(usernames)
     users = []
     for username in sorted(usernames):
         user = anubis.user.get_user(username)

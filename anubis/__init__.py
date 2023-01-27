@@ -5,7 +5,7 @@ import re
 import string
 import sys
 
-__version__ = "2.2.1"
+__version__ = "2.2.3"
 
 
 class Constants:
@@ -186,8 +186,8 @@ class Constants:
         REPEAT,
     )
 
-    # Access flags for each call.
-    ACCESS = (
+    # Privileges flags for each call.
+    PRIVILEGES = (
         "allow_reviewer_view_all_reviews",
         "allow_submitter_view_decision",
         "allow_chair_create_reviews",
