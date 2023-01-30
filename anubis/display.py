@@ -325,7 +325,7 @@ def proposal_link(proposal):
 
 
 def review_link(review, show_status=True):
-    "Link to review."
+    "Link to review, showing the status."
     if not review:
         return "-"
     url = flask.url_for("review.display", iuid=review["_id"])

@@ -1,4 +1,4 @@
-"Command-line interface for admin operations."
+"Command-line interface for administrator operations."
 
 import json
 import os.path
@@ -31,6 +31,12 @@ def to_json(data):
     "Convert data structure to indented JSON."
     return json.dumps(data, ensure_ascii=False, indent=2)
 
+def join_dirpath(dirpath, filename):
+    if dirpath:
+        return os.path.normpath(os.path.join(os.path.expandvars(os.path.expanduser(dirpath)), filename))
+    else:
+        return filename
+
 
 @click.group
 def cli():
@@ -39,55 +45,22 @@ def cli():
 
 
 @cli.command
-@click.option("--force", is_flag=True, help="Do not ask for confirmation.")
-def destroy_database(force):
-    "Irrevocable delete of the entire database, including the instance within CouchDB."
+def config():
+    "Output the current config as a JSON document."
     with anubis.main.app.app_context():
-        server = anubis.database.get_server()
-        try:
-            db = server[anubis.main.app.config["COUCHDB_DBNAME"]]
-        except couchdb2.NotFoundError as error:
-            raise click.ClickException(error)
-        if not force:
-            click.confirm(
-                "The entire database will be irrevocably deleted: Continue?", abort=True
-            )
-        db.destroy()
-        click.echo(
-            f"""Destroyed database '{anubis.main.app.config["COUCHDB_DBNAME"]}'."""
-        )
+        config = anubis.config.get_config(hidden=False)
+    # Remove entries that are not relevant for a config file.
+    for name in ["ROOT", "SETTINGS_DOTENV", "SETTINGS_ENVVAR", "SETTINGS_FILE"]:
+        config.pop(name, None)
+    click.echo(to_json(config))
 
 
 @cli.command
-def create_database():
-    "Create the database within CouchDB and load the design documents."
+def versions():
+    "Versions of various software in the Anubis system."
     with anubis.main.app.app_context():
-        server = anubis.database.get_server()
-        if anubis.main.app.config["COUCHDB_DBNAME"] in server:
-            raise click.ClickException(
-                f"""Database '{anubis.main.app.config["COUCHDB_DBNAME"]}' already exists."""
-            )
-        server.create(anubis.main.app.config["COUCHDB_DBNAME"])
-        anubis.database.update_design_documents()
-        click.echo(
-            f"""Created database '{anubis.main.app.config["COUCHDB_DBNAME"]}'."""
-        )
-
-
-@cli.command
-def update_database():
-    "Update the contents of the database for changes in new version(s)."
-    with anubis.main.app.app_context():
-        server = anubis.database.get_server()
-        if not anubis.main.app.config["COUCHDB_DBNAME"] in server:
-            raise click.ClickException(
-                f"""Database '{anubis.main.app.config["COUCHDB_DBNAME"]}' does not exist."""
-            )
-        anubis.database.update_design_documents()
-        anubis.database.update()
-        click.echo(
-            f"""Updated database '{anubis.main.app.config["COUCHDB_DBNAME"]}'."""
-        )
+        for name, version, url in anubis.utils.get_software():
+            click.echo(f"{name:>20} {version:>10}   {url}")
 
 
 @cli.command
@@ -106,6 +79,58 @@ def counts():
 
 
 @cli.command
+@click.option("--force", is_flag=True, help="Do not ask for confirmation.")
+def database_destroy(force):
+    "Irrevocable delete of the entire database, including the instance within CouchDB."
+    with anubis.main.app.app_context():
+        server = anubis.database.get_server()
+        try:
+            db = server[anubis.main.app.config["COUCHDB_DBNAME"]]
+        except couchdb2.NotFoundError as error:
+            raise click.ClickException(error)
+        if not force:
+            click.confirm(
+                "The entire database will be irrevocably deleted: Continue?", abort=True
+            )
+        db.destroy()
+        click.echo(
+            f"""Destroyed database '{anubis.main.app.config["COUCHDB_DBNAME"]}'."""
+        )
+
+
+@cli.command
+def database_create():
+    "Create the database within CouchDB and load the design documents."
+    with anubis.main.app.app_context():
+        server = anubis.database.get_server()
+        if anubis.main.app.config["COUCHDB_DBNAME"] in server:
+            raise click.ClickException(
+                f"""Database '{anubis.main.app.config["COUCHDB_DBNAME"]}' already exists."""
+            )
+        server.create(anubis.main.app.config["COUCHDB_DBNAME"])
+        anubis.database.update_design_documents()
+        click.echo(
+            f"""Created database '{anubis.main.app.config["COUCHDB_DBNAME"]}'."""
+        )
+
+
+@cli.command
+def database_update():
+    "Update the contents of the database for changes in new version(s)."
+    with anubis.main.app.app_context():
+        server = anubis.database.get_server()
+        if not anubis.main.app.config["COUCHDB_DBNAME"] in server:
+            raise click.ClickException(
+                f"""Database '{anubis.main.app.config["COUCHDB_DBNAME"]}' does not exist."""
+            )
+        anubis.database.update_design_documents()
+        anubis.database.update()
+        click.echo(
+            f"""Updated database '{anubis.main.app.config["COUCHDB_DBNAME"]}'."""
+        )
+
+
+@cli.command
 @click.option("--username", help="Username for the new admin account.", prompt=True)
 @click.option("--email", help="Email address for the new admin account.", prompt=True)
 @click.option(
@@ -114,7 +139,7 @@ def counts():
     prompt=True,
     hide_input=True,
 )
-def create_admin(username, email, password):
+def admin(username, email, password):
     "Create a new admin account."
     with anubis.main.app.app_context():
         set_db()
@@ -139,7 +164,7 @@ def create_admin(username, email, password):
     prompt=True,
     hide_input=True,
 )
-def create_user(username, email, password):
+def user(username, email, password):
     "Create a new user account."
     with anubis.main.app.app_context():
         set_db()
@@ -153,43 +178,6 @@ def create_user(username, email, password):
         except ValueError as error:
             raise click.ClickException(error)
         click.echo(f"Created user account '{username}'.")
-
-
-@cli.command
-@click.option("--username", help="Username for the user account.", prompt=True)
-@click.option(
-    "--password",
-    help="New password for the user account.",
-    prompt=True,
-    hide_input=True,
-)
-def set_password(username, password):
-    "Set the password for a user account."
-    with anubis.main.app.app_context():
-        set_db()
-        user = anubis.user.get_user(username)
-        if user:
-            with anubis.user.UserSaver(user) as saver:
-                saver.set_password(password)
-        else:
-            raise click.ClickException("No such user.")
-        click.echo(f"Set password for user account '{username}'.")
-
-
-@cli.command
-@click.option("--username", help="Username for the user account.", prompt=True)
-def reset_password(username):
-    "Reset the password for a user account."
-    with anubis.main.app.app_context():
-        set_db()
-        user = anubis.user.get_user(username)
-        if user:
-            with anubis.user.UserSaver(user) as saver:
-                saver.set_password()
-            code = saver["password"][5:]
-            click.echo(f"One-time password setting code: {code}")
-        else:
-            raise click.ClickException("No such user.")
 
 
 @cli.command
@@ -211,8 +199,7 @@ def dump(dumpfile, dumpdir, progressbar):
         set_db()
         if not dumpfile:
             dumpfile = "dump_{0}.tar.gz".format(time.strftime("%Y-%m-%d"))
-            if dumpdir:
-                dumpfile = os.path.join(dumpdir, dumpfile)
+            dumpfile = join_dirpath(dumpdir, dumpfile)
         ndocs, nfiles = flask.g.db.dump(
             dumpfile, exclude_designs=True, progressbar=progressbar
         )
@@ -239,9 +226,46 @@ def undump(dumpfile, progressbar):
 
 
 @cli.command
+@click.option("--username", help="Username for the user account.", prompt=True)
+@click.option(
+    "--password",
+    help="New password for the user account.",
+    prompt=True,
+    hide_input=True,
+)
+def password_set(username, password):
+    "Set the password for a user account."
+    with anubis.main.app.app_context():
+        set_db()
+        user = anubis.user.get_user(username)
+        if user:
+            with anubis.user.UserSaver(user) as saver:
+                saver.set_password(password)
+        else:
+            raise click.ClickException("No such user.")
+        click.echo(f"Set password for user account '{username}'.")
+
+
+@cli.command
+@click.option("--username", help="Username for the user account.", prompt=True)
+def password_reset(username):
+    "Reset the password for a user account."
+    with anubis.main.app.app_context():
+        set_db()
+        user = anubis.user.get_user(username)
+        if user:
+            with anubis.user.UserSaver(user) as saver:
+                saver.set_password()
+            code = saver["password"][5:]
+            click.echo(f"One-time password setting code: {code}")
+        else:
+            raise click.ClickException("No such user.")
+
+
+@cli.command
 @click.option("-f", "--filepath", type=str, help="The path of the downloaded file.")
 @click.argument("identifier")
-def download_document(filepath, identifier):
+def document_download(filepath, identifier):
     """Download the JSON for the single document in the database.
 
     Write to the filepath if given, else to stdout.
@@ -264,7 +288,7 @@ def download_document(filepath, identifier):
 
 @cli.command
 @click.argument("filepath", type=click.Path(exists=True))
-def upload_document(filepath):
+def document_upload(filepath):
     """Upload a JSON document from a file into the database.
 
     If the document does not contain an '_id' entry, it will be set.
@@ -293,7 +317,7 @@ def upload_document(filepath):
 @cli.command
 @click.option("--force", is_flag=True, help="Do not ask for confirmation.")
 @click.argument("identifier")
-def delete_document(force, identifier):
+def document_delete(force, identifier):
     "Delete the JSON document with the given identifier from the database."
     with anubis.main.app.app_context():
         set_db()
@@ -308,22 +332,74 @@ def delete_document(force, identifier):
 
 
 @cli.command
-def config():
-    "Output the current config as a JSON document."
+@click.argument("identifier")
+def attachments(identifier):
+    "List the attachments for the document with the given identifier.."
     with anubis.main.app.app_context():
-        config = anubis.config.get_config(hidden=False)
-    # Remove entries that are not relevant for a config file.
-    for name in ["ROOT", "SETTINGS_DOTENV", "SETTINGS_ENVVAR", "SETTINGS_FILE"]:
-        config.pop(name, None)
-    click.echo(to_json(config))
+        set_db()
+        try:
+            doc = flask.g.db[identifier]
+        except couchdb2.CouchDB2Exception as error:
+            raise click.ClickException(error)
+        for filename, info in sorted(doc.get("_attachments", {}).items()):
+            click.echo(f"{filename}\n  {info['content_type']}\n  {info['length']} bytes\n  {info['digest']}")
 
 
 @cli.command
-def versions():
-    "Versions of various software in the Anubis system."
+@click.argument("identifier")
+@click.option(
+    "-D",
+    "--dumpdir",
+    type=str,
+    help="The directory to write the attachments files to.",
+)
+def attachments_download(identifier, dumpdir):
+    "Download all attachments for the document with the given identifier."
     with anubis.main.app.app_context():
-        for name, version, url in anubis.utils.get_software():
-            click.echo(f"{name:>20} {version:>10}   {url}")
+        set_db()
+        try:
+            doc = flask.g.db[identifier]
+        except couchdb2.CouchDB2Exception as error:
+            raise click.ClickException(error)
+        for filename in sorted(doc.get("_attachments", {})):
+            filepath = join_dirpath(dumpdir, filename)
+            with open(filepath, "wb") as outfile:
+                outfile.write(flask.g.db.get_attachment(doc, filename).read())
+            click.echo(f"Downloaded {filepath}")
+
+
+@cli.command
+@click.argument("identifier")
+@click.argument("filename", type=click.Path(exists=True))
+def attachment_upload(identifier, filename):
+    "Upload the given file and attach to the document with the given identifier."
+    with anubis.main.app.app_context():
+        set_db()
+        try:
+            doc = flask.g.db[identifier]
+        except couchdb2.CouchDB2Exception as error:
+            raise click.ClickException(error)
+        with open(filename, "rb") as infile:
+            flask.g.db.put_attachment(doc, infile.read(), filename=filename)
+        click.echo(f"Uploaded {filename} from document {identifier}.")
+
+
+@cli.command
+@click.argument("identifier")
+@click.argument("filename")
+def attachment_delete(identifier, filename):
+    "Upload the given file and attach to the document with the given identifier."
+    with anubis.main.app.app_context():
+        set_db()
+        try:
+            doc = flask.g.db[identifier]
+        except couchdb2.CouchDB2Exception as error:
+            raise click.ClickException(error)
+            raise click.ClickException(error)
+        if filename not in doc.get("_attachments", {}):
+            raise click.ClickException("No such file {filename} in document {identifier}.")
+        flask.g.db.delete_attachment(doc, filename)
+        click.echo(f"Deleted {filename} from document {identifier}.")
 
 
 if __name__ == "__main__":
