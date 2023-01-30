@@ -25,8 +25,6 @@
 
 {% block main %}
 
-{% include 'todo.html' %}
-
 {% if calls %}
 {# This list is already properly sorted. #}
 {% for call in calls %}
@@ -96,6 +94,3 @@
 {% endif %}
 
 {% endblock %} {# block actions #}
-
-{% block todo %}
-{% endblock %} {# block todo #}

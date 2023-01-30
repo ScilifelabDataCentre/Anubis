@@ -44,6 +44,10 @@ def create():
             with CallSaver() as saver:
                 saver.set_identifier(flask.request.form.get("identifier"))
                 saver.set_title(flask.request.form.get("title"))
+                saver.add_review_field({"type": constants.BOOLEAN,
+                                        "identifier": "conflict_of_interest",
+                                        "description": "Do you have a conflict of interest regarding the proposal? If yes, then you should state so here, and finalize the review without filling in any other fields.",
+                                        "required": True,})
             call = saver.doc
         except ValueError as error:
             return utils.error(error)
@@ -381,7 +385,7 @@ def reviewers(cid):
 
         reviewer = flask.request.form.get("reviewer")
         if anubis.database.get_count(
-            "reviews", "call_reviewer", [call["identifier"], reviewed]
+            "reviews", "call_reviewer", [call["identifier"], reviewer]
         ):
             return utils.error(
                 "Cannot remove reviewer which has reviews in the call.",
@@ -730,6 +734,8 @@ class CallSaver(AccessSaverMixin, Saver):
         self.doc["privileges"] = {k: False for k in constants.PRIVILEGES}
         self.doc["decision"] = []
         self.doc["grant"] = []
+        self.doc["access_view"] = []
+        self.doc["access_edit"] = []
 
     def set_identifier(self, identifier):
         "Call identifier."
@@ -770,7 +776,7 @@ class CallSaver(AccessSaverMixin, Saver):
             if field["identifier"] == fid:
                 break
         else:
-            raise KeyError("No such decision field.")
+            raise KeyError("No such field.")
         move = form.get("_move")
         if move == "up":
             fieldlist.pop(pos)

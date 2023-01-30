@@ -48,16 +48,8 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 </div>
 
 <div class="row mb-2">
-  <div class="col-md-2 font-weight-bold text-right">State</div>
-  <div class="col-md">
-    {% if review.get('archived') %}
-    <h3><span class="badge badge-pill badge-secondary">Archived</span></h3>
-    {% elif review.get('finalized') %}
-    <span class="badge badge-pill badge-success">Finalized</span>
-    {% else %}
-    <span class="badge badge-pill badge-warning">Not finalized</span>
-    {% endif %}
-  </div>
+  <div class="col-md-2 font-weight-bold text-right">Status</div>
+  <div class="col-md">{{ review | review_status }}</div>
 </div>
 
 {% if review.get('archived') %}

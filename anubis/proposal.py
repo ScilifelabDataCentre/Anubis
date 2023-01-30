@@ -317,16 +317,14 @@ def change_access(pid):
     call = anubis.call.get_call(proposal["call"])
 
     if utils.http_GET():
-        users = {}
-        for user in proposal.get("access_view", []):
-            users[user] = False
-        for user in proposal.get("access_edit", []):
-            users[user] = True
+        users_edit = sorted(proposal.get("access_edit", []))
+        users_view = sorted(set(proposal.get("access_view", [])).difference(users_edit))
         return flask.render_template(
             "change_access.html",
             title=f"Proposal {proposal['identifier']}",
             url=flask.url_for("proposal.change_access", pid=proposal["identifier"]),
-            users=users,
+            users_view=users_view,
+            users_edit=users_edit,
             back_url=flask.url_for("proposal.display", pid=proposal["identifier"]),
         )
 
@@ -423,6 +421,8 @@ class ProposalSaver(AccessSaverMixin, FieldSaverMixin, Saver):
     def initialize(self):
         self.doc["values"] = {}
         self.doc["errors"] = {}
+        self.doc["access_view"] = []
+        self.doc["access_edit"] = []
 
     def set_user(self, user):
         "Set the user (owner) for the proposal; must be called when creating."

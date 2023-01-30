@@ -143,16 +143,14 @@ def change_access(gid):
     call = anubis.call.get_call(grant["call"])
 
     if utils.http_GET():
-        users = {}
-        for user in grant.get("access_view", []):
-            users[user] = False
-        for user in grant.get("access_edit", []):
-            users[user] = True
+        users_edit = sorted(grant.get("access_edit", []))
+        users_view = sorted(set(grant.get("access_view", [])).difference(users_edit))
         return flask.render_template(
             "change_access.html",
             title=f"Grant {grant['identifier']}",
             url=flask.url_for("grant.change_access", gid=grant["identifier"]),
-            users=users,
+            users_view=users_view,
+            users_edit=users_edit,
             back_url=flask.url_for("grant.display", gid=grant["identifier"]),
         )
 
@@ -347,6 +345,8 @@ class GrantSaver(AccessSaverMixin, FieldSaverMixin, Saver):
     def initialize(self):
         self.doc["values"] = {}
         self.doc["errors"] = {}
+        self.doc["access_view"] = []
+        self.doc["access_edit"] = []
 
     def set_proposal(self, proposal):
         "Set the proposal for the grant dossier; must be called when creating."
