@@ -341,7 +341,7 @@ CALLS_DESIGN_DOC = {
         },
         "access": {
             "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'call') return; for (var i=0; i < doc.access_view.length; i++) {emit(doc.access_view[i], doc.identifier); }}",
+            "map": "function (doc) {if (doc.doctype !== 'call') return; if (!doc.access_view) return; for (var i=0; i < doc.access_view.length; i++) {emit(doc.access_view[i], doc.identifier); }}",
         },
     }
 }
@@ -368,7 +368,7 @@ PROPOSALS_DESIGN_DOC = {
         },
         "access": {
             "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'proposal') return; for (var i=0; i < doc.access_view.length; i++) {emit(doc.access_view[i], doc.identifier); }}",
+            "map": "function (doc) {if (doc.doctype !== 'proposal') return; if (!doc.access_view) return; for (var i=0; i < doc.access_view.length; i++) {emit(doc.access_view[i], doc.identifier); }}",
         },
     }
 }
@@ -442,11 +442,11 @@ GRANTS_DESIGN_DOC = {
         },
         "incomplete": {
             "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'grant') return; if (Object.keys(doc.errors).length === 0) return; emit(doc.user, doc.identifier); for (var i=0; i < doc.access_edit.length; i++) {emit(doc.access_edit[i], doc.identifier); }}",
+            "map": "function (doc) {if (doc.doctype !== 'grant') return; if (Object.keys(doc.errors).length === 0) return; emit(doc.user, doc.identifier); if (!doc.access_edit) return; for (var i=0; i < doc.access_edit.length; i++) {emit(doc.access_edit[i], doc.identifier); }}",
         },
         "access": {
             "reduce": "_count",
-            "map": "function (doc) {if (doc.doctype !== 'grant') return; for (var i=0; i < doc.access_view.length; i++) {emit(doc.access_view[i], doc.identifier); }}",
+            "map": "function (doc) {if (doc.doctype !== 'grant') return; if (!doc.access_view) return; for (var i=0; i < doc.access_view.length; i++) {emit(doc.access_view[i], doc.identifier); }}",
         },
     }
 }

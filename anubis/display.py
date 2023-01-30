@@ -30,6 +30,7 @@ def init(app):
                  call_grants_link,
                  proposal_link,
                  review_link,
+                 review_status,
                  decision_link,
                  grant_link]:
         app.jinja_env.filters[func.__name__] = func
@@ -279,7 +280,7 @@ def call_link(
     if grants_link:
         count = anubis.database.get_count("grants", "call", call["identifier"])
         url = flask.url_for("grants.call", cid=call["identifier"])
-        html += f' <a href="{url}" class="badge badge-success mx-2">{count} grants</a>'
+        html += f' <a href="{url}" role="button" class="badge badge-success mx-2">{count} grants</a>'
     return markupsafe.Markup(html)
 
 
@@ -323,19 +324,28 @@ def proposal_link(proposal):
     return markupsafe.Markup(html)
 
 
-def review_link(review):
+def review_link(review, show_status=True):
     "Link to review."
     if not review:
         return "-"
     url = flask.url_for("review.display", iuid=review["_id"])
-    result = f"""<a href="{url}" class="text-info">Review """
+    text = "Review"
+    if show_status:
+        text += f" {review_status(review)}"
+    return markupsafe.Markup(f"""<a href="{url}" class="text-info">{text}</a>""")
+
+
+def review_status(review):
+    "Display the status of the review."
     if review.get("archived"):
-        result += '<span class="badge badge-pill badge-secondary">Archived</span>'
+        result = '<span class="badge badge-pill badge-secondary">Archived</span>'
     elif review.get("finalized"):
-        result += '<span class="badge badge-pill badge-success">Finalized</span>'
+        if review["values"].get("conflict_of_interest"):
+            result = '<span title="Conflict Of Interest declared." class="badge badge-pill badge-danger">Finalized; COI</span>'
+        else:
+            result = '<span class="badge badge-pill badge-success">Finalized</span>'
     else:
-        result += '<span class="badge badge-pill badge-warning">Not finalized</span>'
-    result += "</a>"
+        result = '<span class="badge badge-pill badge-warning">Not finalized</span>'
     return markupsafe.Markup(result)
 
 

@@ -344,7 +344,7 @@ def get_review_score_fields(call, proposals):
     """Return a dictionary of the score banner fields in the reviews.
     Compute the score means and stdevs. If there are more than two score
     fields, then also compute the mean of the means and the stdev of the means.
-    This is done over all finalized reviews for each proposal.
+    This is done over all finalized non-conflict-of-interest reviews for each proposal.
     Store the values in the proposal document.
     """
     fields = dict(
@@ -358,8 +358,8 @@ def get_review_score_fields(call, proposals):
         reviews = anubis.database.get_docs(
             "reviews", "proposal", proposal["identifier"]
         )
-        # Only include finalized reviews in the calculation.
         reviews = [r for r in reviews if r.get("finalized")]
+        reviews = [r for r in reviews if not r["values"].get("conflict_of_interest")]
         scores = dict([(id, list()) for id in fields])
         for review in reviews:
             for id in fields:
@@ -399,7 +399,8 @@ def get_review_score_fields(call, proposals):
 def get_review_rank_fields_errors(call, proposals):
     """Return a tuple containing a dictionary of the rank banner fields
     in the reviews and a list of errors.
-    Compute the ranking factors of each proposal from all finalized reviews.
+    Compute the ranking factors of each proposal from all finalized
+    non-conflict-of-interest reviews.
     Check that the ranks are consecutive for all reviewers.
     """
     fields = dict(
@@ -416,8 +417,8 @@ def get_review_rank_fields_errors(call, proposals):
             reviews = anubis.database.get_docs(
                 "reviews", "proposal", proposal["identifier"]
             )
-            # Only include finalized reviews in the calculation.
             reviews = [r for r in reviews if r.get("finalized")]
+            reviews = [r for r in reviews if not r["values"].get("conflict_of_interest")]
             for review in reviews:
                 try:
                     value = review["values"][id]

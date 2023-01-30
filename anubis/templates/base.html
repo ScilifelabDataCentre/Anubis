@@ -42,12 +42,21 @@
              title="My proposals and the proposals to which I have access."
 	     class="nav-link mr-2">
             My proposals
+            {% if g.my_unsubmitted_proposals_count %}
+            <br>
+            <span class="badge badge-warning">{{ g.my_unsubmitted_proposals_count }} unsubmitted</span>
+	    {% endif %}
 	  </a>
 	  {% endif %}
+
 	  {% if g.my_reviews_count %}
           <a href="{{ url_for('reviews.reviewer', username=g.current_user['username']) }}"
 	     class="nav-link mr-2">
             My reviews
+            {% if g.my_unfinalized_reviews_count %}
+            <br>
+            <span class="badge badge-warning">{{ g.my_unfinalized_reviews_count }} unfinalized</span>
+	    {% endif %}
 	  </a>
 	  {% endif %}
 
@@ -56,8 +65,13 @@
              title="My grants and the grants to which I have access."
 	     class="nav-link mr-2">
             My grants
+            {% if g.my_incomplete_grants_count %}
+            <br>
+            <span class="badge badge-warning">{{ g.my_incomplete_grants_count }} incomplete</span>
+	    {% endif %}
 	  </a>
 	  {% endif %}
+
           {% endif %} {# if g.current_user #}
 
           <li class="nav-item dropdown">
@@ -225,9 +239,6 @@
             {% block actions %}
             {% endblock %}
           </div>
-          {% block todo %}
-          {% include 'todo.html' %}
-          {% endblock %} {# block todo #}
           <div class="mt-4">
             {% block doclinks %}
             <a href="{{ url_for('documentation') }}#instructions-for-users"

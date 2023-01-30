@@ -37,12 +37,13 @@ def call(cid):
     for proposal in proposals:
         proposal["allow_create_review"] = anubis.review.allow_create(proposal)
     reviews = anubis.database.get_docs("reviews", "call", call["identifier"])
-    # For ordinary reviewer, list only finalized reviews.
+    # For ordinary reviewer, list only finalized, non-conflict-of-interest reviews.
     if flask.g.am_admin or flask.g.am_staff or anubis.call.am_chair(call):
         only_finalized = False
     else:
-        only_finalized = True
         reviews = [r for r in reviews if r.get("finalized")]
+        reviews = [r for r in reviews if not r["values"].get("conflict_of_interest")]
+        only_finalized = True
     reviews_lookup = {f"{r['proposal']} {r['reviewer']}": r for r in reviews}
     return flask.render_template(
         "reviews/call.html",

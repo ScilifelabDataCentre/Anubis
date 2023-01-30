@@ -15,7 +15,7 @@ Reviews by user {{ user['username'] }}
 
   <div class="col-md-8">
     {% for call in reviewer_calls %}
-    <p class="mb-2">
+    <p class="mb-1">
       <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=user['username']) }}"
          role="button" class="btn btn-sm btn-info mr-2">
         {{ call['n_reviews'] }} reviews

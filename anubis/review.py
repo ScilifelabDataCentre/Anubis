@@ -453,12 +453,14 @@ def allow_delete(review):
 
 
 def allow_finalize(review):
-    "The admin, call owner and reviewer may finalize if it contains no errors."
+    """The admin, call owner and reviewer may finalize if it contains no errors,
+    unless the conflict-of-interest field, if any, has been filled in as 'Yes'.
+    """
     if review.get("finalized"):
         return False
     if review.get("archived"):
         return False
-    if review["errors"]:
+    if not review["values"].get("conflict_of_interest") and review["errors"]:
         return False
     if not flask.g.current_user:
         return False
