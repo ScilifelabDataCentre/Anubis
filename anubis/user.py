@@ -289,7 +289,7 @@ def edit(username):
 
     if utils.http_GET():
         return flask.render_template(
-            "user/edit.html", user=user, allow_change_role=allow_change_role(user)
+            "user/edit.html", user=user, am_admin_not_self=am_admin_not_self(user)
         )
 
     elif utils.http_POST():
@@ -299,7 +299,7 @@ def edit(username):
                     email = flask.request.form.get("email")
                     saver.set_email(email, require=bool(email))
                 saver.set_orcid(flask.request.form.get("orcid"))
-                if allow_change_role(user):
+                if am_admin_not_self(user):
                     saver.set_role(flask.request.form.get("role"))
                     saver.set_call_creator(
                         utils.to_bool(flask.request.form.get("call_creator"))
@@ -789,10 +789,8 @@ def allow_enable_disable(user):
     return False
 
 
-def allow_change_role(user):
-    """Is the current user allowed to change the role of the user account?
-    Yes, if current user is admin an not self.
-    """
+def am_admin_not_self(user):
+    "Is the current user admin and not self?"
     if flask.g.am_admin and flask.g.current_user["username"] != user["username"]:
         return True
     return False
