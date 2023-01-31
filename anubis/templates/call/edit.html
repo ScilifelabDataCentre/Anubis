@@ -11,13 +11,11 @@
 </div>
 {% endif %}
 
-<form action="{{ url_for('.edit', cid=call['identifier']) }}"
-      method="POST">
+<form action="{{ url_for('.edit', cid=call['identifier']) }}" method="POST">
   {{ csrf_token() }}
 
   <div class="form-group row">
-    <label for="identifier"
-	   class="col-md-2 col-form-label text-right font-weight-bold">
+    <label for="identifier" class="col-md-2 col-form-label text-right font-weight-bold">
       Identifier</label>
     <div class="col-md">
       <div class="row">
@@ -43,8 +41,7 @@
   </div>
 
   <div class="form-group row">
-    <label for="title"
-	   class="col-md-2 col-form-label text-right font-weight-bold">
+    <label for="title" class="col-md-2 col-form-label text-right font-weight-bold">
       Title</label>
     <div class="col-md">
       <input type="text" id="title" name="title"
@@ -59,8 +56,7 @@
   </div>
 
   <div class="form-group row">
-    <label for="description"
-	   class="col-md-2 col-form-label text-right font-weight-bold">
+    <label for="description" class="col-md-2 col-form-label text-right font-weight-bold">
       Description</label>
     <div class="col-md">
       <textarea id="description" name="description"
@@ -80,8 +76,7 @@
   </div>
 
   <div class="form-group row">
-    <label for="home_description"
-	   class="col-md-2 col-form-label text-right font-weight-bold">
+    <label for="home_description" class="col-md-2 col-form-label text-right font-weight-bold">
       Home page description</label>
     <div class="col-md">
       <textarea id="home_description" name="home_description"
@@ -100,8 +95,7 @@
   </div>
 
   <div class="form-group row">
-    <label for="opens"
-	   class="col-md-2 col-form-label text-right font-weight-bold">
+    <label for="opens" class="col-md-2 col-form-label text-right font-weight-bold">
       Opens</label>
     <div class="col-md">
       <div class="row">
@@ -127,8 +121,7 @@
   </div>
 
   <div class="form-group row">
-    <label for="closes"
-	   class="col-md-2 col-form-label text-right font-weight-bold">
+    <label for="closes" class="col-md-2 col-form-label text-right font-weight-bold">
       Closes</label>
     <div class="col-md">
       <div class="row">
@@ -154,8 +147,7 @@
   </div>
 
   <div class="form-group row">
-    <label for="reviews_due"
-	   class="col-md-2 col-form-label text-right font-weight-bold">
+    <label for="reviews_due" class="col-md-2 col-form-label text-right font-weight-bold">
       Reviews due</label>
     <div class="col-md">
       <div class="row">
@@ -179,8 +171,7 @@
   </div>
 
   <div class="form-group row">
-    <label for="privileges"
-	   class="col-md-2 col-form-label text-right font-weight-bold">
+    <label for="privileges" class="col-md-2 col-form-label text-right font-weight-bold">
       Privileges</label>
     <div class="col-md">
       {% for flag in constants.PRIVILEGES %}
@@ -202,7 +193,7 @@
 
   <div class="form-group row">
     <div class="col-md-3 offset-md-2">
-      <button type="submit" class="btn btn-block btn-primary">Save</button>
+      <button type="submit" class="btn btn-primary btn-block">Save</button>
     </div>
   </div>
 
@@ -212,6 +203,6 @@
 {% block actions %}
 <div class="mt-2">
   <a href="{{ url_for('.display', cid=call['identifier']) }}"
-     role="button" class="btn btn-block btn-secondary">Cancel</a>
+     role="button" class="btn btn-secondary btn-block">Cancel</a>
 </div>
 {% endblock %}

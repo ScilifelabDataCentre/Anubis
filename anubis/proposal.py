@@ -534,7 +534,11 @@ def get_proposal_docx(proposal):
         ):
             doc.add_paragraph(value)
         elif field["type"] == constants.BOOLEAN:
-            doc.add_paragraph(utils.display_boolean(value))
+            if value is None:
+                value = "-"
+            else:
+                value = value and "Yes" or "No"
+            doc.add_paragraph(value)
         elif field["type"] == constants.SELECT:
             if isinstance(value, list):
                 doc.add_paragraph("; ".join(value))
@@ -627,7 +631,11 @@ def get_proposal_xlsx(proposal):
         ):
             ws.write_string(nrow, 1, value)
         elif field["type"] == constants.BOOLEAN:
-            ws.write(nrow, 1, utils.display_boolean(value))
+            if value is None:
+                value = "-"
+            else:
+                value = value and "Yes" or "No"
+            ws.write(nrow, 1, value)
         elif field["type"] == constants.SELECT:
             if isinstance(value, list):
                 ws.write_string(nrow, 1, "; ".join(value))

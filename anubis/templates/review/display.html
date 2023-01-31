@@ -67,7 +67,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {% if allow_edit %}
 <div class="mt-2">
   <a href="{{ url_for('.edit', iuid=review['_id']) }}"
-     role="button" class="btn btn-block btn-primary">Edit</a>
+     role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
 {% endif %} {# if allow_edit #}
 
@@ -76,7 +76,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   <form action="{{ url_for('.unfinalize', iuid=review['_id']) }}"
 	method="POST">
     {{ csrf_token() }}
-    <button type="submit" class="btn btn-block btn-warning">Unfinalize</button>
+    <button type="submit" class="btn btn-warning btn-block">Unfinalize</button>
   </form>
 </div>
 {% endif %} {# if allow_unfinalize #}
@@ -86,7 +86,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   <form action="{{ url_for('.finalize', iuid=review['_id']) }}"
 	method="POST">
     {{ csrf_token() }}
-    <button type="submit" class="btn btn-block btn-success">Finalize</button>
+    <button type="submit" class="btn btn-success btn-block">Finalize</button>
   </form>
 </div>
 {% endif %} {# if allow_finalize #}
@@ -100,7 +100,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   <form action="{{ url_for('.unarchive', iuid=review['_id']) }}"
 	method="POST">
     {{ csrf_token() }}
-    <button type="submit" class="btn btn-sm btn-block btn-secondary">
+    <button type="submit" class="btn btn-secondary btn-sm btn-block">
       Unarchive</button>
   </form>
 </div>
@@ -109,7 +109,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   <form action="{{ url_for('.archive', iuid=review['_id']) }}"
 	method="POST">
     {{ csrf_token() }}
-    <button type="submit" class="btn btn-sm btn-block btn-secondary"
+    <button type="submit" class="btn btn-secondary btn-sm btn-block"
 	    onclick="return confirm('Really archive this review?')">
       Archive</button>
   </form>
@@ -124,7 +124,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 	method="POST">
     {{ csrf_token() }}
     <input type="hidden" name="_http_method" value="DELETE">
-    <button type="submit" class="btn btn-sm btn-block btn-danger"
+    <button type="submit" class="btn btn-danger btn-sm btn-block"
 	    onclick="return confirm('Really delete this review?')">
       Delete</button>
   </form>
@@ -136,15 +136,12 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {% block doclinks %}
 {{ super() }}
 <a href="{{ url_for('documentation') }}#review"
-   target="documentation"
-   class="btn btn-outline-primary btn-block">
+   target="documentation" role="button" class="btn btn-outline-primary btn-block">
   Documentation: Review</a>
 {% if allow_edit %}
 <div class="mt-2">
   <a href="{{ url_for('documentation') }}#instructions-for-reviewers"
-     target="documentation"
-     role="button"
-     class="btn btn-block btn-outline-secondary">
+     target="documentation" role="button" class="btn btn-outline-primary btn-block">
     Instructions for reviewers</a>
 </div>
 {% endif %} {# if allow_edit #}

@@ -31,11 +31,11 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
     <a href="{{ url_for('documentation') }}#instructions-for-reviewers"
        target="documentation"
        role="button"
-       class="btn btn-block btn-outline-secondary">
+       class="btn btn-outline-secondary btn-block">
       Instructions for reviewers</a>
     <a href="{{ url_for('reviews.call_reviewer_archived', cid=call['identifier'], username=user['username']) }}"
        role="button"
-       class="btn btn-block btn-secondary">
+       class="btn btn-secondary btn-block">
       Archived reviews</a>
   </div>
 </div>
@@ -75,7 +75,7 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 	<form action="{{ url_for('review.create', pid=proposal['identifier'], username=user['username']) }}"
 	      method="POST">
 	  {{ csrf_token() }}
-	  <button type="submit" class="btn btn-sm btn-info py-0">
+	  <button type="submit" class="btn btn-info btn-sm py-0">
             Create review</button>
 	</form>
       </td>

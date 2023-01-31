@@ -5,17 +5,21 @@
 
 {% block main %}
 <form action="{{ url_for('admin.site_configuration') }}"
-      enctype="multipart/form-data"
-      method="POST">
+      enctype="multipart/form-data" method="POST">
   {{ csrf_token() }}
 
   <div class="form-group row">
     <label for="name" class="col-md-2 col-form-label text-right">
       Name</label>
-    <div class="col-md-4">
-      <input type="text" name="name" id="name"
-	     class="form-control" aria-describedby="nameHelp"
-	     value="{{ config.SITE_NAME or '' }}">
+    <div class="col-md">
+      <div class="row">
+        <div class="col-md-5">
+          <input type="text" name="name" id="name"
+	         class="form-control"
+                 aria-describedby="nameHelp"
+	         value="{{ config.SITE_NAME or '' }}">
+        </div>
+      </div>
       <small id="nameHelp" class="form-text text-muted">
         The name of this Anubis site.
       </small>
@@ -85,7 +89,8 @@
       Description</label>
     <div class="col-md">
       <input type="text" name="description" id="description"
-	     class="form-control" aria-describedby="descriptionHelp"
+	     class="form-control"
+             aria-describedby="descriptionHelp"
 	     value="{{ config.SITE_DESCRIPTION or '' }}">
       <small id="descriptionHelp" class="form-text text-muted">
         The one-line description of this Anubis site.
@@ -96,10 +101,15 @@
   <div class="form-group row">
     <label for="host_name" class="col-md-2 col-form-label text-right">
       Host name</label>
-    <div class="col-md-4">
-      <input type="text" name="host_name" id="host_name"
-	     class="form-control" aria-describedby="host_nameHelp"
-	     value="{{ config.SITE_HOST_NAME or '' }}">
+    <div class="col-md">
+      <div class="row">
+        <div class="col-md-4">
+          <input type="text" name="host_name" id="host_name"
+	         class="form-control"
+                 aria-describedby="host_nameHelp"
+	         value="{{ config.SITE_HOST_NAME or '' }}">
+        </div>
+      </div>
       <small id="host_nameHelp" class="form-text text-muted">
         The name of the host institution for this Anubis site.
       </small>
@@ -140,10 +150,15 @@
   <div class="form-group row">
     <label for="host_url" class="col-md-2 col-form-label text-right">
       Host URL</label>
-    <div class="col-md-4">
-      <input type="text" name="host_url" id="host_url"
-	     class="form-control" aria-describedby="host_urlHelp"
-	     value="{{ config.SITE_HOST_URL or '' }}">
+    <div class="col-md">
+      <div class="row">
+        <div class="col-md-4">
+          <input type="text" name="host_url" id="host_url"
+	         class="form-control"
+                 aria-describedby="host_urlHelp"
+	         value="{{ config.SITE_HOST_URL or '' }}">
+        </div>
+      </div>
       <small id="host_urlHelp" class="form-text text-muted">
         The URL of the host institution for this Anubis site.
       </small>
@@ -152,7 +167,7 @@
 
   <div class="form-group row">
     <div class="col-md-3 offset-md-2">
-      <button type="submit" class="btn btn-block btn-primary">Save</button>
+      <button type="submit" class="btn btn-primary btn-block">Save</button>
     </div>
   </div>
 
@@ -162,6 +177,6 @@
 {% block actions %}
 <div class="mt-2">
   <a href="{{ url_for('home') }}"
-     role="button" class="btn btn-block btn-secondary">Cancel</a>
+     role="button" class="btn btn-secondary btn-block">Cancel</a>
 </div>
 {% endblock %}

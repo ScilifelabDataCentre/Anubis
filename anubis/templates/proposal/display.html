@@ -198,21 +198,21 @@
 {% if allow_edit %}
 <div class="mt-2">
   <a href="{{ url_for('proposal.edit', pid=proposal['identifier']) }}"
-     role="button" class="btn btn-block btn-primary">Edit</a>
+     role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
 {% endif %} {# if allow_edit #}
 
 {% if allow_edit %}
 <div class="mt-2">
   <a href="{{ url_for('proposal.change_access', pid=proposal['identifier']) }}"
-     role="button" class="btn btn-block btn-primary btn-sm">Change access</a>
+     role="button" class="btn btn-primary btn-sm btn-block">Change access</a>
 </div>
 {% endif %} {# if allow_edit #}
 
 {% if allow_transfer %}
 <div class="mt-2">
   <a href="{{ url_for('proposal.transfer', pid=proposal['identifier']) }}"
-     role="button" class="btn btn-sm btn-primary btn-block">Transfer ownership</a>
+     role="button" class="btn btn-primary btn-sm btn-block">Transfer ownership</a>
 </div>
 {% endif %} {# if allow_transfer #}
 
@@ -223,16 +223,16 @@
   <form action="{{ url_for('proposal.unsubmit', pid=proposal['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
-    <button type="submit" class="btn btn-block btn-warning">Unsubmit</button>
+    <button type="submit" class="btn btn-warning btn-block">Unsubmit</button>
   </form>
 </div>
 
 {% else %}
 <div class="mt-2">
   <form action="{{ url_for('proposal.submit', pid=proposal['identifier']) }}"
-	method="POST">
+        method="POST">
     {{ csrf_token() }}
-    <button type="submit" class="btn btn-block btn-success">
+    <button type="submit" class="btn btn-success btn-block">
       Submit</button>
   </form>
 </div>
@@ -252,7 +252,7 @@
 	method="POST">
     {{ csrf_token() }}
     <input type="hidden" name="_http_method" value="DELETE">
-    <button type="submit" class="btn btn-sm btn-block btn-danger"
+    <button type="submit" class="btn btn-danger btn-sm btn-block"
 	    onclick="return confirm('Really delete this proposal?')">
       Delete</button>
   </form>

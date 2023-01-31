@@ -164,9 +164,8 @@
               {% endif %}
             </a>
             {% else %}
-            <form action="{{ url_for('user.login') }}"
-                  class="form-inline my-2 my-sm-0"
-                  method="GET">
+            <form action="{{ url_for('user.login') }}" method="GET"
+                  class="form-inline my-2 my-sm-0">
               <button class="btn btn-primary">Login</button>
             </form>
             {% endif %}
@@ -188,7 +187,7 @@
         <div class="col-md-1">
           <a href="{{ url_for('admin.alert_text') }}"
              role="button"
-             class="btn btn-sm btn-primary mt-3">Edit</a>
+             class="btn btn-primary btn-sm mt-3">Edit</a>
         </div>
         {% endif %}
       </div>
@@ -242,22 +241,19 @@
           <div class="mt-4">
             {% block doclinks %}
             <a href="{{ url_for('documentation') }}#instructions-for-users"
-               target="documentation"
-               class="btn btn-outline-primary btn-block">
-              Instructions for users</a>
+               target="documentation" role="button"
+               class="btn btn-outline-primary btn-block">Instructions for users</a>
 
             {% if g.my_reviews_count %}
             <a href="{{ url_for('documentation') }}#instructions-for-reviewers"
-               target="documentation"
-               class="btn btn-outline-primary btn-block">
-              Instructions for reviewers</a>
+               target="documentation" role="button"
+               class="btn btn-outline-primary btn-block">Instructions for reviewers</a>
             {% endif %}
 
             {% if g.am_admin %}
             <a href="{{ url_for('documentation') }}#instructions-for-admins"
-               target="documentation"
-               class="btn btn-outline-primary btn-block">
-              Instructions for admins</a>
+               target="documentation" role="button"
+               class="btn btn-outline-primary btn-block">Instructions for admins</a>
             {% endif %}
 
             {% endblock %} {# block doclinks #}

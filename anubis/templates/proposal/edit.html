@@ -6,13 +6,11 @@
 
 {% block main %}
 <form action="{{ url_for('.edit', pid=proposal['identifier']) }}"
-      enctype="multipart/form-data"
-      method="POST">
+      enctype="multipart/form-data" method="POST">
   {{ csrf_token() }}
 
   <div class="form-group row">
-    <label for="_title"
-	   class="col-md-2 col-form-label text-right font-weight-bold">
+    <label for="_title" class="col-md-2 col-form-label text-right font-weight-bold">
       Title</label>
     <div class="col-md">
       <input type="text" id="_title" name="_title"
@@ -34,11 +32,11 @@
   <div class="form-group row">
     <div class="col-md-3 offset-md-2">
       <button type="submit" title="Save to continue editing later."
-              class="btn btn-block btn-primary">Save</button>
+              class="btn btn-primary btn-block">Save</button>
     </div>
     <div class="col-md-3">
       <button type="submit" title="Save and attempt immediate submission."
-              class="btn btn-block btn-success"
+              class="btn btn-success btn-block"
               name="_save" value="submit">Save & submit</button>
     </div>
   </div>
@@ -50,7 +48,7 @@
 {% include 'info-partial.html' %}
 <div class="mt-2">
   <a href="{{ url_for('.display', pid=proposal['identifier']) }}"
-     role="button" class="btn btn-block btn-secondary">Cancel</a>
+     role="button" class="btn btn-secondary btn-block">Cancel</a>
 </div>
 {% endblock %}
 

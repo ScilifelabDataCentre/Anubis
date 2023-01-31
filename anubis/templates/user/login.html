@@ -5,8 +5,7 @@
 {% block body_title %}Login{% endblock %}
 
 {% block main %}
-<form action="{{ url_for('.login') }}"
-      method="POST">
+<form action="{{ url_for('.login') }}" method="POST">
   {{ csrf_token() }}
 
   <div class="form-group row">

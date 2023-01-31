@@ -1,13 +1,11 @@
 {% extends 'base.html' %}
 
 {% block head_title %}Edit grant dossier {{ grant['identifier'] }}{% endblock %}
-
 {% block body_title %}Edit grant dossier {{ grant['identifier'] }}{% endblock %}
 
 {% block main %}
 <form action="{{ url_for('.edit', gid=grant['identifier']) }}"
-      enctype="multipart/form-data"
-      method="POST">
+      enctype="multipart/form-data" method="POST">
   {{ csrf_token() }}
 
   {% set fields = call['grant'] %}
@@ -19,7 +17,7 @@
 
   <div class="form-group row mt-3">
     <div class="col-md-3 offset-md-2">
-      <button type="submit" class="btn btn-block btn-primary">Save</button>
+      <button type="submit" class="btn btn-primary btn-block">Save</button>
     </div>
   </div>
 
@@ -31,7 +29,7 @@
 {% include 'info-partial.html' %}
 <div class="mt-2">
   <a href="{{ url_for('.display', gid=grant['identifier']) }}"
-     role="button" class="btn btn-block btn-secondary">Cancel</a>
+     role="button" class="btn btn-secondary btn-block">Cancel</a>
 </div>
 {% endblock %}
 

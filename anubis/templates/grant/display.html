@@ -89,7 +89,7 @@
 {% if allow_edit %}
 <div class="mt-2">
   <a href="{{ url_for('grant.edit', gid=grant['identifier']) }}"
-     role="button" class="btn btn-block btn-primary">Edit</a>
+     role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
 {% endif %} {# if allow_edit #}
 
@@ -99,7 +99,7 @@
 {% if allow_change_access %}
 <div class="mt-2">
   <a href="{{ url_for('grant.change_access', gid=grant['identifier']) }}"
-     role="button" class="btn btn-info btn-block btn-sm">Change access</a>
+     role="button" class="btn btn-info btn-sm btn-block">Change access</a>
 </div>
 {% endif %} {# if allow_change_access #}
 
@@ -109,7 +109,7 @@
   <form action="{{ url_for('grant.unlock', gid=grant['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
-    <button type="submit" class="btn btn-sm btn-block btn-warning"
+    <button type="submit" class="btn btn-warning btn-sm btn-block"
             title="Unlock the grant dossier to allow edits by the user.">
       Unlock</button>
   </form>
@@ -117,7 +117,7 @@
   <form action="{{ url_for('grant.lock', gid=grant['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}
-    <button type="submit" class="btn btn-sm btn-block btn-warning"
+    <button type="submit" class="btn btn-warning btn-sm btn-block"
             title="Lock the grant dossier to stop edits by the user.">
       Lock</button>
   </form>
@@ -131,7 +131,7 @@
 	method="POST">
     {{ csrf_token() }}
     <input type="hidden" name="_http_method" value="DELETE">
-    <button type="submit" class="btn btn-sm btn-block btn-danger"
+    <button type="submit" class="btn btn-danger btn-sm btn-block"
 	    onclick="return confirm('Really delete this grant?')">
       Delete</button>
   </form>
@@ -142,8 +142,7 @@
 {% block doclinks %}
 {{ super() }}
 <a href="{{ url_for('documentation') }}#grant"
-   target="documentation"
-   class="btn btn-outline-primary btn-block">
+   target="documentation" role="button" class="btn btn-outline-primary btn-block">
   Documentation: Grant</a>
 {% endblock %} {# block doclinks #}
 

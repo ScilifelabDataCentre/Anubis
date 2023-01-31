@@ -81,7 +81,7 @@
   {% if post_url %}
   <td>
     <div>
-      <button type="button" class="btn btn-block btn-sm btn-primary"
+      <button type="button" class="btn btn-primary btn-sm btn-block"
 	      data-toggle="modal"
 	      data-target="#{{ field['identifier'] }}-Modal">
         Edit</button>
@@ -91,7 +91,7 @@
       <form action="{{ post_url }}" method="POST">
         {{ csrf_token() }}
         <input type="hidden" name="_move" value="up">
-        <button type="submit" class="btn btn-block btn-sm btn-secondary">
+        <button type="submit" class="btn btn-secondary btn-sm btn-block">
           Move up</button>
       </form>
     </div>
@@ -100,7 +100,7 @@
       <form action="{{ post_url }}" method="POST">
         {{ csrf_token() }}
         <input type="hidden" name="_http_method" value="DELETE">
-        <button type="submit" class="btn btn-block btn-sm btn-danger"
+        <button type="submit" class="btn btn-danger btn-sm btn-block"
 	        onclick="return confirm('Really delete field {{ field['identifier'] }}?')">
 	  Delete</button>
       </form>

@@ -17,7 +17,6 @@ def init(app):
     for func in [display_markdown,
                  display_field_value,
                  display_value,
-                 display_boolean,
                  display_datetime_timezone,
                  call_closes_badge,
                  reviews_due_badge,
@@ -60,7 +59,10 @@ def display_field_value(field, entity, fid=None, max_length=None, show_user=Fals
                 return value + " (" + user_link(user) + ")"
         return value
     elif field["type"] == constants.BOOLEAN:
-        return display_boolean(value)
+        if value is None:
+            return "-"
+        else:
+            return value and "Yes" or "No"
     elif field["type"] == constants.SELECT:
         if value is None:
             return "-"
@@ -120,16 +122,6 @@ def display_value(value, default="-"):
         return default
     else:
         return value
-
-
-def display_boolean(value):
-    "Display field value boolean."
-    if value is None:
-        return "-"
-    elif value:
-        return "Yes"
-    else:
-        return "No"
 
 
 def display_datetime_timezone(value, plain=False):
