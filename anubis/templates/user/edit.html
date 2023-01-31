@@ -74,6 +74,7 @@
       <div class="custom-control custom-radio custom-control-inline">
         <input type="radio" id="call_creator_yes" name="call_creator"
                class="custom-control-input"
+               aria-describedby="call_creatorHelp"
                {{ user.get('call_creator') and 'checked' or '' }}
                value="true">
         <label class="custom-control-label" for="call_creator_yes">
@@ -82,11 +83,15 @@
       <div class="custom-control custom-radio custom-control-inline">
         <input type="radio" id="call_creator_no" name="call_creator"
                class="custom-control-input"
+               aria-describedby="call_creatorHelp"
                {{ not user.get('call_creator') and 'checked' or '' }}
                value="false">
         <label class="custom-control-label" for="call_creator_no">
           No</label>
       </div>
+      <small id="call_creatorHelp" class="form-text text-muted">
+        The privilege for this specific user, disregarding her role.
+      </small>
     </div>
   </div>
   {% endif %} {# if allow_change_role #}

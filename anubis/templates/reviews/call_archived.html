@@ -12,7 +12,10 @@ Archived reviews in call {{ call['identifier'] }}
 {% block supermain %}
 <div class="row mb-2">
   <div class="col-md-2 text-right font-weight-bold">Due</div>
-  <div class="col-md-8">{{ call | display_reviews_due }}</div>
+  <div class="col-md-8">
+    {{ call.get('reviews_due') | display_datetime_timezone }}
+    {{ call | reviews_due_badge }}
+  </div>
 </div>
 
 <table id="reviews" class="table table-sm table-hover">

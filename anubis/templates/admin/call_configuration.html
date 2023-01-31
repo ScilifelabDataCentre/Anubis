@@ -8,6 +8,40 @@
       method="POST">
   {{ csrf_token() }}
 
+  <div class="form-group row">
+    <label for="staff_create" class="col-md-2 col-form-label text-right">
+      Staff create call</label>
+    <div class="col-md">
+      <div class="form-check">
+	<input type="checkbox"
+               name="staff_create" id="staff_create"
+	       class="form-check-input"
+	       value="yes"
+	       {{ config.CALL_STAFF_CREATE and 'checked' or '' }}>
+        <label class="form-check-label" for="staff_create">
+	  User accounts with the role 'staff' may create a call.
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label for="staff_edit" class="col-md-2 col-form-label text-right">
+      Staff edit calls</label>
+    <div class="col-md">
+      <div class="form-check">
+	<input type="checkbox"
+               name="staff_edit" id="staff_edit"
+	       class="form-check-input"
+	       value="yes"
+	       {{ config.CALL_STAFF_EDIT and 'checked' or '' }}>
+        <label class="form-check-label" for="staff_edit">
+	  User accounts with the role 'staff' may edit any calls.
+        </label>
+      </div>
+    </div>
+  </div>
+
   <div class="form-group">
     <div class="row">
       <label for="remaining_warning" class="col-md-2 col-form-label text-right">

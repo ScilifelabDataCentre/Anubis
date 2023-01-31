@@ -116,13 +116,6 @@ User {{ user['username'] }}
   {% endif %} {# if g.am_admin #}
 
   <tr>
-    <th class="text-right">May create calls</th>
-    <td>
-      {{ (user.get('call_creator', False) or user['role'] == constants.ADMIN) | display_boolean }}
-    </td>
-  </tr>
-
-  <tr>
     <th class="text-right">Given name</th>
     <td>{{ user.get('givenname') | display_value }}</td>
   </tr>
@@ -173,6 +166,17 @@ User {{ user['username'] }}
     <td>{{ user.get('phone') | display_value }}</td>
   </tr>
   {% endif %}
+
+  <tr>
+    <th class="text-right">May create calls</th>
+    <td>
+      {{ allow_create_call and 'Yes' or 'No' }}
+      {% if user['role'] == constants.STAFF and config.get('CALL_STAFF_CREATE') %}
+      (due to configuration for staff in general)
+      {% endif %}
+    </td>
+  </tr>
+
 </table>
 
 {% if data_policy['text'] %}

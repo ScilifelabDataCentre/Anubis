@@ -74,6 +74,7 @@ def display(cid):
         allow_view_proposals=allow_view_proposals(call),
         allow_view_reviews=allow_view_reviews(call),
         allow_view_grants=allow_view_grants(call),
+        is_undefined=is_undefined(call),
         is_open=is_open(call),
         is_closed=is_closed(call),
     )
@@ -1022,12 +1023,16 @@ def get_banner_fields(fields):
 
 
 def allow_create(user=None):
-    "Allow admin and users with 'call_creator' flag set may create a call."
+    """Allow admin, staff (depending on configuration) and users with
+    'call_creator' flag set to create a call.
+    """
     if user is None:
         user = flask.g.current_user
     if not user:
         return False
     if user["role"] == constants.ADMIN:
+        return True
+    if user["role"] == constants.STAFF and flask.current_app.config.get("CALL_STAFF_CREATE"):
         return True
     if user.get("call_creator"):
         return True
@@ -1052,10 +1057,14 @@ def allow_view(call):
 
 
 def allow_edit(call):
-    "The admin and call owner may edit a call, and accounts with edit access."
+    """The admin, staff (depending on configuration) and call owner
+    may edit a call, and accounts with edit access.
+    """
     if not flask.g.current_user:
         return False
     if flask.g.am_admin:
+        return True
+    if flask.g.am_staff and flask.current_app.config.get("CALL_STAFF_EDIT"):
         return True
     if am_owner(call):
         return True

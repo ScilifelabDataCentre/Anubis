@@ -23,7 +23,10 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 {% block supermain %}
 <div class="row mb-2">
   <div class="col-md-2 text-right font-weight-bold">Due</div>
-  <div class="col-md-8">{{ call | display_reviews_due }}</div>
+  <div class="col-md-8">
+    {{ call.get('reviews_due') | display_datetime_timezone }}
+    {{ call | reviews_due_badge }}
+  </div>
   <div class="col-md">
     <a href="{{ url_for('documentation') }}#instructions-for-reviewers"
        target="documentation"
