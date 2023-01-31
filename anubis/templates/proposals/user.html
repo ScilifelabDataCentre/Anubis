@@ -39,7 +39,7 @@ Proposals by user {{ user['username'] }}
       <td>{{ call | call_link(title=False, proposals_link=False) }}</td>
       <td>
         {{ call['closes'] | display_datetime_timezone }}
-        {{ call | display_call_closes }}
+        {{ call | call_closes_badge }}
       </td>
       <td>
         {% set decision = get_decision(proposal.get('decision')) %}

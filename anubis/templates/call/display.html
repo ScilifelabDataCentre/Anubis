@@ -58,7 +58,11 @@
   <div class="col-md-2 font-weight-bold text-right">Opens</div>
   <div class="col-md">
     {{ call['opens'] | display_datetime_timezone }}
-    {{ call | display_call_opens }}
+    {% if is_open %}
+    <div class="badge badge-pill badge-success mx-2">Open.</div>
+    {% elif not is_undefined and not is_closed %}
+    <div class="badge badge-pill badge-secondary mx-2">Not yet open.</div>
+    {% endif %}
   </div>
 </div>
 
@@ -66,7 +70,7 @@
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
   <div class="col-md">
     {{ call['closes'] | display_datetime_timezone }}
-    {{ call | display_call_closes }}
+    {{ call | call_closes_badge }}
   </div>
 </div>
 
@@ -118,6 +122,26 @@
 </div>
 {% endif %} {# if am_reviewer #}
 
+{% if allow_view_details %}
+<div class="row">
+  <div class="col-md-2 font-weight-bold text-right">Reviewers</div>
+  <div class="col-md">
+    <a href="{{ url_for('call.reviewers', cid=call['identifier']) }}"
+       role="button" class="btn btn-primary btn-sm">
+      {{ len(call.get('reviewers', [])) }} reviewers
+    </a>
+  </div>
+</div>
+
+<div class="row mt-1">
+  <div class="col-md-2 font-weight-bold text-right">Reviews due</div>
+  <div class="col-md">
+    {{ call.get('reviews_due') | display_datetime_timezone }}
+    {{ call | reviews_due_badge }}
+  </div>
+</div>
+{% endif %} {# if allow_view_details #}
+
 {% if allow_view_reviews %}
 <div class="row my-1">
   <div class="col-md-2 font-weight-bold text-right">All reviews</div>
@@ -132,25 +156,6 @@
   </div>
 </div>
 {% endif %} {# if allow_view_reviews #}
-
-{% if allow_view_details %}
-<div class="row mt-1">
-  <div class="col-md-2 font-weight-bold text-right">Reviews due</div>
-  <div class="col-md">{{ call | display_reviews_due }}</div>
-</div>
-{% endif %} {# if allow_view_details #}
-
-{% if allow_view_details %}
-<div class="row">
-  <div class="col-md-2 font-weight-bold text-right">Reviewers</div>
-  <div class="col-md">
-    <a href="{{ url_for('call.reviewers', cid=call['identifier']) }}"
-       role="button" class="btn btn-primary btn-sm">
-      {{ len(call.get('reviewers', [])) }} reviewers
-    </a>
-  </div>
-</div>
-{% endif %} {# if allow_view_details #}
 
 {% if allow_view_grants %}
 <div class="row mt-1">

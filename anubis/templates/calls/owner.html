@@ -29,7 +29,7 @@ Calls by {{ get_user(username) | user_link }}
       <td class="pl-2">{{ call['opens'] | display_datetime_timezone }}</td>
       <td class="pl-2">
         {{ call['closes'] | display_datetime_timezone }}
-        {{ call | display_call_closes }}
+        {{ call | call_closes_badge }}
       </td>
       <td>{{ call | call_proposals_link }}</td>
       <td>{{ call | call_reviews_link }}</td>

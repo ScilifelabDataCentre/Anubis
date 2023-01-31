@@ -19,9 +19,8 @@ def init(app):
                  display_value,
                  display_boolean,
                  display_datetime_timezone,
-                 display_call_opens,
-                 display_call_closes,
-                 display_reviews_due,
+                 call_closes_badge,
+                 reviews_due_badge,
                  user_link,
                  users_links_list,
                  call_link,
@@ -149,22 +148,7 @@ def display_datetime_timezone(value, plain=False):
     return markupsafe.Markup(result)
 
 
-def display_call_opens(call):
-    "Return a badge highlighting the implication of the opens date of the call."
-    if anubis.call.is_open(call):
-        result = f'<div class="badge badge-pill badge-success mx-2">Open.</div>'
-    elif anubis.call.is_undefined(call):
-        result = ""
-    elif not anubis.call.is_closed(call):
-        result = (
-            f'<div class="badge badge-pill badge-secondary mx-2">Not yet open.</div>'
-        )
-    else:
-        result = ""
-    return markupsafe.Markup(result)
-
-
-def display_call_closes(call):
+def call_closes_badge(call):
     "Return a badge highlighting the implication of the closes date of the call."
     if anubis.call.is_open(call):
         remaining = utils.days_remaining(call["closes"])
@@ -195,32 +179,18 @@ def display_call_closes(call):
     return markupsafe.Markup(result)
 
 
-def display_reviews_due(call):
-    """Return the datetime in the local timezone for the reviews due date
-    of the call, with a badge highlighting the implication of it.
-    """
+def reviews_due_badge(call):
+    "Return a badge highlighting the implication of the reviews due date of the call."
     if call.get("reviews_due"):
-        dts = utils.timezone_from_utc_isoformat(call["reviews_due"])
         remaining = utils.days_remaining(call["reviews_due"])
         if remaining > 7.0:
-            result = (
-                f'{dts} <div class="badge badge-pill badge-success mx-2">'
-                f"{remaining:.0f} days remaining.</div>"
-            )
+            result = f'<div class="badge badge-pill badge-success mx-2">{remaining:.0f} days remaining.</div>'
         elif remaining >= 1.0:
-            result = (
-                f'{dts} <div class="badge badge-pill badge-warning mx-2">'
-                f"{remaining:.0f} days remaining.</div>"
-            )
+            result = f'<div class="badge badge-pill badge-warning mx-2">{remaining:.0f} days remaining.</div>'
         elif remaining >= 0:
-            result = (
-                f'{dts} <div class="badge badge-pill badge-danger mx-2">'
-                f"{24*remaining:.1f} hours remaining.</div>"
-            )
+            result = f'<div class="badge badge-pill badge-danger mx-2">{24*remaining:.1f} hours remaining.</div>'
         else:
-            result = (
-                f'{dts} <div class="badge badge-pill badge-danger mx-2">Overdue!</div>'
-            )
+            result = f'<div class="badge badge-pill badge-danger mx-2">Overdue!</div>'
     else:
         result = ""
     return markupsafe.Markup(result)

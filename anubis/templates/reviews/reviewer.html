@@ -51,10 +51,9 @@ Reviews by user {{ user['username'] }}
     <tr>
       <td>{{ review | review_link }}</td>
       <td>
-        {% if review.get('finalized') %}
-        {{ call | display_reviews_due }}
-        {% else %}
         {{ call.get('reviews_due') | display_datetime_timezone }}
+        {% if not review.get('finalized') %}
+        {{ call | reviews_due_badge }}
         {% endif %}
       </td>
       <td>{{ proposal | proposal_link }}</td>

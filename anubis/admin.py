@@ -125,6 +125,8 @@ def call_configuration():
         try:
             form = flask.request.form
             with anubis.database.MetaSaver(configuration) as saver:
+                saver["staff_create"] = utils.to_bool(form.get("staff_create"))
+                saver["staff_edit"] = utils.to_bool(form.get("staff_edit"))
                 value = float(form.get("remaining_danger") or "")
                 if value <= 0.0:
                     raise ValueError("'Remaining danger' value must be positive.")
