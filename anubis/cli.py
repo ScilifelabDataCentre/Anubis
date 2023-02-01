@@ -31,9 +31,12 @@ def to_json(data):
     "Convert data structure to indented JSON."
     return json.dumps(data, ensure_ascii=False, indent=2)
 
+
 def join_dirpath(dirpath, filename):
     if dirpath:
-        return os.path.normpath(os.path.join(os.path.expandvars(os.path.expanduser(dirpath)), filename))
+        return os.path.normpath(
+            os.path.join(os.path.expandvars(os.path.expanduser(dirpath)), filename)
+        )
     else:
         return filename
 
@@ -342,7 +345,9 @@ def attachments(identifier):
         except couchdb2.CouchDB2Exception as error:
             raise click.ClickException(error)
         for filename, info in sorted(doc.get("_attachments", {}).items()):
-            click.echo(f"{filename}\n  {info['content_type']}\n  {info['length']} bytes\n  {info['digest']}")
+            click.echo(
+                f"{filename}\n  {info['content_type']}\n  {info['length']} bytes\n  {info['digest']}"
+            )
 
 
 @cli.command
@@ -397,7 +402,9 @@ def attachment_delete(identifier, filename):
             raise click.ClickException(error)
             raise click.ClickException(error)
         if filename not in doc.get("_attachments", {}):
-            raise click.ClickException("No such file {filename} in document {identifier}.")
+            raise click.ClickException(
+                "No such file {filename} in document {identifier}."
+            )
         flask.g.db.delete_attachment(doc, filename)
         click.echo(f"Deleted {filename} from document {identifier}.")
 

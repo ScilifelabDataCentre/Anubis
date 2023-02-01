@@ -161,7 +161,9 @@ def edit(pid):
 
         # If a repeat field was changed, then redisplay edit page.
         if saver.repeat_changed:
-            return flask.redirect(flask.url_for("proposal.edit", pid=proposal["identifier"]))
+            return flask.redirect(
+                flask.url_for("proposal.edit", pid=proposal["identifier"])
+            )
 
         if flask.request.form.get("_save") == "submit":
             proposal = get_proposal(pid, refresh=True)  # Get up-to-date info.
@@ -186,7 +188,9 @@ def edit(pid):
                 "Proposal was saved but not submitted."
                 " You must explicitly submit it!"
             )
-        return flask.redirect(flask.url_for("proposal.display", pid=proposal["identifier"]))
+        return flask.redirect(
+            flask.url_for("proposal.display", pid=proposal["identifier"])
+        )
 
     elif utils.http_DELETE():
         if not allow_delete(proposal):
@@ -235,7 +239,9 @@ def transfer(pid):
                         raise ValueError("No such user.")
         except ValueError as error:
             return utils.error(error)
-        return flask.redirect(flask.url_for("proposal.display", pid=proposal["identifier"]))
+        return flask.redirect(
+            flask.url_for("proposal.display", pid=proposal["identifier"])
+        )
 
 
 @blueprint.route("/<pid>/submit", methods=["POST"])
@@ -334,7 +340,9 @@ def change_access(pid):
                 saver.set_access(form=flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for("proposal.change_access", pid=proposal["identifier"]))
+        return flask.redirect(
+            flask.url_for("proposal.change_access", pid=proposal["identifier"])
+        )
 
     elif utils.http_DELETE():
         try:
@@ -342,7 +350,9 @@ def change_access(pid):
                 saver.remove_access(form=flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for("proposal.change_access", pid=proposal["identifier"]))
+        return flask.redirect(
+            flask.url_for("proposal.change_access", pid=proposal["identifier"])
+        )
 
 
 @blueprint.route("/<pid>/document/<fid>")

@@ -37,7 +37,9 @@ def create(pid):
         decision = get_decision(proposal.get("decision"))
         if decision is not None:
             utils.flash_message("The decision already exists.")
-            return flask.redirect(flask.url_for("decision.display", iuid=decision["_id"]))
+            return flask.redirect(
+                flask.url_for("decision.display", iuid=decision["_id"])
+            )
         with DecisionSaver(proposal=proposal) as saver:
             pass
         decision = saver.doc

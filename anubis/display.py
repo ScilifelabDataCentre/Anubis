@@ -14,23 +14,25 @@ import anubis.user
 def init(app):
     app.jinja_env.add_extension("jinja2.ext.loopcontrols")
     app.jinja_env.add_extension("jinja2.ext.do")
-    for func in [display_markdown,
-                 display_field_value,
-                 display_value,
-                 display_datetime_timezone,
-                 call_closes_badge,
-                 reviews_due_badge,
-                 user_link,
-                 users_links_list,
-                 call_link,
-                 call_proposals_link,
-                 call_reviews_link,
-                 call_grants_link,
-                 proposal_link,
-                 review_link,
-                 review_status,
-                 decision_link,
-                 grant_link]:
+    for func in [
+        display_markdown,
+        display_field_value,
+        display_value,
+        display_datetime_timezone,
+        call_closes_badge,
+        reviews_due_badge,
+        user_link,
+        users_links_list,
+        call_link,
+        call_proposals_link,
+        call_reviews_link,
+        call_grants_link,
+        proposal_link,
+        review_link,
+        review_status,
+        decision_link,
+        grant_link,
+    ]:
         app.jinja_env.filters[func.__name__] = func
 
 
@@ -208,7 +210,8 @@ def users_links_list(usernames):
     users = []
     for username in sorted(usernames):
         user = anubis.user.get_user(username)
-        if not user: continue
+        if not user:
+            continue
         name = anubis.user.get_fullname(user)
         if anubis.user.allow_view(user):
             url = flask.url_for("user.display", username=user["username"])

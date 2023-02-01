@@ -418,7 +418,9 @@ def get_review_rank_fields_errors(call, proposals):
                 "reviews", "proposal", proposal["identifier"]
             )
             reviews = [r for r in reviews if r.get("finalized")]
-            reviews = [r for r in reviews if not r["values"].get("conflict_of_interest")]
+            reviews = [
+                r for r in reviews if not r["values"].get("conflict_of_interest")
+            ]
             for review in reviews:
                 try:
                     value = review["values"][id]

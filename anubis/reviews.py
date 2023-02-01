@@ -18,6 +18,45 @@ from anubis import utils
 blueprint = flask.Blueprint("reviews", __name__)
 
 
+@blueprint.route("/create/<username>", methods=["POST"])
+@utils.login_required
+def create(username):
+    """Create new reviews for the given proposals for the given reviewer.
+    The proposals must be in the given call.
+    """
+    user = anubis.user.get_user(username=username)
+    if user is None:
+        return utils.error(f"No such user '{username}'.")
+    cid = flask.request.form.get("cid")
+    if not cid:
+        return utils.error("No call given.")
+    call = anubis.call.get_call(cid)
+    if not call:
+        return utils.error(f"No such call '{cid}'.")
+
+    try:
+        if user["username"] not in call["reviewers"]:
+            raise ValueError(f"User is not a reviewer in the call '{cid}'.")
+        for pid in flask.request.form.getlist("pid"):
+            proposal = anubis.proposal.get_proposal(pid)
+            if proposal is None:
+                continue
+            if not anubis.review.allow_create(proposal):
+                raise ValueError(f"You may not create a review for the proposal '{pid}'.")
+            if user["username"] == proposal["user"]:
+                raise ValueError(f"Reviewer not allowed to review their own proposal '{pid}'.")
+
+            review = anubis.review.get_reviewer_review(proposal, user)
+            if review is None:
+                with anubis.review.ReviewSaver(proposal=proposal, user=user) as saver:
+                    pass
+            else:
+                utils.flash_message(f"The review for '{pid}' already exists.")
+    except ValueError as error:
+        utils.flash_error(error)
+    return flask.redirect(flask.url_for("reviews.call_reviewer", cid=cid, username=username))
+
+
 @blueprint.route("/call/<cid>")
 @utils.login_required
 def call(cid):
@@ -50,7 +89,7 @@ def call(cid):
         call=call,
         proposals=proposals,
         reviews_lookup=reviews_lookup,
-        only_finalized=only_finalized
+        only_finalized=only_finalized,
     )
 
 

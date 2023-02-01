@@ -119,7 +119,9 @@ def register():
             recipients = [u["email"] for u in admins if u["email"]]
             site = flask.current_app.config["SITE_NAME"]
             title = f"{site} user account pending"
-            url = flask.url_for("user.display", username=user["username"], _external=True)
+            url = flask.url_for(
+                "user.display", username=user["username"], _external=True
+            )
             text = f"To enable the user account, go to {url}\n\n" "/The Anubis system"
             try:
                 utils.send_email(recipients, title, text)
@@ -468,7 +470,9 @@ class UserSaver(Saver):
             if self.doc.get("status") == constants.PENDING:
                 # Filename pattern matching instead of regexp; easier to specify.
                 # The whitelist has not been fetched if the CLI is calling this.
-                for p in flask.current_app.config.get("USER_ENABLE_EMAIL_WHITELIST",[]):
+                for p in flask.current_app.config.get(
+                    "USER_ENABLE_EMAIL_WHITELIST", []
+                ):
                     if fnmatch.fnmatch(email, p):
                         self.set_status(constants.ENABLED)
                         break

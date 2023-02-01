@@ -32,7 +32,7 @@ def create(pid):
     if proposal is None:
         return utils.error("No such proposal.")
     if not allow_create(proposal):
-        raise utils.error("You may not create a grant dossier for the proposal.")
+        return utils.error("You may not create a grant dossier for the proposal.")
 
     grant = get_grant_proposal(pid)
     if grant is not None:
@@ -160,7 +160,9 @@ def change_access(gid):
                 saver.set_access(form=flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for("grant.change_access", gid=grant["identifier"]))
+        return flask.redirect(
+            flask.url_for("grant.change_access", gid=grant["identifier"])
+        )
 
     elif utils.http_DELETE():
         try:
@@ -168,7 +170,9 @@ def change_access(gid):
                 saver.remove_access(form=flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for("grant.change_access", gid=grant["identifier"]))
+        return flask.redirect(
+            flask.url_for("grant.change_access", gid=grant["identifier"])
+        )
 
 
 @blueprint.route("/<gid>/lock", methods=["POST"])

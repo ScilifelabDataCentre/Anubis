@@ -36,7 +36,7 @@ def create(pid, username):
     call = anubis.call.get_call(proposal["call"])
     user = anubis.user.get_user(username=username)
     if user is None:
-        raise utils.error(f"No such user '{username}'.")
+        return utils.error(f"No such user '{username}'.")
 
     try:
         if user["username"] not in call["reviewers"]:
