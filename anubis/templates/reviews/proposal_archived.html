@@ -19,8 +19,8 @@ Archived reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] o
   <thead>
     <tr>
       <th>Review</th>
-      <th>Banner fields</th>
       <th>Reviewer</th>
+      <th>Banner fields</th>
       <th>Modified</th>
     </tr>
   </thead>
@@ -28,7 +28,8 @@ Archived reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] o
   <tbody class="table-borderless">
     {% for review in reviews %}
     <tr>
-      <td>{{ review | review_link }}</td>
+      <td>{{ review | review_link(show_status=False) }}</td>
+      <td>{{ get_user(review['reviewer']) | user_link }}</td>
       <td>
         <table class="table table-sm table-borderless">
           {% for field in get_banner_fields(review['fields']) %}
@@ -39,7 +40,6 @@ Archived reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] o
           {% endfor %}
         </table>
       </td>
-      <td>{{ review['reviewer'] }}</td>
       <td>
         <span class="localtime small">{{ review['modified'] }}</span>
       </td>

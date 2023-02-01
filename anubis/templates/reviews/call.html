@@ -27,6 +27,7 @@ Reviews of proposals in call {{ call['identifier'] }}
   <thead>
     <tr>
       <th>Review</th>
+      <th>Status</th>
       {% for field in get_banner_fields(call['review']) %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
@@ -47,7 +48,8 @@ Reviews of proposals in call {{ call['identifier'] }}
     {% continue %}
     {% endif %}
     <tr>
-      <td>{{ review | review_link }}</td>
+      <td>{{ review | review_link(show_status=False) }}</td>
+      <td>{{ review | review_status }}</td>
       {% for field in get_banner_fields(call['review']) %}
       <td>{{ field | display_field_value(review) }}</td>
       {% endfor %}
@@ -70,9 +72,9 @@ Reviews of proposals in call {{ call['identifier'] }}
   $(function() {
     $("#reviews").DataTable( {
       columnDefs: [
-        { targets: 0, orderData: [0, {{ nbanners + 1 }}, {{ nbanners + 2 }}] }
+        { targets: 0, orderData: [{{ 2 + nbanners }}, {{ 3 + nbanners }}] }
       ],
-      order: [[0, "desc"]],
+      order: [[{{ 3 + nbanners }}, "asc"]],
       pagingType: "full_numbers",
       pageLength: 25
     });

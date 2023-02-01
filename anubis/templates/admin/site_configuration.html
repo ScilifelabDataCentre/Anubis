@@ -42,14 +42,15 @@
   {% if config.SITE_NAME_LOGO %}
   <div class="form-group row">
     <div class="col-md offset-md-2">
-      <div class="form-check">
+      <div class="form-check form-check-inline">
 	<input type="checkbox" name="remove_name_logo" id="remove_name_logo"
 	       class="form-check-input"
 	       aria-describedby="remove_name_logoHelp"
 	       value="true">
 	<label class="form-check-label" for="name_logo_favicon">
-	  Remove the current site name logo.
-          <img src="{{ url_for('site', filename='name_logo') }}">
+	  Remove the current site name logo:
+          <img src="{{ url_for('site', filename='name_logo') }}"
+               class="ml-3" style="border: 1px solid black;">
         </label>
       </div>
     </div>
@@ -57,7 +58,7 @@
 
   <div class="form-group row">
     <div class="col-md offset-md-2">
-      <div class="form-check">
+      <div class="form-check form-check-inline">
 	<input type="checkbox" name="name_logo_favicon" id="name_logo_favicon"
 	       class="form-check-input"
 	       aria-describedby="name_logo_faviconHelp"
@@ -71,7 +72,7 @@
 
   <div class="form-group row">
     <div class="col-md offset-md-2">
-      <div class="form-check">
+      <div class="form-check form-check-inline">
 	<input type="checkbox" name="name_logo_menu" id="_name_logo_menu"
 	       class="form-check-input"
 	       aria-describedby="name_logo_menuHelp"
@@ -132,15 +133,14 @@
   {% if config.SITE_HOST_LOGO %}
   <div class="form-group row">
     <div class="col-md offset-md-2">
-      <div class="form-check">
-	<input type="checkbox"
-               name="remove_host_logo" id="remove_host_logo"
+      <div class="form-check form-check-inline">
+	<input type="checkbox" name="remove_host_logo" id="remove_host_logo"
 	       class="form-check-input"
 	       aria-describedby="remove_host_logoHelp"
 	       value="true">
 	<label class="form-check-label" for="remove_host_logo">
-	  Remove the current host logo.
-          <img src="/site/host_logo">
+	  Remove the current host logo:
+          <img src="/site/host_logo" class="ml-3" style="border: 1px solid black;">
         </label>
       </div>
     </div>

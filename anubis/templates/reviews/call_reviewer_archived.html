@@ -41,7 +41,7 @@ Archived reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
     {% set review = reviews_lookup.get(proposal['identifier']) %}
     {% if review %}
     <tr>
-      <td>{{ review | review_link }}</td>
+      <td>{{ review | review_link(show_status=False) }}</td>
       {% for field in get_banner_fields(call['review']) %}
       <td>{{ field | display_field_value(review) }}</td>
       {% endfor %}
@@ -59,10 +59,7 @@ Archived reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 <script>
   $(function() {
     $("#reviews").DataTable( {
-      columnDefs: [
-        { targets: [0], orderData: [0, {{ 1 + nbanners }}] },
-        { targets: [1], orderData: [1, {{ 1 + nbanners }}] }
-      ],
+      order: [[{{ 1 + nbanners }}, "asc"]],
       pagingType: "full_numbers",
       pageLength: 25
     });
