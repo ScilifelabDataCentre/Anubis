@@ -11,7 +11,7 @@ blueprint = flask.Blueprint("calls", __name__)
 
 
 @blueprint.route("")
-@utils.admin_or_staff_required
+@utils.staff_required
 def all():
     "Display All calls."
     calls = [r.doc for r in flask.g.db.view("calls", "identifier", include_docs=True)]
@@ -83,7 +83,7 @@ def open():
 
 
 @blueprint.route("/unpublished")
-@utils.admin_or_staff_required
+@utils.staff_required
 def unpublished():
     "Unpublished calls; undefined opens and/or closes date, or not yet open."
     calls = [r.doc for r in flask.g.db.view("calls", "undefined", include_docs=True)]
@@ -131,7 +131,7 @@ def get_open_calls():
 
 
 @blueprint.route("/grants")
-@utils.admin_or_staff_required
+@utils.staff_required
 def grants():
     "All calls with grants."
     calls = set([r.key for r in flask.g.db.view("grants", "call", reduce=False)])
