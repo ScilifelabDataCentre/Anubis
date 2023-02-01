@@ -66,9 +66,9 @@ Proposals by user {{ user['username'] }}
 <script>
   $(function() {
     $("#proposals").DataTable( {
+      order: [[0, "asc"]],
       pagingType: "full_numbers",
-      pageLength: 25,
-      order: [[0, "asc"]]
+      pageLength: 25
     });
   });
 </script>

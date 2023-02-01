@@ -286,20 +286,20 @@ def proposal_link(proposal):
     return markupsafe.Markup(html)
 
 
-def review_link(review, show_status=True):
-    "Link to review, showing the status."
-    if not review:
+def review_link(review):
+    "Link to review."
+    if review:
+        url = flask.url_for("review.display", iuid=review["_id"])
+        return markupsafe.Markup(f"""<a href="{url}" class="text-info">Review</a>""")
+    else:
         return "-"
-    url = flask.url_for("review.display", iuid=review["_id"])
-    text = "Review"
-    if show_status:
-        text += f" {review_status(review)}"
-    return markupsafe.Markup(f"""<a href="{url}" class="text-info">{text}</a>""")
 
 
 def review_status(review):
     "Display the status of the review."
-    if review.get("archived"):
+    if not review:
+        result = "-"
+    elif review.get("archived"):
         result = '<span class="badge badge-pill badge-secondary">Archived</span>'
     elif review.get("finalized"):
         if review["values"].get("conflict_of_interest"):

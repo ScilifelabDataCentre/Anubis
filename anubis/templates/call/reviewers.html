@@ -126,9 +126,9 @@ Reviewers for call {{ call['identifier'] }}
       $("#refresh").submit();
     });
     $("#reviewers").DataTable( {
+      order: [[0, "asc"]],
       pagingType: "full_numbers",
       pageLength: 10,
-      order: [[0, "asc"]]
     });
   });
 </script>

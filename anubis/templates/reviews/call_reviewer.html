@@ -44,6 +44,7 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
   <thead>
     <tr>
       <th>Review</th>
+      <th>Status</th>
       {% for field in get_banner_fields(call['review']) %}
       <th>{{ field['title'] }}</th>
       {% endfor %}
@@ -61,6 +62,7 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
     <tr>
       {% if review %}
       <td>{{ review | review_link }}</td>
+      <td>{{ review | review_status }}</td>
       {% for field in get_banner_fields(call['review']) %}
       <td>{{ field | display_field_value(review) }}</td>
       {% endfor %}
@@ -79,6 +81,7 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
             Create review</button>
 	</form>
       </td>
+      <td>-</td>
       {% for field in get_banner_fields(call['review']) %}
       <td></td>
       {% endfor %}
@@ -99,12 +102,9 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 <script>
   $(function() {
     $("#reviews").DataTable( {
-      columnDefs: [
-        { targets: [0], orderData: [0, {{ 1 + nbanners }}] },
-        { targets: [1], orderData: [1, {{ 1 + nbanners }}] }
-      ],
-      order: [[0, "desc"]],
+      order: [[{{ 2 + nbanners }}, "asc"]],
       pagingType: "full_numbers",
+      lengthMenu: [[10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"]],
       pageLength: 25
     });
   });

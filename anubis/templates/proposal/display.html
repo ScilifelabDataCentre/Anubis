@@ -118,7 +118,10 @@
 {% if my_review %}
 <div class="row d-print-none">
   <div class="col-md-2 font-weight-bold text-right">My review</div>
-  <div class="col-md">{{ my_review | review_link }}</div>
+  <div class="col-md">
+    {{ my_review | review_link }}
+    {{ my_review | review_status }}
+  </div>
 </div>
 {% endif %} {# if my_review #}
 

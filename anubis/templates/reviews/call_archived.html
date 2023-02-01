@@ -36,7 +36,7 @@ Archived reviews in call {{ call['identifier'] }}
     {% set review = reviews_lookup.get(proposal['identifier']) %}
     {% if review %}
     <tr>
-      <td>{{ review | review_link(show_status=False) }}</td>
+      <td>{{ review | review_link }}</td>
       {% for field in get_banner_fields(call['review']) %}
       <td>{{ field | display_field_value(review) }}</td>
       {% endfor %}
@@ -60,6 +60,7 @@ Archived reviews in call {{ call['identifier'] }}
       ],
       order: [[{{ 2 + nbanners }}, "asc"]],
       pagingType: "full_numbers",
+      lengthMenu: [[10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"]],
       pageLength: 25
     });
   });

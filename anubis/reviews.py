@@ -50,7 +50,7 @@ def call(cid):
         call=call,
         proposals=proposals,
         reviews_lookup=reviews_lookup,
-        only_finalized=only_finalized,
+        only_finalized=only_finalized
     )
 
 
