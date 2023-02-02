@@ -36,7 +36,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
   <div class="col-md-2 font-weight-bold text-right">Reviews of proposal</div>
   <div class="col-md">
     <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
-       role="button" class="btn btn-sm btn-info">{{ n_reviews }} reviews
+       role="button" class="btnm btn-info btn-s">{{ n_reviews }} reviews
     </a>
   </div>
 </div>
@@ -73,8 +73,7 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 
 {% if allow_unfinalize %}
 <div class="mt-2">
-  <form action="{{ url_for('.unfinalize', iuid=review['_id']) }}"
-	method="POST">
+  <form action="{{ url_for('.unfinalize', iuid=review['_id']) }}" method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-warning btn-block">Unfinalize</button>
   </form>
@@ -83,45 +82,35 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 
 {% if allow_finalize %}
 <div class="mt-2">
-  <form action="{{ url_for('.finalize', iuid=review['_id']) }}"
-	method="POST">
+  <form action="{{ url_for('.finalize', iuid=review['_id']) }}" method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-success btn-block">Finalize</button>
   </form>
 </div>
 {% endif %} {# if allow_finalize #}
 
-<div class="mt-4">
-</div>
-
-{% if allow_delete %}
-{% if review.get('archived') %}
+{% if allow_archive %}
 <div class="mt-2">
-  <form action="{{ url_for('.unarchive', iuid=review['_id']) }}"
-	method="POST">
+  {% if review.get('archived') %}
+  <form action="{{ url_for('.unarchive', iuid=review['_id']) }}" method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-secondary btn-sm btn-block">
       Unarchive</button>
   </form>
-</div>
-{% else %}
-<div class="mt-4">
-  <form action="{{ url_for('.archive', iuid=review['_id']) }}"
-	method="POST">
+  {% else %}
+  <form action="{{ url_for('.archive', iuid=review['_id']) }}" method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-secondary btn-sm btn-block"
 	    onclick="return confirm('Really archive this review?')">
       Archive</button>
   </form>
+  {% endif %} {# if review.get('archived') #}
 </div>
-{% endif %} {# if review.get('archived') #}
+{% endif %} {# if allow_archive #}
 
-<div class="mt-4">
-</div>
-
+{% if allow_delete %}
 <div class="mt-2">
-  <form action="{{ url_for('.edit', iuid=review['_id']) }}"
-	method="POST">
+  <form action="{{ url_for('.edit', iuid=review['_id']) }}" method="POST">
     {{ csrf_token() }}
     <input type="hidden" name="_http_method" value="DELETE">
     <button type="submit" class="btn btn-danger btn-sm btn-block"

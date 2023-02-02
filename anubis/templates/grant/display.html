@@ -93,9 +93,6 @@
 </div>
 {% endif %} {# if allow_edit #}
 
-<div class="mt-4">
-</div>
-
 {% if allow_change_access %}
 <div class="mt-2">
   <a href="{{ url_for('grant.change_access', gid=grant['identifier']) }}"

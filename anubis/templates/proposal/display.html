@@ -164,7 +164,7 @@
 {% endif %} {# if allow_link_grant #}
 
 {% if allow_view_decision %}
-<div class="card border-secondary mt-4">
+<div class="card border-secondary mt-2">
   <div class="card-header">
     <div class="row">
       <div class="col-md-2 font-weight-bold text-right">Decision</div>
@@ -187,7 +187,7 @@
 
 {% endif %} {# if proposal.get('submitted') #}
 
-<div class="card mt-4">
+<div class="card mt-2">
   <div class="card-body">
     {% set fields = call['proposal'] %}
     {% set entity = proposal %}
@@ -208,14 +208,14 @@
 {% if allow_edit %}
 <div class="mt-2">
   <a href="{{ url_for('proposal.change_access', pid=proposal['identifier']) }}"
-     role="button" class="btn btn-primary btn-sm btn-block">Change access</a>
+     role="button" class="btn btn-info btn-sm btn-block">Change access</a>
 </div>
 {% endif %} {# if allow_edit #}
 
 {% if allow_transfer %}
 <div class="mt-2">
   <a href="{{ url_for('proposal.transfer', pid=proposal['identifier']) }}"
-     role="button" class="btn btn-primary btn-sm btn-block">Transfer ownership</a>
+     role="button" class="btn btn-info btn-sm btn-block">Transfer ownership</a>
 </div>
 {% endif %} {# if allow_transfer #}
 
@@ -250,7 +250,7 @@
 {% endif %} {# if allow_submit #}
 
 {% if allow_delete %}
-<div class="mt-4">
+<div class="mt-2">
   <form action="{{ url_for('proposal.edit', pid=proposal['identifier']) }}"
 	method="POST">
     {{ csrf_token() }}

@@ -85,7 +85,7 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 </div>
 {% endif %} {# if allow_finalize #}
 {% if allow_delete %}
-<div class="mt-4">
+<div class="mt-2">
   <form action="{{ url_for('.edit', iuid=decision['_id']) }}"
 	method="POST">
     {{ csrf_token() }}
