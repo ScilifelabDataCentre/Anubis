@@ -4,17 +4,15 @@
 {% block body_title %}User configuration{% endblock %}
 
 {% block main %}
-<form action="{{ url_for('admin.user_configuration') }}"
-      method="POST">
+<form action="{{ url_for('admin.user_configuration') }}" method="POST">
   {{ csrf_token() }}
 
   <div class="form-group row">
     <label for="orcid" class="col-md-2 col-form-label text-right">
       ORCID</label>
     <div class="col-md">
-      <div class="form-check">
-	<input type="checkbox"
-               name="orcid" id="orcid"
+      <div class="form-check form-check-inline pt-1">
+	<input type="checkbox" name="orcid" id="orcid"
 	       class="form-check-input"
 	       aria-describedby="orcidHelp"
 	       value="yes"
@@ -32,9 +30,8 @@
     <label for="orcid" class="col-md-2 col-form-label text-right">
       Request ORCID</label>
     <div class="col-md">
-      <div class="form-check">
-	<input type="checkbox"
-               name="request_orcid" id="request_orcid"
+      <div class="form-check form-check-inline pt-1">
+	<input type="checkbox" name="request_orcid" id="request_orcid"
 	       class="form-check-input"
 	       aria-describedby="request_orcidHelp"
 	       value="yes"
@@ -51,12 +48,16 @@
   <div class="form-group row">
     <label for="genders" class="col-md-2 col-form-label text-right">
       Genders</label>
-    <div class="col-md-5">
-      <textarea id="genders" name="genders"
-		class="form-control"
-                rows="{{ min(8, max(2, len(configuration['genders']))) }}"
-		aria-describedby="gendersHelp"
-		>{{ '\n'.join(config.USER_GENDERS) }}</textarea>
+    <div class="col-md">
+      <div class="row">
+        <div class="col-md-4">
+          <textarea id="genders" name="genders"
+		    class="form-control"
+                    rows="{{ min(8, max(2, len(configuration['genders']))) }}"
+		    aria-describedby="gendersHelp"
+		    >{{ '\n'.join(config.USER_GENDERS) }}</textarea>
+        </div>
+      </div>
       <small id="gendersHelp" class="form-text text-muted">
 	Gender alternatives to select among when registering a user account.
         <br>
@@ -69,9 +70,8 @@
     <label for="birthdate" class="col-md-2 col-form-label text-right">
       Birthdate</label>
     <div class="col-md">
-      <div class="form-check">
-	<input type="checkbox"
-               name="birthdate" id="birthdate"
+      <div class="form-check form-check-inline pt-1">
+	<input type="checkbox" name="birthdate" id="birthdate"
 	       class="form-check-input"
 	       aria-describedby="birthdateHelp"
 	       value="yes"
@@ -88,12 +88,16 @@
   <div class="form-group row">
     <label for="degrees" class="col-md-2 col-form-label text-right">
       Degrees</label>
-    <div class="col-md-5">
-      <textarea id="degrees" name="degrees"
-		class="form-control"
-                rows="{{ min(8, max(2, len(configuration['degrees']))) }}"
-		aria-describedby="degreesHelp"
-		>{{ '\n'.join(config.USER_DEGREES) }}</textarea>
+    <div class="col-md">
+      <div class="row">
+        <div class="col-md-4">
+          <textarea id="degrees" name="degrees"
+		    class="form-control"
+                    rows="{{ min(8, max(2, len(configuration['degrees']))) }}"
+		    aria-describedby="degreesHelp"
+		    >{{ '\n'.join(config.USER_DEGREES) }}</textarea>
+        </div>
+      </div>
       <small id="degreesHelp" class="form-text text-muted">
         Academic degrees to select among when registering a user account.
         <br>
@@ -106,9 +110,8 @@
     <label for="affiliation" class="col-md-2 col-form-label text-right">
       Affiliation</label>
     <div class="col-md">
-      <div class="form-check">
-	<input type="checkbox"
-               name="affiliation" id="affiliation"
+      <div class="form-check form-check-inline pt-1">
+	<input type="checkbox" name="affiliation" id="affiliation"
 	       class="form-check-input"
 	       aria-describedby="affiliationHelp"
 	       value="yes"
@@ -125,12 +128,16 @@
   <div class="form-group row">
     <label for="universities" class="col-md-2 col-form-label text-right">
       Universities</label>
-    <div class="col-md-5">
-      <textarea id="universities" name="universities"
-		class="form-control"
-                rows="{{ min(8, max(2, len(configuration['universities']))) }}"
-		aria-describedby="universitiesHelp"
-		>{{ '\n'.join(config.UNIVERSITIES) }}</textarea>
+    <div class="col-md">
+      <div class="row">
+        <div class="col-md-6">
+          <textarea id="universities" name="universities"
+		    class="form-control"
+                    rows="{{ min(8, max(2, len(configuration['universities']))) }}"
+		    aria-describedby="universitiesHelp"
+		    >{{ '\n'.join(config.UNIVERSITIES) }}</textarea>
+        </div>
+      </div>
       <small id="universitiesHelp" class="form-text text-muted">
         List of universities to choose from when registering a user account.
         Relevant only if affiliation is requested (see above).
@@ -144,9 +151,8 @@
     <label for="postaladdress" class="col-md-2 col-form-label text-right">
       Postal address</label>
     <div class="col-md">
-      <div class="form-check">
-	<input type="checkbox"
-               name="postaladdress" id="postaladdress"
+      <div class="form-check form-check-inline pt-1">
+	<input type="checkbox" name="postaladdress" id="postaladdress"
 	       class="form-check-input"
 	       aria-describedby="postaladdressHelp"
 	       value="yes"
@@ -164,9 +170,8 @@
     <label for="phone" class="col-md-2 col-form-label text-right">
       Phone</label>
     <div class="col-md">
-      <div class="form-check">
-	<input type="checkbox"
-               name="phone" id="phone"
+      <div class="form-check form-check-inline pt-1">
+	<input type="checkbox" name="phone" id="phone"
 	       class="form-check-input"
 	       aria-describedby="phoneHelp"
 	       value="yes"
@@ -183,13 +188,17 @@
   <div class="form-group row">
     <label for="enable_email_whitelist" class="col-md-2 col-form-label text-right">
       Email patterns whitelist</label>
-    <div class="col-md-6">
+    <div class="col-md">
       {% if config.MAIL_SERVER %}
-      <textarea id="enable_email_whitelist" name="enable_email_whitelist"
-		class="form-control"
-                rows="{{ min(8, max(2, len(config.USER_ENABLE_EMAIL_WHITELIST))) }}"
-		aria-describedby="enable_email_whitelistHelp"
-		>{{ '\n'.join(config.USER_ENABLE_EMAIL_WHITELIST) }}</textarea>
+      <div class="row">
+        <div class="col-md-8">
+          <textarea id="enable_email_whitelist" name="enable_email_whitelist"
+		    class="form-control"
+                    rows="{{ min(8, max(2, len(config.USER_ENABLE_EMAIL_WHITELIST))) }}"
+		    aria-describedby="enable_email_whitelistHelp"
+		    >{{ '\n'.join(config.USER_ENABLE_EMAIL_WHITELIST) }}</textarea>
+        </div>
+      </div>
       <small id="enable_email_whitelistHelp" class="form-text text-muted">
         List of email patterns for user accounts that will be enabled
         directly without intervention by the admin.
@@ -214,7 +223,7 @@
 
   <div class="form-group row">
     <div class="col-md-3 offset-md-2">
-      <button type="submit" class="btn btn-block btn-primary">Save</button>
+      <button type="submit" class="btn btn-primary btn-block">Save</button>
     </div>
   </div>
 
@@ -224,6 +233,6 @@
 {% block actions %}
 <div class="mt-2">
   <a href="{{ url_for('home') }}"
-     role="button" class="btn btn-block btn-secondary">Cancel</a>
+     role="button" class="btn btn-secondary btn-block">Cancel</a>
 </div>
 {% endblock %}

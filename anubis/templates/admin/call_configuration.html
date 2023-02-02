@@ -4,17 +4,15 @@
 {% block body_title %}Call configuration{% endblock %}
 
 {% block main %}
-<form action="{{ url_for('admin.call_configuration') }}"
-      method="POST">
+<form action="{{ url_for('admin.call_configuration') }}" method="POST">
   {{ csrf_token() }}
 
   <div class="form-group row">
     <label for="staff_create" class="col-md-2 col-form-label text-right">
       Staff create call</label>
     <div class="col-md">
-      <div class="form-check">
-	<input type="checkbox"
-               name="staff_create" id="staff_create"
+      <div class="form-check form-check-inline pt-1">
+	<input type="checkbox" name="staff_create" id="staff_create"
 	       class="form-check-input"
 	       value="yes"
 	       {{ config.CALL_STAFF_CREATE and 'checked' or '' }}>
@@ -29,9 +27,8 @@
     <label for="staff_edit" class="col-md-2 col-form-label text-right">
       Staff edit calls</label>
     <div class="col-md">
-      <div class="form-check">
-	<input type="checkbox"
-               name="staff_edit" id="staff_edit"
+      <div class="form-check form-check-inline pt-1">
+	<input type="checkbox" name="staff_edit" id="staff_edit"
 	       class="form-check-input"
 	       value="yes"
 	       {{ config.CALL_STAFF_EDIT and 'checked' or '' }}>
@@ -46,16 +43,16 @@
     <div class="row">
       <label for="remaining_warning" class="col-md-2 col-form-label text-right">
         Remaining warning</label>
-      <div class="col-md-2">
-        <input type="number" min="0.1" step="0.1"
-               name="remaining_warning" id="remaining_warning"
-	       class="form-control"
-	       aria-describedby="remaining_warningHelp"
-	       value="{{ config.CALL_REMAINING_WARNING }}">
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md offset-md-2">
+      <div class="col-md">
+        <div class="row">
+          <div class="col-md-2">
+            <input type="number" name="remaining_warning" id="remaining_warning"
+                   min="0.1" step="0.1"
+	           class="form-control"
+	           aria-describedby="remaining_warningHelp"
+	           value="{{ config.CALL_REMAINING_WARNING }}">
+          </div>
+        </div>
         <small id="remaining_warningHelp" class="form-text text-muted">
           The number of days below which the call is flagged by the warning color yellow.
         </small>
@@ -67,16 +64,16 @@
     <div class="row">
       <label for="remaining_danger" class="col-md-2 col-form-label text-right">
         Remaining danger</label>
-      <div class="col-md-2">
-        <input type="number" min="0.1" step="0.1"
-               name="remaining_danger" id="remaining_danger"
-	       class="form-control"
-	       aria-describedby="remaining_dangerHelp"
-	       value="{{ config.CALL_REMAINING_DANGER }}">
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md offset-md-2">
+      <div class="col-md">
+        <div class="row">
+          <div class="col-md-2">
+            <input type="number" name="remaining_danger" id="remaining_danger"
+                   min="0.1" step="0.1"
+	           class="form-control"
+	           aria-describedby="remaining_dangerHelp"
+	           value="{{ config.CALL_REMAINING_DANGER }}">
+          </div>
+        </div>
         <small id="remaining_dangerHelp" class="form-text text-muted">
           The number of days below which the call is flagged by the danger color red.
         </small>
@@ -87,20 +84,20 @@
   <div class="form-group">
     <div class="row">
       <label for="open_order_key" class="col-md-2 col-form-label text-right">
-        Open order key</label>
-      <div class="col-md-3">
-        <select name="open_order_key" id="open_order_key"
-                class="form-control"
-                aria-describedby="open_order_keyHelp">
-          {% for order_key in constants.CALL_ORDER_KEYS %}
-          <option {{ order_key == config.CALL_OPEN_ORDER_KEY and 'selected' or '' }}>
-            {{ order_key }}</option>
-          {% endfor %}
-        </select>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md offset-md-2">
+        Open calls order</label>
+      <div class="col-md">
+        <div class="row">
+          <div class="col-md-3">
+            <select name="open_order_key" id="open_order_key"
+                    class="form-control"
+                    aria-describedby="open_order_keyHelp">
+              {% for order_key in constants.CALL_ORDER_KEYS %}
+              <option {{ order_key == config.CALL_OPEN_ORDER_KEY and 'selected' or '' }}>
+                {{ order_key }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
         <small id="open_order_keyHelp" class="form-text text-muted">
           The field to use to sort the open calls in the display list.
         </small>
@@ -110,7 +107,7 @@
 
   <div class="form-group row">
     <div class="col-md-3 offset-md-2">
-      <button type="submit" class="btn btn-block btn-primary">Save</button>
+      <button type="submit" class="btn btn-primary btn-block">Save</button>
     </div>
   </div>
 
@@ -120,6 +117,6 @@
 {% block actions %}
 <div class="mt-2">
   <a href="{{ url_for('home') }}"
-     role="button" class="btn btn-block btn-secondary">Cancel</a>
+     role="button" class="btn btn-secondary btn-block">Cancel</a>
 </div>
 {% endblock %}

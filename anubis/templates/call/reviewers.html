@@ -17,9 +17,8 @@ Reviewers for call {{ call['identifier'] }}
 {% block main %}
 {% include 'email_lists.html' %}
 
-<div class="form-group row">
-  <label for="show_reviewer" 
-	 class="col-md-2 col-form-label text-right font-weight-bold">
+<div class="row">
+  <label for="show_reviewer" class="col-md-2 text-right font-weight-bold">
     Reviewers</label>
   <div class="col-md" id="show_reviewers">
     <table id="reviewers" class="table table-sm table-hover ">
@@ -38,14 +37,8 @@ Reviewers for call {{ call['identifier'] }}
       <tbody>
         {% for reviewer in reviewers %}
         <tr>
-          <td class="align-middle">
-            {{ reviewer | user_link }}
-          </td>
-          <td>
-            {% if reviewer['username'] in call['chairs'] %}
-            Chair
-            {% endif %}
-          </td>
+          <td class="align-middle">{{ reviewer | user_link }}</td>
+          <td>{% if reviewer['username'] in call['chairs'] %}Chair{% endif %}</td>
           {% if allow_view_reviews %}
           <td>
             <a href="{{ url_for('reviews.call_reviewer', cid=call['identifier'], username=reviewer['username']) }}"
@@ -79,34 +72,39 @@ Reviewers for call {{ call['identifier'] }}
 </div>
 
 {% if allow_edit %}
-<div class="form-group row">
-  <label for="add_reviewer" 
-	 class="col-md-2 col-form-label text-right font-weight-bold">
+<div class="row mt-5">
+  <label for="add_reviewer" class="col-md-2 text-right font-weight-bold">
     Add reviewer</label>
   <div class="col-md" id="add_reviewer">
-    <form action="{{ url_for('.reviewers', cid=call['identifier']) }}"
-	  method="POST">
+    <form action="{{ url_for('.reviewers', cid=call['identifier']) }}" method="POST">
       {{ csrf_token() }}
       <div class="form-group">
 	<input type="text" id="reviewer" name="reviewer"
                class="form-control"
                aria-describedby="reviewerHelp">
+	<small id="reviewerHelp" class="form-text text-muted">
+	  Add a reviewer, which must have an account. Username or
+	  email address.
+	</small>
+      </div>
+      <div class="form-group">
         <div class="form-check mt-2">
           <input type="checkbox" id="chair" name="chair"
                  class="form-check-input" value="true">
           <label class="form-check-label" for="chair">Chair</label>
         </div>
 	<small id="reviewerHelp" class="form-text text-muted">
-	  Add a reviewer, which must have an account. Username or
-	  email address.
+          Is the reviewer the chair of the review committee?
           <br>
           To change chair status of an existing reviewer, add the
           reviewer again with or without ticking the box, as
           appropriate.
 	</small>
       </div>
-      <div class="form-group mt-3">
-	<button type="submit" class="btn btn-primary px-4">Add</button>
+      <div class="form-group row">
+        <div class="col-md-3">
+	  <button type="submit" class="btn btn-primary btn-block">Add</button>
+        </div>
       </div>
     </form>
   </div>
@@ -117,7 +115,7 @@ Reviewers for call {{ call['identifier'] }}
 {% block actions %}
 <div class="mt-2">
   <a href="{{ url_for('.display', cid=call['identifier']) }}"
-     role="button" class="btn btn-block btn-secondary">Back</a>
+     role="button" class="btn btn-secondary btn-block">Back</a>
 </div>
 {% endblock %}
 
@@ -128,9 +126,9 @@ Reviewers for call {{ call['identifier'] }}
       $("#refresh").submit();
     });
     $("#reviewers").DataTable( {
+      order: [[0, "asc"]],
       pagingType: "full_numbers",
       pageLength: 10,
-      order: [[0, "asc"]]
     });
   });
 </script>

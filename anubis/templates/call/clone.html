@@ -4,15 +4,14 @@
 {% block body_title %}Clone a call{% endblock %}
 
 {% block main %}
-<form action="{{ url_for('.clone', cid=call['identifier']) }}"
-      method="POST">
+<form action="{{ url_for('.clone', cid=call['identifier']) }}" method="POST">
   {{ csrf_token() }}
 
   <div class="row">
     <div class="offset-md-2 col-md">
       <div class="card mb-4">
         <div class="card-body">
-          The call data <strong>not</strong> copied into the clone:
+          The following call data is <strong>not</strong> copied into the clone:
           <ul>
             <li>Open, close and review due dates.</li>
             <li>Attached documents.</li>
@@ -24,8 +23,7 @@
   </div>
 
   <div class="form-group row">
-    <label for="title" 
-	   class="col-md-2 col-form-label text-right font-weight-bold">
+    <label for="title"  class="col-md-2 col-form-label text-right font-weight-bold">
       Title</label>
     <div class="col-md">
       <input type="text" id="title" name="title"
@@ -40,8 +38,7 @@
   </div>
 
   <div class="form-group row">
-    <label for="identifier" 
-	   class="col-md-2 col-form-label text-right font-weight-bold">
+    <label for="identifier" class="col-md-2 col-form-label text-right font-weight-bold">
       Identifier</label>
     <div class="col-md">
       <div class="row">

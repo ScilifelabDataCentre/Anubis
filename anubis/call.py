@@ -44,10 +44,14 @@ def create():
             with CallSaver() as saver:
                 saver.set_identifier(flask.request.form.get("identifier"))
                 saver.set_title(flask.request.form.get("title"))
-                saver.add_review_field({"type": constants.BOOLEAN,
-                                        "identifier": "conflict_of_interest",
-                                        "description": "Do you have a conflict of interest regarding the proposal? If yes, then you should state so here, and finalize the review without filling in any other fields.",
-                                        "required": True,})
+                saver.add_review_field(
+                    {
+                        "type": constants.BOOLEAN,
+                        "identifier": "conflict_of_interest",
+                        "description": "Do you have a conflict of interest regarding the proposal? If yes, then you should state so here, and finalize the review without filling in any other fields.",
+                        "required": True,
+                    }
+                )
             call = saver.doc
         except ValueError as error:
             return utils.error(error)
@@ -195,7 +199,9 @@ def change_access(cid):
                 saver.set_access(form=flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for("call.change_access", cid=call["identifier"]))
+        return flask.redirect(
+            flask.url_for("call.change_access", cid=call["identifier"])
+        )
 
     elif utils.http_DELETE():
         try:
@@ -203,7 +209,9 @@ def change_access(cid):
                 saver.remove_access(form=flask.request.form)
         except ValueError as error:
             utils.flash_error(error)
-        return flask.redirect(flask.url_for("call.change_access", cid=call["identifier"]))
+        return flask.redirect(
+            flask.url_for("call.change_access", cid=call["identifier"])
+        )
 
 
 @blueprint.route("/<cid>/documents", methods=["GET", "POST"])
@@ -1032,7 +1040,9 @@ def allow_create(user=None):
         return False
     if user["role"] == constants.ADMIN:
         return True
-    if user["role"] == constants.STAFF and flask.current_app.config.get("CALL_STAFF_CREATE"):
+    if user["role"] == constants.STAFF and flask.current_app.config.get(
+        "CALL_STAFF_CREATE"
+    ):
         return True
     if user.get("call_creator"):
         return True

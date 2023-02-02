@@ -121,7 +121,7 @@ def admin_required(f):
     return wrap
 
 
-def admin_or_staff_required(f):
+def staff_required(f):
     """Resource endpoint decorator for checking if logged in and 'admin'
     or 'staff' role.
     """
@@ -161,7 +161,7 @@ def get_now():
 
 
 def timezone_from_utc_isoformat(dts, tz=True):
-    "Convert the given datetime ISO string in UTC to the local timezone."
+    "Convert the given datetime ISO string in UTC to the set timezone."
     try:
         dt = dateutil.parser.isoparse(dts)
     except ValueError as error:
@@ -174,7 +174,7 @@ def timezone_from_utc_isoformat(dts, tz=True):
 
 
 def utc_from_timezone_isoformat(dts):
-    """Convert the given datetime ISO string in the local timezone to UTC, and
+    """Convert the given datetime ISO string in the the set timezone to UTC, and
     output in the same ISO format as in 'get_now' with dummy millisecond precision.
     """
     try:
@@ -208,11 +208,6 @@ def http_POST(csrf=True):
         return True
     else:
         return False
-
-
-def http_PUT():
-    "Is the HTTP method PUT? Is not tunneled."
-    return flask.request.method == "PUT"
 
 
 def http_DELETE(csrf=True):

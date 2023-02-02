@@ -65,8 +65,9 @@ person must have a user account to be able to write a proposal.
 
 ### User roles
 
-There are a few different roles giving different levels of privileges
-in the web interface.
+There are a few different roles for user account, which give different
+levels of privileges in the web interface. A user account has one and
+only one role.
 
 - Role **user**: The default role, which allows creating, editing and submitting
   proposals in open calls.
@@ -74,6 +75,10 @@ in the web interface.
 - Role **admin**: Allows access to all features of the web interface,
   which includes viewing and changing user accounts, and configuring
   certain aspects of the Anubis instance.
+- **Reviewers* and **chairs** of review committees are technically not
+  roles, but are a property set on a call-by-call basis for specific
+  user accounts. These may view the submitted proposals of the call,
+  and write reviews for them.
 
 # Instructions
 
@@ -94,19 +99,20 @@ in the web interface.
 ### Create a proposal
 
 - Go to the page of the open call. All open calls are displayed on the
-  home page.
-- Unless you have not already created a proposal in the call, there is
+  [home page](/).
+- Unless you have already created a proposal in the call, there is
   a button in the call page allowing you to do so.
-- **Create** the proposal and fill in the values for the input fields.
+- **Create** the proposal.
+- Fill in the values for the input fields.
 - You may save the unfinished proposal and return to **editing** it later.
 - Once the required fields of the proposal have been filled in correctly,
   you may **submit** it.
 - A proposal that has been submitted can no longer be edited.
-- As long as the call is open, you may un-submit your proposal if you
-  wish to edit it further, or even delete it.
+- However, as long as the call is open, you may un-submit your
+  proposal if you wish to edit it further, or even delete it.
 - Once the call's deadline for submission has been passed, the user
-  may no longer submit a proposal. **Be sure to submit your proposal
-  before the deadline!**
+  may no longer submit a proposal.
+- **Be sure to submit your proposal before the deadline!**
 
 ### Display your proposals
 
@@ -114,7 +120,7 @@ in the web interface.
   background in the top menu. If there is no such yellow marker, your
   proposals, if any, have all been submitted.
 - To list all your proposals, click the item "My proposals" in the
-  top menu.
+  top menu. If there is no such item, then you have no proposals.
 
 ## Instructions for reviewers
 

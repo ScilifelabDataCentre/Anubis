@@ -14,24 +14,25 @@ import anubis.user
 def init(app):
     app.jinja_env.add_extension("jinja2.ext.loopcontrols")
     app.jinja_env.add_extension("jinja2.ext.do")
-    for func in [display_markdown,
-                 display_field_value,
-                 display_value,
-                 display_boolean,
-                 display_datetime_timezone,
-                 call_closes_badge,
-                 reviews_due_badge,
-                 user_link,
-                 users_links_list,
-                 call_link,
-                 call_proposals_link,
-                 call_reviews_link,
-                 call_grants_link,
-                 proposal_link,
-                 review_link,
-                 review_status,
-                 decision_link,
-                 grant_link]:
+    for func in [
+        display_markdown,
+        display_field_value,
+        display_value,
+        display_datetime_timezone,
+        call_closes_badge,
+        reviews_due_badge,
+        user_link,
+        users_links_list,
+        call_link,
+        call_proposals_link,
+        call_reviews_link,
+        call_grants_link,
+        proposal_link,
+        review_link,
+        review_status,
+        decision_link,
+        grant_link,
+    ]:
         app.jinja_env.filters[func.__name__] = func
 
 
@@ -60,7 +61,10 @@ def display_field_value(field, entity, fid=None, max_length=None, show_user=Fals
                 return value + " (" + user_link(user) + ")"
         return value
     elif field["type"] == constants.BOOLEAN:
-        return display_boolean(value)
+        if value is None:
+            return "-"
+        else:
+            return value and "Yes" or "No"
     elif field["type"] == constants.SELECT:
         if value is None:
             return "-"
@@ -120,16 +124,6 @@ def display_value(value, default="-"):
         return default
     else:
         return value
-
-
-def display_boolean(value):
-    "Display field value boolean."
-    if value is None:
-        return "-"
-    elif value:
-        return "Yes"
-    else:
-        return "No"
 
 
 def display_datetime_timezone(value, plain=False):
@@ -216,7 +210,8 @@ def users_links_list(usernames):
     users = []
     for username in sorted(usernames):
         user = anubis.user.get_user(username)
-        if not user: continue
+        if not user:
+            continue
         name = anubis.user.get_fullname(user)
         if anubis.user.allow_view(user):
             url = flask.url_for("user.display", username=user["username"])
@@ -294,20 +289,20 @@ def proposal_link(proposal):
     return markupsafe.Markup(html)
 
 
-def review_link(review, show_status=True):
-    "Link to review, showing the status."
-    if not review:
+def review_link(review):
+    "Link to review."
+    if review:
+        url = flask.url_for("review.display", iuid=review["_id"])
+        return markupsafe.Markup(f"""<a href="{url}" class="text-info">Review</a>""")
+    else:
         return "-"
-    url = flask.url_for("review.display", iuid=review["_id"])
-    text = "Review"
-    if show_status:
-        text += f" {review_status(review)}"
-    return markupsafe.Markup(f"""<a href="{url}" class="text-info">{text}</a>""")
 
 
 def review_status(review):
     "Display the status of the review."
-    if review.get("archived"):
+    if not review:
+        result = "-"
+    elif review.get("archived"):
         result = '<span class="badge badge-pill badge-secondary">Archived</span>'
     elif review.get("finalized"):
         if review["values"].get("conflict_of_interest"):

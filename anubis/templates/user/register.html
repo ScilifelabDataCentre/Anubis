@@ -5,8 +5,7 @@
 {% block body_title %}Register a user account{% endblock %}
 
 {% block main %}
-<form action="{{ url_for('.register') }}"
-      method="POST">
+<form action="{{ url_for('.register') }}" method="POST">
   {{ csrf_token() }}
 
   <div class="form-group row">

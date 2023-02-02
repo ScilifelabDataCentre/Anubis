@@ -57,9 +57,9 @@
 <script>
   $(function() {
     $("#users").DataTable( {
+      order: [[8, "desc"]],
       pagingType: "full_numbers",
-      pageLength: 25,
-      order: [[8, "desc"]]
+      pageLength: 25
     });
   });
 </script>

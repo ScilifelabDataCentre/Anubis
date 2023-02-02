@@ -119,7 +119,9 @@ def register():
             recipients = [u["email"] for u in admins if u["email"]]
             site = flask.current_app.config["SITE_NAME"]
             title = f"{site} user account pending"
-            url = flask.url_for("user.display", username=user["username"], _external=True)
+            url = flask.url_for(
+                "user.display", username=user["username"], _external=True
+            )
             text = f"To enable the user account, go to {url}\n\n" "/The Anubis system"
             try:
                 utils.send_email(recipients, title, text)
@@ -352,7 +354,7 @@ def logs(username):
 
 
 @blueprint.route("/all")
-@utils.admin_or_staff_required
+@utils.staff_required
 def all():
     "Display list of all user accounts."
     users = get_users()
@@ -381,7 +383,7 @@ def all():
 
 
 @blueprint.route("/pending")
-@utils.admin_or_staff_required
+@utils.staff_required
 def pending():
     "Display list of all pending user accounts."
     users = get_users(status=constants.PENDING)
@@ -389,7 +391,7 @@ def pending():
 
 
 @blueprint.route("/staff")
-@utils.admin_or_staff_required
+@utils.staff_required
 def staff():
     "Display list of all admin and staff user accounts."
     users = get_users(role=constants.ADMIN) + get_users(role=constants.STAFF)
@@ -397,7 +399,7 @@ def staff():
 
 
 @blueprint.route("/enable/<username>", methods=["POST"])
-@utils.admin_or_staff_required
+@utils.staff_required
 def enable(username):
     "Enable the given user account."
     user = get_user(username=username)
@@ -415,7 +417,7 @@ def enable(username):
 
 
 @blueprint.route("/disable/<username>", methods=["POST"])
-@utils.admin_or_staff_required
+@utils.staff_required
 def disable(username):
     "Disable the given user account."
     user = get_user(username=username)
@@ -468,7 +470,9 @@ class UserSaver(Saver):
             if self.doc.get("status") == constants.PENDING:
                 # Filename pattern matching instead of regexp; easier to specify.
                 # The whitelist has not been fetched if the CLI is calling this.
-                for p in flask.current_app.config.get("USER_ENABLE_EMAIL_WHITELIST",[]):
+                for p in flask.current_app.config.get(
+                    "USER_ENABLE_EMAIL_WHITELIST", []
+                ):
                     if fnmatch.fnmatch(email, p):
                         self.set_status(constants.ENABLED)
                         break

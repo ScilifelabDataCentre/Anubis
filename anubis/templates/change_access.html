@@ -18,12 +18,11 @@
       <tr>
         <td>{{ get_user(username) | user_link() }}</td>
         <td>
-          <form action="{{ url }}"
-	        method="POST">
+          <form action="{{ url }}" method="POST">
 	    {{ csrf_token() }}
             <input type="hidden" name="_http_method" value="DELETE">
             <input type="hidden" name="username" value="{{ username }}">
-	    <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+	    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
           </form>
         </td>
       </tr>
@@ -62,7 +61,7 @@
       <div class="row"> 
         <div class="col-md-3">
           <div class="form-group">
-            <button type="submit" class="btn btn-block btn-primary">
+            <button type="submit" class="btn btn-primary btn-block">
               Add access to view</button>
           </div>
         </div>
@@ -83,12 +82,11 @@
       <tr>
         <td>{{ get_user(username) | user_link() }}</td>
         <td>
-          <form action="{{ url }}"
-	        method="POST">
+          <form action="{{ url }}" method="POST">
 	    {{ csrf_token() }}
             <input type="hidden" name="_http_method" value="DELETE">
             <input type="hidden" name="username" value="{{ username }}">
-	    <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+	    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
           </form>
         </td>
       </tr>
@@ -129,7 +127,7 @@
       <div class="row"> 
         <div class="col-md-3">
           <div class="form-group">
-            <button type="submit" class="btn btn-block btn-primary">
+            <button type="submit" class="btn btn-primary btn-block">
               Add access to edit</button>
           </div>
         </div>
@@ -144,6 +142,6 @@
 {% block actions %}
 <div class="mt-2">
   <a href="{{ back_url }}"
-     role="button" class="btn btn-block btn-secondary">Back</a>
+     role="button" class="btn btn-secondary btn-block">Back</a>
 </div>
 {% endblock %}

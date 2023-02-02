@@ -203,7 +203,9 @@ def update():
             pass
         if changed:
             db.put(call)
-            app.logger.info(f"Updated call {call['identifier']} changing 'access' to 'privileges'.")
+            app.logger.info(
+                f"Updated call {call['identifier']} changing 'access' to 'privileges'."
+            )
 
     # Add a meta document for 'data_policy' text.
     if "data_policy" not in db:

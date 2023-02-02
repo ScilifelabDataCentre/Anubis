@@ -19,8 +19,8 @@ Archived reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] o
   <thead>
     <tr>
       <th>Review</th>
-      <th>Banner fields</th>
       <th>Reviewer</th>
+      <th>Banner fields</th>
       <th>Modified</th>
     </tr>
   </thead>
@@ -29,6 +29,7 @@ Archived reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] o
     {% for review in reviews %}
     <tr>
       <td>{{ review | review_link }}</td>
+      <td>{{ get_user(review['reviewer']) | user_link }}</td>
       <td>
         <table class="table table-sm table-borderless">
           {% for field in get_banner_fields(review['fields']) %}
@@ -39,7 +40,6 @@ Archived reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] o
           {% endfor %}
         </table>
       </td>
-      <td>{{ review['reviewer'] }}</td>
       <td>
         <span class="localtime small">{{ review['modified'] }}</span>
       </td>
@@ -54,6 +54,7 @@ Archived reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] o
   $(function() {
     $("#reviews").DataTable( {
       pagingType: "full_numbers",
+      lengthMenu: [[10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"]],
       pageLength: 25
     });
   });

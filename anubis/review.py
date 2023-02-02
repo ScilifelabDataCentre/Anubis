@@ -36,7 +36,7 @@ def create(pid, username):
     call = anubis.call.get_call(proposal["call"])
     user = anubis.user.get_user(username=username)
     if user is None:
-        raise utils.error(f"No such user '{username}'.")
+        return utils.error(f"No such user '{username}'.")
 
     try:
         if user["username"] not in call["reviewers"]:
@@ -83,6 +83,7 @@ def display(iuid):
         allow_delete=allow_delete(review),
         allow_finalize=allow_finalize(review),
         allow_unfinalize=allow_unfinalize(review),
+        allow_archive=allow_archive(review),
         allow_view_reviews=allow_view_reviews,
     )
 
@@ -95,18 +96,20 @@ def edit(iuid):
         review = get_review(iuid)
     except KeyError:
         return utils.error("No such review.")
-    if not allow_edit(review):
-        return utils.error("You are not allowed to edit this review.")
 
     proposal = anubis.proposal.get_proposal(review["proposal"])
     call = anubis.call.get_call(review["call"])
 
     if utils.http_GET():
+        if not allow_edit(review):
+            return utils.error("You are not allowed to edit this review.")
         return flask.render_template(
             "review/edit.html", review=review, proposal=proposal, call=call
         )
 
     elif utils.http_POST():
+        if not allow_edit(review):
+            return utils.error("You are not allowed to edit this review.")
         try:
             # NOTE: Repeat field has not been implemented for review.
             with ReviewSaver(doc=review) as saver:
@@ -212,7 +215,7 @@ def unarchive(iuid):
         anubis.proposal.get_proposal(review["proposal"]),
         anubis.user.get_user(review["reviewer"]),
     ):
-        return utils.error("Unarchived review exists. Cannot overwrite.")
+        return utils.error("Another review exists already; cannot overwrite.")
 
     if utils.http_POST():
         try:
@@ -424,11 +427,11 @@ def allow_view(review):
 
 def allow_edit(review):
     "The admin, call owner and reviewer may edit an unfinalized review."
-    if review.get("finalized"):
-        return False
     if review.get("archived"):
         return False
     if not flask.g.current_user:
+        return False
+    if review.get("finalized"):
         return False
     if flask.g.am_admin:
         return True
@@ -492,5 +495,15 @@ def allow_unfinalize(review):
     if call.get("reviews_due") and call["reviews_due"] < utils.get_now():
         return False
     if flask.g.current_user["username"] == review["reviewer"]:
+        return True
+    return False
+
+def allow_archive(review):
+    "The admin may archive and unarchive a finalized review."
+    if not review.get("finalized"):
+        return False
+    if not flask.g.current_user:
+        return False
+    if flask.g.am_admin:
         return True
     return False

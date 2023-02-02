@@ -9,16 +9,15 @@ Transfer ownership of proposal {{ proposal['identifier'] }}
 {% endblock %}
 
 {% block main %}
-<form action="{{ url_for('.transfer', pid=proposal['identifier']) }}"
-      method="POST">
+<form action="{{ url_for('.transfer', pid=proposal['identifier']) }}" method="POST">
   {{ csrf_token() }}
 
   <div class="form-group row">
-    <label for="user"
-           class="col-md-2 col-form-label text-right font-weight-bold">
+    <label for="user" class="col-md-2 col-form-label text-right font-weight-bold">
       New owner</label>
     <div class="col-md">
-      <input type="text" id="user" name="user" class="form-control"
+      <input type="text" id="user" name="user"
+             class="form-control"
 	     aria-describedby="userHelp" autofocus>
       <small id="userHelp" class="form-text">
         Transfer ownership of the proposal to another user.
@@ -29,8 +28,8 @@ Transfer ownership of proposal {{ proposal['identifier'] }}
 
   <div class="form-group row">
     <div class="col-md-3 offset-md-2">
-      <button type="submit" title="Transfer."
-              class="btn btn-block btn-primary">Transfer</button>
+      <button type="submit" title="Transfer." class="btn btn-primary btn-block">
+        Transfer</button>
     </div>
   </div>
 </form>
