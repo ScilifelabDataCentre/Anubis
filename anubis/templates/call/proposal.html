@@ -42,13 +42,6 @@ Edit proposal fields for call {{ call['identifier'] }}
   <a href="{{ url_for('.display', cid=call['identifier']) }}"
      role="button" class="btn btn-secondary btn-block">Back</a>
 </div>
-<div class="mt-2">
-  <a href="{{ url_for('documentation') }}#input-field-types"
-     target="documenation"
-     role="button"
-     class="btn btn-outline-secondary btn-block">
-    Input field types</a>
-</div>
 {% endblock %} {# block actions #}
 
 {% block doclinks %}

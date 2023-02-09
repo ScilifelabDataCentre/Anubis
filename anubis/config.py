@@ -19,10 +19,8 @@ from anubis import utils
 
 import anubis.database
 
-
 # Default configurable values, loaded and/or modified in procedure 'init'.
 DEFAULT_CONFIG = dict(
-    FLASK_DEBUG=False,
     REVERSE_PROXY=False,  # Use 'werkzeug.middleware.proxy_fix.ProxyFix'
     SECRET_KEY=None,  # Must be set for proper session handling!
     COUCHDB_URL="http://127.0.0.1:5984/",  # Likely, if CouchDB on local machine.
@@ -45,7 +43,7 @@ DEFAULT_CONFIG = dict(
 
 def init(app):
     """Perform the configuration of the Flask app.
-    1) Start with values in DEFAULT_CONFIG.
+    1) Initialize with the values in DEFAULT_CONFIG.
     2) Set environment variables from file '.env', if any, using 'dotenv.load_dotenv'.
     3) Collect the possible settings file paths in the following order:
        - The environment variable ANUBIS_SETTINGS_FILEPATH, if any.
@@ -56,10 +54,10 @@ def init(app):
     Raise KeyError if a settings variable is missing.
     Raise ValueError if a settings variable value is invalid.
     """
-    app.config.from_mapping(DEFAULT_CONFIG)
+    config = DEFAULT_CONFIG.copy()
 
     # Dotenv file '.env' is optional, and mostly useful for development.
-    app.config["SETTINGS_DOTENV"] = dotenv.load_dotenv()
+    config["SETTINGS_DOTENV"] = dotenv.load_dotenv()
 
     # Collect filepaths for possible locations of a settings file.
     filepaths = []
@@ -70,21 +68,21 @@ def init(app):
     for filepath in ["settings.json", "../site/settings.json"]:
         filepaths.append(os.path.normpath(os.path.join(constants.ROOT, filepath)))
 
-    # Use the first settings file that can be found.
+    # Use the first settings file that can be found. Record any obsolete keys in it.
     for filepath in filepaths:
         try:
             with open(filepath) as infile:
-                config = json.load(infile)
+                settings_config = json.load(infile)
         except OSError:
             pass
         else:
-            app.config.from_mapping(config)
-            app.config["SETTINGS_FILE"] = filepath
-            obsolete_keys = set(config.keys()).difference(DEFAULT_CONFIG)
+            config.update(settings_config)
+            config["SETTINGS_FILE"] = filepath
+            obsolete_keys = set(settings_config.keys()).difference(DEFAULT_CONFIG)
             break
 
     # Modify the configuration from environment variables; convert to correct type.
-    app.config["SETTINGS_ENVVAR"] = False
+    config["SETTINGS_ENVVAR"] = False
     envvar_keys = []
     for key, value in DEFAULT_CONFIG.items():
         try:
@@ -93,30 +91,21 @@ def init(app):
             pass
         else:  # Do NOT catch any exception! Means bad setup.
             if isinstance(value, int):
-                app.config[key] = int(new)
+                config[key] = int(new)
             elif isinstance(value, bool):
-                app.config[key] = utils.to_bool(new)
+                config[key] = utils.to_bool(new)
             else:
-                app.config[key] = new
+                config[key] = new
             envvar_keys.append(key)
-            app.config["SETTINGS_ENVVAR"] = True
-
-    # Must be done after all possible settings sources have been processed.
-    if app.config["REVERSE_PROXY"]:
-        app.wsgi_app = ProxyFix(app.wsgi_app)
+            config["SETTINGS_ENVVAR"] = True
 
     # Sanity checks. Any Exception raised here means bad configuration.
-    if not app.config["SECRET_KEY"]:
+    if not config["SECRET_KEY"]:
         raise ValueError("SECRET_KEY not set")
-    if app.config["MIN_PASSWORD_LENGTH"] <= 4:
+    if config["MIN_PASSWORD_LENGTH"] <= 4:
         raise ValueError("MIN_PASSWORD_LENGTH is too short")
     # Is the timezone recognizable?
-    pytz.timezone(app.config["TIMEZONE"])
-    # Checks that the CouchDB server is reachable, and its version.
-    with app.app_context():
-        server = anubis.database.get_server()
-        if server.version < "2.3.1":
-            raise ValueError("CouchDB server is too old; upgrade to >= 2.3.1.")
+    pytz.timezone(config["TIMEZONE"])
 
     # Read and preprocess the documentation.
     with open("documentation.md") as infile:
@@ -144,21 +133,34 @@ def init(app):
                 toc.append(f'<li><a href="#{id}">{title}</a></li>')
     for level in range(current_level):
         toc.append("</ul>")
-    app.config["DOCUMENTATION_TOC"] = "\n".join(toc)
-    app.config["DOCUMENTATION"] = utils.markdown2html("".join(lines))
+    config["DOCUMENTATION_TOC"] = "\n".join(toc)
+    config["DOCUMENTATION"] = utils.markdown2html("".join(lines))
 
-    # Modify the Flask logger after all previous configuration has been done.
-    if not app.logger.isEnabledFor(logging.DEBUG):
+    # Finally configure the Flask app.
+    app.config.from_mapping(config)
+
+    # Set INFO OR DEBUG logging level.
+    if not config.get("FLASK_DEBUG"):
         app.logger.setLevel(logging.INFO)
+        
+    # Must be done after all possible settings sources have been processed.
+    if app.config["REVERSE_PROXY"]:
+        app.wsgi_app = ProxyFix(app.wsgi_app)
 
-    # Output the sources of settings, for easier configuration debug.
+    # Checks that the CouchDB server is reachable, and its version.
+    with app.app_context():
+        server = anubis.database.get_server()
+        if server.version < "2.3.1":
+            raise ValueError("CouchDB server is too old; upgrade to >= 2.3.1.")
+
+    # Output the sources of settings.
     app.logger.info(f"Anubis version {constants.VERSION}")
     if app.config["SETTINGS_DOTENV"]:
         app.logger.info(f"environment variables set from '.env' file")
     if app.config.get("SETTINGS_FILE"):
         app.logger.info(f"settings file: {app.config['SETTINGS_FILE']}")
         for key in obsolete_keys:
-            app.logger.warning(f"Obsolete item '{key}' in settings file.")
+            app.logger.warning(f"Obsolete item '{key}' in settings.")
     for key in envvar_keys:
         app.logger.info(f"'{key}' setting from environment variable.")
 

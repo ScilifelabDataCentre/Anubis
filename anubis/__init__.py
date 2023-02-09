@@ -5,7 +5,7 @@ import re
 import string
 import sys
 
-__version__ = "2.3.2"
+__version__ = "2.3.3"
 
 
 class Constants:
@@ -72,6 +72,8 @@ class Constants:
 
     MAAT_URL = "https://www.flaticon.com/authors/freepik"
     MAAT_VERSION = "-"
+
+    LOGGING_FORMAT="%(asctime)s %(name)s %(levelname)s %(message)s"
 
     ID_RX = re.compile(r"^[a-z][a-z0-9_]*$", re.I)
     IUID_RX = re.compile(r"^[a-f0-9]{32,32}$", re.I)
