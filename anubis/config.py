@@ -2,6 +2,7 @@
 modified by an optional settings file or environment variables.
 """
 
+import copy
 import datetime
 import json
 import logging
@@ -19,7 +20,7 @@ from anubis import utils
 
 import anubis.database
 
-# Default configurable values, loaded and/or modified in procedure 'init'.
+# Default configurable settings.
 DEFAULT_CONFIG = dict(
     REVERSE_PROXY=False,  # Use 'werkzeug.middleware.proxy_fix.ProxyFix'
     SECRET_KEY=None,  # Must be set for proper session handling!
@@ -54,7 +55,7 @@ def init(app):
     Raise KeyError if a settings variable is missing.
     Raise ValueError if a settings variable value is invalid.
     """
-    config = DEFAULT_CONFIG.copy()
+    config = copy.deepcopy(DEFAULT_CONFIG)
 
     # Dotenv file '.env' is optional, and mostly useful for development.
     config["SETTINGS_DOTENV"] = dotenv.load_dotenv()

@@ -1,6 +1,6 @@
 .env
 settings.json
-site
+site*
 __pycache__
 .pytest_cache
 *.log
