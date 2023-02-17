@@ -30,15 +30,15 @@ from anubis import utils
 # The global Flask app.
 app = flask.Flask(__name__)
 
-# Hard-wired Flask configuration.
-app.json.ensure_ascii = False
-app.json.sort_keys = False
-app.config["SEND_FILE_MAX_AGE_DEFAULT"] = constants.SITE_FILE_MAX_AGE
-
 # Configure Flask app from settings file and/or environment variables.
 anubis.config.init(app)
 anubis.utils.init(app)
 anubis.display.init(app)
+
+# Hard-wired Flask configuration.
+app.json.ensure_ascii = False
+app.json.sort_keys = False
+app.config["SEND_FILE_MAX_AGE_DEFAULT"] = constants.SITE_FILE_MAX_AGE
 
 
 @app.before_first_request
@@ -212,6 +212,6 @@ app.register_blueprint(anubis.about.blueprint, url_prefix="/about")
 app.register_blueprint(anubis.admin.blueprint, url_prefix="/admin")
 
 
-# This code is used only during development.
+# This part is used only during development.
 if __name__ == "__main__":
     app.run()
