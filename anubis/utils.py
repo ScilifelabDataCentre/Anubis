@@ -34,7 +34,7 @@ def send_email(recipients, title, text):
     Raise KeyError if email could not be sent; server misconfigured.
     """
     if not flask.current_app.config["MAIL_SERVER"]:
-        raise ValueError
+        raise ValueError("No mail server configured.")
     if isinstance(recipients, str):
         recipients = [recipients]
     message = flask_mail.Message(
