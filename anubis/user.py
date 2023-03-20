@@ -299,7 +299,7 @@ def edit(username):
             with UserSaver(user) as saver:
                 if flask.g.am_admin:
                     email = flask.request.form.get("email")
-                    saver.set_email(email, require=bool(email))
+                    saver.set_email(email)
                 saver.set_orcid(flask.request.form.get("orcid"))
                 if am_admin_not_self(user):
                     saver.set_role(flask.request.form.get("role"))
@@ -411,8 +411,12 @@ def enable(username):
     with UserSaver(user) as saver:
         saver.set_status(constants.ENABLED)
         saver.set_password()
-    send_email_password_code(user, "enabled")
-    utils.flash_message("User account enabled; email sent.")
+    try:
+        send_email_password_code(user, "enabled")
+    except ValueError:
+        utils.flash_warning("User account enabled. No email could be sent.")
+    else:
+        utils.flash_message("User account enabled; email sent.")
     return flask.redirect(flask.url_for("user.display", username=username))
 
 
@@ -456,8 +460,12 @@ class UserSaver(Saver):
             raise ValueError("username already in use")
         self.doc["username"] = username
 
-    def set_email(self, email, require=True):
-        "Set the email address of the account. Enable if in whitelist."
+    def set_email(self, email):
+        """Set the email address of the account.
+        Enable if in whitelist.
+        Admin may set the email to None.
+        """
+        email = email.strip()
         if email:
             if email == self.doc.get("email"):
                 return
@@ -476,10 +484,10 @@ class UserSaver(Saver):
                     if fnmatch.fnmatch(email, p):
                         self.set_status(constants.ENABLED)
                         break
-        elif require:
-            raise ValueError("No email address provided.")
-        else:
+        elif flask.g.am_admin:
             self.doc["email"] = None
+        else:
+            raise ValueError("No email address provided.")
 
     def set_orcid(self, orcid):
         "Set the ORCID of the account."
@@ -713,7 +721,7 @@ def send_email_password_code(user, action):
         "/The Anubis system"
     )
     utils.send_email(user["email"], title, text)
-
+        
 
 def am_admin(user=None):
     "Is the user admin? Default user: current_user."
