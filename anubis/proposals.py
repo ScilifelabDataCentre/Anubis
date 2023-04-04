@@ -399,11 +399,11 @@ def get_review_score_fields(call, proposals):
 def get_review_rank_fields_errors(call, proposals):
     """Return a tuple containing a dictionary of the rank banner fields
     in the reviews and a list of errors.
+    Check that the ranks are consecutive for all reviewers.
     Compute the ranking factors of each proposal from all finalized
     non-conflict-of-interest reviews.
-    Check that the ranks are consecutive for all reviewers.
     """
-    fields = dict(
+    rank_fields = dict(
         [
             (f["identifier"], f)
             for f in call["review"]
@@ -411,7 +411,8 @@ def get_review_rank_fields_errors(call, proposals):
         ]
     )
     errors = []
-    for id in fields.keys():
+    for id in rank_fields.keys():
+        # Collect the ranks set by each reviewer for each proposal under their review.
         ranks = dict()  # key: reviewer, value: dict(proposal: rank)
         for proposal in proposals:
             reviews = anubis.database.get_docs(
@@ -461,4 +462,4 @@ def get_review_rank_fields_errors(call, proposals):
                 rf[id]["stdev"] = round(10.0 * statistics.stdev(factors), 1)
             except statistics.StatisticsError:
                 rf[id]["stdev"] = None
-    return fields, errors
+    return rank_fields, errors

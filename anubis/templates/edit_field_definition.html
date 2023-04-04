@@ -20,7 +20,10 @@
 	</div>
 
 	<div class="modal-body">
-	  <input type="hidden" name="type" value="text">
+
+          {% set field_type = field['type'] %}
+          {% include 'field_type_explanation.html' %}
+
 	  <div class="form-group row">
 	    <label for="{{ field['identifier'] }}-identifier" 
 		   class="col-md-2 col-form-label text-right">

@@ -50,13 +50,13 @@ def init(app):
        - The file 'settings.json' in this directory.
        - The file '../site/settings.json' relative to this directory.
     4) Use the first of these files that is found and can be read.
-    5) Use any environment variables defined.
+    5) Use any environment variables defined; settings file values are overwritten.
     Raise KeyError if a settings variable is missing.
     Raise ValueError if a settings variable value is invalid.
     """
     config = copy.deepcopy(DEFAULT_CONFIG)
 
-    # Dotenv file '.env' is optional, and mostly useful for development.
+    # Dotenv file '.env' is optional. It is useful for development.
     config["SETTINGS_DOTENV"] = dotenv.load_dotenv()
 
     # Collect filepaths for possible locations of a settings file.
@@ -156,7 +156,7 @@ def init(app):
     # Output the sources of settings.
     app.logger.info(f"Anubis version {constants.VERSION}")
     if app.config["SETTINGS_DOTENV"]:
-        app.logger.info(f"environment variables set from '.env' file")
+        app.logger.info(f"Environment variables set from '.env' file")
     if app.config.get("SETTINGS_FILE"):
         app.logger.info(f"settings file: {app.config['SETTINGS_FILE']}")
         for key in obsolete_keys:

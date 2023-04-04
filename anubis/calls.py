@@ -42,7 +42,6 @@ def owner(username):
         "calls/owner.html",
         calls=calls,
         username=username,
-        allow_create=anubis.call.allow_create(),
     )
 
 
@@ -76,7 +75,6 @@ def open():
         "calls/open.html",
         calls=get_open_calls(),
         am_owner=anubis.call.am_owner,
-        allow_create=anubis.call.allow_create(),
         # Function, not value, is passed.
         allow_view_proposals=anubis.call.allow_view_proposals,
     )

@@ -56,8 +56,18 @@
       <th>All reviews</th>
 
       {% for rf in review_rank_fields.values() %}
-      <th>Reviews {{ rf['title'] }}: ranking factor</th>
-      <th>Reviews {{ rf['title'] }}: stdev</th>
+      <th>
+        Reviews {{ rf['title'] }}: ranking factor
+        <button type="button" class="btn btn-outline-dark" data-toggle="popover"
+                title="What is ranking factor?"
+                data-content="Ranking factor is computed from the ranks given by all reviewers of the proposal such that 10 is highest possible (all reviewers ranked proposal first), and zero is lowest (all reviewers ranked proposal last).">?</button>
+      </th>
+      <th>
+        Reviews {{ rf['title'] }}: stdev
+        <button type="button" class="btn btn-outline-dark" data-toggle="popover"
+                title="What is rank stdev?"
+                data-content="Rank stdev is the standard deviation of the ranks for the proposal. High value indicates disagreement between reviewers.">?</button>
+      </th>
       {% endfor %}
 
       {% if len(review_score_fields) >= 2 %}
@@ -118,7 +128,6 @@
       {% endif %}
 
       {% if allow_view_reviews %}
-      {% if proposal.get('submitted') %}
       <td>
         <a href="{{ url_for('reviews.proposal', pid=proposal['identifier']) }}"
            role="button" class="btn btn-sm btn-info">
@@ -134,26 +143,14 @@
       {% if len(review_score_fields) >= 2 %}
       <td>{{ proposal['scores']['__mean__'] | display_value }}</td>
       <td>{{ proposal['scores']['__stdev__'] | display_value }}</td>
-      {% endif %} {# if len(review_score_fields) >= 2 #}
+      {% endif %}
 
       {% for id in review_score_fields %}
       <td>{{ proposal['scores'][id]['mean'] | display_value }}</td>
       {% if len(review_score_fields) == 1 %}
       <td>{{ proposal['scores'][id]['stdev'] | display_value }}</td>
       {% endif %}
-      {% endfor %} {# for id in review_score_fields #}
-
-      {% else %} {# if proposal.get('submitted') #}
-      <td>-</td>
-
-      {% for id in review_score_fields %}
-      <td>-</td>
-      {% if len(review_score_fields) == 1 %}
-      <td>-</td>
-      {% endif %}
-      {% endfor %} {# for id in review_score_fields #}
-
-      {% endif %} {# if proposal.get('submitted') #}
+      {% endfor %}
       {% endif %} {# if allow_view_reviews #}
 
       {% if allow_view_decisions %}
@@ -170,7 +167,7 @@
       <td>-</td>
       {% for field in get_banner_fields(call['decision']) %}
       <td>-</td>
-      {% endfor %} {# for field in ... #}
+      {% endfor %}
       {% endif %} {# if decision #}
 
       {% endif %} {# if allow_view_decisions #}
@@ -188,6 +185,11 @@
 {% endblock %} {# block supermain #}
 
 {% block javascript %}
+<script>
+  $(function () {
+    $('[data-toggle="popover"]').popover()
+  })
+</script>
 <script>
   $(function() {
     $(".refresh").change(function () {

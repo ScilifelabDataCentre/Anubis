@@ -79,22 +79,23 @@
                role="button" data-toggle="dropdown"
                aria-haspopup="true" aria-expanded="false">Calls</a>
             <div class="dropdown-menu" aria-labelledby="navbarCalls">
-              <a class="dropdown-item"
-                 href="{{ url_for('calls.open') }}">Open calls</a>
-              <a class="dropdown-item"
-                 href="{{ url_for('calls.closed') }}">Closed calls</a>
+              <a class="dropdown-item" href="{{ url_for('calls.open') }}">
+                Open calls</a>
+              <a class="dropdown-item" href="{{ url_for('calls.closed') }}">
+                Closed calls</a>
               {% if g.allow_create_call %}
               <a class="dropdown-item"
                  href="{{ url_for('calls.owner', username=g.current_user['username']) }}">
                 My calls</a>
+              <a class="dropdown-item" href="{{ url_for('call.create') }}">
+                Create a new call</a>
               {% endif %} {# if g.allow_create_call #}
               {% if g.am_admin or g.am_staff %}
-              <a class="dropdown-item"
-                 href="{{ url_for('calls.unpublished') }}">Unpublished calls</a>
-              <a class="dropdown-item"
-                 href="{{ url_for('calls.grants') }}">Calls with grants</a>
-              <a class="dropdown-item"
-                 href="{{ url_for('calls.all') }}">All calls</a>
+              <a class="dropdown-item" href="{{ url_for('calls.unpublished') }}">
+                Unpublished calls</a>
+              <a class="dropdown-item" href="{{ url_for('calls.grants') }}">
+                Calls with grants</a>
+              <a class="dropdown-item" href="{{ url_for('calls.all') }}">All calls</a>
               {% endif %} {# if g.am_admin or g.am_staff #}
             </div>
           </li>

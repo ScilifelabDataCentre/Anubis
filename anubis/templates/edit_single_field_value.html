@@ -105,7 +105,7 @@
 
     {% endif %} {# if field.get('menu') #}
 
-    {% elif field['type'] in constants.INTEGER %}
+    {% elif field['type'] == constants.INTEGER %}
     <input type="number" step="1" id="{{ fid }}" name="{{ fid }}"
            {% if field.get('minimum') %}
            min="{{ field['minimum'] }}"
@@ -133,7 +133,7 @@
            {% endif %}
 	   aria-describedby="{{ fid }}Help">
 
-    {% elif field['type'] in constants.SCORE %}
+    {% elif field['type'] == constants.SCORE %}
     {% if field.get('slider') %}
     <div class="form-group row">
       <div class="col-md-1 text-right">{{ field['minimum'] }}</div>
@@ -179,7 +179,7 @@
     </div>
     {% endif %}
 
-    {% elif field['type'] in constants.RANK %}
+    {% elif field['type'] == constants.RANK %}
     <div class="form-row">
       <input type="number" step="1" id="{{ fid }}" name="{{ fid }}"
              min="1" class="form-control col-md-2"
@@ -221,7 +221,7 @@
       </div>
     </div>
 
-    {% elif field['type'] in constants.REPEAT %}
+    {% elif field['type'] == constants.REPEAT %}
     <div class="row">
       <div class="col-md-2">
         <input type="number" id="{{ fid }}" name="{{ fid }}"
@@ -264,8 +264,12 @@
 	  {% if field.get('maxlength') %}
 	  Maximum {{ field['maxlength'] }} characters.
 	  {% endif %}
+          {% if field['type'] == constants.RANK %}
+          A value between 1 (best) and N (worst; the number of proposals under review).
+          {% else %}
           {% if field.get('minimum') is not none %}
           Minimum value {{ field['minimum'] }}.
+          {% endif %}
           {% endif %}
           {% if field.get('maximum') is not none %}
           Maximum value {{ field['maximum'] }}.

@@ -769,13 +769,10 @@ class CallSaver(AccessSaverMixin, Saver):
 
     def add_field(self, form):
         "Get the field definition from the form."
-        type = form.get("type")
-        if type not in constants.CALL_FIELD_TYPES:
-            raise ValueError("Invalid field type.")
         fid = form.get("identifier")
         if not (fid and constants.ID_RX.match(fid)):
             raise ValueError("Invalid field identifier.")
-        field = {"type": type, "identifier": fid}
+        field = {"type": form.get("type"), "identifier": fid}
         self.edit_field_definition(field, form)
         return field
 
@@ -908,6 +905,8 @@ class CallSaver(AccessSaverMixin, Saver):
 
     def add_proposal_field(self, form):
         "Add a field to the proposal definition."
+        if form["type"] not in constants.PROPOSAL_FIELD_TYPES:
+            raise ValueError("Invalid field type.")
         field = self.add_field(form)
         if field["identifier"] in [f["identifier"] for f in self.doc["proposal"]]:
             raise ValueError("Field identifier is already in use.")
@@ -926,6 +925,8 @@ class CallSaver(AccessSaverMixin, Saver):
 
     def add_review_field(self, form):
         "Add a field to the review definition."
+        if form["type"] not in constants.REVIEW_FIELD_TYPES:
+            raise ValueError("Invalid field type for review.")
         field = self.add_field(form)
         if field["identifier"] in [f["identifier"] for f in self.doc["review"]]:
             raise ValueError("Field identifier is already in use.")
@@ -944,6 +945,8 @@ class CallSaver(AccessSaverMixin, Saver):
 
     def add_decision_field(self, form):
         "Add a field to the decision definition."
+        if form["type"] not in constants.DECISION_FIELD_TYPES:
+            raise ValueError("Invalid field type.")
         field = self.add_field(form)
         if field["identifier"] in [f["identifier"] for f in self.doc["decision"]]:
             raise ValueError("Field identifier is already in use.")
@@ -964,6 +967,8 @@ class CallSaver(AccessSaverMixin, Saver):
         "Add a field to the grant dossier definition."
         if not "grant" in self.doc:  # To upgrade from older versions.
             self.doc["grant"] = []
+        if form["type"] not in constants.GRANT_FIELD_TYPES:
+            raise ValueError("Invalid field type.")
         field = self.add_field(form)
         if field["identifier"] in [f["identifier"] for f in self.doc["grant"]]:
             raise ValueError("Field identifier is already in use.")

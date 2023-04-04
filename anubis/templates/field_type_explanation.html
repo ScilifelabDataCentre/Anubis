@@ -1,0 +1,39 @@
+<div class="row pb-4">
+  <div class="offset-md-2 col-md">
+    <div class="card">
+      <div class="card-body">
+        An input field for
+        {% if field_type == constants.LINE %}
+        a single line of text.
+        {% elif field_type == constants.EMAIL %}
+        a single line of text that must look like an email
+        address. Its actual validity is not checked.
+        {% elif field_type == constants.BOOLEAN %}
+        a yes-or-no answer.
+        {% elif field_type == constants.SELECT %}
+        a selection of predetermined alternatives.
+        {% elif field_type == constants.INTEGER %}
+        a single number that is a whole integer.
+        {% elif field_type == constants.FLOAT %}
+        a single number that may contain a fraction, i.e. a floating point value.
+        {% elif field_type == constants.SCORE %}
+        an integer-valued score within a set range.
+        {% elif field_type == constants.RANK %}
+        an integer-valued ranking, such that 1 means the best, while N is the worst
+        of the proposals under reviews. See
+        <a href="{{ url_for('documentation', _anchor='rank-field') }}" target="_blank">
+          Rank field</a> for more information.
+        {% elif field_type == constants.TEXT %}
+        a multi-line block of text which may use Markdown notation for formatting.
+        {% elif field_type == constants.DOCUMENT %}
+        uploading a file.
+        {% elif field_type == constants.REPEAT %}
+        a positive integer value, which allows a set of input fields
+        to be repeated by the given value.
+        {% else %}
+        something else.
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>

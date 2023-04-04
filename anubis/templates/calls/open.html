@@ -11,10 +11,10 @@
       <th>Call id</th>
       <th>Call title</th>
       <th>Closes</th>
-      {% if allow_create %}
+      {% if g.am_admin or g.am_staff %}
       <th>Proposals</th>
       <th>Reviews</a>
-      {% endif %} {# if allow_create #}
+      {% endif %} {# if g.am_admin or g.am_staff #}
     </tr>
   </thead>
 
@@ -27,10 +27,10 @@
         {{ call['closes'] | display_datetime_timezone }}
         {{ call | call_closes_badge }}
       </td>
-      {% if allow_create %}
+      {% if g.am_admin or g.am_staff %}
       <td>{{ call | call_proposals_link }}</td>
       <td>{{ call | call_reviews_link }}</td>
-      {% endif %} {# if allow_create #}
+      {% endif %} {# if g.am_admin or g.am_staff #}
     </tr>
     {% endfor %} {# for call in calls #}
   </tbody>
