@@ -29,8 +29,7 @@ DEFAULT_CONFIG = dict(
     COUCHDB_PASSWORD=None,  # Must probably be set; depends on CouchDB setup.
     COUCHDB_DBNAME="anubis",  # The database instance within CouchDB.
     MIN_PASSWORD_LENGTH=6,  # Must be at least 4.
-    # Default timezone is that of the host machine.
-    TIMEZONE=str(datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo),
+    TIMEZONE="Europe/Stockholm",
     MAIL_SERVER=None,  # E.g. "localhost" or domain name. If None: email disabled.
     MAIL_PORT=25,  # Must be changed if TLS or SSL is used.
     MAIL_USE_TLS=False,  # Use TLS for email or not.
