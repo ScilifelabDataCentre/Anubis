@@ -11,11 +11,11 @@
       <th>Call id</th>
       <th>Call title</th>
       <th>Closed</th>
-      {% if g.current_user %}
+      {% if g.am_admin or g.am_staff %}
       <th>Proposals</th>
       <th>Reviews</a>
       <th>Grants</a>
-      {% endif %}
+      {% endif %} {# if g.am_admin or g.am_staff #}
     </tr>
   </thead>
 
@@ -25,25 +25,16 @@
       <td>{{ call | call_link(proposals_link=False) }}</td>
       <td>{{ call.get('title') or '[No title]' }}</td>
       <td class="pl-2">{{ call['closes'] | display_datetime_timezone }}</td>
-      {% if g.current_user %}
+      {% if g.am_admin or g.am_staff %}
       <td>{{ call | call_proposals_link }}</td>
       <td>{{ call | call_reviews_link }}</td>
       <td>{{ call | call_grants_link }}</td>
-      {% endif %}
+      {% endif %} {# if g.am_admin or g.am_staff #}
     </tr>
     {% endfor %} {# for call in calls #}
   </tbody>
 </table>
 {% endblock %} {# block main #}
-
-{% block actions %}
-{% if allow_create %}
-<div class="mt-2">
-  <a href="{{ url_for('call.create') }}"
-     role="button" class="btn btn-primary btn-block">Create</a>
-</div>
-{% endif %} {# if allow_create #}
-{% endblock %} {# block actions #}
 
 {% block javascript %}
 <script>

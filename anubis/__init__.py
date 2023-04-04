@@ -5,7 +5,7 @@ import re
 import string
 import sys
 
-__version__ = "2.3.4"
+__version__ = "2.4.0"
 
 
 class Constants:
@@ -120,21 +120,7 @@ class Constants:
     DOCUMENT = "document"
     REPEAT = "repeat"
 
-    CALL_FIELD_TYPES = (
-        LINE,
-        EMAIL,
-        BOOLEAN,
-        SELECT,
-        INTEGER,
-        FLOAT,
-        SCORE,
-        RANK,
-        TEXT,
-        DOCUMENT,
-        REPEAT,
-    )
-
-    # Exclude RANK (not meaningful) and REPEAT (not yet implemented).
+    # Exclude RANK, SCORE (not meaningful) and REPEAT (not yet implemented).
     PROPOSAL_FIELD_TYPES = (
         LINE,
         EMAIL,
@@ -142,7 +128,6 @@ class Constants:
         SELECT,
         INTEGER,
         FLOAT,
-        SCORE,
         TEXT,
         DOCUMENT,
     )
@@ -161,7 +146,7 @@ class Constants:
         DOCUMENT,
     )
 
-    # Exclude RANK (not meaningful) and REPEAT (not yet implemented).
+    # Exclude RANK, SCORE (not meaningful) and REPEAT (not yet implemented).
     DECISION_FIELD_TYPES = (
         LINE,
         EMAIL,
@@ -169,12 +154,11 @@ class Constants:
         SELECT,
         INTEGER,
         FLOAT,
-        SCORE,
         TEXT,
         DOCUMENT,
     )
 
-    # Exclude RANK (not meaningful).
+    # Exclude RANK, SCORE (not meaningful).
     GRANT_FIELD_TYPES = (
         LINE,
         EMAIL,
@@ -182,7 +166,6 @@ class Constants:
         SELECT,
         INTEGER,
         FLOAT,
-        SCORE,
         TEXT,
         DOCUMENT,
         REPEAT,

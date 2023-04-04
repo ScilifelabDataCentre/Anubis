@@ -55,8 +55,12 @@
     Title of repeated block '{{ field['blocktitle'] }}'.
     {% endif %}
 
+    {% if field['type'] == constants.RANK %}
+    A value between 1 (best) and N (worst; the number of proposals under review).
+    {% else %}
     {% if field.get('minimum') is not none %}
     Minimum {{ field['minimum'] }}.
+    {% endif %}
     {% endif %}
 
     {% if field.get('maximum') is not none %}
