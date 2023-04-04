@@ -161,16 +161,16 @@ def get_now():
 
 
 def timezone_from_utc_isoformat(dts, tz=True):
-    "Convert the given datetime ISO string in UTC to the set timezone."
+    "Convert the given datetime ISO string in UTC to the configured timezone."
     try:
         dt = dateutil.parser.isoparse(dts)
     except ValueError as error:
         return str(error)
     dt = dt.astimezone(pytz.timezone(flask.current_app.config["TIMEZONE"]))
     if tz:
-        return dt.strftime(f"%Y-%m-%d %H:%M %Z")
+        return dt.strftime(f"%Y-%m-%d %H:%M {flask.current_app.config['TIMEZONE']}")
     else:
-        return dt.strftime(f"%Y-%m-%d %H:%M")
+        return dt.strftime("%Y-%m-%d %H:%M")
 
 
 def utc_from_timezone_isoformat(dts):

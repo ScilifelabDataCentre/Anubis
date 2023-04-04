@@ -68,7 +68,7 @@ def register():
         try:
             with UserSaver() as saver:
                 saver.set_username(flask.request.form.get("username"))
-                saver.set_email(flask.request.form.get("email"))
+                saver.set_email(flask.request.form.get("email") or "")
                 saver.set_orcid(flask.request.form.get("orcid"))
                 # Admin or staff may enable an account directly.
                 if flask.g.am_admin or flask.g.am_staff:
@@ -465,29 +465,29 @@ class UserSaver(Saver):
         Enable if in whitelist.
         Admin may set the email to None.
         """
-        email = email.strip()
-        if email:
-            if email == self.doc.get("email"):
+        email = email.strip().lower()
+        if not email:
+            if flask.g.am_admin:
+                self.doc["email"] = None
                 return
-            email = email.lower()
-            if not constants.EMAIL_RX.match(email):
-                raise ValueError("invalid email")
-            if get_user(email=email):
-                raise ValueError("email already in use")
-            self.doc["email"] = email
-            if self.doc.get("status") == constants.PENDING:
-                # Filename pattern matching instead of regexp; easier to specify.
-                # The whitelist has not been fetched if the CLI is calling this.
-                for p in flask.current_app.config.get(
-                    "USER_ENABLE_EMAIL_WHITELIST", []
-                ):
-                    if fnmatch.fnmatch(email, p):
-                        self.set_status(constants.ENABLED)
-                        break
-        elif flask.g.am_admin:
-            self.doc["email"] = None
-        else:
-            raise ValueError("No email address provided.")
+            else:
+                raise ValueError("No email address provided.")
+        if email == self.doc.get("email"):
+            return
+        if not constants.EMAIL_RX.match(email):
+            raise ValueError("invalid email")
+        if get_user(email=email):
+            raise ValueError("email already in use")
+        self.doc["email"] = email
+        if self.doc.get("status") == constants.PENDING:
+            # Filename pattern matching instead of regexp; easier to specify.
+            # The whitelist has not been fetched if the CLI is calling this.
+            for p in flask.current_app.config.get(
+                "USER_ENABLE_EMAIL_WHITELIST", []
+            ):
+                if fnmatch.fnmatch(email, p):
+                    self.set_status(constants.ENABLED)
+                    break
 
     def set_orcid(self, orcid):
         "Set the ORCID of the account."
