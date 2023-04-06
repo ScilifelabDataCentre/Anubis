@@ -685,7 +685,7 @@ def get_proposal_xlsx(proposal):
 def allow_create(call):
     """A logged-in user may create a proposal in a call.
     Admin, staff, call owner and user with access to the call may always
-    create a proposal.
+    create a proposal. A reviewer in the call may not.
     Others may create a proposal only if the call is open and not closed.
     """
     if not flask.g.current_user:
@@ -696,6 +696,8 @@ def allow_create(call):
         return True
     if anubis.call.allow_view(call):
         return True
+    if anubis.call.am_reviewer(call):
+        return False
     return anubis.call.is_open(call)
 
 
@@ -751,7 +753,7 @@ def allow_edit(proposal):
 
 
 def allow_delete(proposal):
-    """The admin, and call owner may delete the proposal.
+    """The admin and call owner may delete the proposal.
     The user may delete if not submitted.
     """
     if not flask.g.current_user:
@@ -770,7 +772,7 @@ def allow_delete(proposal):
 
 def allow_submit(proposal):
     """Only if there are no errors.
-    The admin and owner of the call may submit/unsubmit the proposal.
+    The admin, staff and owner of the call may submit/unsubmit the proposal.
     The user may submit/unsubmit the proposal if the call is open.
     """
     if not flask.g.current_user:
@@ -778,6 +780,8 @@ def allow_submit(proposal):
     if proposal["errors"]:
         return False
     if flask.g.am_admin:
+        return True
+    if flask.g.am_staff:
         return True
     call = anubis.call.get_call(proposal["call"])
     if anubis.call.am_owner(call):

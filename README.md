@@ -3,22 +3,26 @@
 Anubis is a web-based system to handle calls for proposals, proposal submission,
 reviews, decisions and grant dossiers. It allows:
 
+- The creation of calls, which includes defining what information a proposals
+  should contain.
 - The publication of calls, with handling of open/close dates.
 - Proposals can be created, edited and submitted based on open calls.
-- A person who wants to prepare and submit a proposal must create an
-  account in the system.
-- The administrator configures which accounts should be reviewers of
-  the proposals in a call.
-- The administrator records the decisions that the reviewers (or other group) have made.
-- Grants can have information and documents related to them added by both grantees
-  and the Anubis site staff.
+- To prepare and submit a proposal, a person must must create an
+  account in the Anubis system.
+- Accounts with the role admin (or 'admin', for short) have the privileges to
+  use all features in the system, including inspecting and handling calls, proposals,
+  reviews, decisions and grants.
+- An admin in the Anubis site designates which accounts should be
+  reviewers of the proposals in a call.
+- The admin records the decisions that the reviewers have made.
+- Grants can have information and documents added by grantees and/or the Anubis
+  site staff.
 
 # Installation
 
 ## Software
 
-The source code is available the
-[Anubis GitHub repo](https://github.com/pekrau/Anubis).
+The source code is available the [Anubis GitHub repo](https://github.com/pekrau/Anubis).
 
 Anubis requires Python >= 3.9.
 
@@ -29,7 +33,7 @@ Get the source code by downloading the
 and unpacking it. For simplicity, rename the top directory to `Anubis`.
 
 It is recommended to set up a virtual environment for Anubis. On my
-development machine, I am using the `virtualenv` system:
+development machine, I am using the `virtualenv` system. Refer to its documentation.
 
 ```bash
 $ mkvirtualenv Anubis
@@ -37,8 +41,6 @@ $ cd Anubis
 $ add2virtualenv $PWD   # To add the top Anubis dir to Python path.
 $ setvirtualenvproject  # To make this dir the default when doing 'workon'.
 ```
-
-The installation of a virtual environment system is not documented here.
 
 Within the virtual environment, download and install the required
 Python packages from PyPi:
@@ -63,14 +65,28 @@ A user account has to be created in the CouchDB system with sufficient privilege
 to create a database within it. This is the account used by Anubis to create,
 access and modify its data. Refer to the CouchDB documentation.
 
-### Configuration
+## Configuration
+
+There are two phases of configuration:
+
+1. Server configuration. This should be done once when installing the system. This
+   requires access to the server machine. It takes effect when the web server
+   process is started. This means that if it is changed, the web server process
+   will have to be restarted.
+2. Web interface configuration. This is done when the web server is up and running,
+   and requires an administrator account ('admin') in the Anubis site. This should
+   usually be done before launching the site for general use. The various
+   configuration pages can be reached from the top menu item 'Admin', which is
+   visible only to admins.
+
+### Server configuration
 
 In production mode, the Anubis `flask` uwsgi-compliant app should be
 run by another web server, such as Apache, NGINX, Gunicorn or
-similar. The app to be executed is
-`anubis.main.app`. This setup not documented here.
+similar. The app to be executed is `anubis.main.app`.
+This setup not documented here.
 
-Some configuration needs to be done before the app can be executed.
+Some server configuration needs to be done before the app can be executed.
 The configuration values can be set in one of two ways:
 
 1. Environment variables that specify the configuration values.
@@ -80,18 +96,20 @@ The configuration values can be set in one of two ways:
 
 The following configuration settings need to be set:
 
-- `COUCHDB_URL`: The URL to the running CouchDB instance.
-- `COUCHDB_DBNAME`: The name of the CouchDB database for Anubis.
+- `COUCHDB_URL`: The absolute URL for the CouchDB instance interface.
+- `COUCHDB_DBNAME`: The name of the CouchDB database used for Anubis.
 - `COUCHDB_USERNAME`: The name of the CouchDB user account with privileges to
   create, read and write the Anubis database within CouchDB.
 - `COUCHDB_PASSWORD`: The password for the CouchDB account.
 - `SECRET_KEY`: A longish string of random characters required for proper
   session handling.
-- `TIMEZONE`: The Anubis system attempts to fetch this value from the environment
-  at startup, but it may have to be set explicitly.
+- `REVERSE_PROXY`: Set to the string 'true' if the
+  'werkzeug.middleware.proxy_fix.ProxyFix' is to be used.
+- `TIMEZONE`: By default "Europe/Stockholm", so may need to be set explicitly.
+- `MIN_PASSWORD_LENGTH`: The minimum length of a user account password.
 - `MAIL_SERVER`: The name of the mail server for outgoing email. Anubis
   can execute without mail, but several account handling features will be restricted
-  or missing, such as set and reset of passwords.
+  or missing, such as setting and resetting of passwords.
 - `MAIL_PORT`: Default 25; may need to be changed depending on the variables below.
 - `MAIL_USE_TLS`: Default False; set to True (or 1) to enable TLS for email.
 - `MAIL_USE_SSL`: Default False; set to True (or 1) to enable SSL for email.
@@ -100,3 +118,33 @@ The following configuration settings need to be set:
 - `MAIL_DEFAULT_SENDER`: The email address of the sender of emails from Anubis.
 - `MAIL_REPLY_TO`: The email address to use for replies, if different from the
   default sender.
+
+Once the Anubis system has been properly installed and configured,
+it will be possible to execute the command-line interface (CLI) script
+in the same environment as the web server is executing.
+
+```bash
+$ workon
+$ cd Anubis/anubis
+$ python cli.py --help
+```
+
+At least one administrator account ('admin') must be created using the CLI:
+
+```bash
+$ workon
+$ cd Anubis/anubis
+$ python cli.py admin   # And provide input to the questions asked...
+```
+
+Once that administrator account exists, it can be used to create other accounts
+via the web interface, including other administrator accounts.
+
+### Web interface configuration
+
+The pages reachable from the top menu item 'Admin' contain all settings that
+can be configured from the web interface by an admin.
+
+The settings fields in these pages are (supposed to be) self-explanatory.
+Before launching the site for general use, the admin should go through
+these pages and consider the appropriate settings.

@@ -22,14 +22,14 @@ import anubis.database
 
 # Default configurable settings.
 DEFAULT_CONFIG = dict(
-    REVERSE_PROXY=False,  # Use 'werkzeug.middleware.proxy_fix.ProxyFix'
-    SECRET_KEY=None,  # Must be set for proper session handling!
     COUCHDB_URL="http://127.0.0.1:5984/",  # Likely, if CouchDB on local machine.
+    COUCHDB_DBNAME="anubis",  # The database instance within CouchDB.
     COUCHDB_USERNAME=None,  # Must probably be set; depends on CouchDB setup.
     COUCHDB_PASSWORD=None,  # Must probably be set; depends on CouchDB setup.
-    COUCHDB_DBNAME="anubis",  # The database instance within CouchDB.
-    MIN_PASSWORD_LENGTH=6,  # Must be at least 4.
+    SECRET_KEY=None,  # Must be set for proper session handling!
+    REVERSE_PROXY=False,  # Use 'werkzeug.middleware.proxy_fix.ProxyFix'
     TIMEZONE="Europe/Stockholm",
+    MIN_PASSWORD_LENGTH=6,  # Must be at least 4.
     MAIL_SERVER=None,  # E.g. "localhost" or domain name. If None: email disabled.
     MAIL_PORT=25,  # Must be changed if TLS or SSL is used.
     MAIL_USE_TLS=False,  # Use TLS for email or not.

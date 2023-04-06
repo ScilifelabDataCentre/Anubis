@@ -271,7 +271,7 @@ def get_decision(iuid):
 
 
 def allow_create(proposal):
-    "Admin and chair may create a decision for a submitted proposal."
+    "Admin, chair and call owner may create a decision for a submitted proposal."
     if not flask.g.current_user:
         return False
     if not proposal.get("submitted"):
@@ -300,6 +300,8 @@ def allow_view(decision):
         return True
     call = anubis.call.get_call(decision["call"])
     if anubis.call.am_owner(call):
+        return True
+    if anubis.call.am_chair(call):
         return True
     if not call["privileges"].get("allow_submitter_view_decision"):
         return False
@@ -330,7 +332,7 @@ def allow_link(decision):
 
 
 def allow_edit(decision):
-    "Admin and chair may edit an unfinalized decision."
+    "Admin, chair and call owner may edit an unfinalized decision."
     if not flask.g.current_user:
         return False
     if decision.get("finalized"):

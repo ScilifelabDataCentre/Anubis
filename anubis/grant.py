@@ -509,8 +509,10 @@ def allow_link(grant):
 
 
 def allow_delete(grant):
-    "Only the admin may delete a grant dossier."
+    "Only the admin may delete an unlocked grant dossier."
     if not flask.g.current_user:
+        return False
+    if grant.get("locked"):
         return False
     if flask.g.am_admin:
         return True

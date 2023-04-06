@@ -1,36 +1,48 @@
 # Anubis documentation
 
-Anubis is a web-based system to handle calls, proposal submission,
+Anubis is a web-based system to handle calls for proposals, proposal submission,
 reviews, decisions and grant dossiers. It allows:
 
+- The creation of calls, which includes defining what information a proposals
+  should contain.
 - The publication of calls, with handling of open/close dates.
 - Proposals can be created, edited and submitted based on open calls.
-- A person who wants to prepare and submit a proposal must create an
-  account in the system.
-- The administrator configures which accounts should be reviewers of
-  the proposals in a call.
-- The administrator records the decisions that the reviewers (or other group) have made.
-- Grants can have information and documents related to them added by both grantees
-  and the Anubis site staff.
+- To prepare and submit a proposal, a person must must create an
+  account in the Anubis system.
+- Accounts with the role admin (or 'admin', for short) have the privileges to
+  use all features in the system, including inspecting and handling calls, proposals,
+  reviews, decisions and grants.
+- An admin in the Anubis site designates which accounts should be
+  reviewers of the proposals in a call.
+- The admin records the decisions that the reviewers have made.
+- Grants can have information and documents added by grantees and/or the Anubis
+  site staff.
+
+
+# Installation
+
+Installation instructions are available at the
+[GitHub page for Anubis](https://github.com/pekrau/Anubis).
 
 # Entities
 
 ## Call
 
-A call for proposals, with a description, optional files
+This is a call for proposals, with a description, optional files
 attached, and open and close dates. It is a container for proposals,
 reviews, decisions and grants. The input fields of these entities
 are created and defined within their call.
 
-A call is open when its `opens` date has passed, but its `closes` date as not.
-A call that does not have both of these values set is not published. This means
-that there can be no open call without a `closes` date.
+A call is open when its `opens` date has passed, but its `closes` date has not.
+A call that does not have both of these values set is unpublished, and
+is not visible to ordinary user. This means that there can be no open calls
+without a `closes` date.
 
 ## Proposal
 
 A proposal can be created only within an open call. A user has to
-create an account in order to create and write a proposal. The
-proposal must be submitted by the user before the close date of the
+create an account in order to create, write and submita proposal. The
+proposal must be submitted by the user before the` closes` date of the
 call.
 
 A proposal is visible only to its creator, the admin, and those
@@ -43,7 +55,7 @@ entails defining what information the reviewers must provide,
 including scores, rank or comments. The admin must then create the
 actual review form for each reviewer and proposal.
 
-The reviews are visible only the admin, the owner of the call, and
+The reviews are visible to the admin, the owner of the call, and
 optionally by the other reviewers in the call.
 
 ### Decision
@@ -71,10 +83,12 @@ only one role.
 
 - Role **user**: The default role, which allows creating, editing and submitting
   proposals in open calls.
-- Role **staff**: Allows viewing user accounts, proposals and the other entities.
+- Role **staff**: Allows viewing user accounts, proposals and the other entities,
+  and limited editing privileges.
 - Role **admin**: Allows access to all features of the web interface,
   which includes viewing and changing user accounts, and configuring
-  certain aspects of the Anubis instance.
+  certain aspects of the Anubis instance. It is recommended to have only a few
+  admins for an Anubis instance.
 - **Reviewers* and **chairs** of review committees are technically not
   roles, but are a property set on a call-by-call basis for specific
   user accounts. These may view the submitted proposals of the call,
@@ -93,23 +107,22 @@ only one role.
   instructions.
 - When a new user account has been enabled, you will receive an email
   describing how to set your password.
-- Once you have an enabled account with the password set, you may
-  create a proposal from an open call.
+- Once you have set your password, you may create a proposal from an open call.
 
 ### Create a proposal
 
 - Go to the page of the open call. All open calls are displayed on the
-  [home page](/).
+  [home page](/), so use the links there.
 - Unless you have already created a proposal in the call, there is
-  a button in the call page allowing you to do so.
-- **Create** the proposal.
+  a button **Create proposal** in the call page allowing you to do so.
 - Fill in the values for the input fields.
 - You may save the unfinished proposal and return to **editing** it later.
 - Once the required fields of the proposal have been filled in correctly,
   you may **submit** it.
 - A proposal that has been submitted can no longer be edited.
 - However, as long as the call is open, you may un-submit your
-  proposal if you wish to edit it further, or even delete it.
+  proposal if you wish to edit it further.
+- A proposal that has not been submitted may be deleted by you.
 - Once the call's deadline for submission has been passed, the user
   may no longer submit a proposal.
 - **Be sure to submit your proposal before the deadline!**
@@ -119,7 +132,7 @@ only one role.
 - The number of your unsubmitted proposals is displayed on a yellow
   background in the top menu. If there is no such yellow marker, your
   proposals, if any, have all been submitted.
-- To list all your proposals, click the item "My proposals" in the
+- To list all your proposals, click the item **My proposals** in the
   top menu. If there is no such item, then you have no proposals.
 
 ## Instructions for reviewers
@@ -133,27 +146,27 @@ reviews are done.
 - As a reviewer, you have access to all submitted proposals in the call.
 - Depending on the policy for the call, you should read all or only
   some of the proposals.
-- To download all proposals and their attached files, go to the call page. In the
-  right-hand upper corner, there are two small black buttons:
-  1. "Submitted proposals Excel file", which allows you to download
+- To download all proposals and their attached files, go to the call page.
+  In the right-hand upper corner, there are two small black buttons:
+  1. **Submitted proposals Excel file**, which allows you to download
      the information in all submitted proposals in Excel format. This
      does not contain the files attached to proposals, if any.
-  2. "Submitted proposals zip file", which contains the above Excel
-     file, **and** all files attached to the proposals. The naming of
+  2. **Submitted proposals zip file**, which contains the above Excel
+     file and all files attached to the proposals. The naming of
      the files indicates which one belongs to which proposal.
 - It is also possible to browse the proposals in a list display by
-  clicking the blue button by the item "All proposals" on the call
+  clicking the blue button by the item **All proposals** on the call
   page.
 
 #### How to fill in your reviews
 
-1. Click on the item "My reviews" in the top menu.
+1. Click on the item **My reviews** in the top menu.
    - The list of all reviews for your user account are shown in a table,
      which can be sorted by any column.
    - **Note** that the table may have more than one page, depending on
      the number of proposals. Use the page selector at the bottom right of
      the table.
-2. Click on the link "Review" to view the review of the proposal on
+2. Click on the link **Review** to view the review of the proposal on
    that line in the table.
 3. Edit the review.
 4. Click **Finalize** to indicate that you are done with the review.
@@ -168,12 +181,12 @@ reviews are done.
 
 - A user account is set as a reviewer for a specific call by the admin
   of the Anubis system.
-- The admin also creates the review instances for the proposals for
-  each reviewer. A reviewer cannot create the review instances, only the admin
-  can do this.
+- The admin  also creates the review instances for the proposals for
+  each reviewer. A reviewer cannot create the review instances, only the
+  admin can do this.
 - Depending on the policy for the call, a reviewer may have to write a
-  review for all or only some proposals. The admin handles this by creating those
-  review instances that the reviewer should fill in.
+  review for all or only some proposals. The admin handles this
+  by creating those review instances that the reviewer should fill in.
 - The content (input fields) of the reviews are set for the call by the admin.
 - The reviews of a call have a **due** date, before which all reviews must
   have been finalized by the reviewers.
@@ -192,6 +205,9 @@ reviews are done.
   admin allows it for the call.
 
 ## Instructions for staff
+
+Since staff can view most data in Anubis, but have only limited editing
+privileges, there are no special instructions.
 
 ## Instructions for admins
 
@@ -233,146 +249,7 @@ web interface.
   course, this should be done only in special circumstances.
 - The admin is allowed to change the ownership of a proposal.
 
-# Installation
-
-## Software
-
-The source code is available the
-[Anubis GitHub repo](https://github.com/pekrau/Anubis).
-
-Anubis requires Python >= 3.9 and [CouchDB >= 2.3.1](https://couchdb.apache.org/);
-installation of those systems is not documented here.
-
-### Source code
-
-Get the source code by downloading the
-[latest release from GitHub](https://github.com/pekrau/Anubis/releases)
-and unpacking it. For simplicity, rename the top directory to `Anubis`.
-
-It is recommended to set up a virtual environment for Anubis. On my
-development machine, I am using the `virtualenv` system:
-
-```bash
-$ mkvirtualenv Anubis
-$ cd Anubis
-$ add2virtualenv        # To add the top Anubis dir to Python path.
-$ setvirtualenvproject  # To make this dir the default when doing 'workon'.
-```
-
-The installation of a virtual environment system is not documented here.
-
-Within the virtual environment, download and install the required
-Python packages from PyPi:
-
-```bash
-$ workon Anubis  # Activate the virtual environment
-$ pip install -r requirements.txt
-```
-
-### Docker container
-
-A Docker container of the
-[latest release is available at GitHub](https://github.com/pekrau/Anubis/pkgs/container/anubis).
-
-## CouchDB database
-
-The Anubis system relies on the [CouchDB database system](https://couchdb.apache.org/).
-This has to be installed and running.
-
-A user account has to be created in the CouchDB system with sufficient privileges
-to create a database within it. This is the account used by Anubis to create,
-access and modify its data.
-
-For these actions, refer to the CouchDB documentation.
-
-### Configuration
-
-The Anubis `flask` app needs to be run within another web server. This
-depends on the web server you select and is not documented here.
-
-In order to execute, there are some configuration that needs to be done
-at the system level. This can be done in one of two ways:
-
-1. Setting environment variables that specify the configuration values.
-2. Using a file `settings.json` containing the configuration values.
-or
-runs as a `uwsgi` web server. It
-needs to be configured. This is done in a JSON file called
-`settings.json` located in the `site` directory.
-
-```bash
-$ cd Anubis
-$ cp -r site_template site
-$ cd site
-$ chmod go-rw settings.json  # Since it contains secrets
-$ emacs settings.json  # Ok, ok, vim also works...
-```
-
-In particular, the following settings should be looked at:
-
-- `"DEBUG": "true"` Web server debug mode: should be "false" in production.
-- `"SECRET_KEY": "long-string-of-random-chars"` Needed for proper
-  session handling.
-- `"COUCHDB_URL"` The URL to the CouchDB instance.
-- `"COUCHDB_DATABASE"` The name of the CouchDB database for Anubis.
-- `"COUCHDB_USERNAME"` The name of the user account with read/write
-  access to the CouchDB database.
-- `"COUCHDB_PASSWORD"` The password for the user account.
-- `"SITE_STATIC_DIRPATH"`: The full path to the directory containing
-  site-specific files, such as logo image files.
-- `"HOST_LOGO"`: The file name of the site-specific logo image
-  file. It must be locaded in the `SITE_STATIC_DIRPATH`.
-- `"HOST_NAME"`: The name of host of the site; e.g. the institution.
-- `"HOST_URL"`: The URL to the home page of the host.
-- `"MAIL_SERVER"`: The name of the mail server. There are more
-  settings to define if the mail server cannot be set as
-  `localhost`. See the `Anubis/anubis/config.py` file.
-
-Place any image files defined in the `settings.json` file in the
-`site/static` directory.
-
-#### CouchDB
-
-A database for Anubis needs to be created within the CouchDB
-instance. See the CouchDB documentation on how to do this.
-
-If a username and password is required for read/write access to the
-CouchDB database for Anubis, then add those with the name of the database
-to the `settings.json` file; see above.
-
-#### Web server
-
-The SciLifeLab instance uses `nginx` as a reverse proxy for the
-`flask` web server that implements Anubis. The file
-`Anubis/install/uwsgi.conf` contains the setup for `nginx`.
-It should be located in the directory `/etc/nginx/conf.d`.
-
-To run Anubis as a `systemd` service under Linux, the file
-`Anubis/install/anubis.system` contains the setup. It should be
-located in the directory `/etc/systemd/system`.
-
-Useful `systemctl` commands are:
-
-```bash
-$ sudo systemctl status anubis
-$ sudo systemctl start anubis
-$ sudo systemctl restart anubis
-$ sudo systemctl stop anubis
-```
-
-There is also a updating script `Anubis/install/deploy_anubis.bash` to
-be located in a site-dependent directory and run like so:
-
-```bash
-$ sudo /etc/scripts/deploy_anubis.bash
-```
-
-This script contains the somewhat mysterious commands needed to make
-things work under the restrictive security policies of SELinux.
-
-# XXX Needs refactoring!
-
-## Privileges
+# Privileges
 
 Different user roles have different sets of privileges, which
 determine what they are allowed to do within the Anubis system.
@@ -384,9 +261,10 @@ In order to create and edit anything in Anubis, a user account is
 required.
 
 The privileges determine which actions are allowed for a logged-in
-user. The role of the user account controls this. A user account has
-one single role for the whole system at all times. There are three
-roles:
+user. The role of the user account determines the set of privileges.
+
+A user account has one single role. The admin can change the role of an
+account. There are three roles:
 
 1. **Admin**: The system administrator, who can do everything that can
    be done via the web interface.
@@ -397,131 +275,259 @@ roles:
    view all her current and previous proposals, and view decisions and
    grant pages, if any, for each specific proposal.
 
-Accounts with the user role can be given additional privileges, which
-relate to specific calls only:
+Accounts with the user role can be given additional privileges, which only
+relate to specific calls:
 
 - A user can be set as a reviewer in a call, in which case she gets
   more privileges for that call.
 - In addition, a reviewer can be set as chair for that review. This gives
   further privileges.
-- A user can be allowed to create calls, in which case she has more privileges
-  for that call.
+- A user can be allowed to create calls. If the user then creates a call,
+  she has more privileges for that call.
 
-Here's a summary of privileges for some actions. Note that some
-exceptions are omitted, such as a user explicitly allowing another
-user to view and/or edit their proposal.
+The table below summarizes the privileges for most actions. Note that
+some exceptions are omitted, such as a user explicitly allowing
+another user account to view and/or edit her proposal.
 
 <table class="table">
 
+<thead class="sticky">
 <tr>
-<th></th>
+<th colspan="2"></th>
 <th>User</th>
 <th>User (reviewer)</th>
 <th>User (call creator)</th>
 <th>Staff</th>
 <th>Admin</th>
 </tr>
+</thead>
 
+<tbody>
 <tr>
-<th>Create proposal in open call</th>
-<td><span class="bi-check-lg text-success"></span></td>
-<td>N/A</td>
-<td>N/A</td>
-<td><span class="bi-check-lg text-success"></span></td>
-<td><span class="bi-check-lg text-success"></span></td>
+<th rowspan="4">Call</th>
+<th>Create</th>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+<td>Configurable</td>
+<td>Yes</td>
 </tr>
 
 <tr>
-<th>Edit a proposal in open call</th>
-<td><span class="bi-check-lg text-warning"></span> One's own</td>
-<td><span class="bi-x-lg text-danger"></span></td>
-<td><span class="bi-check-lg text-warning"></span> Any in call</td>
-<td><span class="bi-check-lg text-success"></span></td>
-<td><span class="bi-check-lg text-success"></span></td>
+<th>View</th>
+<td>Yes, if published</td>
+<td>Yes, if published</td>
+<td>One's own</td>
+<td>Yes</td>
+<td>Yes</td>
 </tr>
 
 <tr>
-<th>View a proposal</th>
-<td><span class="bi-check-lg text-warning"></span> One's own</td>
-<td><span class="bi-check-lg text-warning"></span> Any in call</td>
-<td><span class="bi-check-lg text-warning"></span> Any in call</td>
-<td><span class="bi-check-lg text-success"></span></td>
-<td><span class="bi-check-lg text-success"></span></td>
+<th>Edit</th>
+<td>No</td>
+<td>No</td>
+<td>One's own</td>
+<td>Configurable; one's own</td>
+<td>Yes</td>
 </tr>
 
 <tr>
-<th>Create a call</th>
-<td><span class="bi-x-lg text-danger"></span></td>
-<td><span class="bi-x-lg text-danger"></span></td>
-<td><span class="bi-check-lg text-success"></span></td>
-<td><span class="bi-x-lg text-danger"></span></td>
-<td><span class="bi-check-lg text-success"></span></td>
+<th>Delete</th>
+<td>No</td>
+<td>No</td>
+<td>One's own, if no proposals</td>
+<td>No</td>
+<td>Yes, if no proposals</td>
 </tr>
 
 <tr>
-<th>Edit a call</th>
-<td><span class="bi-x-lg text-danger"></span></td>
-<td><span class="bi-x-lg text-danger"></span></td>
-<td><span class="bi-check-lg text-warning"></span> One's own</td>
-<td><span class="bi-x-lg text-danger"></span></td>
-<td><span class="bi-check-lg text-success"></span></td>
+<th rowspan="6">Proposal</th>
+<th>Create</th>
+<td>Yes, while call open</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
 </tr>
 
 <tr>
-<th>Create a review</th>
-<td><span class="bi-x-lg text-danger"></span></td>
-<td><span class="bi-x-lg text-danger"></span></td>
-<td><span class="bi-check-lg text-warning"></span> Any in call</td>
-<td><span class="bi-x-lg text-danger"></span></td>
-<td><span class="bi-check-lg text-success"></span></td>
+<th>View</th>
+<td>One's own</td>
+<td>Any in the call to be reviewed</td>
+<td>Any in one's own</td>
+<td>Yes</td>
+<td>Yes</td>
 </tr>
 
 <tr>
-<th>Edit a review</th>
-<td><span class="bi-x-lg text-danger"></span></td>
-<td><span class="bi-check-lg text-warning"></span> One's own</td>
-<td><span class="bi-check-lg text-warning"></span> Any in call</td>
-<td><span class="bi-x-lg text-danger"></span></td>
-<td><span class="bi-check-lg text-success"></span></td>
+<th>Edit</th>
+<td>One's own, while not submitted</td>
+<td>No</td>
+<td>Any in one's own</td>
+<td>No</td>
+<td>Yes</td>
 </tr>
 
 <tr>
-<th>View a review</th>
-<td><span class="bi-x-lg text-danger"></span></td>
-<td><span class="bi-check-lg text-warning"></span> One's own</td>
-<td><span class="bi-check-lg text-warning"></span> Any in call</td>
-<td><span class="bi-check-lg text-success"></span></td>
-<td><span class="bi-check-lg text-success"></span></td>
+<th>Delete</th>
+<td>One's own, while not submitted</td>
+<td>No</td>
+<td>Any in one's own</td>
+<td>No</td>
+<td>Yes</td>
 </tr>
 
 <tr>
-<th>Create a decision</th>
-<td><span class="bi-x-lg text-danger"></span></td>
-<td><span class="bi-check-lg text-warning"></span> Only chair</td>
-<td><span class="bi-check-lg text-warning"></span> Any in call</td>
-<td><span class="bi-x-lg text-danger"></span></td>
-<td><span class="bi-check-lg text-success"></span></td>
+<th>Transfer ownership</th>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
 </tr>
 
 <tr>
-<th>Edit a decision</th>
-<td><span class="bi-x-lg text-danger"></span></td>
-<td><span class="bi-check-lg text-warning"></span> Only chair</td>
-<td><span class="bi-check-lg text-warning"></span> Any in call</td>
-<td><span class="bi-x-lg text-danger"></span></td>
-<td><span class="bi-check-lg text-success"></span></td>
+<th>Submit</th>
+<td>One's own, while call open</td>
+<td>No</td>
+<td>Any in one's own</td>
+<td>Yes</td>
+<td>Yes</td>
 </tr>
 
 <tr>
-<th>View a decision</th>
-<td><span class="bi-check-lg text-warning"></span> One's own, when allowed</td>
-<td><span class="bi-check-lg text-warning"></span> Only chair</td>
-<td><span class="bi-check-lg text-warning"></span> Any in call</td>
-<td><span class="bi-check-lg text-success"></span></td>
-<td><span class="bi-check-lg text-success"></span></td>
+<th rowspan="4">Review</th>
+<th>Create</th>
+<td>No</td>
+<td>Depends on call setting</td>
+<td>In one's own</td>
+<td>Yes</td>
+<td>Yes</td>
 </tr>
 
+<tr>
+<th>View</th>
+<td>No</td>
+<td>One's own, or depends on call setting; chair all</td>
+<td>Any in one's own</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+
+<tr>
+<th>Edit</th>
+<td>No</td>
+<td>One's own</td>
+<td>Any in one's own</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+
+<tr>
+<th>Delete</th>
+<td>No</td>
+<td>No</td>
+<td>Any in one's own</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+
+<tr>
+<th rowspan="4">Decision</th>
+<th>Create</th>
+<td>No</td>
+<td>Only chair</td>
+<td>Any in one's own</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+
+<tr>
+<th>View</th>
+<td>One's own, depends on call setting</td>
+<td>Only chair</td>
+<td>Any in one's own</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+
+<tr>
+<th>Edit</th>
+<td>No</td>
+<td>Only chair</td>
+<td>Any in one's own</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+
+<tr>
+<th>Delete</th>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+
+<tr>
+<th rowspan="6">Grant dossier</th>
+<th>Create</th>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+
+<tr>
+<th>View</th>
+<td>One's own</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+
+<tr>
+<th>Edit</th>
+<td>One's own, if not locked</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+
+<tr>
+<th>Change access</th>
+<td>One's own</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+
+<tr>
+<th>Lock</th>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+
+<tr>
+<th>Delete</th>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>Yes, if not locked</td>
+</tr>
+
+</tbody>
 </table>
+
+# XXX below not finished
 
 ## Account
 
@@ -778,7 +784,7 @@ address. However, its actual validity is not checked.
 
 ### Boolean field
 
-A selection between Yes and No. If it is not required, then also "No
+A selection between Yes and No. If a value is not required, then also "No
 value" will be allowed.
 
 ### Select field
@@ -831,12 +837,13 @@ reviews in that call. The formula is:
     A(i) = total number of ranked proposals for reviewer i
     R(x,i) = rank for proposal x by reviewer i
 
-    F(x) = round(decimals(1, 10 * average(all reviewers( (A(i) - R(x, i) + 1) / A(i)) ))))
+    F(x) = 10 * average(all reviewers( (A(i) - R(x, i) + 1) / A(i)) )
 ```
 
 For a proposal which has been ranked 1 by all reviewers of it, this will produce
 a ranking factor of 10, which is the maximum. If a reviewer has ranked it at,
-say, 3, then the ranking factor will become slightly less than 10.
+say, 3, then the ranking factor will become slightly less than 10. The number is
+rounded to one decimal place.
 
 **NOTE**: This is currently implemented only for reviews; it is not
 very meaningful for other entities.

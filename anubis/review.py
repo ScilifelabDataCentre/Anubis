@@ -386,12 +386,16 @@ def get_reviewer_review(proposal, reviewer=None):
 
 
 def allow_create(proposal):
-    "The admin, call owner and chair may create a review for a submitted proposal."
-    if not proposal.get("submitted"):
-        return False
+    """The admin, staff, call owner and possibly chair may create a review
+    for a submitted proposal.
+    """
     if not flask.g.current_user:
         return False
+    if not proposal.get("submitted"):
+        return False
     if flask.g.am_admin:
+        return True
+    if flask.g.am_staff:
         return True
     call = anubis.call.get_call(proposal["call"])
     if anubis.call.am_chair(call) and call["access"].get("allow_chair_create_reviews"):
@@ -427,9 +431,9 @@ def allow_view(review):
 
 def allow_edit(review):
     "The admin, call owner and reviewer may edit an unfinalized review."
-    if review.get("archived"):
-        return False
     if not flask.g.current_user:
+        return False
+    if review.get("archived"):
         return False
     if review.get("finalized"):
         return False
@@ -459,13 +463,13 @@ def allow_finalize(review):
     """The admin, call owner and reviewer may finalize if it contains no errors,
     unless the conflict-of-interest field, if any, has been filled in as 'Yes'.
     """
+    if not flask.g.current_user:
+        return False
     if review.get("finalized"):
         return False
     if review.get("archived"):
         return False
     if not review["values"].get("conflict_of_interest") and review["errors"]:
-        return False
-    if not flask.g.current_user:
         return False
     if flask.g.am_admin:
         return True
@@ -481,11 +485,11 @@ def allow_unfinalize(review):
     """The admin and call owner may always unfinalize.
     Reviewer may unfinalize the review before reviews due date.
     """
+    if not flask.g.current_user:
+        return False
     if not review.get("finalized"):
         return False
     if review.get("archived"):
-        return False
-    if not flask.g.current_user:
         return False
     if flask.g.am_admin:
         return True
@@ -500,9 +504,9 @@ def allow_unfinalize(review):
 
 def allow_archive(review):
     "The admin may archive and unarchive a finalized review."
-    if not review.get("finalized"):
-        return False
     if not flask.g.current_user:
+        return False
+    if not review.get("finalized"):
         return False
     if flask.g.am_admin:
         return True

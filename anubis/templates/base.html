@@ -13,6 +13,9 @@
           href="{{ constants.BOOTSTRAP_CSS_URL }}"
           integrity="{{ constants.BOOTSTRAP_CSS_INTEGRITY }}">
     <link rel="stylesheet" href="{{ constants.DATATABLES_CSS_URL }}">
+    <style>
+      thead.sticky th {top: 0; position: sticky; background: white; }
+    </style>
   </head>
 
   <body>
@@ -244,19 +247,14 @@
             <a href="{{ url_for('documentation') }}#instructions-for-users"
                target="documentation" role="button"
                class="btn btn-outline-primary btn-block">Instructions for users</a>
-
-            {% if g.my_reviews_count %}
             <a href="{{ url_for('documentation') }}#instructions-for-reviewers"
                target="documentation" role="button"
                class="btn btn-outline-primary btn-block">Instructions for reviewers</a>
-            {% endif %}
-
             {% if g.am_admin %}
             <a href="{{ url_for('documentation') }}#instructions-for-admins"
                target="documentation" role="button"
                class="btn btn-outline-primary btn-block">Instructions for admins</a>
             {% endif %}
-
             {% endblock %} {# block doclinks #}
           </div>
           {% block info %}
