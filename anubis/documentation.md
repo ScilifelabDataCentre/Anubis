@@ -72,216 +72,99 @@ information and/or documents about a successful proposal.
 
 ## User account
 
-A user account is the representation of a user in the Anubis system. A
-person must have a user account to be able to write a proposal.
+A user account is the representation of a user in the Anubis system.
+In order to do any work in Anubis, a user must have an account.
 
-### User roles
+A user can [register an account](/user/register). Depending on the
+site policy, the account will be immediately enabled, or an
+administrator will have to enable the account after inspection. An
+email will be sent to the user once the account is enabled. It
+contains information on how to set the password.
 
-There are a few different roles for user account, which give different
-levels of privileges in the web interface. A user account has one and
-only one role.
+A user has a unique identifier, and the email address must also be unique.
 
-- Role **user**: The default role, which allows creating, editing and submitting
-  proposals in open calls.
-- Role **staff**: Allows viewing user accounts, proposals and the other entities,
-  and limited editing privileges.
-- Role **admin**: Allows access to all features of the web interface,
-  which includes viewing and changing user accounts, and configuring
-  certain aspects of the Anubis instance. It is recommended to have only a few
-  admins for an Anubis instance.
-- **Reviewers* and **chairs** of review committees are technically not
-  roles, but are a property set on a call-by-call basis for specific
-  user accounts. These may view the submitted proposals of the call,
-  and write reviews for them.
+Depending on the site configuration, user accounts may be
+automatically enabled, or require the explicit enabling by the
+administrator.
 
-# Instructions
+The administrator may register accounts, which do not have a valid
+email address. This can be used for pseudo-user accounts which may be
+useful in some scenarios.
 
-## Instructions for users
+The administrator may set a user to be able to create calls. A user
+who has created a call becomes the administrator of it, and can deal
+with nearly all aspects of it.
 
-### Create a user account
+# Roles and privileges
 
-- In order to create a proposal in a call, a user must have an account
-  in the system.
-- To create an account in the Anubis system, go to the page
-  [Register a user account](/user/register) and follow the
-  instructions.
-- When a new user account has been enabled, you will receive an email
-  describing how to set your password.
-- Once you have set your password, you may create a proposal from an open call.
+Anubis uses a role-based privileges system which determines what operations
+are allowed for an account.
 
-### Create a proposal
-
-- Go to the page of the open call. All open calls are displayed on the
-  [home page](/), so use the links there.
-- Unless you have already created a proposal in the call, there is
-  a button **Create proposal** in the call page allowing you to do so.
-- Fill in the values for the input fields.
-- You may save the unfinished proposal and return to **editing** it later.
-- Once the required fields of the proposal have been filled in correctly,
-  you may **submit** it.
-- A proposal that has been submitted can no longer be edited.
-- However, as long as the call is open, you may un-submit your
-  proposal if you wish to edit it further.
-- A proposal that has not been submitted may be deleted by you.
-- Once the call's deadline for submission has been passed, the user
-  may no longer submit a proposal.
-- **Be sure to submit your proposal before the deadline!**
-
-### Display your proposals
-
-- The number of your unsubmitted proposals is displayed on a yellow
-  background in the top menu. If there is no such yellow marker, your
-  proposals, if any, have all been submitted.
-- To list all your proposals, click the item **My proposals** in the
-  top menu. If there is no such item, then you have no proposals.
-
-## Instructions for reviewers
-
-The number of your unfinalized reviews is displayed on a yellow
-background in the top menu. If there is no such yellow marker, your
-reviews are done.
-
-#### How to get the proposals
-
-- As a reviewer, you have access to all submitted proposals in the call.
-- Depending on the policy for the call, you should read all or only
-  some of the proposals.
-- To download all proposals and their attached files, go to the call page.
-  In the right-hand upper corner, there are two small black buttons:
-  1. **Submitted proposals Excel file**, which allows you to download
-     the information in all submitted proposals in Excel format. This
-     does not contain the files attached to proposals, if any.
-  2. **Submitted proposals zip file**, which contains the above Excel
-     file and all files attached to the proposals. The naming of
-     the files indicates which one belongs to which proposal.
-- It is also possible to browse the proposals in a list display by
-  clicking the blue button by the item **All proposals** on the call
-  page.
-
-#### How to fill in your reviews
-
-1. Click on the item **My reviews** in the top menu.
-   - The list of all reviews for your user account are shown in a table,
-     which can be sorted by any column.
-   - **Note** that the table may have more than one page, depending on
-     the number of proposals. Use the page selector at the bottom right of
-     the table.
-2. Click on the link **Review** to view the review of the proposal on
-   that line in the table.
-3. Edit the review.
-4. Click **Finalize** to indicate that you are done with the review.
-   - Until the **due** date for reviews in the call, you may
-     **Unfinalize** a review if you wish to resume editing it.
-5. To view the proposal of the review, click the link to the proposal
-   in the title. (Tip: do right-click and "Open in new tab".)
-6. Before the **due** date, ensure that all your reviews have been
-   finalized.
-
-### Reviewer: Basic information
-
-- A user account is set as a reviewer for a specific call by the admin
-  of the Anubis system.
-- The admin  also creates the review instances for the proposals for
-  each reviewer. A reviewer cannot create the review instances, only the
-  admin can do this.
-- Depending on the policy for the call, a reviewer may have to write a
-  review for all or only some proposals. The admin handles this
-  by creating those review instances that the reviewer should fill in.
-- The content (input fields) of the reviews are set for the call by the admin.
-- The reviews of a call have a **due** date, before which all reviews must
-  have been finalized by the reviewers.
-- There may be a chair designated for a call. This is a reviewer
-  heading the reviewer group. He or she has additional privileges, if
-  so set by the admin.
-
-### Reviewer privileges
-
-- The reviewer may view all proposals in the call.
-- The reviewer can edit her review instance.
-- The reviewers cannot create or delete review instances.
-- The chair, if any, of a call may create review instances, if so set by the admin.
-- The chair, if any, may view all reviews, if so set by the admin.
-- A reviewer may view finalized reviews by other reviewers only if the
-  admin allows it for the call.
-
-## Instructions for staff
-
-Since staff can view most data in Anubis, but have only limited editing
-privileges, there are no special instructions.
-
-## Instructions for admins
-
-The admin is a user account which has full privileges for the Anubis
-site. She may perform all operations that are possible to do via the
-web interface.
-
-### User account handling
-
-- The admin may register user accounts.
-- The admin may edit, enable or disable user accounts.
-- An admin may set other user accounts to be admin.
-
-### Call handling
-
-- The admin creates a call, and edits its content.
-- The admin controls when a call becomes published by setting the
-  **opens** date of the call.
-- The admin controls the deadline for creating and submitting
-  proposals to a call by setting the **closes** date.
-- The contents of a call (the input fields for proposals, reviews and
-  decisions) can be edited whenever by the admin, but when a call has
-  been published it should be kept intact, or users will be confused.
-
-### Reviewers and reviews
-
-- The admin may set a user account as a **reviewer** in a call.
-- The admin may also set a user account as a **chair** for a
-  call. This is a special type of reviewer who has slightly higher
-  privileges than ordinary reviewers.
-- The admin must create the **review** instances for each reviewer and
-  proposal in a call. It is up to the admin to decide which proposals
-  a reviewer must review.
-
-### Proposal handling
-
-- The admin is allowed to edit and submit any user's proposals. This
-  can be done even when the call for the proposal has been closed. Of
-  course, this should be done only in special circumstances.
-- The admin is allowed to change the ownership of a proposal.
-
-# Privileges
-
-Different user roles have different sets of privileges, which
-determine what they are allowed to do within the Anubis system.
-
-Anonymous users (not logged-in) are allowed to view open calls and not
-much else.
+A user who has not logged in can view the open calls in Anubis, but not much else.
 
 In order to create and edit anything in Anubis, a user account is
 required.
 
-The privileges determine which actions are allowed for a logged-in
-user. The role of the user account determines the set of privileges.
+## User roles
 
-A user account has one single role. The admin can change the role of an
-account. There are three roles:
+There are a few different roles for user account, which give different
+levels of privileges in the web interface.
 
-1. **Admin**: The system administrator, who can do everything that can
-   be done via the web interface.
-2. **Staff**: The Anubis staff, who can view everything, but not
-   change all that much.
-3. **User**: Anyone who has registered an account in Anubis. She is
-   allowed to create, edit and submit a proposal in an open call. She can
-   view all her current and previous proposals, and view decisions and
-   grant pages, if any, for each specific proposal.
+A user account has one and only one role. However, the admin can change
+the role of a user.
+
+1. Role **admin**: This role can do use all features of the web interface.
+   which includes viewing and changing user accounts, and configuring
+   certain aspects of the Anubis instance. It is recommended to have only a
+   few admin accounts for an Anubis instance.
+2. Role **staff**: This role allows viewing user accounts, proposals and
+   the other entities, with some limited editing privileges.
+3. Role **user**: The default role, which allows creating, editing and
+   submitting proposals in open calls. She can view all her current
+   and previous proposals, and view decisions and grant pages, if any,
+   for each specific proposal.
+
+### Call creator
+
+An account having the role **user** may be allowed to create
+calls. This is done explicitly by the admin for that specific
+account. A user that has created a call has extended privileges for
+that call.
+
+### Reviewer
+
+A reviewer is a user account who has been explicitly set as a reviewer in
+a specific call by the admin. This is technically not a role.
+
+A reviewer may view the submitted proposals of the call and write reviews for them.
+
+A reviewer cannot have a proposal of her own in that call.
+
+A user that is a reviewer in one call, is not automatically a reviewer
+in another call. This makes it possible for a user to be an ordinary
+submitter of a proposal in one call, while being a reviewer in another
+call.
+
+### Chair
+
+A chair is a special kind of reviewer, who has the privilege to create
+and delete review instances within the call, among other actions. The
+chair can also view the reviews of all reviewers in that call.
+
+The chair may also create the decision entities for the proposals and edit them.
+
+## Privileges
+
+The privileges in the web interface are determined by the role of the logged-in
+user account.
 
 Accounts with the user role can be given additional privileges, which only
 relate to specific calls:
 
-- A user can be set as a reviewer in a call, in which case she gets
-  more privileges for that call.
-- In addition, a reviewer can be set as chair for that review. This gives
-  further privileges.
+- A user can be set as a reviewer in a call, which gives more
+  privileges for that call.
+- In addition, a reviewer can be set as chair for that review. This
+  gives further privileges.
 - A user can be allowed to create calls. If the user then creates a call,
   she has more privileges for that call.
 
@@ -527,71 +410,164 @@ another user account to view and/or edit her proposal.
 </tbody>
 </table>
 
+# Instructions
+
+In this section are described typical operations for users in different roles.
+
+## Instructions for users
+
+### Create a user account
+
+- In order to create a proposal in a call, a user must have an account
+  in the system.
+- To create an account in the Anubis system, go to the page
+  [Register a user account](/user/register) and follow the
+  instructions.
+- When a new user account has been enabled, you will receive an email
+  describing how to set your password.
+- Once you have set your password, you may create a proposal from an open call.
+
+### Create a proposal
+
+- Go to the page of the open call. All open calls are displayed on the
+  [home page](/), so use the links there.
+- Unless you have already created a proposal in the call, there is
+  a button **Create proposal** in the call page allowing you to do so.
+- Fill in the values for the input fields.
+- You may save the unfinished proposal and return to **editing** it later.
+- Once the required fields of the proposal have been filled in correctly,
+  you may **submit** it.
+- A proposal that has been submitted can no longer be edited.
+- However, as long as the call is open, you may un-submit your
+  proposal if you wish to edit it further.
+- A proposal that has not been submitted may be deleted by you.
+- Once the call's deadline for submission has been passed, the user
+  may no longer submit a proposal.
+- **Be sure to submit your proposal before the deadline!**
+
+### Display your proposals
+
+- The number of your unsubmitted proposals is displayed on a yellow
+  background in the top menu. If there is no such yellow marker, your
+  proposals, if any, have all been submitted.
+- To list all your proposals, click the item **My proposals** in the
+  top menu. If there is no such item, then you have no proposals.
+
+## Instructions for reviewers
+
+The number of your unfinalized reviews is displayed on a yellow
+background in the top menu. If there is no such yellow marker, your
+reviews are done.
+
+#### How to get the proposals
+
+- As a reviewer, you have access to all submitted proposals in the call.
+- Depending on the policy for the call, you should read all or only
+  some of the proposals.
+- To download all proposals and their attached files, go to the call page.
+  In the right-hand upper corner, there are two small black buttons:
+  1. **Submitted proposals Excel file**, which allows you to download
+     the information in all submitted proposals in Excel format. This
+     does not contain the files attached to proposals, if any.
+  2. **Submitted proposals zip file**, which contains the above Excel
+     file and all files attached to the proposals. The naming of
+     the files indicates which one belongs to which proposal.
+- It is also possible to browse the proposals in a list display by
+  clicking the blue button by the item **All proposals** on the call
+  page.
+
+#### How to fill in your reviews
+
+1. Click on the item **My reviews** in the top menu.
+   - The list of all reviews for your user account are shown in a table,
+     which can be sorted by any column.
+   - **Note** that the table may have more than one page, depending on
+     the number of proposals. Use the page selector at the bottom right of
+     the table.
+2. Click on the link **Review** to view the review of the proposal on
+   that line in the table.
+3. Edit the review.
+4. Click **Finalize** to indicate that you are done with the review.
+   - Until the **due** date for reviews in the call, you may
+     **Unfinalize** a review if you wish to resume editing it.
+5. To view the proposal of the review, click the link to the proposal
+   in the title. (Tip: do right-click and "Open in new tab".)
+6. Before the **due** date, ensure that all your reviews have been
+   finalized.
+
+### Reviewer: Basic information
+
+- A user account is set as a reviewer for a specific call by the admin
+  of the Anubis system.
+- The admin  also creates the review instances for the proposals for
+  each reviewer. A reviewer cannot create the review instances, only the
+  admin can do this.
+- Depending on the policy for the call, a reviewer may have to write a
+  review for all or only some proposals. The admin handles this
+  by creating those review instances that the reviewer should fill in.
+- The content (input fields) of the reviews are set for the call by the admin.
+- The reviews of a call have a **due** date, before which all reviews must
+  have been finalized by the reviewers.
+- There may be a chair designated for a call. This is a reviewer
+  heading the reviewer group. He or she has additional privileges, if
+  so set by the admin.
+
+### Reviewer privileges
+
+- The reviewer may view all proposals in the call.
+- The reviewer can edit her review instance.
+- The reviewers cannot create or delete review instances.
+- The chair, if any, of a call may create review instances, if so set by the admin.
+- The chair, if any, may view all reviews, if so set by the admin.
+- A reviewer may view finalized reviews by other reviewers only if the
+  admin allows it for the call.
+
+## Instructions for staff
+
+Since staff can view most data in Anubis, but have only limited editing
+privileges, there are no special instructions.
+
+## Instructions for admins
+
+The admin is a user account which has full privileges for the Anubis
+site. She may perform all operations that are possible to do via the
+web interface.
+
+### User account handling
+
+- The admin may register user accounts.
+- The admin may edit, enable or disable user accounts.
+- An admin may set other user accounts to be admin.
+
+### Call handling
+
+- The admin creates a call, and edits its content.
+- The admin controls when a call becomes published by setting the
+  **opens** date of the call.
+- The admin controls the deadline for creating and submitting
+  proposals to a call by setting the **closes** date.
+- The contents of a call (the input fields for proposals, reviews and
+  decisions) can be edited whenever by the admin, but when a call has
+  been published it should be kept intact, or users will be confused.
+
+### Reviewers and reviews
+
+- The admin may set a user account as a **reviewer** in a call.
+- The admin may also set a user account as a **chair** for a
+  call. This is a special type of reviewer who has slightly higher
+  privileges than ordinary reviewers.
+- The admin must create the **review** instances for each reviewer and
+  proposal in a call. It is up to the admin to decide which proposals
+  a reviewer must review.
+
+### Proposal handling
+
+- The admin is allowed to edit and submit any user's proposals. This
+  can be done even when the call for the proposal has been closed. Of
+  course, this should be done only in special circumstances.
+- The admin is allowed to change the ownership of a proposal.
+
 # XXX below not finished
-
-## Account
-
-In order to do any work in Anubis, a user must have an account.
-
-Open calls are public, and can be viewed by anyone, including persons
-who do not have an account.
-
-A user can [register an account](/user/register). Depending on the
-site policy, the account will be immediately enabled, or an
-administrator will have to enable the account after inspection. An
-email will be sent to the user once the account is enabled. It
-contains information on how to set the password.
-
-### User role
-
-A user of the system must register an account, and each user must have
-a valid email account to which emails with instructions on how to set
-the password is sent.
-
-Depending on the site configuration, user accounts may be
-automatically enabled, or require the explicit enabling by the
-administrator.
-
-The administrator may register accounts, which do not have a valid
-email address. This can be used for pseudo-user accounts which may be
-useful in some scenarios.
-
-The administrator may allow a user to create calls. A user who has
-created a call becomes the administrator of it, and can deal with
-nearly all aspects of it.
-
-See [Instructions for users](/documentation/instructions-for-users).
-
-### Staff role
-
-A staff user can read most data in the Anubis system, but can edit only
-certain data.
-
-### Administrator role
-
-An administrator is a user that has privileges to perform any action
-that is available in the web interface of the Anubis system.
-
-See [Instructions for administrators](/documentation/instructions-for-admins).
-
-### Reviewer
-
-A reviewer is a user account who has been designated as a reviewer in
-a specific call by the administrator. A reviewer cannot have a
-proposal of her own in that call.
-
-A user that is a reviewer in one call, is not automatically a reviewer
-in another call. This makes it possible for a user to be an ordinary
-submitter of a proposal in one call, while being a reviewer in another
-call.
-
-See [Instructions for reviewers](/documentation/instructions-for-reviewers).
-
-### Chair
-
-A chair is a special kind of reviewer, who has the privilege to create
-and delete review instances within the call. The chair can also view
-the reviews of all reviewers in that call.
 
 ## Call
 
