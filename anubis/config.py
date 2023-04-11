@@ -159,7 +159,7 @@ def init(app):
     app.logger.info(f"Anubis version {constants.VERSION}")
     if app.config.get("SETTINGS_DOTENV_FILEPATH"):
         app.logger.info(
-            f"""Environment variables set from 'app.config.get("SETTINGS_DOTENV_FILEPATH")'"""
+            f"""Environment variables set from '{app.config.get("SETTINGS_DOTENV_FILEPATH")}'"""
         )
     if app.config.get("SETTINGS_FILEPATH"):
         app.logger.info(f"settings file: {app.config['SETTINGS_FILEPATH']}")
