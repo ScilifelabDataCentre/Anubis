@@ -876,7 +876,7 @@ very meaningful for other entities.
 
 ## Text field
 
-A multiline text which may
+A multiline text which may use
 [Markdown formatting](https://www.markdownguide.org/basic-syntax/).
 
 - **Maxlength**. The maximum number of characters allowed in the
@@ -908,3 +908,21 @@ will be a select list field to specify whether that field is repeated
 by a previously defined repeat field.
 
 **NOTE**: The repeat field is currently implemented only for grant dossiers.
+
+
+# Software design
+
+The implementation of Anubis is based on the following design decisions:
+
+- The back-end is written in Python using Flask.
+  - The back-end generates HTML for display using Jinja2.
+  - The front-end uses Bootstrap and has hardly any JavaScript.
+- The back-end uses the No-SQL database CouchDB.
+  - Each entity instance is stored in one document in the CouchDB database.
+  - The entities are in most cases identified internally by a IUID
+    (Instance-unique identifier) which is a UUID4 value.
+  - The entities contain pointers to each other using the IUIDs.
+  - The CouchDB indexes ("designs") are vital for the computational efficiency
+    of the system.
+- There is a command-line interface (CLI) tool for certain operations,
+  such as creating dumps.
