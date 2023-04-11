@@ -42,9 +42,13 @@ def create(username):
             if proposal is None:
                 continue
             if not anubis.review.allow_create(proposal):
-                raise ValueError(f"You may not create a review for the proposal '{pid}'.")
+                raise ValueError(
+                    f"You may not create a review for the proposal '{pid}'."
+                )
             if user["username"] == proposal["user"]:
-                raise ValueError(f"Reviewer not allowed to review their own proposal '{pid}'.")
+                raise ValueError(
+                    f"Reviewer not allowed to review their own proposal '{pid}'."
+                )
 
             review = anubis.review.get_reviewer_review(proposal, user)
             if review is None:
@@ -54,7 +58,9 @@ def create(username):
                 utils.flash_message(f"The review for '{pid}' already exists.")
     except ValueError as error:
         utils.flash_error(error)
-    return flask.redirect(flask.url_for("reviews.call_reviewer", cid=cid, username=username))
+    return flask.redirect(
+        flask.url_for("reviews.call_reviewer", cid=cid, username=username)
+    )
 
 
 @blueprint.route("/call/<cid>")

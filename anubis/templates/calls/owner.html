@@ -1,10 +1,7 @@
 {% extends 'base.html' %}
 
 {% block head_title %}Calls by {{ username }} {% endblock %}
-
-{% block body_title %}
-Calls by {{ get_user(username) | user_link }}
-{% endblock %}
+{% block body_title %}Calls by {{ get_user(username) | user_link }}{% endblock %}
 
 {% block main %}
 <table id="calls" class="table table-sm table-hover">

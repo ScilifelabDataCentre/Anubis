@@ -4,8 +4,7 @@
 {% block body_title %}Edit grant dossier {{ grant['identifier'] }}{% endblock %}
 
 {% block main %}
-<form action="{{ url_for('.edit', gid=grant['identifier']) }}"
-      enctype="multipart/form-data" method="POST">
+<form action="{{ url_for('.edit', gid=grant['identifier']) }}" enctype="multipart/form-data" method="POST">
   {{ csrf_token() }}
 
   {% set fields = call['grant'] %}

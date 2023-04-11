@@ -502,6 +502,7 @@ def allow_unfinalize(review):
         return True
     return False
 
+
 def allow_archive(review):
     "The admin may archive and unarchive a finalized review."
     if not flask.g.current_user:

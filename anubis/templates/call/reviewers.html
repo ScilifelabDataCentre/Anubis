@@ -18,8 +18,7 @@ Reviewers for call {{ call['identifier'] }}
 {% include 'email_lists.html' %}
 
 <div class="row">
-  <label for="show_reviewer" class="col-md-2 text-right font-weight-bold">
-    Reviewers</label>
+  <label for="show_reviewer" class="col-md-2 text-right font-weight-bold">Reviewers</label>
   <div class="col-md" id="show_reviewers">
     <table id="reviewers" class="table table-sm table-hover ">
       <thead>
@@ -49,8 +48,7 @@ Reviewers for call {{ call['identifier'] }}
           {% endif %} {# if allow_view_reviews #}
           {% if allow_edit %}
           <td>
-            <form action="{{ url_for('.reviewers', cid=call['identifier']) }}"
-	          method="POST">
+            <form action="{{ url_for('.reviewers', cid=call['identifier']) }}" method="POST">
 	      {{ csrf_token() }}
               <input type="hidden" name="_http_method" value="DELETE">
               <input type="hidden" name="reviewer" value="{{ reviewer['username'] }}">
@@ -73,15 +71,13 @@ Reviewers for call {{ call['identifier'] }}
 
 {% if allow_edit %}
 <div class="row mt-5">
-  <label for="add_reviewer" class="col-md-2 text-right font-weight-bold">
-    Add reviewer</label>
+  <label for="add_reviewer" class="col-md-2 text-right font-weight-bold">Add reviewer</label>
   <div class="col-md" id="add_reviewer">
     <form action="{{ url_for('.reviewers', cid=call['identifier']) }}" method="POST">
       {{ csrf_token() }}
       <div class="form-group">
 	<input type="text" id="reviewer" name="reviewer"
-               class="form-control"
-               aria-describedby="reviewerHelp">
+               class="form-control" aria-describedby="reviewerHelp">
 	<small id="reviewerHelp" class="form-text text-muted">
 	  Add a reviewer, which must have an account. Username or
 	  email address.
@@ -89,8 +85,7 @@ Reviewers for call {{ call['identifier'] }}
       </div>
       <div class="form-group">
         <div class="form-check mt-2">
-          <input type="checkbox" id="chair" name="chair"
-                 class="form-check-input" value="true">
+          <input type="checkbox" id="chair" name="chair" class="form-check-input" value="true">
           <label class="form-check-label" for="chair">Chair</label>
         </div>
 	<small id="reviewerHelp" class="form-text text-muted">

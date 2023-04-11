@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block head_title %}Edit documents for {{ call['identifier'] }}{% endblock %}
-
 {% block body_title %}Edit documents for {{ call['identifier'] }}{% endblock %}
 
 {% block main %}
@@ -44,24 +43,19 @@
 <div class="row my-4">
   <div class="col-md-2 font-weight-bold text-right">Add document</div>
   <div class="col-md">
-    <form action="{{ url_for('.documents', cid=call['identifier']) }}"
-          enctype="multipart/form-data"
-	  method="POST">
+    <form action="{{ url_for('.documents', cid=call['identifier']) }}" enctype="multipart/form-data" method="POST">
       {{ csrf_token() }}
 
       <div class="form-group">
         <div class="custom-file">
-          <input type="file" id="document" name="document"
-	         class="custom-file-input">
-          <label class="custom-file-label" for="document">
-            Choose document</label>
+          <input type="file" id="document" name="document" class="custom-file-input">
+          <label class="custom-file-label" for="document">Choose document</label>
         </div>
       </div>
 
       <div class="form-group">
 	<textarea id="document_description" name="document_description"
-		  class="form-control"
-		  aria-describedby="document_descriptionHelp"></textarea>
+		  class="form-control" aria-describedby="document_descriptionHelp"></textarea>
 	<small id="document_descriptionHelp" class="form-text text-muted">
 	  Short description of the document.
           <br>
@@ -73,8 +67,7 @@
       <div class="row">
         <div class="col-md-3">
           <div class="form-group">
-	    <button type="submit" class="btn btn-primary btn-block">
-	      Add document</button>
+	    <button type="submit" class="btn btn-primary btn-block">Add document</button>
           </div>
         </div>
       </div>

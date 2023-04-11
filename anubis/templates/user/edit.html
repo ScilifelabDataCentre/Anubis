@@ -1,12 +1,10 @@
 {% extends 'base.html' %}
 
 {% block head_title %}Edit user {{ user['username'] }}{% endblock %}
-
 {% block body_title %}Edit user {{ user['username'] }}{% endblock %}
 
 {% block main %}
-<form action="{{ url_for('.edit', username=user['username']) }}"
-      method="POST">
+<form action="{{ url_for('.edit', username=user['username']) }}" method="POST">
   {{ csrf_token() }}
 
   {% if am_admin_not_self %}
@@ -32,8 +30,7 @@
     <div class="col-md">
       <div class="custom-control custom-radio custom-control-inline">
         <input type="radio" id="call_creator_yes" name="call_creator"
-               class="custom-control-input"
-               aria-describedby="call_creatorHelp"
+               class="custom-control-input" aria-describedby="call_creatorHelp"
                {{ user.get('call_creator') and 'checked' or '' }}
                value="true">
         <label class="custom-control-label" for="call_creator_yes">
@@ -41,8 +38,7 @@
       </div>
       <div class="custom-control custom-radio custom-control-inline">
         <input type="radio" id="call_creator_no" name="call_creator"
-               class="custom-control-input"
-               aria-describedby="call_creatorHelp"
+               class="custom-control-input" aria-describedby="call_creatorHelp"
                {{ not user.get('call_creator') and 'checked' or '' }}
                value="false">
         <label class="custom-control-label" for="call_creator_no">
@@ -62,13 +58,11 @@
         <div class="col-md-6">
           {% if g.am_admin %}
           <input type="email" id="email" name="email"
-                 class="form-control"
-                 aria-describedby="emailHelp"
+                 class="form-control" aria-describedby="emailHelp"
                  value="{{ user['email'] | display_value('') }}">
           {% else %}
           <input type="email" readonly
-                 class="form-control"
-                 aria-describedby="emailHelp"
+                 class="form-control" aria-describedby="emailHelp"
 	         placeholder="{{ user['email'] | display_value }}">
           {% endif %} {# if g.am_admin #}
         </div>
@@ -85,8 +79,7 @@
       <div class="row">
         <div class="col-md-4">
           <input type="orcid" id="orcid" name="orcid"
-                 class="form-control"
-                 aria-describedby="orcidHelp"
+                 class="form-control" aria-describedby="orcidHelp"
                  value="{{ user.get('orcid') | display_value('') }}">
         </div>
       </div>
@@ -103,8 +96,7 @@
       <div class="row">
         <div class="col-md-6">
           <input type="text" id="givenname" name="givenname"
-                 class="form-control"
-                 aria-describedby="givennameHelp"
+                 class="form-control" aria-describedby="givennameHelp"
 	         value="{{ user.get('givenname') | display_value('') }}">
         </div>
       </div>
@@ -121,8 +113,7 @@
       <div class="row">
         <div class="col-md-6">
           <input type="text" id="familyname" name="familyname"
-                 class="form-control"
-                 aria-describedby="familynameHelp"
+                 class="form-control" aria-describedby="familynameHelp"
 	         value="{{ user.get('familyname') | display_value('') }}">
         </div>
       </div>
@@ -159,8 +150,7 @@
       <div class="row">
         <div class="col-md-3">
           <input type="text" id="birthdate" name="birthdate"
-                 class="form-control" 
-                 aria-describedby="birthdateHelp"
+                 class="form-control" aria-describedby="birthdateHelp"
 	         value="{{ user.get('birthdate') | display_value('') }}">
         </div>
       </div>
@@ -199,8 +189,7 @@
         {% if config.UNIVERSITIES %}
         <div class="col-md-6">
           <select name="affiliation" id="affiliation"
-                  class="form-control"
-                  aria-describedby="affiliationHelp">
+                  class="form-control" aria-describedby="affiliationHelp">
             <option value="">[select]</option>
             {% for university in config.UNIVERSITIES %}
             {% if university == user.get('affiliation') %}
@@ -221,8 +210,7 @@
         {% endif %}
         <div class="col-md-6">
           <input type="text" id="affiliation_other" name="affiliation_other"
-                 class="form-control"
-                 aria-describedby="affiliationHelp"
+                 class="form-control" aria-describedby="affiliationHelp"
 	         value="{{ affiliation | display_value('') }}">
         </div>
       </div>
@@ -244,9 +232,8 @@
     <div class="col-md">
       <div class="row">
         <div class="col-md-6">
-          <textarea id="postaladdress" name="postaladdress"
-                    class="form-control" rows="4"
-                    aria-describedby="postaladdressHelp"
+          <textarea id="postaladdress" name="postaladdress" rows="4"
+                    class="form-control" aria-describedby="postaladdressHelp"
                     >{{ user.get('postaladdress') | display_value('') }}</textarea>
         </div>
       </div>
@@ -265,8 +252,7 @@
       <div class="row">
         <div class="col-md-4">
           <input type="tel" id="phone" name="phone"
-                 class="form-control" 
-                 aria-describedby="phoneHelp"
+                 class="form-control" aria-describedby="phoneHelp"
                  value="{{ user.get('phone') | display_value('') }}">
         </div>
       </div>

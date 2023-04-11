@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block head_title %}Register a user account{% endblock %}
-
 {% block body_title %}Register a user account{% endblock %}
 
 {% block main %}
@@ -9,14 +8,12 @@
   {{ csrf_token() }}
 
   <div class="form-group row">
-    <label for="username" class="col-md-2 col-form-label text-right">
-      User name</label>
+    <label for="username" class="col-md-2 col-form-label text-right">User name</label>
     <div class="col-md">
       <div class="row">
         <div class="col-md-4">
           <input type="text" id="username" name="username"
-                 class="form-control" autofocus
-                 aria-describedby="usernameHelp">
+                 autofocus class="form-control" aria-describedby="usernameHelp">
         </div>
       </div>
       <small id="usernameHelp" class="form-text text-muted">
@@ -54,8 +51,7 @@
       <div class="row">
         <div class="col-md-6">
           <input type="text" id="email" name="email"
-                 class="form-control"
-                 aria-describedby="emailHelp">
+                 class="form-control" aria-describedby="emailHelp">
         </div>
       </div>
       <small id="emailHelp" class="form-text text-muted">
@@ -100,14 +96,12 @@
   {% endif %}
 
   <div class="form-group row">
-    <label for="givenname" class="col-md-2 col-form-label text-right">
-      Given name</label>
+    <label for="givenname" class="col-md-2 col-form-label text-right">Given name</label>
     <div class="col-md">
       <div class="row">
         <div class="col-md-6">
           <input type="text" id="givenname" name="givenname"
-                 class="form-control"
-                 aria-describedby="givennameHelp">
+                 class="form-control" aria-describedby="givennameHelp">
         </div>
       </div>
       <small id="givennameHelp" class="form-text text-muted">
@@ -117,14 +111,12 @@
   </div>
 
   <div class="form-group row">
-    <label for="familyname" class="col-md-2 col-form-label text-right">
-      Family name</label>
+    <label for="familyname" class="col-md-2 col-form-label text-right">Family name</label>
     <div class="col-md">
       <div class="row">
         <div class="col-md-6">
           <input type="text" id="familyname" name="familyname"
-                 class="form-control"
-                 aria-describedby="familynameHelp">
+                 class="form-control" aria-describedby="familynameHelp">
         </div>
       </div>
       <small id="familynameHelp" class="form-text text-muted">
@@ -135,8 +127,7 @@
 
   {% if config.USER_GENDERS %}
   <div class="form-group row">
-    <label for="gender" class="col-md-2 col-form-label text-right">
-      Gender</label>
+    <label for="gender" class="col-md-2 col-form-label text-right">Gender</label>
     <div class="col-md form-row">
       {% for pos, gender in enumerate(config.USER_GENDERS) %}
       <div class="form-check form-check-inline pl-2">
@@ -153,14 +144,12 @@
 
   {% if config.USER_BIRTHDATE %}
   <div class="form-group row">
-    <label for="birthdate" class="col-md-2 col-form-label text-right">
-      Birth date</label>
+    <label for="birthdate" class="col-md-2 col-form-label text-right">Birth date</label>
     <div class="col-md">
       <div class="row">
         <div class="col-md-4">
           <input type="text" id="birthdate" name="birthdate"
-                 class="form-control"
-                 aria-describedby="birthdateHelp">
+                 class="form-control" aria-describedby="birthdateHelp">
         </div>
       </div>
       <small id="birthdateHelp" class="form-text text-muted">
@@ -172,8 +161,7 @@
 
   {% if config.USER_DEGREES %}
   <div class="form-group row">
-    <label for="degree" class="col-md-2 col-form-label text-right">
-      Academic degree</label>
+    <label for="degree" class="col-md-2 col-form-label text-right">Academic degree</label>
     <div class="col-md form-row">
       {% for pos, degree in enumerate(config.USER_DEGREES) %}
       <div class="form-check form-check-inline pl-2">
@@ -190,15 +178,13 @@
 
   {% if config.USER_AFFILIATION %}
   <div class="form-group row">
-    <label for="affiliation" class="col-md-2 col-form-label text-right">
-      Affiliation</label>
+    <label for="affiliation" class="col-md-2 col-form-label text-right">Affiliation</label>
     <div class="col-md">
       <div id="affiliation" class="row">
         {% if config.UNIVERSITIES %}
         <div class="col-md-6">
           <select name="affiliation" id="affiliation"
-                  class="form-control"
-                  aria-describedby="affiliationHelp">
+                  class="form-control" aria-describedby="affiliationHelp">
             <option value="">[select]</option>
             {% for university in config.UNIVERSITIES %}
             <option>{{ university }}</option>
@@ -208,8 +194,7 @@
         {% endif %} {# if config.UNIVERSITIES #}
         <div class="col-md-6">
           <input type="text" id="affiliation_other" name="affiliation_other"
-                 class="form-control"
-                 aria-describedby="affiliationHelp">
+                 class="form-control" aria-describedby="affiliationHelp">
         </div>
       </div>
       <small id="affiliationHelp" class="form-text text-muted">
@@ -229,14 +214,12 @@
 
   {% if config.USER_POSTALADDRESS %}
   <div class="form-group row">
-    <label for="postaladdress" class="col-md-2 col-form-label text-right">
-      Postal address</label>
+    <label for="postaladdress" class="col-md-2 col-form-label text-right">Postal address</label>
     <div class="col-md">
       <div class="row">
         <div class="col-md-6">
-          <textarea id="postaladdress" name="postaladdress"
-                    class="form-control" rows="4"
-                    aria-describedby="postaladdressHelp"></textarea>
+          <textarea id="postaladdress" name="postaladdress" rows="4"
+                    class="form-control" aria-describedby="postaladdressHelp"></textarea>
         </div>
       </div>
       <small id="postaladdressHelp" class="form-text text-muted">
@@ -248,14 +231,12 @@
 
   {% if config.USER_PHONE %}
   <div class="form-group row">
-    <label for="phone" class="col-md-2 col-form-label text-right">
-      Phone</label>
+    <label for="phone" class="col-md-2 col-form-label text-right">Phone</label>
     <div class="col-md">
       <div class="row">
         <div class="col-md-4">
           <input type="tel" id="phone" name="phone"
-                 class="form-control"
-                 aria-describedby="phoneHelp">
+                 class="form-control" aria-describedby="phoneHelp">
         </div>
       </div>
       <small id="phoneHelp" class="form-text text-muted">
@@ -267,13 +248,12 @@
 
   {% if g.am_admin or g.am_staff %}
   <div class="form-group row">
-    <label for="enable" class="col-md-2 col-form-label text-right">
-      Enable</label>
+    <label for="enable" class="col-md-2 col-form-label text-right">Enable</label>
     <div class="col-md form-row">
       <div class="form-check form-check-inline pl-2">
 	<input type="checkbox" name="enable" id="enable"
-               class="form-check-input"
-	       value="true" checked>
+               checked class="form-check-input"
+	       value="true">
 	<label class="form-check-label" for="enable">
           Enable the account immediately.
         </label>
@@ -282,8 +262,7 @@
   </div>
 
   <div class="form-group row">
-    <label for="send_email" class="col-md-2 col-form-label text-right">
-      Send email</label>
+    <label for="send_email" class="col-md-2 col-form-label text-right">Send email</label>
     <div class="col-md form-row">
       <div class="form-check form-check-inline pl-2">
         {% if config.MAIL_SERVER %}

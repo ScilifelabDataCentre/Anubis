@@ -3,20 +3,23 @@
 Anubis is a web-based system to handle calls for proposals, proposal submission,
 reviews, decisions and grant dossiers. It allows:
 
-- The creation of calls, which includes defining what information a proposals
-  should contain.
+- The creation of calls, which includes defining what information a
+  proposals should contain.
 - The publication of calls, with handling of open/close dates.
-- Proposals can be created, edited and submitted based on open calls.
+- Proposals can be created, edited and submitted by users based on
+  open calls.
 - To prepare and submit a proposal, a person must must create an
   account in the Anubis system.
-- Accounts with the role admin (or 'admin', for short) have the privileges to
-  use all features in the system, including inspecting and handling calls, proposals,
-  reviews, decisions and grants.
-- An admin in the Anubis site designates which accounts should be
-  reviewers of the proposals in a call.
-- The admin records the decisions that the reviewers have made.
-- Grants can have information and documents added by grantees and/or the Anubis
-  site staff.
+- Accounts with the role admin (or 'admin', for short) have the
+  privileges to use all features in the system, including inspecting
+  and handling calls, proposals, reviews, decisions and grants.
+- Specific accounts can be given the privilege of creating calls by
+  the admin.  They will be owners of the calls they create.
+- A call owner designates which accounts should be reviewers of the
+  proposals in a call.
+- The call owner or admin records the decisions that the reviewers have made.
+- Grants can have information and documents added by grant receivers and/or
+  the Anubis site staff.
 
 # Installation
 
@@ -105,7 +108,7 @@ The following configuration settings need to be set:
   session handling.
 - `REVERSE_PROXY`: Set to the string 'true' if the
   'werkzeug.middleware.proxy_fix.ProxyFix' is to be used.
-- `TIMEZONE`: By default "Europe/Stockholm", so may need to be set explicitly.
+- `TIMEZONE`: By default "Europe/Stockholm", so needs to be set explicitly.
 - `MIN_PASSWORD_LENGTH`: The minimum length of a user account password.
 - `MAIL_SERVER`: The name of the mail server for outgoing email. Anubis
   can execute without mail, but several account handling features will be restricted

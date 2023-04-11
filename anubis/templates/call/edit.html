@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block head_title %}Edit call {{ call['identifier'] }}{% endblock %}
-
 {% block body_title %}Edit call {{ call['identifier'] }}{% endblock %}
 
 {% block main %}
@@ -21,8 +20,7 @@
       <div class="row">
         <div class="col-md-4">
           <input type="text" id="identifier" name="identifier"
-                 class="form-control"
-                 aria-describedby="identifierHelp"
+                 class="form-control" aria-describedby="identifierHelp"
                  value="{{ call['identifier'] }}"
                  {{ not allow_identifier_edit and 'readonly' or '' }}>
         </div>
@@ -45,8 +43,7 @@
       Title</label>
     <div class="col-md">
       <input type="text" id="title" name="title"
-             class="form-control"
-             aria-describedby="titleHelp"
+             class="form-control" aria-describedby="titleHelp"
 	     value="{{ call['title'] }}">
       <small id="titleHelp" class="form-text text-muted">
         <strong>Required!</strong>
@@ -59,9 +56,8 @@
     <label for="description" class="col-md-2 col-form-label text-right font-weight-bold">
       Description</label>
     <div class="col-md">
-      <textarea id="description" name="description"
-		class="form-control" rows="10"
-		aria-describedby="descriptionHelp"
+      <textarea id="description" name="description" rows="10"
+		class="form-control" aria-describedby="descriptionHelp"
 		>{{ call['description'] or '' }}</textarea>
       <small id="descriptionHelp" class="form-text text-muted">
 	Full description of the call. This will be displayed on the
@@ -79,9 +75,8 @@
     <label for="home_description" class="col-md-2 col-form-label text-right font-weight-bold">
       Home page description</label>
     <div class="col-md">
-      <textarea id="home_description" name="home_description"
-		class="form-control" rows="4"
-		aria-describedby="home_descriptionHelp"
+      <textarea id="home_description" name="home_description" rows="4"
+		class="form-control" aria-describedby="home_descriptionHelp"
 		>{{ call['home_description'] or '' }}</textarea>
       <small id="home_descriptionHelp" class="form-text text-muted">
 	Description of the call to be used on the home page of

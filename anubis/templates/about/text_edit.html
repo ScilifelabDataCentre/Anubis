@@ -8,11 +8,11 @@
   {{ csrf_token() }}
 
   <div class="form-group row">
-    <label for="text" class="col-md-2 col-form-label text-right font-weight-bold">
-      Text</label>
+    <label for="text" class="col-md-2 col-form-label text-right font-weight-bold">Text</label>
     <div class="col-md">
-      <textarea id="text" name="text" class="form-control" rows="10"
-		aria-describedby="textHelp">{{ doc.get('text') or '' }}</textarea>
+      <textarea id="text" name="text" rows="10"
+		class="form-control" aria-describedby="textHelp"
+                >{{ doc.get('text') or '' }}</textarea>
       <small id="textHelp" class="form-text text-muted">
 	<a target="_blank" href="{{ constants.MARKDOWN_URL }}">Markdown</a>
         may be used to format this text.

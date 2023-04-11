@@ -45,6 +45,7 @@ def init(app):
     """Perform the configuration of the Flask app.
     1) Initialize with the values in DEFAULT_CONFIG.
     2) Set environment variables from file '.env', if any, using 'dotenv.load_dotenv'.
+       This does not overwrite any already existing environment variables.
     3) Collect the possible settings file paths in the following order:
        - The environment variable ANUBIS_SETTINGS_FILEPATH, if any.
        - The file 'settings.json' in this directory.
@@ -57,7 +58,8 @@ def init(app):
     config = copy.deepcopy(DEFAULT_CONFIG)
 
     # Dotenv file '.env' is optional. It is useful for development.
-    config["SETTINGS_DOTENV"] = dotenv.load_dotenv()
+    if dotenv.load_dotenv():
+        config["SETTINGS_DOTENV_FILEPATH"] = dotenv.find_dotenv()
 
     # Collect filepaths for possible locations of a settings file.
     filepaths = []
@@ -77,7 +79,7 @@ def init(app):
             pass
         else:
             config.update(settings_config)
-            config["SETTINGS_FILE"] = filepath
+            config["SETTINGS_FILEPATH"] = filepath
             obsolete_keys = set(settings_config.keys()).difference(DEFAULT_CONFIG)
             break
 
@@ -142,7 +144,7 @@ def init(app):
     # Set INFO OR DEBUG logging level.
     if not config.get("FLASK_DEBUG"):
         app.logger.setLevel(logging.INFO)
-        
+
     # Must be done after all possible settings sources have been processed.
     if app.config["REVERSE_PROXY"]:
         app.wsgi_app = ProxyFix(app.wsgi_app)
@@ -155,10 +157,12 @@ def init(app):
 
     # Output the sources of settings.
     app.logger.info(f"Anubis version {constants.VERSION}")
-    if app.config["SETTINGS_DOTENV"]:
-        app.logger.info(f"Environment variables set from '.env' file")
-    if app.config.get("SETTINGS_FILE"):
-        app.logger.info(f"settings file: {app.config['SETTINGS_FILE']}")
+    if app.config.get("SETTINGS_DOTENV_FILEPATH"):
+        app.logger.info(
+            f"""Environment variables set from 'app.config.get("SETTINGS_DOTENV_FILEPATH")'"""
+        )
+    if app.config.get("SETTINGS_FILEPATH"):
+        app.logger.info(f"settings file: {app.config['SETTINGS_FILEPATH']}")
         for key in obsolete_keys:
             app.logger.warning(f"Obsolete item '{key}' in settings.")
     for key in envvar_keys:
@@ -220,7 +224,7 @@ def get_config(hidden=True):
     to be set by the admin for a site, not those that are set by the software.
     """
     result = {"ROOT": constants.ROOT}
-    for key in ["SETTINGS_DOTENV", "SETTINGS_ENVVAR", "SETTINGS_FILE"]:
+    for key in ["SETTINGS_DOTENV_FILEPATH", "SETTINGS_ENVVAR", "SETTINGS_FILEPATH"]:
         result[key] = flask.current_app.config.get(key)
     for key in anubis.config.DEFAULT_CONFIG:
         result[key] = flask.current_app.config[key]

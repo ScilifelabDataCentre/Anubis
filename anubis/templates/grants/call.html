@@ -1,13 +1,8 @@
 {% extends 'base.html' %}
 
-{% block head_title %}
-Grant dossiers in call {{ call['identifier'] }}
-{% endblock %}
+{% block head_title %}Grant dossiers in call {{ call['identifier'] }}{% endblock %}
 
-{% block body_title %}
-<small class="text-muted">Grant dossiers in call</small>
-{{ call | call_link(title=True, proposals_link=False) }}
-{% endblock %}
+{% block body_title %}Grant dossiers in call {{ call | call_link(title=True, proposals_link=False) }}{% endblock %}
 
 {% block meta %}
 <a href="{{ url_for('grants.call_xlsx', cid=call['identifier']) }}"

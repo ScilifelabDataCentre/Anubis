@@ -5,7 +5,7 @@ import re
 import string
 import sys
 
-__version__ = "2.4.1"
+__version__ = "2.4.2"
 
 
 class Constants:
@@ -64,7 +64,7 @@ class Constants:
         "https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"
     )
 
-    MARKDOWN_URL = ("https://www.markdownguide.org/basic-syntax/",)
+    MARKDOWN_URL = "https://www.markdownguide.org/basic-syntax/"
 
     CLIPBOARD_URL = "https://clipboardjs.com/"
     CLIPBOARD_VERSION = "2.0.6"
@@ -73,7 +73,7 @@ class Constants:
     MAAT_URL = "https://www.flaticon.com/authors/freepik"
     MAAT_VERSION = "-"
 
-    LOGGING_FORMAT="%(asctime)s %(name)s %(levelname)s %(message)s"
+    LOGGING_FORMAT = "%(asctime)s %(name)s %(levelname)s %(message)s"
 
     ID_RX = re.compile(r"^[a-z][a-z0-9_]*$", re.I)
     IUID_RX = re.compile(r"^[a-f0-9]{32,32}$", re.I)

@@ -1,7 +1,6 @@
 {# Required variables: field, value, error #}
 <div class="form-group row">
-  <label for="{{ fid }}"
-         class="col-md-2 col-form-label text-right font-weight-bold">
+  <label for="{{ fid }}" class="col-md-2 col-form-label text-right font-weight-bold">
     {{ field['title'] }}
     {% if field.get('staffonly') %}
     <br>
@@ -16,27 +15,23 @@
 
     {% if field.get('staff') and not (g.am_admin or g.am_staff) %}
     <input type="text" id="{{ fid }}" name="{{ fid }}"
-           readonly
-	   class="form-control-plaintext"
-	   aria-describedby="{{ fid }}Help"
-	   value="{{ value | display_value('') }}">
+           class="form-control-plaintext" aria-describedby="{{ fid }}Help"
+	   readonly value="{{ value | display_value('') }}">
     
     {% elif field['type'] == constants.LINE %}
     <input type="text" id="{{ fid }}" name="{{ fid }}"
-	   class="form-control"
+	   class="form-control" aria-describedby="{{ fid }}Help"
 	   {% if field.get('maxlength') %}
 	   maxlength="{{ field['maxlength'] }}"
 	   {% endif %}
-	   aria-describedby="{{ fid }}Help"
 	   value="{{ value | display_value('') }}">
 
     {% elif field['type'] == constants.EMAIL %}
     <input type="email" id="{{ fid }}" name="{{ fid }}"
-	   class="form-control"
+	   class="form-control" aria-describedby="{{ fid }}Help"
 	   {% if field.get('maxlength') %}
 	   maxlength="{{ field['maxlength'] }}"
 	   {% endif %}
-	   aria-describedby="{{ fid }}Help"
 	   value="{{ value | display_value('') }}">
 
     {% elif field['type'] == constants.BOOLEAN %}
@@ -60,14 +55,13 @@
              class="custom-control-input"
              {{ value is none and 'checked' }}
              value="">
-      <label class="custom-control-label"
-             for="{{ fid }}_novalue">No value</label>
+      <label class="custom-control-label" for="{{ fid }}_novalue">No value</label>
     </div>
 
     {% elif field['type'] == constants.SELECT %}
     {% if field.get('menu') %}
-    <select class="form-control" name="{{ fid }}" id="{{ fid }}"
-            aria-describedby="{{ fid }}Help"
+    <select name="{{ fid }}" id="{{ fid }}"
+            class="form-control" aria-describedby="{{ fid }}Help"
             {{ field.get('multiple') and 'multiple' or '' }}>
       <option value="" {{ not value and 'selected' }}>[Select a menu option]</option>
       {% for select in field['selection'] %}
@@ -81,24 +75,20 @@
     {% for select in field['selection'] %}
     <div class="custom-control custom-checkbox">
       <input type="checkbox" id="{{ fid }}_{{ select }}" name="{{ fid }}"
-             class="custom-control-input"
-             aria-describedby="{{ fid }}Help"
+             class="custom-control-input" aria-describedby="{{ fid }}Help"
              {{ value and select in value and 'checked' }}
              value="{{ select }}">
-      <label class="custom-control-label" for="{{ fid }}_{{ select }}">
-        {{ select }}</label>
+      <label class="custom-control-label" for="{{ fid }}_{{ select }}">{{ select }}</label>
     </div>
     {% endfor %} {# for select in field['selection'] #}
     {% else %} {# if field.get('multiple') #}
     {% for select in field['selection'] %}
     <div class="custom-control custom-radio">
       <input type="radio" id="{{ fid }}_{{ select }}" name="{{ fid }}"
-             class="custom-control-input"
-             aria-describedby="{{ fid }}Help"
+             class="custom-control-input" aria-describedby="{{ fid }}Help"
              {{ value and select in value and 'checked' }}
              value="{{ select }}">
-      <label class="custom-control-label" for="{{ fid }}_{{ select }}">
-        {{ select }}</label>
+      <label class="custom-control-label" for="{{ fid }}_{{ select }}">{{ select }}</label>
     </div>
     {% endfor %} {# for select in field['selection'] #}
     {% endif %} {# if field.get('multiple') #}
@@ -153,8 +143,7 @@
                  class="custom-control-input"
                  {{ value is none and 'checked' }}
                  value="true">
-          <label class="custom-control-label" for="{{ fid }}_novalue">
-            No value</label>
+          <label class="custom-control-label" for="{{ fid }}_novalue">No value</label>
         </div>
       </div>
     </div>
@@ -165,8 +154,7 @@
              class="custom-control-input"
              {{ value == pos and 'checked'  or ''}}
              value="{{ pos }}">
-      <label class="custom-control-label" for="{{ fid }}_{{ pos }}">
-        {{ pos }}</label>
+      <label class="custom-control-label" for="{{ fid }}_{{ pos }}">{{ pos }}</label>
     </div>
     {% endfor %}
     <div class="custom-control custom-radio custom-control-inline ml-4">
@@ -174,8 +162,7 @@
              class="custom-control-input"
              {{ value is none and 'checked' or ''}}
              value="true">
-      <label class="custom-control-label"
-             for="{{ fid }}_novalue">No value</label>
+      <label class="custom-control-label" for="{{ fid }}_novalue">No value</label>
     </div>
     {% endif %}
 
@@ -203,10 +190,8 @@
       <div class="col-md-10">
         <div class="custom-file">
           <input type="file" id="{{ fid }}" name="{{ fid }}"
-	         class="custom-file-input"
-	         aria-describedby="{{ fid }}Help">
-          <label class="custom-file-label" for="{{ fid }}">
-            {{ value | display_value('Choose document') }}
+	         class="custom-file-input" aria-describedby="{{ fid }}Help">
+          <label class="custom-file-label" for="{{ fid }}">{{ value | display_value('Choose document') }}
           </label>
         </div>
       </div>
@@ -215,8 +200,7 @@
           <input type="checkbox" id="{{ fid }}_remove" name="{{ fid }}_remove"
                  class="custom-control-input"
                  value="remove">
-          <label class="custom-control-label" for="{{ fid }}_remove">
-            Remove</label>
+          <label class="custom-control-label" for="{{ fid }}_remove">Remove</label>
         </div>
       </div>
     </div>
@@ -224,8 +208,7 @@
     {% elif field['type'] == constants.REPEAT %}
     <div class="row">
       <div class="col-md-2">
-        <input type="number" id="{{ fid }}" name="{{ fid }}"
-               step="1" min="0"
+        <input type="number" id="{{ fid }}" name="{{ fid }}" step="1" min="0"
                {% if field.get('maximum') %}
                max="{{ field['maximum'] }}"
                {% endif %}
@@ -266,6 +249,7 @@
 	  {% endif %}
           {% if field['type'] == constants.RANK %}
           A value between 1 (best) and N (worst; the number of proposals under review).
+          See <a href="{{ url_for('documentation', _anchor='rank-field') }}" target="_blank">Rank field documentation</a>.
           {% else %}
           {% if field.get('minimum') is not none %}
           Minimum value {{ field['minimum'] }}.

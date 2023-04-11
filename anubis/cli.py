@@ -53,7 +53,7 @@ def config():
     with anubis.main.app.app_context():
         config = anubis.config.get_config(hidden=False)
     # Remove entries that are not relevant for a config file.
-    for name in ["ROOT", "SETTINGS_DOTENV", "SETTINGS_ENVVAR", "SETTINGS_FILE"]:
+    for name in ["ROOT", "SETTINGS_DOTENV", "SETTINGS_ENVVAR", "SETTINGS_FILEPATH"]:
         config.pop(name, None)
     click.echo(to_json(config))
 

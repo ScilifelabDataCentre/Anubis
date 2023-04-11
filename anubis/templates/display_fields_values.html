@@ -50,12 +50,10 @@
     <div class="row mb-2">
       <div class="col-md-2 font-weight-bold text-right">
         {{ field2['title'] }}
-
         {% if field2.get('staffonly') %}
         <br>
         <span class="text-danger">(visible to staff only)</span>
         {% endif %}
-
       </div>
 
       {% if entity['errors'].get(id2) %}

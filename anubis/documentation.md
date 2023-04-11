@@ -3,20 +3,23 @@
 Anubis is a web-based system to handle calls for proposals, proposal submission,
 reviews, decisions and grant dossiers. It allows:
 
-- The creation of calls, which includes defining what information a proposals
-  should contain.
+- The creation of calls, which includes defining what information a
+  proposals should contain.
 - The publication of calls, with handling of open/close dates.
-- Proposals can be created, edited and submitted based on open calls.
+- Proposals can be created, edited and submitted by users based on
+  open calls.
 - To prepare and submit a proposal, a person must must create an
   account in the Anubis system.
-- Accounts with the role admin (or 'admin', for short) have the privileges to
-  use all features in the system, including inspecting and handling calls, proposals,
-  reviews, decisions and grants.
-- An admin in the Anubis site designates which accounts should be
-  reviewers of the proposals in a call.
-- The admin records the decisions that the reviewers have made.
-- Grants can have information and documents added by grantees and/or the Anubis
-  site staff.
+- Accounts with the role admin (or 'admin', for short) have the
+  privileges to use all features in the system, including inspecting
+  and handling calls, proposals, reviews, decisions and grants.
+- Specific accounts can be given the privilege of creating calls by
+  the admin.  They will be owners of the calls they create.
+- A call owner designates which accounts should be reviewers of the
+  proposals in a call.
+- The call owner or admin records the decisions that the reviewers have made.
+- Grants can have information and documents added by grant receivers and/or
+  the Anubis site staff.
 
 
 # Installation
@@ -24,51 +27,184 @@ reviews, decisions and grant dossiers. It allows:
 Installation instructions are available at the
 [GitHub page for Anubis](https://github.com/pekrau/Anubis).
 
+
 # Entities
+
 
 ## Call
 
-This is a call for proposals, with a description, optional files
-attached, and open and close dates. It is a container for proposals,
-reviews, decisions and grants. The input fields of these entities
-are created and defined within their call.
+A call in the Anubis system is a representation of a call for
+proposals. It is the primary entity in the Anubis system.
 
-A call is open when its `opens` date has passed, but its `closes` date has not.
+A call has a unique identifier, a title, description, optional files
+attached, and open and close dates.  It is the container for its
+proposals, reviews, decisions and grants. The input fields of these
+entities are created and defined within their call.
+
+#### Open call
+
+A call is open when its **opens** date has passed, but its **closes** date has not.
 A call that does not have both of these values set is unpublished, and
 is not visible to ordinary user. This means that there can be no open calls
-without a `closes` date.
+without a closing date.
+
+When a call is open, it is visible to the world on the
+[Anubis home page](/).
+
+The opening and closing of a call is automatically done by the Anubis system
+based on the date and time as given by the server the system is running on. The
+admin does not have to do anything once the date and time for opens
+and closes have been set.
+
+#### Call owner
+
+A call is prepared and handled by the admin or a user account that is
+an account that has been given this privilege explicity by the admin.
+The account creating the call is the call owner.
+
+The call contains the [input fields](/documentation#input-field-types)
+that the call owner sets up for the proposals, the reviews, decisions
+and grant dossiers in the call.
+
+Before the call is opened, the call owner should set up at least the
+input fields for the proposals. However, it is technically possible to
+modify the proposal fields after the call has been opened, but this
+is strongly discouraged, since it will likely cause confusion for the users.
+
+The input fields for the reviews, decisions and grant dossiers can be
+set up later. The mechanism is the basically same as for the proposal
+input fields.
+
+The call owner can choose to use or not use the Anubis system for
+reviews, decisions and grant dossiers.
+
 
 ## Proposal
 
 A proposal can be created only within an open call. A user has to
-create an account in order to create, write and submita proposal. The
-proposal must be submitted by the user before the` closes` date of the
-call.
+create and log in to an account in order to create, write and submit a
+proposal. Only one proposal can be created by a user within one call.
 
-A proposal is visible only to its creator, the admin, and those
-accounts that the proposal owner has explicitly given access to.
+The proposal must be submitted by the user before the **closes** date of
+the call.  A user will be alerted to the presence of unsubmitted
+proposals in the top menu of the Anubis pages.
+
+A proposal is visible only to its creator (the proposal owner), the
+admin, and those accounts that the proposal owner has explicitly given
+access to.
+
+An admin has additional privileges for handling proposals.
+See [Instructions for admins](/documentation#instructions-for-admins).
+
+#### Proposal input fields
+
+The proposals of a call must be defined in terms of which data the
+creator of a proposal is supposed to provide. This is configure by the
+call creator by defining the [input fields](/documentation#input-field-types)
+to be used, their instruction texts and their possible values.
+
+An input field has an allowed type of input, such as text, integer,
+file, etc. There may be additional constraints on the values allowed
+in an input field.
+
+Some input fields may be set as optional by the call owner, while some
+many be set as required, meaning that a value must provided by the
+user.
+
+#### Submitting proposal
+
+When all required input fields in a proposal have been filled in with
+values of the correct type, the user may submit the proposal. A
+proposal may be un-submitted by the user while the call is open. This may
+be useful if errors need to be corrected.
+
+If the call has been closed, it is no longer possible to submit a
+proposal, nor to edit it in any way. The proposal can still be viewed
+by the user after the call has been closed.
+
 
 ## Review
 
-The reviews of proposals within a call are set up by the admin. This
-entails defining what information the reviewers must provide,
-including scores, rank or comments. The admin must then create the
-actual review form for each reviewer and proposal.
+A review is an evaluation by a reviewer of a specific proposal. The
+admin sets up the review of the proposals in a call.
 
-The reviews are visible to the admin, the owner of the call, and
-optionally by the other reviewers in the call.
+The reviews of proposals within a call are set up by the call
+owner. This entails defining what input fields a review should
+contain, including scores, rank or comments.
 
-### Decision
+#### Creating reviews
 
-The purpose of the decision entity is to document what the result of
-the review of a proposal is. Creating a decision does not send any
-email to the proposal author. This has to be done outside of the
-system.
+The call owner must explicitly set which accounts should be reviewers
+for the proposals in a call.
 
-### Grant dossier
+In addition, the call owner must create the actual review form for
+each reviewer and proposal. This has to be done manually via the web
+interface. A reviewer can edit their reviews, but she cannot create or
+delete the reviews.
 
-A grant dossier is a means for the grantee and staff to share
-information and/or documents about a successful proposal.
+A date and time for when reviews are due is set by the call owner.
+
+#### Review visibility
+
+The reviews are visible to the admin, the call owner, and optionally
+by the other reviewers in the call.
+
+At no point can the proposal creator view the reviews of her proposal.
+
+#### Reviewer actions
+
+The reviewers typically download the proposals and their files via a
+link that is visible to them in the call page. The reviewers should
+then fill in the review form and set to **finalized** when done. This
+makes it clear to the call owner that they have finished the review.
+
+A reviewer will be alerted to the presence of unfinalized reviews in
+the top menu of the Anubis pages.
+
+
+## Decision
+
+The purpose of the decision entity is to document what the final
+result of the review of a proposal is.
+
+The call owner or review chair can create a decision entity for each
+proposal. The fields of the decision are configured in the call by the
+call owner. A decision may contain more information just the
+accept/reject decision.
+
+Creating a decision does not send any email to the proposal
+author. This has to be done outside of the Anubis system.
+
+Finalizing a decision does not automatically let the proposal creator view it;
+in addition, the call owner has to set the flag for this in the call.
+
+
+## Grant dossier
+
+A grant dossier is a means for the grant receiver and staff to share
+information and/or documents about a successful proposal. This could
+information about other grant participants, the names and email
+addresses of the economists, documents relating to grant conditions,
+budget, agreement, and similar.
+
+A grant dossier which has valid values in all required fields is
+automatically set as complete.
+
+It is possible for the admin to add new input fields to existing grant
+dossiers. However, a grant dossier is not automatically set as
+incomplete. The admin has to go into edit mode for each grant dossier
+and save it; only at save time are the current values of the grant
+dossier checked against the requirements of the input fields as
+defined for it in the call.
+
+A grant dossier is created by the admin or staff, who also configure
+the input fields in it. The proposal owner (which presumably is the
+grant receiver) can view and edit it.
+
+A grant dossier can be locked by the admin, which makes it impossible
+for the grant receiver to further edit it. It can also be unlocked by the
+admin.
+
 
 ## User account
 
@@ -77,23 +213,26 @@ In order to do any work in Anubis, a user must have an account.
 
 A user can [register an account](/user/register). Depending on the
 site policy, the account will be immediately enabled, or an
-administrator will have to enable the account after inspection. An
+admin will have to enable the account after inspection. An
 email will be sent to the user once the account is enabled. It
 contains information on how to set the password.
 
-A user has a unique identifier, and the email address must also be unique.
+A user has an identifier that is unique within the Anubis
+instance. The email address must also be unique within the Anubis
+instance.
 
 Depending on the site configuration, user accounts may be
 automatically enabled, or require the explicit enabling by the
-administrator.
+admin.
 
-The administrator may register accounts, which do not have a valid
+The admin may register accounts, which do not have a valid
 email address. This can be used for pseudo-user accounts which may be
 useful in some scenarios.
 
-The administrator may set a user to be able to create calls. A user
-who has created a call becomes the administrator of it, and can deal
-with nearly all aspects of it.
+The admin may set a user to be able to create calls. A user who has
+created a call becomes the owner of it, and can deal with nearly all
+aspects of it.
+
 
 # Roles and privileges
 
@@ -104,6 +243,7 @@ A user who has not logged in can view the open calls in Anubis, but not much els
 
 In order to create and edit anything in Anubis, a user account is
 required.
+
 
 ## User roles
 
@@ -124,12 +264,14 @@ the role of a user.
    and previous proposals, and view decisions and grant pages, if any,
    for each specific proposal.
 
+
 ### Call creator
 
 An account having the role **user** may be allowed to create
 calls. This is done explicitly by the admin for that specific
 account. A user that has created a call has extended privileges for
 that call.
+
 
 ### Reviewer
 
@@ -145,6 +287,7 @@ in another call. This makes it possible for a user to be an ordinary
 submitter of a proposal in one call, while being a reviewer in another
 call.
 
+
 ### Chair
 
 A chair is a special kind of reviewer, who has the privilege to create
@@ -152,6 +295,7 @@ and delete review instances within the call, among other actions. The
 chair can also view the reviews of all reviewers in that call.
 
 The chair may also create the decision entities for the proposals and edit them.
+
 
 ## Privileges
 
@@ -410,11 +554,14 @@ another user account to view and/or edit her proposal.
 </tbody>
 </table>
 
+
 # Instructions
 
 In this section are described typical operations for users in different roles.
 
+
 ## Instructions for users
+
 
 ### Create a user account
 
@@ -426,6 +573,7 @@ In this section are described typical operations for users in different roles.
 - When a new user account has been enabled, you will receive an email
   describing how to set your password.
 - Once you have set your password, you may create a proposal from an open call.
+
 
 ### Create a proposal
 
@@ -445,6 +593,7 @@ In this section are described typical operations for users in different roles.
   may no longer submit a proposal.
 - **Be sure to submit your proposal before the deadline!**
 
+
 ### Display your proposals
 
 - The number of your unsubmitted proposals is displayed on a yellow
@@ -453,13 +602,15 @@ In this section are described typical operations for users in different roles.
 - To list all your proposals, click the item **My proposals** in the
   top menu. If there is no such item, then you have no proposals.
 
+
 ## Instructions for reviewers
 
 The number of your unfinalized reviews is displayed on a yellow
 background in the top menu. If there is no such yellow marker, your
 reviews are done.
 
-#### How to get the proposals
+
+### How to get the proposals
 
 - As a reviewer, you have access to all submitted proposals in the call.
 - Depending on the policy for the call, you should read all or only
@@ -476,7 +627,8 @@ reviews are done.
   clicking the blue button by the item **All proposals** on the call
   page.
 
-#### How to fill in your reviews
+
+### How to fill in your reviews
 
 1. Click on the item **My reviews** in the top menu.
    - The list of all reviews for your user account are shown in a table,
@@ -495,7 +647,8 @@ reviews are done.
 6. Before the **due** date, ensure that all your reviews have been
    finalized.
 
-### Reviewer: Basic information
+
+### Basic information about reviewers
 
 - A user account is set as a reviewer for a specific call by the admin
   of the Anubis system.
@@ -512,6 +665,7 @@ reviews are done.
   heading the reviewer group. He or she has additional privileges, if
   so set by the admin.
 
+
 ### Reviewer privileges
 
 - The reviewer may view all proposals in the call.
@@ -522,10 +676,12 @@ reviews are done.
 - A reviewer may view finalized reviews by other reviewers only if the
   admin allows it for the call.
 
+
 ## Instructions for staff
 
 Since staff can view most data in Anubis, but have only limited editing
 privileges, there are no special instructions.
+
 
 ## Instructions for admins
 
@@ -533,11 +689,13 @@ The admin is a user account which has full privileges for the Anubis
 site. She may perform all operations that are possible to do via the
 web interface.
 
+
 ### User account handling
 
 - The admin may register user accounts.
 - The admin may edit, enable or disable user accounts.
 - An admin may set other user accounts to be admin.
+
 
 ### Call handling
 
@@ -550,6 +708,7 @@ web interface.
   decisions) can be edited whenever by the admin, but when a call has
   been published it should be kept intact, or users will be confused.
 
+
 ### Reviewers and reviews
 
 - The admin may set a user account as a **reviewer** in a call.
@@ -560,6 +719,7 @@ web interface.
   proposal in a call. It is up to the admin to decide which proposals
   a reviewer must review.
 
+
 ### Proposal handling
 
 - The admin is allowed to edit and submit any user's proposals. This
@@ -567,136 +727,8 @@ web interface.
   course, this should be done only in special circumstances.
 - The admin is allowed to change the ownership of a proposal.
 
-# XXX below not finished
 
-## Call
-
-A call in the Anubis system is a representation of a a call for
-proposals. It is the basis for all other entities in the Anubis
-system.
-
-A call has an identifier, a title, and a description. It may have
-documents attached. It contains the descriptions and definitions for
-proposals, reviews, decisions and grant dossiers.
-
-A call is prepared and handled by a call owner, which is either an
-administrator or an account which hase been given this privilege by
-the administrator. The call owner sets up the
-[input fields](/documentation/input-field-types) for the proposal, and
-the reviews, the decision and grant dossier for each proposal.
-
-A user with an account in the Anubis system  can create a
-[proposal](/documentation/proposal) within an open call. The structure
-of the proposal is determined by the call owner when setting up the
-call.
-
-A call has an **opens** date, from which it becomes visible to the
-world. It has a **closes** date, which determines the last time a
-proposal can be submitted in the call.
-
-The **opens** date of a call defines when the call becomes publicly
-available so that proposals can be created by users. The call cannot
-be open unless this has been set.
-
-After the **closes** date of a call, a user can no longer create, edit
-or submit a proposal in it.
-
-The input fields for proposals within a call should, of course, be
-defined before the call is opened. However, it is possible to modify
-an input field even when the call has been opened. This feature should
-be used as little as possible since the users writing their proposals
-may become confused when the their proposal form changes.
-
-## Proposal
-
-A proposal is created within an open call by a user, who must be
-logged in to an Anubis [account](/documentation/account). Only one
-proposal in each call can be created by any given user.
-
-The user fills in the proposal [input fields](/documentation/input-field-types),
-which are configured in the call by the call owner.
-
-Some input fields may be optional, while some many be required. This is defined when
-the call owner creates and edits the input fields for the proposals of the call.
-
-An input field has an allowed type of input, such as text, integer, file, etc.
-
-When all required input fields have been filled in with values of the
-correct type, the user may submit the proposal. A proposal may be
-un-submitted by the user while the call is open.
-
-If the call has been closed, it is no longer possible to submit a
-proposal, nor to edit it in any way. The proposal can still be viewed
-by the user after the call has been closed.
-
-An admin has additional privileges for handling proposals, see [Instructions
-for administrators](/documentation/instruction-for-admins).
-
-## Decision
-
-The administrator or review chair can create a decision entity for
-each proposal. The fields of the decision are configured in the call
-by the call owner. Thus, a decision may contain more information for
-the proposer than just the accept/reject decision.
-
-The call owner or the chair of the call may edit and finalize the
-decision.
-
-The administrator may make the decision for each proposal viewable by
-the respective submitter by setting an access flag in the
-call.
-
-Currently, no email is automatically sent by the Anubis system to the
-submitter when the decision is finalized.
-
-## Grant dossier
-
-A grant dossier contains information about the grant which is the
-result of positive decision for the proposal. It may contain
-information about the grant and documents provided by the grant giver,
-or by the grantee, for example grant conditions, budget, agreement,
-and similar.
-
-A grant dossier which has valid values in all required fields is
-automatically set as complete.
-
-A grant dossier is created by the administrator or staff, who also
-configure the input fields in it. The proposal owner (which presumably
-is the grant receiver) can view and edit it.
-
-## Review
-
-A review is an evaluation by a reviewer of a specific proposal. The
-administrator sets up the review of the proposals in a call.
-
-First, the review input fields are configured, in the same way as the
-input fields for a proposal.
-
-Second, the accounts of the persons who will review the proposals are
-added as reviewers to the call.
-
-Third, the administrator must also create the review objects (forms)
-for each proposal for each reviewer. Thus, it is possible to assign a
-subset of proposals to a reviewer, or all proposals, depending on the
-policy for that call.
-
-Reviewers cannot create their own review entities; this is done by the
-administrator. A reviewer can only edit their reviews, not create or
-delete them.
-
-The review has a deadline, and the reviewers can edit their reviews
-until that date. The reviews should be finalized to denote that no
-more work is going to be done on the respective review.
-
-Review instances have [input fields](/documentation/input-field-types)
-defined by the administrator, similar to how a proposal is defined. All reviews
-within a call have the same input fields.
-
-## Input field types
-
-The proposals of a call must be defined in terms of which data a proposer is
-supposed to provide. This is configure by the call creator by defining the
-input fields to be used, their instruction texts and their possible values.
+# Input field types
 
 The input fields are the means to store information in proposals,
 reviews, decisions and grants. They have types which define what kind
@@ -705,11 +737,18 @@ of information they can store.
 All input fields for proposals, etc, can be changed by the call owner,
 even when the call has been published. This must be done with care,
 since changing a field may invalidate a proposal, etc, that previously
-was valid and complete, although the Anubis system should be able to
-tolerate this.  The data for fields that are removed or modified may
-become unreachable.
+was valid and complete.
 
-### Available input field types
+The Anubis system does not re-check the validity of a proposal, etc,
+when the input field definitions are modified. This is detected only
+when the proposal, etc, is edited and saved. This means that a
+proposal, etc, which looks fine to the user may, in fact, be invalid
+because the call owner has changed the input field definitions. This
+should be avoided. In addition, the data for fields whose definition
+has been removed will disappear.
+
+
+## Available input field types
 
 - **Line**. One single line of text, such as a name or title.
 - **Email**. One single email address.
@@ -719,17 +758,19 @@ become unreachable.
 - **Float**. A number that may contain fractions.
 - **Score**. A number in the range of integer values defined on setup.
 - **Rank**. A number in the series 1, 2, 3,...
-- **Text**. A multiline text which may use Markdown formatting.
+- **Text**. A multiline text which may use
+  [Markdown formatting](https://www.markdownguide.org/basic-syntax/).
 - **Document**. An attached file.
 
-### Common settings for all input field types
 
-All input field types have a number of settings that can be set at creation
-or modified later. These are:
+## Input field common settings
+
+All input field types have a number of settings, most of which may be edited
+after the field has been created. These are:
 
 - **Identifier**. The internal name of the field, which must be unique within
   the form. It must begin with a letter and continue with letters,
-  numbers or underscores.
+  numbers or underscores. This cannot be changed once set.
 
 - **Title**. The name of the field as shown to the user.
   Defaults to the identifier capitalized.
@@ -744,26 +785,30 @@ or modified later. These are:
 - **Banner**. The field will be shown in various tables.
 
 - **Description**. The help text displayed for the field.
-   May contain Markdown formatting.
+  May contain [Markdown formatting](https://www.markdownguide.org/basic-syntax/).
 
-### Line field
+
+## Line field
 
 One single line of text, such as a name or title. May contain any text.
 
 - **Maxlength**. The maximum number of characters allowed in the
   field, blanks included.
 
-### Email field
+
+## Email field
 
 One single email address, which must look like a proper email
 address. However, its actual validity is not checked.
 
-### Boolean field
+
+## Boolean field
 
 A selection between Yes and No. If a value is not required, then also "No
 value" will be allowed.
 
-### Select field
+
+## Select field
 
 A choice among a set of given text values.
 
@@ -772,7 +817,8 @@ A choice among a set of given text values.
 
 - **Multiple choice**. Is the user allowed to choose more than one value?
 
-### Integer field
+
+## Integer field
 
 A number that is a whole integer.
 
@@ -780,7 +826,8 @@ A number that is a whole integer.
 
 - **Maximum**: An optional upper limit for the value given by the user.
 
-### Float field
+
+## Float field
 
 A number that may contain fractions, i.e. a decimal point.
 
@@ -788,7 +835,8 @@ A number that may contain fractions, i.e. a decimal point.
 
 - **Maximum**: An optional upper limit for the value given by the user.
 
-### Score field
+
+## Score field
 
 A number in the range of integer values defined on setup. The choice
 of value is presented as a set of buttons, or optionally by input from
@@ -798,7 +846,8 @@ a slider.
 
 - **Maximum**: The upper limit for the value given by the user.
 
-### Rank field
+
+## Rank field
 
 A field of type rank is intended for reviews. The reviewer must assign
 a value to the field of each of her reviews in a call such that the
@@ -824,21 +873,25 @@ rounded to one decimal place.
 **NOTE**: This is currently implemented only for reviews; it is not
 very meaningful for other entities.
 
-### Text field
 
-A multiline text which may use Markdown formatting.
+## Text field
+
+A multiline text which may
+[Markdown formatting](https://www.markdownguide.org/basic-syntax/).
 
 - **Maxlength**. The maximum number of characters allowed in the
   field, blanks included.
 
-### Document field
+
+## Document field
 
  An attached file.
 
 - **Extensions**. A list of allowed extensions for the attached file.
   A simple-minded mechanism to restrict the allowed types of files.
 
-### Repeat field
+
+## Repeat field
 
 This field allow the number of a set of input fields to depend on a
 number that the user must input. For example, if the user has three

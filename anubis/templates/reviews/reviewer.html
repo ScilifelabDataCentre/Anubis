@@ -1,13 +1,8 @@
 {% extends 'base.html' %}
 
-{% block head_title %}
-Reviews by user {{ user['username'] }}
-{% endblock %}
+{% block head_title %}Reviews by user {{ user['username'] }}{% endblock %}
 
-{% block body_title %}
-<small class="text-muted">Reviews by</small>
-{{ user | user_link }}
-{% endblock %}
+{% block body_title %}Reviews by {{ user | user_link }}{% endblock %}
 
 {% block supermain %}
 <div class="row mb-2">
@@ -26,9 +21,8 @@ Reviews by user {{ user['username'] }}
   </div>
 
   <div class="col-md-2 d-print-none">
-    <a href="{{ url_for('documentation') }}#instructions-for-reviewers"
-       target="documentation"
-       role="button" class="btn btn-block btn-outline-secondary">
+    <a href="{{ url_for('documentation', _anchor='instructions-for-reviewers') }}"
+       target="documentation" role="button" class="btn btn-block btn-outline-secondary">
       Instructions for reviewers</a>
   </div>
 </div>
