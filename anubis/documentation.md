@@ -22,12 +22,6 @@ reviews, decisions and grant dossiers. It allows:
   the Anubis site staff.
 
 
-# Installation
-
-Installation instructions are available at the
-[GitHub page for Anubis](https://github.com/pekrau/Anubis).
-
-
 # Entities
 
 
@@ -381,7 +375,7 @@ another user account to view and/or edit her proposal.
 <th>View</th>
 <td>One's own</td>
 <td>Any in the call to be reviewed</td>
-<td>Any in one's own</td>
+<td>Any in one's own call</td>
 <td>Yes</td>
 <td>Yes</td>
 </tr>
@@ -390,7 +384,7 @@ another user account to view and/or edit her proposal.
 <th>Edit</th>
 <td>One's own, while not submitted</td>
 <td>No</td>
-<td>Any in one's own</td>
+<td>Any in one's own call</td>
 <td>No</td>
 <td>Yes</td>
 </tr>
@@ -399,7 +393,7 @@ another user account to view and/or edit her proposal.
 <th>Delete</th>
 <td>One's own, while not submitted</td>
 <td>No</td>
-<td>Any in one's own</td>
+<td>Any in one's own call</td>
 <td>No</td>
 <td>Yes</td>
 </tr>
@@ -408,7 +402,7 @@ another user account to view and/or edit her proposal.
 <th>Transfer ownership</th>
 <td>No</td>
 <td>No</td>
-<td>No</td>
+<td>Yes, if one's own call</td>
 <td>Yes</td>
 <td>Yes</td>
 </tr>
@@ -417,7 +411,7 @@ another user account to view and/or edit her proposal.
 <th>Submit</th>
 <td>One's own, while call open</td>
 <td>No</td>
-<td>Any in one's own</td>
+<td>Any in one's own call</td>
 <td>Yes</td>
 <td>Yes</td>
 </tr>
@@ -426,8 +420,8 @@ another user account to view and/or edit her proposal.
 <th rowspan="4">Review</th>
 <th>Create</th>
 <td>No</td>
-<td>Depends on call setting</td>
-<td>In one's own</td>
+<td>Chair if call setting</td>
+<td>In one's own call</td>
 <td>Yes</td>
 <td>Yes</td>
 </tr>
@@ -435,7 +429,7 @@ another user account to view and/or edit her proposal.
 <tr>
 <th>View</th>
 <td>No</td>
-<td>One's own, or depends on call setting; chair all</td>
+<td>One's own, or all if call setting; chair all</td>
 <td>Any in one's own</td>
 <td>Yes</td>
 <td>Yes</td>
@@ -445,7 +439,7 @@ another user account to view and/or edit her proposal.
 <th>Edit</th>
 <td>No</td>
 <td>One's own</td>
-<td>Any in one's own</td>
+<td>Any in one's own call</td>
 <td>No</td>
 <td>Yes</td>
 </tr>
@@ -454,7 +448,7 @@ another user account to view and/or edit her proposal.
 <th>Delete</th>
 <td>No</td>
 <td>No</td>
-<td>Any in one's own</td>
+<td>Any in one's own call</td>
 <td>No</td>
 <td>Yes</td>
 </tr>
@@ -464,7 +458,7 @@ another user account to view and/or edit her proposal.
 <th>Create</th>
 <td>No</td>
 <td>Only chair</td>
-<td>Any in one's own</td>
+<td>Any in one's own call</td>
 <td>No</td>
 <td>Yes</td>
 </tr>
@@ -473,7 +467,7 @@ another user account to view and/or edit her proposal.
 <th>View</th>
 <td>One's own, depends on call setting</td>
 <td>Only chair</td>
-<td>Any in one's own</td>
+<td>Any in one's own call</td>
 <td>Yes</td>
 <td>Yes</td>
 </tr>
@@ -482,7 +476,7 @@ another user account to view and/or edit her proposal.
 <th>Edit</th>
 <td>No</td>
 <td>Only chair</td>
-<td>Any in one's own</td>
+<td>Any in one's own call</td>
 <td>No</td>
 <td>Yes</td>
 </tr>
@@ -908,6 +902,12 @@ will be a select list field to specify whether that field is repeated
 by a previously defined repeat field.
 
 **NOTE**: The repeat field is currently implemented only for grant dossiers.
+
+
+# Installation
+
+Installation instructions are available at the
+[GitHub page for Anubis](https://github.com/pekrau/Anubis).
 
 
 # Software design

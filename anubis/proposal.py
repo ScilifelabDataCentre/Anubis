@@ -588,18 +588,11 @@ def get_proposal_xlsx(proposal):
     submitter = anubis.user.get_user(username=proposal["user"])
     result = io.BytesIO()
     wb = xlsxwriter.Workbook(result, {"in_memory": True})
-    head_text_format = wb.add_format(
-        {"bold": True, "text_wrap": True, "font_size": 14, "align": "top"}
-    )
-    normal_text_format = wb.add_format({"font_size": 14, "align": "left"})
-    wrap_text_format = wb.add_format(
-        {"font_size": 14, "text_wrap": True, "align": "vjustify"}
-    )
-
+    formats = utils.create_xlsx_formats(wb)
     ws = wb.add_worksheet(f"Proposal {proposal['identifier'].replace(':','-')}"[:31])
-    ws.set_column(0, 0, 20, head_text_format)
-    ws.set_column(1, 1, 80, normal_text_format)
-    ws.set_column(2, 2, 60, normal_text_format)
+    ws.set_column(0, 0, 20, formats["head"])
+    ws.set_column(1, 1, 80, formats["normal"])
+    ws.set_column(2, 2, 60, formats["normal"])
     nrow = 0
     row = ["Proposal", "", proposal["title"]]
     ws.write_row(nrow, 0, row)
@@ -630,53 +623,17 @@ def get_proposal_xlsx(proposal):
     ws.write_row(nrow, 0, row)
     nrow += 2
     for field in call["proposal"]:
-        row = [field["title"] or field["identifier"].capitalize()]
-        ws.write_row(nrow, 0, row)
+        ws.write_string(nrow, 0, field["title"] or field["identifier"].capitalize())
         value = proposal["values"].get(field["identifier"])
-        if value is None:
-            ws.write_string(nrow, 1, "")
-        elif field["type"] in (
-            constants.LINE,
-            constants.EMAIL,
-        ):
-            ws.write_string(nrow, 1, value)
-        elif field["type"] == constants.BOOLEAN:
-            if value is None:
-                value = "-"
-            else:
-                value = value and "Yes" or "No"
-            ws.write(nrow, 1, value)
-        elif field["type"] == constants.SELECT:
-            if isinstance(value, list):
-                ws.write_string(nrow, 1, "; ".join(value))
-            else:
-                ws.write_string(nrow, 1, value)
-        elif field["type"] in (
-            constants.INTEGER,
-            constants.FLOAT,
-            constants.SCORE,
-            constants.RANK,
-        ):
-            ws.write(nrow, 1, value)
-        elif field["type"] == constants.TEXT:
-            ws.write_string(nrow, 1, value, wrap_text_format)
-        elif field["type"] == constants.DOCUMENT:
-            documentname = proposal["values"][field["identifier"]]
-            pid = proposal["identifier"].replace(":", "-")
-            ext = os.path.splitext(documentname)[1]
-            ws.write_url(
-                nrow,
-                1,
-                flask.url_for(
-                    "proposal.document",
-                    pid=proposal["identifier"],
-                    fid=field["identifier"],
-                    _external=True,
-                ),
-                string=f"Download {pid}-{field['identifier']}{ext}",
+        # Ugly, but necessary...
+        if value is not None and field["type"] == constants.DOCUMENT:
+            value = flask.url_for(
+                "proposal.document",
+                pid=proposal["identifier"],
+                fid=field["identifier"],
+                _external=True,
             )
-        else:
-            pass  # Ignore unimplemented field types.
+        utils.write_xlsx_field(ws, nrow, 1, value, field["type"], formats)
         nrow += 1
     wb.close()
     return result
@@ -772,7 +729,7 @@ def allow_delete(proposal):
 
 def allow_submit(proposal):
     """Only if there are no errors.
-    The admin, staff and owner of the call may submit/unsubmit the proposal.
+    The admin, staff and call owner may submit/unsubmit the proposal.
     The user may submit/unsubmit the proposal if the call is open.
     """
     if not flask.g.current_user:
@@ -794,11 +751,14 @@ def allow_submit(proposal):
 
 
 def allow_transfer(proposal):
-    "The admin and staff may transfer ownership of a proposal."
+    "The admin staff and call owner may transfer ownership of a proposal."
     if not flask.g.current_user:
         return False
     if flask.g.am_admin:
         return True
     if flask.g.am_staff:
+        return True
+    call = anubis.call.get_call(proposal["call"])
+    if anubis.call.am_owner(call):
         return True
     return False

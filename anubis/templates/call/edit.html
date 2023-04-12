@@ -61,9 +61,11 @@
 		>{{ call['description'] or '' }}</textarea>
       <small id="descriptionHelp" class="form-text text-muted">
 	Full description of the call. This will be displayed on the
-        call page. If no <strong>Home page description</strong>
-        (below) is defined, this description will also be used on the
-        home page of Anubis.
+        call page.
+        <br>
+        If no <strong>Home page description</strong> (below) is
+        defined, this description will also be used on the home page
+        of Anubis.
         <br>
 	<a target="_blank" href="{{ constants.MARKDOWN_URL }}">Markdown</a>
         may be used to format this text.
@@ -80,8 +82,10 @@
 		>{{ call['home_description'] or '' }}</textarea>
       <small id="home_descriptionHelp" class="form-text text-muted">
 	Description of the call to be used on the home page of
-	Anubis. Should be short. If not defined, the
-	field <strong>Description</strong> (above) will be used.
+	Anubis. Should be short.
+        <br>
+        If not defined, the field <strong>Description</strong> (above)
+	will be used.
         <br>
 	<a target="_blank" href="{{ constants.MARKDOWN_URL }}">Markdown</a>
         may be used to format this text.
@@ -170,16 +174,14 @@
       Privileges</label>
     <div class="col-md">
       {% for flag in constants.PRIVILEGES %}
-      <div class="form-group row">
-        <label for="{{ flag }}" class="col-md-4 col-form-label">
-          {{ flag|capitalize|replace('_',' ') }}</label>
-        <div class="col-md">
-          <div class="form-check form-check-inline pt-1">
-	    <input type="checkbox" id="{{ flag }}" name="{{ flag }}"
-	           class="form-check-input" value="true"
-                   {{ call.get('privileges', {}).get(flag) and 'checked' or '' }}>
-	    <label class="form-check-label" for="{{ flag }}">Yes</label>
-          </div>
+      <div class="form-group">
+        <div class="form-check form-check-inline pt-1">
+	  <input type="checkbox" id="{{ flag }}" name="{{ flag }}"
+	         class="form-check-input" value="true"
+                 {{ call.get('privileges', {}).get(flag) and 'checked' or '' }}>
+	  <label class="form-check-label" for="{{ flag }}">
+            {{ flag|capitalize|replace('_',' ') }}.
+          </label>
         </div>
       </div>
       {% endfor %}

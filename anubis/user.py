@@ -657,6 +657,10 @@ def get_current_user():
 
 def get_fullname(user):
     "Return full name of user, or family name, or user name."
+    if isinstance(user, str):
+        user = get_user(username=user)
+        if user is None:
+            return "?"
     if user.get("familyname"):
         name = user["familyname"]
         if user.get("givenname"):

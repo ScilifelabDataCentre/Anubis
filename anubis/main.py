@@ -44,8 +44,8 @@ app.config["SEND_FILE_MAX_AGE_DEFAULT"] = constants.SITE_FILE_MAX_AGE
 @app.before_first_request
 def update_initialize():
     """The CLI cannot create a database if this code is executed when the app is
-    created in the code above. That is why this code is in this special procedure
-    which Flask executes once before handling the first request after starting up.
+    created in the call 'anubis.config.init(app)' above. That is why this code has
+    to be in this special procedure.
     - Update design document.
     - Update contents of db for version changes.
     - Get configuration values that are nowadays stored in the database.
