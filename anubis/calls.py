@@ -142,3 +142,19 @@ def grants():
         allow_view_reviews=anubis.call.allow_view_reviews,
         allow_view_grants=anubis.call.allow_view_grants,
     )
+
+
+@blueprint.route("/reviews")
+@utils.staff_required
+def reviews():
+    "All calls with reviews."
+    calls = set([r.key for r in flask.g.db.view("reviews", "call", reduce=False)])
+    calls = [anubis.call.get_call(c) for c in calls]
+    return flask.render_template(
+        "calls/reviews.html",
+        calls=calls,
+        # Functions, not values, are passed.
+        allow_view_proposals=anubis.call.allow_view_proposals,
+        allow_view_reviews=anubis.call.allow_view_reviews,
+        allow_view_grants=anubis.call.allow_view_grants,
+    )

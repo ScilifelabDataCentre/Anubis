@@ -114,6 +114,9 @@
       {{ my_archived_reviews_count }} archived reviews
     </a>
     {% endif %}
+    {% if g.current_user['username'] in call['chairs'] %}
+    Chair of this call.
+    {% endif %}
   </div>
 </div>
 {% endif %} {# if am_reviewer #}
