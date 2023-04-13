@@ -4,19 +4,16 @@
 {% block body_title %}Site configuration{% endblock %}
 
 {% block main %}
-<form action="{{ url_for('admin.site_configuration') }}"
-      enctype="multipart/form-data" method="POST">
+<form action="{{ url_for('admin.site_configuration') }}" enctype="multipart/form-data" method="POST">
   {{ csrf_token() }}
 
   <div class="form-group row">
-    <label for="name" class="col-md-2 col-form-label text-right">
-      Name</label>
+    <label for="name" class="col-md-2 col-form-label text-right">Name</label>
     <div class="col-md">
       <div class="row">
         <div class="col-md-5">
           <input type="text" name="name" id="name"
-	         class="form-control"
-                 aria-describedby="nameHelp"
+	         class="form-control" aria-describedby="nameHelp"
 	         value="{{ config.SITE_NAME or '' }}">
         </div>
       </div>
@@ -27,8 +24,7 @@
   </div>
 
   <div class="form-group row">
-    <label for="name_logo" class="col-md-2 col-form-label text-right">
-      Name logo</label>
+    <label for="name_logo" class="col-md-2 col-form-label text-right">Name logo</label>
     <div class="col-md-6">
       <div class="custom-file">
         <input type="file" id="name_logo" name="name_logo"
@@ -44,8 +40,7 @@
     <div class="col-md offset-md-2">
       <div class="form-check form-check-inline">
 	<input type="checkbox" name="remove_name_logo" id="remove_name_logo"
-	       class="form-check-input"
-	       aria-describedby="remove_name_logoHelp"
+	       class="form-check-input" aria-describedby="remove_name_logoHelp"
 	       value="true">
 	<label class="form-check-label" for="name_logo_favicon">
 	  Remove the current site name logo:
@@ -60,8 +55,7 @@
     <div class="col-md offset-md-2">
       <div class="form-check form-check-inline">
 	<input type="checkbox" name="name_logo_favicon" id="name_logo_favicon"
-	       class="form-check-input"
-	       aria-describedby="name_logo_faviconHelp"
+	       class="form-check-input" aria-describedby="name_logo_faviconHelp"
 	       value="true"
                {{ config.SITE_NAME_LOGO_FAVICON and 'checked' or '' }}>
 	<label class="form-check-label" for="name_logo_favicon">
@@ -74,8 +68,7 @@
     <div class="col-md offset-md-2">
       <div class="form-check form-check-inline">
 	<input type="checkbox" name="name_logo_menu" id="_name_logo_menu"
-	       class="form-check-input"
-	       aria-describedby="name_logo_menuHelp"
+	       class="form-check-input" aria-describedby="name_logo_menuHelp"
 	       value="true"
                {{ config.SITE_NAME_LOGO_MENU and 'checked' or '' }}>
 	<label class="form-check-label" for="name_logo_menu">
@@ -86,12 +79,10 @@
   {% endif %}
 
   <div class="form-group row">
-    <label for="description" class="col-md-2 col-form-label text-right">
-      Description</label>
+    <label for="description" class="col-md-2 col-form-label text-right">Description</label>
     <div class="col-md">
       <input type="text" name="description" id="description"
-	     class="form-control"
-             aria-describedby="descriptionHelp"
+	     class="form-control" aria-describedby="descriptionHelp"
 	     value="{{ config.SITE_DESCRIPTION or '' }}">
       <small id="descriptionHelp" class="form-text text-muted">
         The one-line description of this Anubis site.
@@ -100,14 +91,12 @@
   </div>
 
   <div class="form-group row">
-    <label for="host_name" class="col-md-2 col-form-label text-right">
-      Host name</label>
+    <label for="host_name" class="col-md-2 col-form-label text-right">Host name</label>
     <div class="col-md">
       <div class="row">
         <div class="col-md-4">
           <input type="text" name="host_name" id="host_name"
-	         class="form-control"
-                 aria-describedby="host_nameHelp"
+	         class="form-control" aria-describedby="host_nameHelp"
 	         value="{{ config.SITE_HOST_NAME or '' }}">
         </div>
       </div>
@@ -118,8 +107,7 @@
   </div>
 
   <div class="form-group row">
-    <label for="host_logo" class="col-md-2 col-form-label text-right">
-      Host logo</label>
+    <label for="host_logo" class="col-md-2 col-form-label text-right">Host logo</label>
     <div class="col-md-6">
       <div class="custom-file">
         <input type="file" id="host_logo" name="host_logo"
@@ -135,8 +123,7 @@
     <div class="col-md offset-md-2">
       <div class="form-check form-check-inline">
 	<input type="checkbox" name="remove_host_logo" id="remove_host_logo"
-	       class="form-check-input"
-	       aria-describedby="remove_host_logoHelp"
+	       class="form-check-input" aria-describedby="remove_host_logoHelp"
 	       value="true">
 	<label class="form-check-label" for="remove_host_logo">
 	  Remove the current host logo:
@@ -148,14 +135,12 @@
   {% endif %}
 
   <div class="form-group row">
-    <label for="host_url" class="col-md-2 col-form-label text-right">
-      Host URL</label>
+    <label for="host_url" class="col-md-2 col-form-label text-right">Host URL</label>
     <div class="col-md">
       <div class="row">
         <div class="col-md-4">
           <input type="text" name="host_url" id="host_url"
-	         class="form-control"
-                 aria-describedby="host_urlHelp"
+	         class="form-control" aria-describedby="host_urlHelp"
 	         value="{{ config.SITE_HOST_URL or '' }}">
         </div>
       </div>

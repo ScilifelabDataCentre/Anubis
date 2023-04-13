@@ -93,26 +93,15 @@ def get_call_grants_xlsx(call, grants):
     "Return the content for the XLSX file for the list of grants."
     output = io.BytesIO()
     wb = xlsxwriter.Workbook(output, {"in_memory": True})
-    head_text_format = wb.add_format(
-        {
-            "bold": True,
-            "text_wrap": True,
-            "bg_color": "#9ECA7F",
-            "font_size": 15,
-            "align": "center",
-            "border": 1,
-        }
-    )
-    normal_text_format = wb.add_format(
-        {"font_size": 14, "align": "left", "valign": "vcenter"}
-    )
-    ws = wb.add_worksheet(f"Grants in call {call['identifier']}"[:31])
+    formats = utils.create_xlsx_formats(wb)
+    ws = wb.add_worksheet(f"Grants in call {call['identifier']}"[:31])  # Hard len(str) limit.
     ws.freeze_panes(2, 1)
-    ws.set_row(0, 60, head_text_format)
-    ws.set_row(1, 60, head_text_format)
-    ws.set_column(0, 2, 10, normal_text_format)
-    ws.set_column(3, 3, 40, normal_text_format)
-    ws.set_column(4, 6, 20, normal_text_format)
+    ws.set_row(0, 60, formats["head"])
+    ws.set_row(1, 60, formats["head"])
+    ws.set_column(0, 0, 16, formats["normal"])
+    ws.set_column(1, 2, 10, formats["normal"])
+    ws.set_column(3, 3, 40, formats["normal"])
+    ws.set_column(4, 6, 20, formats["normal"])
     # More set below, after grant fields (including repeats)
 
     nrow = 0
@@ -208,8 +197,6 @@ def get_call_grants_xlsx(call, grants):
         if n_merge > 1:
             ws.merge_range(nrow, ncol, nrow + n_merge - 1, ncol, "")
         user = anubis.user.get_user(username=proposal["user"])
-        if n_merge > 1:
-            ws.merge_range(nrow, ncol, nrow + n_merge - 1, ncol, "")
         ws.write_string(nrow, ncol, anubis.user.get_fullname(user))
         ncol += 1
         if n_merge > 1:
@@ -235,7 +222,7 @@ def get_call_grants_xlsx(call, grants):
                         continue
                     for row_offset in range(n_repeat):
                         fid = f"{repeated['identifier']}-{row_offset+1}"
-                        write_cell(
+                        _write_xlsx_field(
                             ws,
                             nrow + row_offset,
                             ncol + col_offset,
@@ -243,13 +230,14 @@ def get_call_grants_xlsx(call, grants):
                             repeated["type"],
                             grant["identifier"],
                             fid,
+                            formats
                         )
                         max_ncol = max(max_ncol, ncol + col_offset)
                     col_offset += 1
             else:
                 if n_merge > 1:
                     ws.merge_range(nrow, ncol, nrow + n_merge - 1, ncol, "")
-                write_cell(
+                _write_xlsx_field(
                     ws,
                     nrow,
                     ncol,
@@ -257,6 +245,7 @@ def get_call_grants_xlsx(call, grants):
                     field["type"],
                     grant["identifier"],
                     field["identifier"],
+                    formats
                 )
                 max_ncol = max(max_ncol, ncol)
             ncol += 1
@@ -265,26 +254,23 @@ def get_call_grants_xlsx(call, grants):
 
     # Set formatting for additional columns.
     if max_ncol > 6:
-        ws.set_column(6 + 1, max_ncol, 20, normal_text_format)
+        ws.set_column(6 + 1, max_ncol, 20, formats["normal"])
 
     wb.close()
     return output.getvalue()
 
 
-def write_cell(ws, nrow, ncol, value, field_type, gid, fid):
-    if value is None:
-        ws.write_string(nrow, ncol, "")
-    elif field_type == constants.TEXT:
-        ws.write_string(nrow, ncol, value)
-    elif field_type == constants.DOCUMENT:
-        ws.write_url(
-            nrow,
-            ncol,
-            flask.url_for("grant.document", gid=gid, fid=fid, _external=True),
-            string="Download",
+def _write_xlsx_field(ws, nrow, ncol, value, field_type, gid, fid, formats):
+    "Small wrapper function for computing the relevant URL."
+    # Ugly, but necessary...
+    if value is not None and field_type == constants.DOCUMENT:
+        value = flask.url_for(
+            "grant.document",
+            gid=gid,
+            fid=fid,
+            _external=True,
         )
-    else:
-        ws.write(nrow, ncol, value)
+    utils.write_xlsx_field(ws, nrow, ncol, value, field_type, formats)
 
 
 @blueprint.route("/call/<cid>.zip")

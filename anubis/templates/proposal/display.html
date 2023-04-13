@@ -2,15 +2,11 @@
 
 {% block head_title %}{{ proposal['identifier'] }}{% endblock %}
 
-{% block body_title %}
-<small class="text-muted mr-3">Proposal</small>
-{{ proposal['identifier'] }} {{ proposal.get('title') | display_value('[No title]') }}
-{% endblock %}
+{% block body_title %}Proposal {{ proposal['identifier'] }} {{ proposal.get('title') | display_value('[No title]') }}{% endblock %}
 
 {% block meta %}
 <div>
   <a href="{{ url_for('proposal.display_docx', pid=proposal['identifier']) }}"
-     title="Proposal information"
      class="badge badge-pill badge-dark"
      title="Download a DOCX file containing the proposal information.">
     Proposal Word file</a>
@@ -18,16 +14,14 @@
 
 <div>
   <a href="{{ url_for('proposal.display_xlsx', pid=proposal['identifier']) }}"
-     title="Proposal information"
      class="badge badge-pill badge-dark"
      title="Download an XLSX file containing the proposal information">
     Proposal Excel file</a>
 </div>
 
-<a href="#email_lists" data-toggle="collapse"
-   class="badge badge-pill badge-secondary" role="button"
-   aria-expanded="false" aria-controls="email_lists"
-   title="Toggle display of email address lists.">Email address lists</a>
+<a href="#email_lists" title="Toggle display of email address lists."
+   data-toggle="collapse" aria-expanded="false" aria-controls="email_lists"
+   class="badge badge-pill badge-secondary" role="button">Email address lists</a>
 
 {% if g.am_admin %}
 <a href="{{ url_for('admin.document', identifier=proposal['_id']) }}"
@@ -134,8 +128,7 @@
 <div class="row d-print-none">
   <div class="col-md-2 font-weight-bold text-right">Decision</div>
   <div class="col-md">
-    <form action="{{ url_for('decision.create', pid=proposal['identifier']) }}"
-          method="POST">
+    <form action="{{ url_for('decision.create', pid=proposal['identifier']) }}" method="POST">
       {{ csrf_token() }}
       <button type="submit" class="btn btn-outline-secondary my-1">
         Create decision</button>
@@ -153,8 +146,7 @@
 <div class="row d-print-none">
   <div class="col-md-2 font-weight-bold text-right">Grant</div>
   <div class="col-md">
-    <form action="{{ url_for('grant.create', pid=proposal['identifier']) }}"
-          method="POST">
+    <form action="{{ url_for('grant.create', pid=proposal['identifier']) }}" method="POST">
       {{ csrf_token() }}
       <button type="submit" class="btn btn-outline-success">
         Create grant dossier</button>
@@ -223,8 +215,7 @@
 
 {% if proposal.get('submitted') %}
 <div class="mt-2">
-  <form action="{{ url_for('proposal.unsubmit', pid=proposal['identifier']) }}"
-	method="POST">
+  <form action="{{ url_for('proposal.unsubmit', pid=proposal['identifier']) }}" method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-warning btn-block">Unsubmit</button>
   </form>
@@ -232,8 +223,7 @@
 
 {% else %}
 <div class="mt-2">
-  <form action="{{ url_for('proposal.submit', pid=proposal['identifier']) }}"
-        method="POST">
+  <form action="{{ url_for('proposal.submit', pid=proposal['identifier']) }}" method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-success btn-block">
       Submit</button>
@@ -251,8 +241,7 @@
 
 {% if allow_delete %}
 <div class="mt-2">
-  <form action="{{ url_for('proposal.edit', pid=proposal['identifier']) }}"
-	method="POST">
+  <form action="{{ url_for('proposal.edit', pid=proposal['identifier']) }}" method="POST">
     {{ csrf_token() }}
     <input type="hidden" name="_http_method" value="DELETE">
     <button type="submit" class="btn btn-danger btn-sm btn-block"
@@ -266,8 +255,7 @@
 
 {% block doclinks %}
 {{ super() }}
-<a href="{{ url_for('documentation') }}#proposal"
-   target="documentation"
+<a href="{{ url_for('documentation', _anchor='proposal') }}" target="documentation"
    class="btn btn-outline-primary btn-block">
   Documentation: Proposal</a>
 {% endblock %} {# block doclinks #}

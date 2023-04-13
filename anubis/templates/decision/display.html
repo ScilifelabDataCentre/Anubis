@@ -1,13 +1,8 @@
 {% extends 'base.html' %}
 
-{% block head_title %}
-Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
-{% endblock %}
+{% block head_title %}Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}{% endblock %}
 
-{% block body_title %}
-<small class="text-muted">Decision for proposal</small>
-{{ proposal | proposal_link }}
-{% endblock %}
+{% block body_title %}Decision for proposal {{ proposal | proposal_link }}{% endblock %}
 
 {% block meta %}
 
@@ -67,8 +62,7 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {% endif %} {# if allow_edit #}
 {% if allow_unfinalize %}
 <div class="mt-2">
-  <form action="{{ url_for('.unfinalize', iuid=decision['_id']) }}"
-	method="POST">
+  <form action="{{ url_for('.unfinalize', iuid=decision['_id']) }}" method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-block btn-warning">Unfinalize</button>
   </form>
@@ -76,8 +70,7 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {% endif %} {# if allow_unfinalize #}
 {% if allow_finalize %}
 <div class="mt-2">
-  <form action="{{ url_for('.finalize', iuid=decision['_id']) }}"
-	method="POST">
+  <form action="{{ url_for('.finalize', iuid=decision['_id']) }}" method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-block btn-success">
       Finalize</button>
@@ -86,12 +79,11 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 {% endif %} {# if allow_finalize #}
 {% if allow_delete %}
 <div class="mt-2">
-  <form action="{{ url_for('.edit', iuid=decision['_id']) }}"
-	method="POST">
+  <form action="{{ url_for('.edit', iuid=decision['_id']) }}" method="POST">
     {{ csrf_token() }}
     <input type="hidden" name="_http_method" value="DELETE">
     <button type="submit" class="btn btn-sm btn-block btn-danger"
-	    onclick="return confirm('Really delete this decision?')">
+            onclick="return confirm('Really delete this decision?')">
       Delete</button>
   </form>
 </div>
@@ -100,10 +92,8 @@ Decision for proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 
 {% block doclinks %}
 {{ super() }}
-<a href="{{ url_for('documentation') }}#decision"
-   target="documentation"
-   role="button"
-   class="btn btn-outline-primary btn-block">
+<a href="{{ url_for('documentation', _anchor='decision') }}"
+   target="documentation" role="button" class="btn btn-outline-primary btn-block">
   Documentation: Decision</a>
 {% endblock %} {# block doclinks #}
 

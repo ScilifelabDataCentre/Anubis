@@ -482,9 +482,7 @@ class UserSaver(Saver):
         if self.doc.get("status") == constants.PENDING:
             # Filename pattern matching instead of regexp; easier to specify.
             # The whitelist has not been fetched if the CLI is calling this.
-            for p in flask.current_app.config.get(
-                "USER_ENABLE_EMAIL_WHITELIST", []
-            ):
+            for p in flask.current_app.config.get("USER_ENABLE_EMAIL_WHITELIST", []):
                 if fnmatch.fnmatch(email, p):
                     self.set_status(constants.ENABLED)
                     break
@@ -659,6 +657,10 @@ def get_current_user():
 
 def get_fullname(user):
     "Return full name of user, or family name, or user name."
+    if isinstance(user, str):
+        user = get_user(username=user)
+        if user is None:
+            return "?"
     if user.get("familyname"):
         name = user["familyname"]
         if user.get("givenname"):
@@ -721,7 +723,7 @@ def send_email_password_code(user, action):
         "/The Anubis system"
     )
     utils.send_email(user["email"], title, text)
-        
+
 
 def am_admin(user=None):
     "Is the user admin? Default user: current_user."

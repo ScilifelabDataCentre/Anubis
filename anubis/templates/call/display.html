@@ -1,11 +1,7 @@
 {% extends 'base.html' %}
 
 {% block head_title %}{{ call['title'] }}{% endblock %}
-
-{% block body_title %}
-<small class="text-muted">Call for proposals:</small>
-{{ call['title'] }}
-{% endblock %}
+{% block body_title %}<small>Call for proposals</small><br>{{ call['title'] }}{% endblock %}
 
 {% block meta %}
 
@@ -175,8 +171,7 @@
 
   {% elif allow_create_proposal %}
   <div class="col-md">
-    <form action="{{ url_for('call.create_proposal', cid=call['identifier']) }}"
-	  method="POST">
+    <form action="{{ url_for('call.create_proposal', cid=call['identifier']) }}" method="POST">
       {{ csrf_token() }}
       <button type="submit" class="btn btn-primary">Create proposal</button>
     </form>
@@ -210,6 +205,17 @@
   </div>
 </div>
 
+{% if allow_view_details %}
+<div class="row mt-4">
+  <div class="col-md-2 font-weight-bold text-right">Home page description</div>
+  <div class="card col-md">
+    <div class="card-body">
+      {{ call.get('home_description') | display_markdown }}
+    </div>
+  </div>
+</div>
+{% endif %} {# if allow_view_details #}
+
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Documents</div>
   <div class="col-md">
@@ -223,8 +229,8 @@
               {{ document['name'] }}
             </td>
             <td>
-              <a href="{{ url_for('call.document', cid=call['identifier'], documentname=document['name']) }}" title="Download file" role="button"
-                 class="btn btn-sm btn-dark ml-4">
+              <a href="{{ url_for('call.document', cid=call['identifier'], documentname=document['name']) }}"
+                 title="Download file" role="button" class="btn btn-sm btn-dark ml-4">
                 Download</a>
             <td>
           </tr>
@@ -355,8 +361,7 @@
 
 {% if call_proposals_count == 0 %}
 <div class="mt-2">
-  <form action="{{ url_for('call.reset_counter', cid=call['identifier']) }}"
-	method="POST">
+  <form action="{{ url_for('call.reset_counter', cid=call['identifier']) }}" method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-primary btn-block">
       Reset proposals counter</button>
@@ -379,8 +384,7 @@
 
 {% if allow_delete %}
 <div class="mt-2">
-  <form action="{{ url_for('call.edit', cid=call['identifier']) }}"
-	method="POST">
+  <form action="{{ url_for('call.edit', cid=call['identifier']) }}" method="POST">
     {{ csrf_token() }}
     <input type="hidden" name="_http_method" value="DELETE">
     <button type="submit" class="btn btn-sm btn-block btn-danger"
@@ -393,9 +397,8 @@
 
 {% block doclinks %}
 {{ super() }}
-<a href="{{ url_for('documentation') }}#call"
-   target="documentation"
-   role="button"
+<a href="{{ url_for('documentation', _anchor='call') }}"
+   target="documentation" role="button"
    class="btn btn-outline-primary btn-block">
   Documentation: Call</a>
 {% endblock %} {# block doclinks #}

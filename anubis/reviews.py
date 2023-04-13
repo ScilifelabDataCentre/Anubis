@@ -42,9 +42,13 @@ def create(username):
             if proposal is None:
                 continue
             if not anubis.review.allow_create(proposal):
-                raise ValueError(f"You may not create a review for the proposal '{pid}'.")
+                raise ValueError(
+                    f"You may not create a review for the proposal '{pid}'."
+                )
             if user["username"] == proposal["user"]:
-                raise ValueError(f"Reviewer not allowed to review their own proposal '{pid}'.")
+                raise ValueError(
+                    f"Reviewer not allowed to review their own proposal '{pid}'."
+                )
 
             review = anubis.review.get_reviewer_review(proposal, user)
             if review is None:
@@ -54,7 +58,9 @@ def create(username):
                 utils.flash_message(f"The review for '{pid}' already exists.")
     except ValueError as error:
         utils.flash_error(error)
-    return flask.redirect(flask.url_for("reviews.call_reviewer", cid=cid, username=username))
+    return flask.redirect(
+        flask.url_for("reviews.call_reviewer", cid=cid, username=username)
+    )
 
 
 @blueprint.route("/call/<cid>")
@@ -239,7 +245,7 @@ def call_reviewer_zip(cid, username):
             p for p in proposals if f"{p['identifier']} {username}" in reviews_lookup
         ]
         zip.writestr(
-            f"{call['identifier']}_selected_proposals.xlsx",
+            f"{call['identifier']}_proposals_to_review.xlsx",
             anubis.proposals.get_call_xlsx(call, proposals=proposals),
         )
         for proposal in proposals:
@@ -466,36 +472,25 @@ def get_reviews_xlsx(call, proposals, reviews_lookup):
     "Return the content for the XLSX file for the list of reviews."
     output = io.BytesIO()
     wb = xlsxwriter.Workbook(output, {"in_memory": True})
-    head_text_format = wb.add_format(
-        {
-            "bold": True,
-            "text_wrap": True,
-            "bg_color": "#9ECA7F",
-            "font_size": 15,
-            "align": "center",
-            "border": 1,
-        }
-    )
-    normal_text_format = wb.add_format(
-        {"font_size": 14, "align": "left", "valign": "vcenter"}
-    )
+    formats = utils.create_xlsx_formats(wb)
     ws = wb.add_worksheet(f"Reviews in call {call['identifier']}"[:31])
     ws.freeze_panes(1, 1)
-    ws.set_row(0, 60, head_text_format)
-    ws.set_column(1, 1, 40, normal_text_format)
-    ws.set_column(2, 2, 20, normal_text_format)
-    ws.set_column(3, 3, 40, normal_text_format)
+    ws.set_row(0, 60, formats["head"])
+    ws.set_column(0, 0, 16, formats["normal"])
+    ws.set_column(1, 1, 40, formats["normal"])
+    ws.set_column(2, 2, 20, formats["normal"])
+    ws.set_column(3, 3, 40, formats["normal"])
 
     nrow = 0
-    row = ["Proposal", "Proposal title"]
-    row.extend(["Submitter", "Email", "Affiliation", "Reviewer", "Review", "Finalized"])
+    row = ["Proposal", "Proposal title", "Submitter", "Email", "Affiliation",
+           "Reviewer", "Review", "Finalized"]
     ncol = len(row)
     for field in call["review"]:
         row.append(field["title"] or field["identifier"].capitalize())
         if field["type"] in (constants.LINE, constants.EMAIL):
-            ws.set_column(ncol, ncol, 40, normal_text_format)
+            ws.set_column(ncol, ncol, 40, formats["normal"])
         elif field["type"] == constants.TEXT:
-            ws.set_column(ncol, ncol, 60, normal_text_format)
+            ws.set_column(ncol, ncol, 60, formats["normal"])
         ncol += 1
     ws.write_row(nrow, 0, row)
     nrow += 1
@@ -526,7 +521,7 @@ def get_reviews_xlsx(call, proposals, reviews_lookup):
             ncol += 1
             ws.write_string(nrow, ncol, user.get("affiliation") or "")
             ncol += 1
-            ws.write_string(nrow, ncol, reviewer)
+            ws.write_string(nrow, ncol, anubis.user.get_fullname(reviewer))
             ncol += 1
             ws.write_url(
                 nrow,
@@ -535,29 +530,20 @@ def get_reviews_xlsx(call, proposals, reviews_lookup):
                 string="Link",
             )
             ncol += 1
-            ws.write_string(nrow, ncol, review.get("finalized") and "yes" or "no")
+            ws.write_string(nrow, ncol, review.get("finalized") and "Yes" or "No")
             ncol += 1
 
             for field in call["review"]:
                 value = review["values"].get(field["identifier"])
-                if value is None:
-                    ws.write_string(nrow, ncol, "")
-                elif field["type"] == constants.TEXT:
-                    ws.write_string(nrow, ncol, value)
-                elif field["type"] == constants.DOCUMENT:
-                    ws.write_url(
-                        nrow,
-                        ncol,
-                        flask.url_for(
-                            "review.document",
-                            iuid=review["_id"],
-                            fid=field["identifier"],
-                            _external=True,
-                        ),
-                        string="Download",
+                # Ugly, but necessary...
+                if value is not None and field["type"] == constants.DOCUMENT:
+                    value = flask.url_for(
+                        "review.document",
+                        iuid=review["_id"],
+                        fid=field["identifier"],
+                        _external=True,
                     )
-                else:
-                    ws.write(nrow, ncol, value)
+                utils.write_xlsx_field(ws, nrow, ncol, value, field["type"], formats)
                 ncol += 1
             nrow += 1
 

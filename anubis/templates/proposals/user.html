@@ -1,13 +1,7 @@
 {% extends 'base.html' %}
 
-{% block head_title %}
-Proposals by user {{ user['username'] }}
-{% endblock %}
-
-{% block body_title %}
-<small class="text-muted">Proposals by</small>
-{{ user | user_link }}
-{% endblock %}
+{% block head_title %} Proposals by user {{ user['username'] }}{% endblock %}
+{% block body_title %}Proposals by {{ user | user_link }}{% endblock %}
 
 {% block supermain %}
 <table id="proposals" class="table table-sm table-hover">

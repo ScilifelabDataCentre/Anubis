@@ -1,13 +1,8 @@
 {% extends 'base.html' %}
 
-{% block head_title %}
-Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
-{% endblock %}
+{% block head_title %}Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}{% endblock %}
 
-{% block body_title %}
-<small class="text-muted">Review of proposal</small>
-{{ proposal | proposal_link }}
-{% endblock %}
+{% block body_title %}Review of proposal {{ proposal | proposal_link }}{% endblock %}
 
 {% block meta %}
 
@@ -124,16 +119,9 @@ Review of proposal {{ proposal['identifier'] }} {{ proposal['title'] }}
 
 {% block doclinks %}
 {{ super() }}
-<a href="{{ url_for('documentation') }}#review"
+<a href="{{ url_for('documentation', _anchor='review') }}"
    target="documentation" role="button" class="btn btn-outline-primary btn-block">
   Documentation: Review</a>
-{% if allow_edit %}
-<div class="mt-2">
-  <a href="{{ url_for('documentation') }}#instructions-for-reviewers"
-     target="documentation" role="button" class="btn btn-outline-primary btn-block">
-    Instructions for reviewers</a>
-</div>
-{% endif %} {# if allow_edit #}
 {% endblock %} {# block doclinks #}
 
 {% block info %}

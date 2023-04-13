@@ -1,12 +1,10 @@
 {% extends 'base.html' %}
 
 {% block head_title %}Edit proposal {{ proposal['identifier'] }}{% endblock %}
-
 {% block body_title %}Edit proposal {{ proposal['identifier'] }}{% endblock %}
 
 {% block main %}
-<form action="{{ url_for('.edit', pid=proposal['identifier']) }}"
-      enctype="multipart/form-data" method="POST">
+<form action="{{ url_for('.edit', pid=proposal['identifier']) }}" enctype="multipart/form-data" method="POST">
   {{ csrf_token() }}
 
   <div class="form-group row">

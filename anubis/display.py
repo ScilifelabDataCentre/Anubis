@@ -130,7 +130,7 @@ def display_datetime_timezone(value, plain=False):
     """Return the datetime in the local timezone for the given UTC datetime ISO string.
     'plain' is for output as the value of an HTML input field.
     By default, the name of the timezone is included.
-    By default, an undefined values is show as a dash.
+    By default, an undefined value is show as a dash.
     """
     if value:
         result = utils.timezone_from_utc_isoformat(value, tz=not plain)
@@ -191,7 +191,7 @@ def reviews_due_badge(call):
     return markupsafe.Markup(result)
 
 
-def user_link(user, fullname=True, affiliation=False):
+def user_link(user, fullname=True, affiliation=False, button=False):
     "User by name, with link if allowed to view. Optionally output affiliation."
     if fullname:
         name = anubis.user.get_fullname(user)
@@ -201,7 +201,10 @@ def user_link(user, fullname=True, affiliation=False):
         name += f" [{user.get('affiliation') or '-'}]"
     if anubis.user.allow_view(user):
         url = flask.url_for("user.display", username=user["username"])
-        return markupsafe.Markup(f'<a href="{url}">{name}</a>')
+        if button:
+            return markupsafe.Markup(f'<a href="{url}" role="button" class="btn btn-outline-secondary my-2 my-sm-0">{name}</a>')
+        else:
+            return markupsafe.Markup(f'<a href="{url}">{name}</a>')
     else:
         return markupsafe.Markup(name)
 

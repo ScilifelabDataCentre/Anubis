@@ -2,16 +2,12 @@
 
 {% block head_title %}Grant dossier {{ grant['identifier'] }}{% endblock %}
 
-{% block body_title %}
-<small class="text-muted">Grant dossier</small>
-{{ grant['identifier'] }}
-
+{% block body_title %}Grant dossier {{ grant['identifier'] }}
 {% if grant.get('errors') %}
 <span class="badge badge-danger">Incomplete</span>
 {% else %}
 <span class="badge badge-success">Complete</span>
 {% endif %}
-
 {% endblock %}
 
 {% block meta %}
@@ -103,16 +99,14 @@
 {% if allow_lock %}
 <div class="mt-2">
   {% if grant.get('locked') %}
-  <form action="{{ url_for('grant.unlock', gid=grant['identifier']) }}"
-	method="POST">
+  <form action="{{ url_for('grant.unlock', gid=grant['identifier']) }}" method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-warning btn-sm btn-block"
             title="Unlock the grant dossier to allow edits by the user.">
       Unlock</button>
   </form>
   {% else %}
-  <form action="{{ url_for('grant.lock', gid=grant['identifier']) }}"
-	method="POST">
+  <form action="{{ url_for('grant.lock', gid=grant['identifier']) }}" method="POST">
     {{ csrf_token() }}
     <button type="submit" class="btn btn-warning btn-sm btn-block"
             title="Lock the grant dossier to stop edits by the user.">
@@ -124,8 +118,7 @@
 
 {% if allow_delete %}
 <div class="mt-2">
-  <form action="{{ url_for('grant.edit', gid=grant['identifier']) }}"
-	method="POST">
+  <form action="{{ url_for('grant.edit', gid=grant['identifier']) }}" method="POST">
     {{ csrf_token() }}
     <input type="hidden" name="_http_method" value="DELETE">
     <button type="submit" class="btn btn-danger btn-sm btn-block"
@@ -138,7 +131,7 @@
 
 {% block doclinks %}
 {{ super() }}
-<a href="{{ url_for('documentation') }}#grant"
+<a href="{{ url_for('documentation', _anchor='grant') }}"
    target="documentation" role="button" class="btn btn-outline-primary btn-block">
   Documentation: Grant</a>
 {% endblock %} {# block doclinks #}

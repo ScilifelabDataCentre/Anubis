@@ -8,14 +8,12 @@
   {{ csrf_token() }}
 
   <div class="form-group row">
-    <label for="name" class="col-md-2 col-form-label text-right">
-      Text</label>
+    <label for="name" class="col-md-2 col-form-label text-right">Text</label>
     <div class="col-md">
       <div class="row">
         <div class="col-md-8">
           <textarea name="alert_text" id="alert_text"
-	            class="form-control"
-                    aria-describedby="alert_textHelp"
+	            class="form-control" aria-describedby="alert_textHelp"
                     >{{ alert_text or '' }}</textarea>
         </div>
       </div>

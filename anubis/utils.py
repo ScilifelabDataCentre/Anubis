@@ -154,6 +154,45 @@ def to_list(value):
     return [s for s in values if s]
 
 
+def create_xlsx_formats(wb):
+    "Create and return the formats to use for the given XLSX workbook."
+    return dict(
+        head = wb.add_format(
+            {"bold": True, 
+             "text_wrap": True,
+             "font_size": 14,
+             "bg_color": "#9ECA7F",
+             "border": 1,
+             "align": "center"}
+        ),
+        normal = wb.add_format({"font_size": 14, "align": "left"}),
+        wrap = wb.add_format(
+            {"font_size": 14, "text_wrap": True, "align": "vjustify"}
+        )
+    )
+
+def write_xlsx_field(ws, nrow, ncol, value, field_type, formats):
+    """Write a value to the specified cell in the given XLSX worksheet.
+    If the field_type is DOCUMENT, then the URL for it must be stored in 'value'.
+    """
+    if value is None:
+        ws.write_string(nrow, ncol, "")
+    elif field_type in (constants.LINE, constants.EMAIL):
+        ws.write_string(nrow, ncol, value, formats["normal"])
+    elif field_type == constants.BOOLEAN:
+        ws.write(nrow, ncol, value and 'Yes' or 'No', formats["normal"])
+    elif field_type == constants.SELECT:
+        if isinstance(value, list):  # Multiselect
+            ws.write(nrow, ncol, "\n".join(value), formats["wrap"])
+        else:
+            ws.write(nrow, ncol, value, formats["normal"])
+    elif field_type == constants.TEXT:
+        ws.write_string(nrow, ncol, value, formats["wrap"])
+    elif field_type == constants.DOCUMENT:
+        ws.write_url(nrow, ncol, value, string="Download file")
+    else:
+        ws.write(nrow, ncol, value)
+
 def get_now():
     "Current UTC datetime in ISO format (including Z) with millisecond precision."
     now = datetime.datetime.utcnow().isoformat()
@@ -165,7 +204,7 @@ def timezone_from_utc_isoformat(dts, tz=True):
     try:
         dt = dateutil.parser.isoparse(dts)
     except ValueError as error:
-        return str(error)
+        raise ValueError(f"Invalid datetime '{dts}': {error}")
     dt = dt.astimezone(pytz.timezone(flask.current_app.config["TIMEZONE"]))
     if tz:
         return dt.strftime(f"%Y-%m-%d %H:%M {flask.current_app.config['TIMEZONE']}")
@@ -180,7 +219,7 @@ def utc_from_timezone_isoformat(dts):
     try:
         dt = dateutil.parser.isoparse(dts)
     except ValueError as error:
-        return str(error)
+        raise ValueError(f"Invalid datetime '{dts}': {error}")
     dt = pytz.timezone(flask.current_app.config["TIMEZONE"]).localize(dt)
     dt = dt.astimezone(pytz.utc)
     return dt.strftime("%Y-%m-%dT%H:%M:%S.000Z")

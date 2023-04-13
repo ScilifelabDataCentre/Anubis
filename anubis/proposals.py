@@ -103,25 +103,14 @@ def get_call_xlsx(call, submitted=False, proposals=None):
     rank_fields, rank_errors = get_review_rank_fields_errors(call, proposals)
     output = io.BytesIO()
     wb = xlsxwriter.Workbook(output, {"in_memory": True})
-    head_text_format = wb.add_format(
-        {
-            "bold": True,
-            "text_wrap": True,
-            "bg_color": "#9ECA7F",
-            "font_size": 15,
-            "align": "center",
-            "border": 1,
-        }
-    )
-    normal_text_format = wb.add_format(
-        {"font_size": 14, "align": "left", "valign": "vcenter"}
-    )
+    formats = utils.create_xlsx_formats(wb)
     ws = wb.add_worksheet(title[:31])
     ws.freeze_panes(1, 1)
-    ws.set_row(0, 60, head_text_format)
-    ws.set_column(1, 1, 40, normal_text_format)
-    ws.set_column(2, 2, 10, normal_text_format)
-    ws.set_column(3, 4, 20, normal_text_format)
+    ws.set_row(0, 60, formats["head"])
+    ws.set_column(0, 0, 16, formats["normal"])
+    ws.set_column(1, 1, 40, formats["normal"])
+    ws.set_column(2, 2, 10, formats["normal"])
+    ws.set_column(3, 4, 20, formats["normal"])
 
     nrow = 0
     row = ["Proposal", "Proposal title"]
@@ -130,9 +119,9 @@ def get_call_xlsx(call, submitted=False, proposals=None):
     for field in call["proposal"]:
         row.append(field["title"] or field["identifier"].capitalize())
         if field["type"] in (constants.LINE, constants.EMAIL):
-            ws.set_column(ncol, ncol, 40, normal_text_format)
+            ws.set_column(ncol, ncol, 40, formats["normal"])
         elif field["type"] == constants.TEXT:
-            ws.set_column(ncol, ncol, 60, normal_text_format)
+            ws.set_column(ncol, ncol, 60, formats["normal"])
         ncol += 1
     allow_view_reviews = anubis.call.allow_view_reviews(call)
     if allow_view_reviews:
@@ -171,7 +160,7 @@ def get_call_xlsx(call, submitted=False, proposals=None):
         ncol += 1
         ws.write_string(nrow, ncol, proposal.get("title") or "")
         ncol += 1
-        ws.write_string(nrow, ncol, proposal.get("submitted") and "yes" or "no")
+        ws.write_string(nrow, ncol, proposal.get("submitted") and "Yes" or "No")
         ncol += 1
         user = anubis.user.get_user(username=proposal["user"])
         ws.write_string(nrow, ncol, anubis.user.get_fullname(user))
@@ -183,29 +172,15 @@ def get_call_xlsx(call, submitted=False, proposals=None):
 
         for field in call["proposal"]:
             value = proposal["values"].get(field["identifier"])
-            if value is None:
-                ws.write_string(nrow, ncol, "")
-            elif field["type"] == constants.TEXT:
-                ws.write_string(nrow, ncol, value)
-            elif field["type"] == constants.DOCUMENT:
-                ws.write_url(
-                    nrow,
-                    ncol,
-                    flask.url_for(
-                        "proposal.document",
-                        pid=proposal["identifier"],
-                        fid=field["identifier"],
-                        _external=True,
-                    ),
-                    string="Download",
+            # Ugly, but necessary...
+            if value is not None and field["type"] == constants.DOCUMENT:
+                value = flask.url_for(
+                    "proposal.document",
+                    pid=proposal["identifier"],
+                    fid=field["identifier"],
+                    _external=True,
                 )
-            elif field["type"] == constants.SELECT:
-                if isinstance(value, list):  # Multiselect
-                    ws.write(nrow, ncol, "\n".join(value))
-                else:
-                    ws.write(nrow, ncol, value)
-            else:
-                ws.write(nrow, ncol, value)
+            utils.write_xlsx_field(ws, nrow, ncol, value, field["type"], formats)
             ncol += 1
 
         if allow_view_reviews:
@@ -432,16 +407,15 @@ def get_review_rank_fields_errors(call, proposals):
                 else:
                     d = ranks.setdefault(review["reviewer"], dict())
                     d[proposal["identifier"]] = value
-        # Check that ranking values start with 1 and are consecutiive.
+        # Check that ranking values start with 1 and are consecutive.
         for reviewer, values in ranks.items():
             series = list(values.values())
             if series:
-                user = anubis.user.get_user(reviewer)
-                name = anubis.user.get_fullname(user)
+                fullname = anubis.user.get_fullname(reviewer)
                 if min(series) != 1:
-                    errors.append(f"{name} reviews '{id}' do not start with 1.")
+                    errors.append(f"{fullname} reviews '{id}' do not start with 1.")
                 elif set(series) != set(range(1, max(series) + 1)):
-                    errors.append(f"{name} reviews '{id}' are not consecutive.")
+                    errors.append(f"{fullname} reviews '{id}' are not consecutive.")
         # For each proposal, compute ranking factor.
         for proposal in proposals:
             factors = []

@@ -1,12 +1,10 @@
 {% extends 'base.html' %}
 
 {% block head_title %}Edit review of {{ proposal['identifier'] }}{% endblock %}
-
 {% block body_title %}Edit review of {{ proposal['identifier'] }}{% endblock %}
 
 {% block main %}
-<form action="{{ url_for('.edit', iuid=review['_id']) }}"
-      enctype="multipart/form-data" method="POST">
+<form action="{{ url_for('.edit', iuid=review['_id']) }}" enctype="multipart/form-data" method="POST">
   {{ csrf_token() }}
 
   {% set fields = call['review'] %}
