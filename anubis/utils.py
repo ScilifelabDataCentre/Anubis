@@ -204,7 +204,7 @@ def timezone_from_utc_isoformat(dts, tz=True):
     try:
         dt = dateutil.parser.isoparse(dts)
     except ValueError as error:
-        return str(error)
+        raise ValueError(f"Invalid datetime '{dts}': {error}")
     dt = dt.astimezone(pytz.timezone(flask.current_app.config["TIMEZONE"]))
     if tz:
         return dt.strftime(f"%Y-%m-%d %H:%M {flask.current_app.config['TIMEZONE']}")
@@ -219,7 +219,7 @@ def utc_from_timezone_isoformat(dts):
     try:
         dt = dateutil.parser.isoparse(dts)
     except ValueError as error:
-        return str(error)
+        raise ValueError(f"Invalid datetime '{dts}': {error}")
     dt = pytz.timezone(flask.current_app.config["TIMEZONE"]).localize(dt)
     dt = dt.astimezone(pytz.utc)
     return dt.strftime("%Y-%m-%dT%H:%M:%S.000Z")

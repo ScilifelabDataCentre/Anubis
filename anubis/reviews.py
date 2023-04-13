@@ -530,7 +530,7 @@ def get_reviews_xlsx(call, proposals, reviews_lookup):
                 string="Link",
             )
             ncol += 1
-            ws.write_string(nrow, ncol, review.get("finalized") and "yes" or "no")
+            ws.write_string(nrow, ncol, review.get("finalized") and "Yes" or "No")
             ncol += 1
 
             for field in call["review"]:

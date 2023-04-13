@@ -122,13 +122,6 @@
 <a href="{{ url_for('documentation', _anchor='review') }}"
    target="documentation" role="button" class="btn btn-outline-primary btn-block">
   Documentation: Review</a>
-{% if allow_edit %}
-<div class="mt-2">
-  <a href="{{ url_for('documentation', _anchor='instructions-for-reviewers') }}"
-     target="documentation" role="button" class="btn btn-outline-primary btn-block">
-    Instructions for reviewers</a>
-</div>
-{% endif %} {# if allow_edit #}
 {% endblock %} {# block doclinks #}
 
 {% block info %}

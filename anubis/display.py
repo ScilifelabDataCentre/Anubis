@@ -130,7 +130,7 @@ def display_datetime_timezone(value, plain=False):
     """Return the datetime in the local timezone for the given UTC datetime ISO string.
     'plain' is for output as the value of an HTML input field.
     By default, the name of the timezone is included.
-    By default, an undefined values is show as a dash.
+    By default, an undefined value is show as a dash.
     """
     if value:
         result = utils.timezone_from_utc_isoformat(value, tz=not plain)
