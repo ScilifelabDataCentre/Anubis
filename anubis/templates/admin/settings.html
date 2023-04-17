@@ -9,24 +9,22 @@
   is changed, the server process must be restarted.
 </p>
 <p>
-  Settings are configured in the following way:
+  The settings values are determined in the following way:
   <ol>
     <li>
       Initial values are defined in the DEFAULT_CONFIG dictionary in the
       source code file <code>Anubis/anubis/config.py</code>.
     </li>
-    <li>      
-      A JSON settings file is searched for in threee locations. The first found,
-      if any, will be use. The three locations are, in turn:
+    <li>
+      The values found in a JSON settings file, if any, updates the settings.
       <ol>
-        <li>The path given by the environment variable
-          <code>ANUBIS_SETTINGS_FILEPATH</code>.
+        <li>
+          Read the JSON file given by environment variable
+          <code>ANUBIS_SETTINGS_FILEPATH</code>, if defined.
         </li>
         <li>
-          The file <code>Anubis/anubis/settings.json</code>
-        </li>
-        <li>
-          The file <code>Anubis/site/settings.json</code>
+          Otherwise, read the file <code>Anubis/site/settings.json</code>,
+          if it exists.
         </li>
       </ol>
     </li>

@@ -2,3 +2,9 @@
 
 {% block head_title %}Calls with grants{% endblock %}
 {% block body_title %}Calls with grants{% endblock %}
+
+{% block meta %}
+<a href="{{ url_for('calls.grants_xlsx') }}"
+   class="badge badge-pill badge-dark" role="button"
+   title="Download XLSX file of calls with grants.">Grants calls Excel file</a>
+{% endblock %} {# block meta #}

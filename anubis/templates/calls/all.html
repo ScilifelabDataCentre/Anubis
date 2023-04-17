@@ -3,6 +3,14 @@
 {% block head_title %}All calls{% endblock %}
 {% block body_title %}All calls{% endblock %}
 
+{% block meta %}
+{% if g.am_admin or g.am_staff %}
+<a href="{{ url_for('calls.all_xlsx') }}"
+   class="badge badge-pill badge-dark" role="button"
+   title="Download XLSX file of all calls.">All calls Excel file</a>
+{% endif %}
+{% endblock %} {# block meta #}
+
 {% block main %}
 <table id="calls" class="table table-sm table-hover">
   <thead>

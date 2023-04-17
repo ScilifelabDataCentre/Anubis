@@ -3,6 +3,12 @@
 {% block head_title %}Closed calls{% endblock %}
 {% block body_title %}Closed calls{% endblock %}
 
+{% block meta %}
+<a href="{{ url_for('calls.closed_xlsx') }}"
+   class="badge badge-pill badge-dark" role="button"
+   title="Download XLSX file of closed calls.">Closed calls Excel file</a>
+{% endblock %} {# block meta #}
+
 {% block main %}
 <table id="calls" class="table table-sm table-hover">
   <thead>

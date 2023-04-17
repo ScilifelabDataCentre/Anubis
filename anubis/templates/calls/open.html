@@ -3,6 +3,12 @@
 {% block head_title %}Open calls{% endblock %}
 {% block body_title %}Open calls{% endblock %}
 
+{% block meta %}
+<a href="{{ url_for('calls.open_xlsx') }}"
+   class="badge badge-pill badge-dark" role="button"
+   title="Download XLSX file of open calls.">Open calls Excel file</a>
+{% endblock %} {# block meta #}
+
 {% block main %}
 <table id="calls" class="table table-sm table-hover">
   <thead>

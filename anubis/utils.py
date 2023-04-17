@@ -201,6 +201,8 @@ def get_now():
 
 def timezone_from_utc_isoformat(dts, tz=True):
     "Convert the given datetime ISO string in UTC to the configured timezone."
+    if not dts:
+        return ""
     try:
         dt = dateutil.parser.isoparse(dts)
     except ValueError as error:

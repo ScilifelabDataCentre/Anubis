@@ -3,6 +3,12 @@
 {% block head_title %}Calls by {{ username }} {% endblock %}
 {% block body_title %}Calls by {{ get_user(username) | user_link }}{% endblock %}
 
+{% block meta %}
+<a href="{{ url_for('calls.owner_xlsx', username=username) }}"
+   class="badge badge-pill badge-dark" role="button"
+   title="Download XLSX file of owner calls.">Owner calls Excel file</a>
+{% endblock %} {# block meta #}
+
 {% block main %}
 <table id="calls" class="table table-sm table-hover">
   <thead>
