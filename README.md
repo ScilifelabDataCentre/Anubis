@@ -73,14 +73,19 @@ access and modify its data. Refer to the CouchDB documentation.
 There are two phases of configuration:
 
 1. Server configuration. This should be done once when installing the system. This
-   requires access to the server machine. It takes effect when the web server
-   process is started. This means that if it is changed, the web server process
-   will have to be restarted.
+   requires access to the server machine.
+
+   Server configuration takes effect when the web server process is started.
+   This means that if it is changed, the web server process will have to be restarted.
+
 2. Web interface configuration. This is done when the web server is up and running,
    and requires an administrator account ('admin') in the Anubis site. This should
    usually be done before launching the site for general use. The various
    configuration pages can be reached from the top menu item 'Admin', which is
    visible only to admins.
+
+   These changes take effect immediately. The values are stored in the database,
+   and are read from it when the server process is restarted.
 
 ### Server configuration
 
