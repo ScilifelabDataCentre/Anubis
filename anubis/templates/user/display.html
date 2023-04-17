@@ -49,6 +49,9 @@ User {{ user['username'] }}
           {{ call['n_reviews'] }} reviews
         </a>
         of proposals in call {{ call | call_link }}
+        {% if user['username'] in call['chairs'] %}
+        Chair of this call.
+        {% endif %}
       </p>
       {% endfor %}
     </td>

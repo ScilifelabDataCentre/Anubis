@@ -151,3 +151,21 @@ can be configured from the web interface by an admin.
 The settings fields in these pages are (supposed to be) self-explanatory.
 Before launching the site for general use, the admin should go through
 these pages and consider the appropriate settings.
+
+
+# Software design
+
+The implementation of Anubis is based on the following design decisions:
+
+- The back-end is written in Python using Flask.
+  - The back-end generates HTML for display using Jinja2.
+  - The front-end uses Bootstrap and has hardly any JavaScript.
+- The back-end uses the No-SQL database CouchDB.
+  - Each entity instance is stored in one document in the CouchDB database.
+  - The entities are in most cases identified internally by a IUID
+    (Instance-unique identifier) which is a UUID4 value.
+  - The entities contain pointers to each other using the IUIDs.
+  - The CouchDB indexes ("designs") are vital for the computational efficiency
+    of the system.
+- There is a command-line interface (CLI) tool for certain operations,
+  such as creating dumps.

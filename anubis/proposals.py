@@ -25,8 +25,8 @@ def call(cid):
     call = anubis.call.get_call(cid)
     if not call:
         return utils.error("No such call.")
-    if not anubis.call.allow_view(call):
-        return utils.error("You may not view the call.")
+    if not anubis.call.allow_view_proposals(call):
+        return utils.error("You may not view the proposals of the call.")
 
     proposals = get_call_proposals(call)
     all_emails = []
@@ -60,7 +60,6 @@ def call(cid):
         review_rank_fields=rank_fields,
         review_rank_errors=rank_errors,
         am_reviewer=anubis.call.am_reviewer(call),
-        allow_view_details=anubis.call.allow_view_details(call),
         allow_view_reviews=anubis.call.allow_view_reviews(call),
         allow_view_decisions=anubis.call.allow_view_decisions(call),
         allow_view_grants=anubis.call.allow_view_grants(call),
@@ -99,11 +98,14 @@ def get_call_xlsx(call, submitted=False, proposals=None):
         proposals = get_call_proposals(call, submitted=submitted)
     else:
         title = f"Selected proposals in {call['identifier']}"
-    score_fields = get_review_score_fields(call, proposals)
-    rank_fields, rank_errors = get_review_rank_fields_errors(call, proposals)
+    allow_view_reviews = anubis.call.allow_view_reviews(call)
+    if allow_view_reviews:
+        score_fields = get_review_score_fields(call, proposals)
+        rank_fields, rank_errors = get_review_rank_fields_errors(call, proposals)
     output = io.BytesIO()
     wb = xlsxwriter.Workbook(output, {"in_memory": True})
     formats = utils.create_xlsx_formats(wb)
+    # Hard str(len) limit for worksheet title.
     ws = wb.add_worksheet(title[:31])
     ws.freeze_panes(1, 1)
     ws.set_row(0, 60, formats["head"])
@@ -123,8 +125,9 @@ def get_call_xlsx(call, submitted=False, proposals=None):
         elif field["type"] == constants.TEXT:
             ws.set_column(ncol, ncol, 60, formats["normal"])
         ncol += 1
-    allow_view_reviews = anubis.call.allow_view_reviews(call)
     if allow_view_reviews:
+        row.append("# Reviews")
+        row.append("# Finalized reviews")
         for rf in rank_fields.values():
             row.append(f"Reviews {rf['title']}: ranking factor")
             row.append(f"Reviews {rf['title']}: stdev")
@@ -184,6 +187,10 @@ def get_call_xlsx(call, submitted=False, proposals=None):
             ncol += 1
 
         if allow_view_reviews:
+            ws.write_number(nrow, ncol, proposal["number_reviews"])
+            ncol += 1
+            ws.write_number(nrow, ncol, proposal["number_finalized_reviews"])
+            ncol += 1
             for id in rank_fields.keys():
                 value = proposal["ranking"][id]["factor"]
                 if value is None:
@@ -321,6 +328,7 @@ def get_review_score_fields(call, proposals):
     fields, then also compute the mean of the means and the stdev of the means.
     This is done over all finalized non-conflict-of-interest reviews for each proposal.
     Store the values in the proposal document.
+    Also store the total number of reviews and finalized in the proposal document.
     """
     fields = dict(
         [
@@ -333,7 +341,9 @@ def get_review_score_fields(call, proposals):
         reviews = anubis.database.get_docs(
             "reviews", "proposal", proposal["identifier"]
         )
+        proposal["number_reviews"] = len(reviews)
         reviews = [r for r in reviews if r.get("finalized")]
+        proposal["number_finalized_reviews"] = len(reviews)
         reviews = [r for r in reviews if not r["values"].get("conflict_of_interest")]
         scores = dict([(id, list()) for id in fields])
         for review in reviews:

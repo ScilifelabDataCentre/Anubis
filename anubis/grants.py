@@ -94,7 +94,8 @@ def get_call_grants_xlsx(call, grants):
     output = io.BytesIO()
     wb = xlsxwriter.Workbook(output, {"in_memory": True})
     formats = utils.create_xlsx_formats(wb)
-    ws = wb.add_worksheet(f"Grants in call {call['identifier']}"[:31])  # Hard len(str) limit.
+    # Hard str(len) limit for worksheet title.
+    ws = wb.add_worksheet(f"Grants in call {call['identifier']}"[:31])
     ws.freeze_panes(2, 1)
     ws.set_row(0, 60, formats["head"])
     ws.set_row(1, 60, formats["head"])

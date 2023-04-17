@@ -2,7 +2,6 @@
 modified by an optional settings file or environment variables.
 """
 
-import copy
 import datetime
 import json
 import logging
@@ -55,33 +54,26 @@ def init(app):
     Raise KeyError if a settings variable is missing.
     Raise ValueError if a settings variable value is invalid.
     """
-    config = copy.deepcopy(DEFAULT_CONFIG)
+    config = DEFAULT_CONFIG.copy()
 
     # Dotenv file '.env' is optional. It is useful for development.
     if dotenv.load_dotenv():
         config["SETTINGS_DOTENV_FILEPATH"] = dotenv.find_dotenv()
 
-    # Collect filepaths for possible locations of a settings file.
-    filepaths = []
+    # Find and read the settings file, updating the defaults.
     try:
-        filepaths.append(os.environ["ANUBIS_SETTINGS_FILEPATH"])
+        filepath = os.environ["ANUBIS_SETTINGS_FILEPATH"]
     except KeyError:
-        pass
-    for filepath in ["settings.json", "../site/settings.json"]:
-        filepaths.append(os.path.normpath(os.path.join(constants.ROOT, filepath)))
-
-    # Use the first settings file that can be found. Record any obsolete keys in it.
-    for filepath in filepaths:
-        try:
-            with open(filepath) as infile:
-                settings_config = json.load(infile)
-        except OSError:
-            pass
-        else:
-            config.update(settings_config)
-            config["SETTINGS_FILEPATH"] = filepath
-            obsolete_keys = set(settings_config.keys()).difference(DEFAULT_CONFIG)
-            break
+        filepath = os.path.normpath(os.path.join(constants.ROOT, "../site/settings.json"))
+    try:
+        with open(filepath) as infile:
+            from_settings_file = json.load(infile)
+    except OSError:
+        obsolete_keys = []
+    else:
+        config.update(from_settings_file)
+        config["SETTINGS_FILE"] = filepath
+        obsolete_keys = set(from_settings_file.keys()).difference(DEFAULT_CONFIG)
 
     # Modify the configuration from environment variables; convert to correct type.
     config["SETTINGS_ENVVAR"] = False
@@ -163,7 +155,7 @@ def init(app):
         )
     if app.config.get("SETTINGS_FILEPATH"):
         app.logger.info(f"settings file: {app.config['SETTINGS_FILEPATH']}")
-        for key in obsolete_keys:
+        for key in sorted(obsolete_keys):
             app.logger.warning(f"Obsolete item '{key}' in settings.")
     for key in envvar_keys:
         app.logger.info(f"'{key}' setting from environment variable.")

@@ -88,6 +88,7 @@
               {% endif %} {# if g.allow_create_call #}
               {% if g.am_admin or g.am_staff %}
               <a class="dropdown-item" href="{{ url_for('calls.unpublished') }}">Unpublished calls</a>
+              <a class="dropdown-item" href="{{ url_for('calls.reviews') }}">Calls with reviews</a>
               <a class="dropdown-item" href="{{ url_for('calls.grants') }}">Calls with grants</a>
               <a class="dropdown-item" href="{{ url_for('calls.all') }}">All calls</a>
               {% endif %} {# if g.am_admin or g.am_staff #}
