@@ -93,9 +93,9 @@ Some server configuration needs to be done before the app can be executed.
 The configuration values can be set in one of two ways:
 
 1. Environment variables that specify the configuration values.
-2. Using a file `settings.json` containing the configuration values. This file
-   can be located in the source directory `Anubis/anubis` or in a directory
-   `Anubis/site`, which you must create.
+2. Using a file `settings.json` containing the configuration values. The path
+   of this file can be specified by the environment variable ANUBIS_SETTINGS_FILEPATH
+   or it can be located in a directory `Anubis/site`, which you must create.
 
 The following configuration settings need to be set:
 
