@@ -589,6 +589,7 @@ def get_proposal_xlsx(proposal):
     result = io.BytesIO()
     wb = xlsxwriter.Workbook(result, {"in_memory": True})
     formats = utils.create_xlsx_formats(wb)
+    # Hard str(len) limit for worksheet title.
     ws = wb.add_worksheet(f"Proposal {proposal['identifier'].replace(':','-')}"[:31])
     ws.set_column(0, 0, 20, formats["head"])
     ws.set_column(1, 1, 80, formats["normal"])

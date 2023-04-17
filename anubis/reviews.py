@@ -473,6 +473,7 @@ def get_reviews_xlsx(call, proposals, reviews_lookup):
     output = io.BytesIO()
     wb = xlsxwriter.Workbook(output, {"in_memory": True})
     formats = utils.create_xlsx_formats(wb)
+    # Hard str(len) limit for worksheet title.
     ws = wb.add_worksheet(f"Reviews in call {call['identifier']}"[:31])
     ws.freeze_panes(1, 1)
     ws.set_row(0, 60, formats["head"])
