@@ -5,7 +5,8 @@ Reviewers for call {{ call['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-Reviewers for call {{ call['identifier'] }}
+<small>Reviewers for call</small>
+{{ call | call_link(proposals_link=False) }}
 {% endblock %}
 
 {% block meta %}

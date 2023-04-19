@@ -2,7 +2,9 @@
 
 {% block head_title %}Reviews of proposal {{ proposal['identifier'] }} {{ proposal['title'] or '' }}{% endblock %}
 
-{% block body_title %}Reviews of proposal {{ proposal | proposal_link }}{% endblock %}
+{% block body_title %}
+<small>Reviews of proposal</small><br>
+{{ proposal | proposal_link }}{% endblock %}
 
 {% block meta %}
 <div>

@@ -2,7 +2,10 @@
 
 {% block head_title %}{{ proposal['identifier'] }}{% endblock %}
 
-{% block body_title %}Proposal {{ proposal['identifier'] }} {{ proposal.get('title') | display_value('[No title]') }}{% endblock %}
+{% block body_title %}
+<small>Proposal</small><br>
+{{ proposal['identifier'] }} {{ proposal.get('title') | display_value('[No title]') }}
+{% endblock %}
 
 {% block meta %}
 <div>

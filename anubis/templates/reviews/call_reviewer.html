@@ -5,10 +5,8 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-<small class="text-muted">Reviews by</small>
-{{ user | user_link}}
-<small class="text-muted">in call</small>
-{{ call | call_link }}
+<small>Reviews by</small> {{ user | user_link}}
+<small>in call</small> {{ call | call_link }}
 {% endblock %}
 
 {% block meta %}
@@ -28,9 +26,9 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
     {{ call | reviews_due_badge }}
   </div>
   <div class="col-md">
-    <a href="{{ url_for('documentation', _anchor='instructions-for-reviewers') }}"
-       target="documentation" role="button" class="btn btn-outline-secondary btn-block">
-      Instructions for reviewers</a>
+            <a href="{{ url_for('documentation', _anchor='instructions-for-reviewers') }}"
+               target="documentation" role="button"
+               class="btn btn-outline-primary btn-block">Instructions for reviewers</a>
     <a href="{{ url_for('reviews.call_reviewer_archived', cid=call['identifier'], username=user['username']) }}"
        role="button" class="btn btn-secondary btn-block">
       Archived reviews</a>

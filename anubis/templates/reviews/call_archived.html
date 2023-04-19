@@ -2,7 +2,9 @@
 
 {% block head_title %}Archived reviews in call {{ call['identifier'] }}{% endblock %}
 
-{% block body_title %}Archived reviews in call {{ call | call_link }}{% endblock %}
+{% block body_title %}
+<small>Archived reviews in call</small> {{ call | call_link }}
+{% endblock %}
 
 {% block supermain %}
 <div class="row mb-2">

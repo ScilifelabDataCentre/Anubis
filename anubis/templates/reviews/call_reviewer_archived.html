@@ -5,10 +5,8 @@ Archived reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 {% endblock %}
 
 {% block body_title %}
-<small class="text-muted">Archived reviews by</small>
-{{ user | user_link}}
-<small class="text-muted">in call</small>
-{{ call | call_link }}
+<small>Archived reviews by</small> {{ user | user_link}}
+<small>in call</small> {{ call | call_link }}
 {% endblock %}
 
 {% block supermain %}
