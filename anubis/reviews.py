@@ -347,7 +347,7 @@ def call_archived(cid):
             "reviews",
             "call_reviewer_archived",
             startkey=[call["identifier"], ""],
-            endkey=[call["identifier"], "ZZZZZZ"],
+            endkey=[call["identifier"], constants.CEILING],
             include_docs=True,
         )
     ]

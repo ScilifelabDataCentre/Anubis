@@ -144,7 +144,7 @@ def get_logs(docid, cleanup=True):
         for r in flask.g.db.view(
             "logs",
             "doc",
-            startkey=[docid, "ZZZZZZ"],
+            startkey=[docid, constants.CEILING],
             endkey=[docid],
             descending=True,
             include_docs=True,
@@ -372,8 +372,30 @@ PROPOSALS_DESIGN_DOC = {
             "reduce": "_count",
             "map": "function (doc) {if (doc.doctype !== 'proposal') return; if (!doc.access_view) return; for (var i=0; i < doc.access_view.length; i++) {emit(doc.access_view[i], doc.identifier); }}",
         },
+        "term": {  # proposal/term
+            # NOTE: The 'map' function body is modified below.
+            # This is why there have to be double curly-braces here.
+            "map": """function(doc) {{
+    if (doc.doctype !== 'proposal') return;
+    if (!doc.title) return;
+    var cleaned = doc.title.replace(/[{delims_lint}]/g, " ").toLowerCase();
+    var terms = cleaned.split(/\s+/);
+    terms.forEach(function(term) {{
+        if (term.length >= 2 && !lint[term]) emit(term, null);
+    }});
+}};
+var lint = {lint};
+"""
+        },
     }
 }
+
+# Replace variables in the function body according to constants.
+mapfunc = PROPOSALS_DESIGN_DOC["views"]["term"]["map"]
+PROPOSALS_DESIGN_DOC["views"]["term"]["map"] = mapfunc.format(
+    delims_lint="".join(constants.PROPOSALS_SEARCH_DELIMS_LINT),
+    lint="{%s}" % ", ".join(["'%s': 1" % w for w in constants.PROPOSALS_SEARCH_LINT])
+)
 
 REVIEWS_DESIGN_DOC = {
     "views": {

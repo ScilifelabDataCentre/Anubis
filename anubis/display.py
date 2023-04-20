@@ -268,13 +268,16 @@ def call_grants_link(call, full=False):
     return markupsafe.Markup(html)
 
 
-def proposal_link(proposal):
+def proposal_link(proposal, full=True):
     "Link to proposal."
     if not proposal:
         return "-"
     url = flask.url_for("proposal.display", pid=proposal["identifier"])
     title = proposal.get("title") or "[No title]"
-    html = f"""<a href="{url}" title="{title}">{proposal['identifier']} {title}</a>"""
+    if full:
+        html = f"""<a href="{url}" title="{title}">{proposal['identifier']} {title}</a>"""
+    else:
+        html = f"""<a href="{url}" title="{title}">{proposal['identifier']}</a>"""
     return markupsafe.Markup(html)
 
 

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Search proposals{% endblock %}
+{% block body_title %}Search proposals{% endblock %}
+
+{% block main %}
+
+<form action="{{ url_for('search') }}" method="GET" role="form" class="py-4">
+  <div class="row">
+    <div class="offset-md-2 col-md-8">
+      <label class="sr-only" for="term">Term</label>
+      <div class="input-group mb-2">
+        <div class="input-group-prepend">
+          <div class="input-group-text">Search</div>
+        </div>
+        <input type="text" class="form-control" id="term" name="term"
+               aria-describedby="searchHelp"
+               value="{{ term or '' }}">
+      </div>
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary mb-2">Submit</button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="offset-md-2 col-md-8">
+      <small id="searchHelp" class="text-muted">
+        Searches for database IUIDs, proposal identifiers, and terms in proposal titles.
+      </small>
+    </div>
+  </div>
+</form>
+
+<table class="table table-hover table-sm">
+  <thead>
+    <tr>
+      <th>Proposal</th>
+      <th>Title</th>
+      <th>Submitter</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for pid, proposal in proposals.items() %}
+    <tr>
+      <td>{{ proposal | proposal_link(full=False) }}</td>
+      <td>{{ proposal['title'] or proposal['identifier'] }}</td>
+      <td>{{ get_user(proposal['user']) | user_link(affiliation=True) }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %} {# block main #}

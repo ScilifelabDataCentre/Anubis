@@ -146,7 +146,7 @@ def get_open_calls():
             "calls",
             "closes",
             startkey=utils.get_now(),
-            endkey="ZZZZZZ",
+            endkey=constants.CEILING,
             include_docs=True,
         )
     ]
@@ -189,7 +189,7 @@ def get_unpublished_calls():
                 "calls",
                 "opens",
                 startkey=utils.get_now(),
-                endkey="ZZZZZZ",
+                endkey=constants.CEILING,
                 include_docs=True,
             )
         ]

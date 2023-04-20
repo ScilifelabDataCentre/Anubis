@@ -1,5 +1,6 @@
 "Flask app setup and creation; main entry point.."
 
+import functools
 import http.client
 import io
 
@@ -141,6 +142,72 @@ def home():
         calls=anubis.calls.get_open_calls(),
         allow_create_call=anubis.call.allow_create(),
     )
+
+
+@app.route("/search")
+@utils.login_required
+def search():
+    """Search proposals:
+    - identifier (exact)
+    - title (terms)
+    """
+    orig_term = term = flask.request.args.get("term", "")
+    proposals = {}
+    parts = term.split()
+    parts = [p for p in parts if p]
+
+    # Exact proposal identifier.
+    for part in parts:
+        proposal = anubis.proposal.get_proposal(part.upper())
+        if proposal:
+            proposals[proposal["identifier"]] = proposal
+
+    # Exact proposal IUIDs.
+    for part in parts:
+        proposal = anubis.database.get_doc(part.lower())
+        if proposal and proposal["doctype"] == constants.PROPOSAL:
+            proposals[proposal["identifier"]] = proposal
+
+    # Search proposal titles for parts.
+    term = (
+        "".join(
+            [
+                c in constants.PROPOSALS_SEARCH_DELIMS_LINT and " " or c
+                for c in orig_term
+            ]
+        )
+        .strip()
+        .lower()
+    )
+    parts = [
+        part
+        for part in term.split()
+        if part and len(part) >= 2 and part not in constants.PROPOSALS_SEARCH_LINT
+    ]
+
+    id_sets = []
+    for part in parts:
+        id_sets.append(
+            set(
+                [
+                    row.id
+                    for row in flask.g.db.view(
+                            "proposals",
+                            "term",
+                            startkey=part,
+                            endkey=part + constants.CEILING,
+                    )
+                ]
+            )
+        )
+
+    # All term parts (=words) must exist in the title.
+    if id_sets:
+        for id in functools.reduce(lambda i, j: i.intersection(j), id_sets):
+            proposal = anubis.database.get_doc(id) # Is always a proposal.
+            proposals[proposal["identifier"]] = proposal
+
+    return flask.render_template("search.html", proposals=proposals, term=orig_term)
 
 
 @app.route("/documentation")

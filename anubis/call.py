@@ -115,7 +115,7 @@ def display(cid):
         "reviews",
         "call_reviewer_archived",
         startkey=[call["identifier"], ""],
-        endkey=[call["identifier"], "ZZZZZZ"],
+        endkey=[call["identifier"], constants.CEILING],
         reduce=True,
     )
     kwargs["archived_reviews_count"] = result and result[0].value or 0
