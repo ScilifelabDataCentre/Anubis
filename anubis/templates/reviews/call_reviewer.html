@@ -22,7 +22,7 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 <div class="row mb-2">
   <div class="col-md-2 text-right font-weight-bold">Due</div>
   <div class="col-md-8">
-    {{ call.get('reviews_due') | display_datetime_timezone }}
+    {{ call.get('reviews_due') | display_datetime_timezone(tz=True) }}
     {{ call | reviews_due_badge }}
   </div>
   <div class="col-md">

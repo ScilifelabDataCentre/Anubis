@@ -155,7 +155,11 @@ def edit(cid):
                     if value:
                         value = utils.utc_from_timezone_isoformat(value)
                     saver[key] = value
-                saver["labels"] = [l.strip() for l in flask.request.form.get("labels", "").split(",") if l.strip()]
+                saver["labels"] = [
+                    l.strip()
+                    for l in flask.request.form.get("labels", "").split(",")
+                    if l.strip()
+                ]
                 saver.edit_privileges(flask.request.form)
             call = saver.doc
         except ValueError as error:

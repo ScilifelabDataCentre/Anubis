@@ -394,7 +394,7 @@ var lint = {lint};
 mapfunc = PROPOSALS_DESIGN_DOC["views"]["term"]["map"]
 PROPOSALS_DESIGN_DOC["views"]["term"]["map"] = mapfunc.format(
     delims_lint="".join(constants.PROPOSALS_SEARCH_DELIMS_LINT),
-    lint="{%s}" % ", ".join(["'%s': 1" % w for w in constants.PROPOSALS_SEARCH_LINT])
+    lint="{%s}" % ", ".join(["'%s': 1" % w for w in constants.PROPOSALS_SEARCH_LINT]),
 )
 
 REVIEWS_DESIGN_DOC = {

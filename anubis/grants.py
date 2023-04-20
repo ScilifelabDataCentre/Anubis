@@ -231,7 +231,7 @@ def get_call_grants_xlsx(call, grants):
                             repeated["type"],
                             grant["identifier"],
                             fid,
-                            formats
+                            formats,
                         )
                         max_ncol = max(max_ncol, ncol + col_offset)
                     col_offset += 1
@@ -246,7 +246,7 @@ def get_call_grants_xlsx(call, grants):
                     field["type"],
                     grant["identifier"],
                     field["identifier"],
-                    formats
+                    formats,
                 )
                 max_ncol = max(max_ncol, ncol)
             ncol += 1

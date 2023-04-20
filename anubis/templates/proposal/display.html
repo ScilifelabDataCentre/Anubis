@@ -52,7 +52,7 @@
   <div class="col-md-2 font-weight-bold text-right">Call closes</div>
   <div class="col-md">
     <span class="mr-4">
-      {{ call['closes'] | display_datetime_timezone }}
+      {{ call['closes'] | display_datetime_timezone(tz=True) }}
       {{ call | call_closes_badge }}
     </span>
   </div>

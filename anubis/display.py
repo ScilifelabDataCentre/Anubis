@@ -126,14 +126,14 @@ def display_value(value, default="-"):
         return value
 
 
-def display_datetime_timezone(value, plain=False):
+def display_datetime_timezone(value, tz=False, plain=False):
     """Return the datetime in the local timezone for the given UTC datetime ISO string.
     'plain' is for output as the value of an HTML input field.
     By default, the name of the timezone is included.
     By default, an undefined value is show as a dash.
     """
     if value:
-        result = utils.timezone_from_utc_isoformat(value, tz=not plain)
+        result = utils.timezone_from_utc_isoformat(value, tz=tz)
         if not plain:
             result = f'<span class="text-nowrap">{result}</span>'
     elif plain:
@@ -202,7 +202,9 @@ def user_link(user, fullname=True, affiliation=False, button=False):
     if anubis.user.allow_view(user):
         url = flask.url_for("user.display", username=user["username"])
         if button:
-            return markupsafe.Markup(f'<a href="{url}" role="button" class="btn btn-outline-secondary my-2 my-sm-0">{name}</a>')
+            return markupsafe.Markup(
+                f'<a href="{url}" role="button" class="btn btn-outline-secondary my-2 my-sm-0">{name}</a>'
+            )
         else:
             return markupsafe.Markup(f'<a href="{url}">{name}</a>')
     else:
@@ -275,7 +277,9 @@ def proposal_link(proposal, full=True):
     url = flask.url_for("proposal.display", pid=proposal["identifier"])
     title = proposal.get("title") or "[No title]"
     if full:
-        html = f"""<a href="{url}" title="{title}">{proposal['identifier']} {title}</a>"""
+        html = (
+            f"""<a href="{url}" title="{title}">{proposal['identifier']} {title}</a>"""
+        )
     else:
         html = f"""<a href="{url}" title="{title}">{proposal['identifier']}</a>"""
     return markupsafe.Markup(html)

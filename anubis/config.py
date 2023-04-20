@@ -64,7 +64,9 @@ def init(app):
     try:
         filepath = os.environ["ANUBIS_SETTINGS_FILEPATH"]
     except KeyError:
-        filepath = os.path.normpath(os.path.join(constants.ROOT, "../site/settings.json"))
+        filepath = os.path.normpath(
+            os.path.join(constants.ROOT, "../site/settings.json")
+        )
     try:
         with open(filepath) as infile:
             from_settings_file = json.load(infile)

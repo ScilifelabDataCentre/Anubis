@@ -53,7 +53,7 @@
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Opens</div>
   <div class="col-md">
-    {{ call['opens'] | display_datetime_timezone }}
+    {{ call['opens'] | display_datetime_timezone(tz=True) }}
     {% if is_open %}
     <div class="badge badge-pill badge-success mx-2">Open.</div>
     {% elif not is_undefined and not is_closed %}
@@ -65,7 +65,7 @@
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
   <div class="col-md">
-    {{ call['closes'] | display_datetime_timezone }}
+    {{ call['closes'] | display_datetime_timezone(tz=True) }}
     {{ call | call_closes_badge }}
   </div>
 </div>
@@ -135,7 +135,7 @@
 <div class="row mt-1">
   <div class="col-md-2 font-weight-bold text-right">Reviews due</div>
   <div class="col-md">
-    {{ call.get('reviews_due') | display_datetime_timezone }}
+    {{ call.get('reviews_due') | display_datetime_timezone(tz=True) }}
     {{ call | reviews_due_badge }}
   </div>
 </div>

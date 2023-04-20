@@ -192,10 +192,10 @@ def search():
                 [
                     row.id
                     for row in flask.g.db.view(
-                            "proposals",
-                            "term",
-                            startkey=part,
-                            endkey=part + constants.CEILING,
+                        "proposals",
+                        "term",
+                        startkey=part,
+                        endkey=part + constants.CEILING,
                     )
                 ]
             )
@@ -204,9 +204,16 @@ def search():
     # All term parts (=words) must exist in the title.
     if id_sets:
         for id in functools.reduce(lambda i, j: i.intersection(j), id_sets):
-            proposal = anubis.database.get_doc(id) # Is always a proposal.
+            proposal = anubis.database.get_doc(id)  # Is always a proposal.
             proposals[proposal["identifier"]] = proposal
 
+    # Seletc those proposals which the current user may view.
+    proposals = [
+        proposal
+        for proposal in proposals.values()
+        if anubis.proposal.allow_view(proposal)
+    ]
+    proposals.sort(key=lambda p: p.get("submitted") or "-", reverse=True)
     return flask.render_template("search.html", proposals=proposals, term=orig_term)
 
 
