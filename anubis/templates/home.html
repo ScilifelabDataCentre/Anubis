@@ -21,6 +21,11 @@
 </table>
 {% endblock %} {# block body_title_outer #}
 
+{% block meta %}
+<a href="{{ url_for('api.calls_open') }}" class="badge badge-info" role="button"
+   title="All open calls in JSON format.">API</a>
+{% endblock %}
+
 {% block main %}
 
 {% if calls %}
@@ -32,7 +37,8 @@
       <tr>
         <td class="py-0">
           <h4 class="card-title">
-            {{ call | call_link(identifier=False, title=True, proposals_link=False) }}
+            <a href="{{ url_for('call.display', cid=call['identifier']) }}"
+               class="font-weight-bold">{{ call['title'] or call['identifier'] }}</a>
           </h4>
         </td>
         <td class="text-right py-0">
@@ -53,36 +59,28 @@
 
 {% else %}
 <div class="card border-dark mt-2">
-  <div class="card-body lead">
-    There are currently no open calls.
-  </div>
+  <div class="card-body lead">There are currently no open calls.</div>
 </div>
 {% endif %} {# if calls #}
 
 {% endblock %} {# block main #}
 
 {% block actions %}
-
 <p>
   <a href="{{ url_for('calls.closed') }}" class="btn btn-block btn-secondary py-3">List of closed calls.</a>
 </p>
-
 {% if not g.current_user %}
 <p>
   <a href="{{ url_for('user.login') }}" class="btn btn-block btn-primary">Login</a>
 </p>
-
 <p>
   <a href="{{ url_for('user.register') }}" class="btn btn-block btn-success">Register a new user account</a>
 </p>
-
 <p>
   <a href="{{ url_for('user.reset') }}" class="btn btn-block btn-info">Forgot your password? Reset it</a>
 </p>
-
 <p class="mb-5">
   <a href="{{ url_for('user.password') }}" class="btn btn-block btn-info">Set your password, using a one-time code</a>
 </p>
 {% endif %}
-
 {% endblock %} {# block actions #}

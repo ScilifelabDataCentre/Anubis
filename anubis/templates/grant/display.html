@@ -70,10 +70,15 @@
 
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
-  <div class="col-md">
-    {{ get_call(grant['call']) | call_link(proposals_link=False, grants_link=g.am_admin or g.am_staff) }}
-  </div>
+  <div class="col-md">{{ get_call(grant['call']) | call_link }}</div>
 </div>
+
+{% if g.am_admin or g.am_staff %}
+<div class="row mb-2">
+  <div class="col-md-2 font-weight-bold text-right">All grants</div>
+  <div class="col-md">{{ get_call(grant['call']) | call_grants_link(full=True) }}</div>
+</div>
+{% endif %}
 
 {% set fields = call['grant'] %}
 {% set entity = grant %}

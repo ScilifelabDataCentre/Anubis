@@ -44,9 +44,7 @@
 
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
-  <div class="col-md">
-    {{ call | call_link(proposals_link=g.am_admin or am_reviewer) }}
-  </div>
+  <div class="col-md">{{ call | call_link }}</div>
 </div>
 
 {% if am_submitter %}

@@ -202,9 +202,7 @@
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Description</div>
   <div class="card col-md">
-    <div class="card-body">
-      {{ call.get('description') | display_markdown }}
-    </div>
+    <div class="card-body">{{ call.get('description') | display_markdown }}</div>
   </div>
 </div>
 
@@ -212,12 +210,15 @@
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Home page description</div>
   <div class="card col-md">
-    <div class="card-body">
-      {{ call.get('home_description') | display_markdown }}
-    </div>
+    <div class="card-body">{{ call.get('home_description') | display_markdown }}</div>
   </div>
 </div>
 {% endif %} {# if allow_view_details #}
+
+<div class="row mt-4">
+  <div class="col-md-2 font-weight-bold text-right">Labels</div>
+  <div class="col-md">{{ ', '.join(call.get('labels', [])) or '-' }}</div>
+</div>
 
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Documents</div>

@@ -3,8 +3,7 @@
 {% block head_title %}Grant dossiers in call {{ call['identifier'] }}{% endblock %}
 
 {% block body_title %}
-<small>Grant dossiers in call</small>
-{{ call | call_link(proposals_link=False) }}
+<small>Grant dossiers in call</small> {{ call | call_link }}
 {% endblock %}
 
 {% block meta %}

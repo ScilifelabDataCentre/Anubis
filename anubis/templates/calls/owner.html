@@ -27,7 +27,7 @@
   <tbody class="table-borderless">
     {% for call in calls %}
     <tr>
-      <td>{{ call | call_link(proposals_link=False) }}</td>
+      <td>{{ call | call_link }}</td>
       <td>{{ call.get('title') or '[No title]' }}</td>
       <td class="pl-2">{{ call['opens'] | display_datetime_timezone }}</td>
       <td class="pl-2">

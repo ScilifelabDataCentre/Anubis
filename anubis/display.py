@@ -228,29 +228,14 @@ def users_links_list(usernames):
         return "-"
 
 
-def call_link(
-    call, identifier=True, title=False, proposals_link=True, grants_link=False
-):
-    "Link to call and optionally links to all its proposals and grants."
-    label = []
-    if identifier:
-        label.append(call["identifier"])
+def call_link(call, title=False):
+    "Link to call, optionally with full title."
+    label = [call["identifier"]]
     if title and call["title"]:
         label.append(call["title"])
-    label = " ".join(label) or call["identifier"]
+    label = " ".join(label)
     url = flask.url_for("call.display", cid=call["identifier"])
-    html = f'<a href="{url}" class="font-weight-bold">{label}</a>'
-    if proposals_link:
-        count = anubis.database.get_count("proposals", "call", call["identifier"])
-        url = flask.url_for("proposals.call", cid=call["identifier"])
-        html += (
-            f' <a href="{url}" class="badge badge-primary mx-2">{count} proposals</a>'
-        )
-    if grants_link:
-        count = anubis.database.get_count("grants", "call", call["identifier"])
-        url = flask.url_for("grants.call", cid=call["identifier"])
-        html += f' <a href="{url}" role="button" class="badge badge-success mx-2">{count} grants</a>'
-    return markupsafe.Markup(html)
+    return markupsafe.Markup(f'<a href="{url}" class="font-weight-bold">{label}</a>')
 
 
 def call_proposals_link(call, full=False):

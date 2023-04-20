@@ -8,6 +8,7 @@ import flask
 import markupsafe
 import werkzeug.routing
 
+import anubis.api
 import anubis.database
 import anubis.display
 import anubis.call
@@ -210,6 +211,7 @@ app.register_blueprint(anubis.grant.blueprint, url_prefix="/grant")
 app.register_blueprint(anubis.grants.blueprint, url_prefix="/grants")
 app.register_blueprint(anubis.about.blueprint, url_prefix="/about")
 app.register_blueprint(anubis.admin.blueprint, url_prefix="/admin")
+app.register_blueprint(anubis.api.blueprint, url_prefix="/api")
 
 
 # This part is used only during development.
