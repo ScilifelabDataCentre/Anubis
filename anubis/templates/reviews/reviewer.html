@@ -32,7 +32,7 @@
     <tr>
       <th>Review</th>
       <th>Status</th>
-      <th>Review due</th>
+      <th>Review due<br>({{ config['TIMEZONE'] }})</th>
       <th>Proposal</th>
       <th>Submitter</th>
       <th>Call</th>
@@ -54,7 +54,7 @@
       </td>
       <td>{{ proposal | proposal_link }}</td>
       <td>{{ get_user(proposal['user']) | user_link }}</td>
-      <td>{{ call | call_link(title=False) }}</td>
+      <td>{{ call | call_link }}</td>
     </tr>
     {% endfor %}
   </tbody>

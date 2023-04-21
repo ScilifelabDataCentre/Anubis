@@ -347,7 +347,7 @@ def call_archived(cid):
             "reviews",
             "call_reviewer_archived",
             startkey=[call["identifier"], ""],
-            endkey=[call["identifier"], "ZZZZZZ"],
+            endkey=[call["identifier"], constants.CEILING],
             include_docs=True,
         )
     ]
@@ -483,8 +483,16 @@ def get_reviews_xlsx(call, proposals, reviews_lookup):
     ws.set_column(3, 3, 40, formats["normal"])
 
     nrow = 0
-    row = ["Proposal", "Proposal title", "Submitter", "Email", "Affiliation",
-           "Reviewer", "Review", "Finalized"]
+    row = [
+        "Proposal",
+        "Proposal title",
+        "Submitter",
+        "Email",
+        "Affiliation",
+        "Reviewer",
+        "Review",
+        "Finalized",
+    ]
     ncol = len(row)
     for field in call["review"]:
         row.append(field["title"] or field["identifier"].capitalize())

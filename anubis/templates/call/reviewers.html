@@ -1,11 +1,9 @@
 {% extends 'base.html' %}
 
-{% block head_title %}
-Reviewers for call {{ call['identifier'] }}
-{% endblock %}
+{% block head_title %}Edit reviewers for call {{ call['identifier'] }}{% endblock %}
 
 {% block body_title %}
-Reviewers for call {{ call['identifier'] }}
+<small>Edit reviewers for call</small> {{ call | call_link }}
 {% endblock %}
 
 {% block meta %}

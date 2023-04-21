@@ -11,7 +11,7 @@
       <th>Status</th>
       <th>Submitter</th>
       <th>Call</th>
-      <th>Call closes</th>
+      <th>Call closes<br>({{ config['TIMEZONE'] }})</th>
       <th>Decision</th>
       <th>Grant dossier</th>
     </tr>
@@ -30,7 +30,7 @@
         {% endif %}
       </td>
       <td>{{ get_user(proposal['user']) | user_link }}</td>
-      <td>{{ call | call_link(title=False, proposals_link=False) }}</td>
+      <td>{{ call | call_link }}</td>
       <td>
         {{ call['closes'] | display_datetime_timezone }}
         {{ call | call_closes_badge }}

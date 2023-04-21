@@ -1,5 +1,6 @@
 "Flask app setup and creation; main entry point.."
 
+import functools
 import http.client
 import io
 
@@ -8,6 +9,7 @@ import flask
 import markupsafe
 import werkzeug.routing
 
+import anubis.api
 import anubis.database
 import anubis.display
 import anubis.call
@@ -142,6 +144,81 @@ def home():
     )
 
 
+@app.route("/search")
+@utils.login_required
+def search():
+    """Search proposals:
+    - identifier (exact)
+    - title (terms)
+    """
+    proposals = {}
+
+    parts = flask.request.args.get("term", "").split()
+    parts = [p for p in parts if p]
+
+    # Exact proposal identifier.
+    for part in parts:
+        proposal = anubis.proposal.get_proposal(part.upper())
+        if proposal:
+            proposals[proposal["identifier"]] = proposal
+
+    # Exact proposal IUIDs.
+    for part in parts:
+        proposal = anubis.database.get_doc(part.lower())
+        if proposal and proposal["doctype"] == constants.PROPOSAL:
+            proposals[proposal["identifier"]] = proposal
+
+    # Search proposal titles for parts.
+    term = (
+        "".join(
+            [
+                c in constants.PROPOSALS_SEARCH_DELIMS_LINT and " " or c
+                for c in flask.request.args.get("term", "")
+            ]
+        )
+        .strip()
+        .lower()
+    )
+    parts = [
+        part
+        for part in term.split()
+        if part and len(part) >= 2 and part not in constants.PROPOSALS_SEARCH_LINT
+    ]
+
+    id_sets = []
+    for part in parts:
+        id_sets.append(
+            set(
+                [
+                    row.id
+                    for row in flask.g.db.view(
+                        "proposals",
+                        "term",
+                        startkey=part,
+                        endkey=part + constants.CEILING,
+                    )
+                ]
+            )
+        )
+
+    # All term parts (=words) must exist in the title.
+    if id_sets:
+        ids = functools.reduce(lambda i, j: i.intersection(j), id_sets)
+        for proposal in flask.g.db.get_bulk(ids):
+            proposals[proposal["identifier"]] = proposal
+
+    # Seletc those proposals which the current user may view.
+    proposals = [
+        proposal
+        for proposal in proposals.values()
+        if anubis.proposal.allow_view(proposal)
+    ]
+    proposals.sort(key=lambda p: p.get("submitted") or "-", reverse=True)
+    return flask.render_template(
+        "search.html", proposals=proposals, term=flask.request.args.get("term", "")
+    )
+
+
 @app.route("/documentation")
 def documentation():
     "Documentation page; the README page of the GitHub repo."
@@ -210,6 +287,14 @@ app.register_blueprint(anubis.grant.blueprint, url_prefix="/grant")
 app.register_blueprint(anubis.grants.blueprint, url_prefix="/grants")
 app.register_blueprint(anubis.about.blueprint, url_prefix="/about")
 app.register_blueprint(anubis.admin.blueprint, url_prefix="/admin")
+app.register_blueprint(anubis.api.blueprint, url_prefix="/api")
+
+
+@app.route("/<path:path>")
+def catchall(path):
+    "Catch URL that doesn't match anything. Has to be added as the last item."
+    utils.flash_error(f"No such page: '/{path}'")
+    return flask.redirect(flask.url_for("home"))
 
 
 # This part is used only during development.

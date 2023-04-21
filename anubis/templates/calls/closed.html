@@ -4,6 +4,9 @@
 {% block body_title %}Closed calls{% endblock %}
 
 {% block meta %}
+<a href="{{ url_for('api.calls_closed') }}" class="badge badge-info" role="button"
+   title="All closed calls in JSON format.">API</a>
+<br>
 <a href="{{ url_for('calls.closed_xlsx') }}"
    class="badge badge-pill badge-dark" role="button"
    title="Download XLSX file of closed calls.">Closed calls Excel file</a>
@@ -15,7 +18,7 @@
     <tr>
       <th>Call id</th>
       <th>Call title</th>
-      <th>Closed</th>
+      <th>Closed<br>({{ config['TIMEZONE'] }})</th>
       {% if g.am_admin or g.am_staff %}
       <th>Proposals</th>
       <th>Reviews</a>
@@ -27,7 +30,7 @@
   <tbody class="table-borderless">
     {% for call in calls %}
     <tr>
-      <td>{{ call | call_link(proposals_link=False) }}</td>
+      <td>{{ call | call_link }}</td>
       <td>{{ call.get('title') or '[No title]' }}</td>
       <td class="pl-2">{{ call['closes'] | display_datetime_timezone }}</td>
       {% if g.am_admin or g.am_staff %}

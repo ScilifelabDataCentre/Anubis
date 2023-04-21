@@ -53,7 +53,7 @@
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Opens</div>
   <div class="col-md">
-    {{ call['opens'] | display_datetime_timezone }}
+    {{ call['opens'] | display_datetime_timezone(tz=True) }}
     {% if is_open %}
     <div class="badge badge-pill badge-success mx-2">Open.</div>
     {% elif not is_undefined and not is_closed %}
@@ -65,7 +65,7 @@
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Closes</div>
   <div class="col-md">
-    {{ call['closes'] | display_datetime_timezone }}
+    {{ call['closes'] | display_datetime_timezone(tz=True) }}
     {{ call | call_closes_badge }}
   </div>
 </div>
@@ -135,7 +135,7 @@
 <div class="row mt-1">
   <div class="col-md-2 font-weight-bold text-right">Reviews due</div>
   <div class="col-md">
-    {{ call.get('reviews_due') | display_datetime_timezone }}
+    {{ call.get('reviews_due') | display_datetime_timezone(tz=True) }}
     {{ call | reviews_due_badge }}
   </div>
 </div>
@@ -202,9 +202,7 @@
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Description</div>
   <div class="card col-md">
-    <div class="card-body">
-      {{ call.get('description') | display_markdown }}
-    </div>
+    <div class="card-body">{{ call.get('description') | display_markdown }}</div>
   </div>
 </div>
 
@@ -212,12 +210,15 @@
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Home page description</div>
   <div class="card col-md">
-    <div class="card-body">
-      {{ call.get('home_description') | display_markdown }}
-    </div>
+    <div class="card-body">{{ call.get('home_description') | display_markdown }}</div>
   </div>
 </div>
 {% endif %} {# if allow_view_details #}
+
+<div class="row mt-4">
+  <div class="col-md-2 font-weight-bold text-right">Labels</div>
+  <div class="col-md">{{ ', '.join(call.get('labels', [])) or '-' }}</div>
+</div>
 
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Documents</div>
@@ -277,6 +278,7 @@
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Proposal fields</div>
   <div class="col-md">
+    {% if call['proposal'] %}
     <table class="table table-sm">
       <tbody>
         {% for field in call['proposal'] %}
@@ -284,12 +286,16 @@
         {% endfor %}
       </tbody>
     </table>
+    {% else %}
+    -
+    {% endif %}
   </div>
 </div>
 
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Review fields</div>
   <div class="col-md">
+    {% if call['review'] %}
     <table class="table table-sm">
       <tbody>
         {% for field in call['review'] %}
@@ -297,12 +303,16 @@
         {% endfor %}
       </tbody>
     </table>
+    {% else %}
+    -
+    {% endif %}
   </div>
 </div>
 
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Decision fields</div>
   <div class="col-md">
+    {% if call['decision'] %}
     <table class="table table-sm">
       <tbody>
         {% for field in call['decision'] %}
@@ -310,12 +320,16 @@
         {% endfor %}
       </tbody>
     </table>
+    {% else %}
+    -
+    {% endif %}
   </div>
 </div>
 
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Grant dossier fields</div>
   <div class="col-md">
+    {% if call['grant'] %}
     <table class="table table-sm">
       <tbody>
         {% for field in call.get('grant', []) %}
@@ -323,6 +337,9 @@
         {% endfor %}
       </tbody>
     </table>
+    {% else %}
+    -
+    {% endif %}
   </div>
 </div>
 

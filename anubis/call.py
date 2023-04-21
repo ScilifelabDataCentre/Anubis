@@ -115,7 +115,7 @@ def display(cid):
         "reviews",
         "call_reviewer_archived",
         startkey=[call["identifier"], ""],
-        endkey=[call["identifier"], "ZZZZZZ"],
+        endkey=[call["identifier"], constants.CEILING],
         reduce=True,
     )
     kwargs["archived_reviews_count"] = result and result[0].value or 0
@@ -155,6 +155,11 @@ def edit(cid):
                     if value:
                         value = utils.utc_from_timezone_isoformat(value)
                     saver[key] = value
+                saver["labels"] = [
+                    l.strip()
+                    for l in flask.request.form.get("labels", "").split(",")
+                    if l.strip()
+                ]
                 saver.edit_privileges(flask.request.form)
             call = saver.doc
         except ValueError as error:

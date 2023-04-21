@@ -17,8 +17,8 @@
     <tr>
       <th>Call id</th>
       <th>Call title</th>
-      <th>Opens</th>
-      <th>Closes</th>
+      <th>Opens<br>({{ config['TIMEZONE'] }})</th>
+      <th>Closes<br>({{ config['TIMEZONE'] }})</th>
       <th>Proposals</th>
       <th>Reviews</th>
       <th>Grants</th>
@@ -28,7 +28,7 @@
   <tbody class="table-borderless">
     {% for call in calls %}
     <tr>
-      <td>{{ call | call_link(proposals_link=False) }}</td>
+      <td>{{ call | call_link }}</td>
       <td>{{ call.get('title') or '[No title]' }}</td>
       <td class="pl-2">{{ call['opens'] | display_datetime_timezone }}</td>
       <td class="pl-2">{{ call['closes'] | display_datetime_timezone }}</td>

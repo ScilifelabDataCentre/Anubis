@@ -2,14 +2,15 @@
 
 {% block head_title %}Archived reviews in call {{ call['identifier'] }}{% endblock %}
 
-{% block body_title %}Archived reviews in call {{ call | call_link }}{% endblock %}
+{% block body_title %}
+<small>Archived reviews in call</small> {{ call | call_link }}
+{% endblock %}
 
 {% block supermain %}
 <div class="row mb-2">
   <div class="col-md-2 text-right font-weight-bold">Due</div>
   <div class="col-md-8">
-    {{ call.get('reviews_due') | display_datetime_timezone }}
-    {{ call | reviews_due_badge }}
+    {{ call.get('reviews_due') | display_datetime_timezone(tz=True) }}
   </div>
 </div>
 

@@ -87,7 +87,7 @@ def cache_get(identifier):
     "Get the document by identifier from the cache. Raise KeyError if not available."
     try:
         return flask.g.cache[identifier]
-    except AttributeError:
+    except AttributeError:      # No dict implies empty; therefore KeyError.
         flask.g.cache = dict()
         raise KeyError
 
@@ -157,19 +157,20 @@ def to_list(value):
 def create_xlsx_formats(wb):
     "Create and return the formats to use for the given XLSX workbook."
     return dict(
-        head = wb.add_format(
-            {"bold": True, 
-             "text_wrap": True,
-             "font_size": 14,
-             "bg_color": "#9ECA7F",
-             "border": 1,
-             "align": "center"}
+        head=wb.add_format(
+            {
+                "bold": True,
+                "text_wrap": True,
+                "font_size": 14,
+                "bg_color": "#9ECA7F",
+                "border": 1,
+                "align": "center",
+            }
         ),
-        normal = wb.add_format({"font_size": 14, "align": "left"}),
-        wrap = wb.add_format(
-            {"font_size": 14, "text_wrap": True, "align": "vjustify"}
-        )
+        normal=wb.add_format({"font_size": 14, "align": "left"}),
+        wrap=wb.add_format({"font_size": 14, "text_wrap": True, "align": "vjustify"}),
     )
+
 
 def write_xlsx_field(ws, nrow, ncol, value, field_type, formats):
     """Write a value to the specified cell in the given XLSX worksheet.
@@ -180,7 +181,7 @@ def write_xlsx_field(ws, nrow, ncol, value, field_type, formats):
     elif field_type in (constants.LINE, constants.EMAIL):
         ws.write_string(nrow, ncol, value, formats["normal"])
     elif field_type == constants.BOOLEAN:
-        ws.write(nrow, ncol, value and 'Yes' or 'No', formats["normal"])
+        ws.write(nrow, ncol, value and "Yes" or "No", formats["normal"])
     elif field_type == constants.SELECT:
         if isinstance(value, list):  # Multiselect
             ws.write(nrow, ncol, "\n".join(value), formats["wrap"])
@@ -192,6 +193,7 @@ def write_xlsx_field(ws, nrow, ncol, value, field_type, formats):
         ws.write_url(nrow, ncol, value, string="Download file")
     else:
         ws.write(nrow, ncol, value)
+
 
 def get_now():
     "Current UTC datetime in ISO format (including Z) with millisecond precision."

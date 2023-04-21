@@ -1,7 +1,10 @@
 {% extends 'base.html' %}
 
 {% block head_title %}Edit documents for {{ call['identifier'] }}{% endblock %}
-{% block body_title %}Edit documents for {{ call['identifier'] }}{% endblock %}
+
+{% block body_title %}
+<small>Edit documents for</small> {{ call | call_link }}
+{% endblock %}
 
 {% block main %}
 {% if is_open or is_closed %}

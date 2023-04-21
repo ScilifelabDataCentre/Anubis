@@ -2,7 +2,10 @@
 
 {% block head_title %}{{ proposal['identifier'] }}{% endblock %}
 
-{% block body_title %}Proposal {{ proposal['identifier'] }} {{ proposal.get('title') | display_value('[No title]') }}{% endblock %}
+{% block body_title %}
+<small>Proposal</small><br>
+{{ proposal['identifier'] }} {{ proposal.get('title') | display_value('[No title]') }}
+{% endblock %}
 
 {% block meta %}
 <div>
@@ -41,9 +44,7 @@
 
 <div class="row">
   <div class="col-md-2 font-weight-bold text-right">Call</div>
-  <div class="col-md">
-    {{ call | call_link(proposals_link=g.am_admin or am_reviewer) }}
-  </div>
+  <div class="col-md">{{ call | call_link }}</div>
 </div>
 
 {% if am_submitter %}
@@ -51,7 +52,7 @@
   <div class="col-md-2 font-weight-bold text-right">Call closes</div>
   <div class="col-md">
     <span class="mr-4">
-      {{ call['closes'] | display_datetime_timezone }}
+      {{ call['closes'] | display_datetime_timezone(tz=True) }}
       {{ call | call_closes_badge }}
     </span>
   </div>
@@ -82,6 +83,7 @@
   <div class="col-md-2 font-weight-bold text-right">Submitted</div>
   <div class="col-md">
     {% if proposal.get('submitted') %}
+    {{ proposal['submitted'] | display_datetime_timezone(tz=True) }}
     <span class="badge badge-pill badge-success">Submitted</span>
     {% else %}
     <span class="badge badge-pill badge-warning">Not submitted</span>

@@ -15,7 +15,7 @@
     <tr>
       <th>Call id</th>
       <th>Call title</th>
-      <th>Closes</th>
+      <th>Closes<br>({{ config['TIMEZONE'] }})</th>
       {% if g.am_admin or g.am_staff %}
       <th>Proposals</th>
       <th>Reviews</a>
@@ -26,7 +26,7 @@
   <tbody class="table-borderless">
     {% for call in calls %}
     <tr>
-      <td>{{ call | call_link(proposals_link=False) }}</td>
+      <td>{{ call | call_link }}</td>
       <td>{{ call.get('title') or '[No title]' }}</td>
       <td class="pl-2">
         {{ call['closes'] | display_datetime_timezone }}

@@ -131,7 +131,12 @@
 	    </div>
           </li>
         </ul>
-
+        {% if g.current_user %}
+        <form action="{{ url_for('search') }}" class="form-inline my-2 my-lg-0">
+          <input type="search" name="term" id="term" placeholder="Search proposals" 
+                 class="form-control mr-sm-2" aria-label="Search">
+        </form>
+        {% endif %}
         <ul class="navbar-nav justify-content-end">
           <li>
             {% if g.current_user %}

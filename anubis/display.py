@@ -126,21 +126,19 @@ def display_value(value, default="-"):
         return value
 
 
-def display_datetime_timezone(value, plain=False):
+def display_datetime_timezone(value, tz=False, plain=False):
     """Return the datetime in the local timezone for the given UTC datetime ISO string.
     'plain' is for output as the value of an HTML input field.
     By default, the name of the timezone is included.
     By default, an undefined value is show as a dash.
     """
-    if value:
-        result = utils.timezone_from_utc_isoformat(value, tz=not plain)
-        if not plain:
-            result = f'<span class="text-nowrap">{result}</span>'
-    elif plain:
-        result = ""
+    if not value:
+        return "" if plain else "-"
+    result = utils.timezone_from_utc_isoformat(value, tz=tz)
+    if plain:
+        return result
     else:
-        result = "-"
-    return markupsafe.Markup(result)
+        return markupsafe.Markup(f'<span class="text-nowrap">{result}</span>')
 
 
 def call_closes_badge(call):
@@ -202,7 +200,9 @@ def user_link(user, fullname=True, affiliation=False, button=False):
     if anubis.user.allow_view(user):
         url = flask.url_for("user.display", username=user["username"])
         if button:
-            return markupsafe.Markup(f'<a href="{url}" role="button" class="btn btn-outline-secondary my-2 my-sm-0">{name}</a>')
+            return markupsafe.Markup(
+                f'<a href="{url}" role="button" class="btn btn-outline-secondary my-2 my-sm-0">{name}</a>'
+            )
         else:
             return markupsafe.Markup(f'<a href="{url}">{name}</a>')
     else:
@@ -228,29 +228,14 @@ def users_links_list(usernames):
         return "-"
 
 
-def call_link(
-    call, identifier=True, title=False, proposals_link=True, grants_link=False
-):
-    "Link to call and optionally links to all its proposals and grants."
-    label = []
-    if identifier:
-        label.append(call["identifier"])
+def call_link(call, title=False):
+    "Link to call, optionally with full title."
+    label = [call["identifier"]]
     if title and call["title"]:
         label.append(call["title"])
-    label = " ".join(label) or call["identifier"]
+    label = " ".join(label)
     url = flask.url_for("call.display", cid=call["identifier"])
-    html = f'<a href="{url}" class="font-weight-bold">{label}</a>'
-    if proposals_link:
-        count = anubis.database.get_count("proposals", "call", call["identifier"])
-        url = flask.url_for("proposals.call", cid=call["identifier"])
-        html += (
-            f' <a href="{url}" class="badge badge-primary mx-2">{count} proposals</a>'
-        )
-    if grants_link:
-        count = anubis.database.get_count("grants", "call", call["identifier"])
-        url = flask.url_for("grants.call", cid=call["identifier"])
-        html += f' <a href="{url}" role="button" class="badge badge-success mx-2">{count} grants</a>'
-    return markupsafe.Markup(html)
+    return markupsafe.Markup(f'<a href="{url}" class="font-weight-bold">{label}</a>')
 
 
 def call_proposals_link(call, full=False):
@@ -283,13 +268,18 @@ def call_grants_link(call, full=False):
     return markupsafe.Markup(html)
 
 
-def proposal_link(proposal):
+def proposal_link(proposal, full=True):
     "Link to proposal."
     if not proposal:
         return "-"
     url = flask.url_for("proposal.display", pid=proposal["identifier"])
     title = proposal.get("title") or "[No title]"
-    html = f"""<a href="{url}" title="{title}">{proposal['identifier']} {title}</a>"""
+    if full:
+        html = (
+            f"""<a href="{url}" title="{title}">{proposal['identifier']} {title}</a>"""
+        )
+    else:
+        html = f"""<a href="{url}" title="{title}">{proposal['identifier']}</a>"""
     return markupsafe.Markup(html)
 
 

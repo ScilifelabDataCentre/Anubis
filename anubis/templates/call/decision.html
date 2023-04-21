@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 
 {% block head_title %}Edit decision fields for call {{ call['identifier'] }}{% endblock %}
-{% block body_title %}Edit decision fields for call {{ call['identifier'] }}{% endblock %}
+{% block body_title %}
+<small>Edit decision fields for call</small> {{ call | call_link }}
+{% endblock %}
 
 {% block main %}
 <div class="alert alert-warning" role="alert">

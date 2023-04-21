@@ -100,8 +100,11 @@ def closed():
 @blueprint.route("/closed_xlsx")
 def closed_xlsx():
     "Closed calls in XLSX format."
-    return get_calls_xlsx_response("closed_calls.xlsx", get_closed_calls(),
-                                   counts=flask.g.am_admin or flask.g.am_staff)
+    return get_calls_xlsx_response(
+        "closed_calls.xlsx",
+        get_closed_calls(),
+        counts=flask.g.am_admin or flask.g.am_staff,
+    )
 
 
 def get_closed_calls():
@@ -118,6 +121,7 @@ def get_closed_calls():
         )
     ]
 
+
 @blueprint.route("/open")
 def open():
     "Open calls."
@@ -133,8 +137,9 @@ def open():
 @blueprint.route("/open_xlsx")
 def open_xlsx():
     "Open calls in XLSX format."
-    return get_calls_xlsx_response("open_calls.xlsx", get_open_calls(),
-                                   counts=flask.g.am_admin or flask.g.am_staff)
+    return get_calls_xlsx_response(
+        "open_calls.xlsx", get_open_calls(), counts=flask.g.am_admin or flask.g.am_staff
+    )
 
 
 def get_open_calls():
@@ -146,7 +151,7 @@ def get_open_calls():
             "calls",
             "closes",
             startkey=utils.get_now(),
-            endkey="ZZZZZZ",
+            endkey=constants.CEILING,
             include_docs=True,
         )
     ]
@@ -169,14 +174,18 @@ def get_open_calls():
 @utils.staff_required
 def unpublished():
     "Unpublished calls; undefined opens and/or closes date, or not yet open."
-    return flask.render_template("calls/unpublished.html", calls=get_unpublished_calls())
+    return flask.render_template(
+        "calls/unpublished.html", calls=get_unpublished_calls()
+    )
 
 
 @blueprint.route("/unpublished.xlsx")
 @utils.staff_required
 def unpublished_xlsx():
     "XLSX of unpublished calls; undefined opens and/or closes date, or not yet open."
-    return get_calls_xlsx_response("unpublished_calls.xlsx", calls=get_unpublished_calls())
+    return get_calls_xlsx_response(
+        "unpublished_calls.xlsx", calls=get_unpublished_calls()
+    )
 
 
 def get_unpublished_calls():
@@ -189,13 +198,14 @@ def get_unpublished_calls():
                 "calls",
                 "opens",
                 startkey=utils.get_now(),
-                endkey="ZZZZZZ",
+                endkey=constants.CEILING,
                 include_docs=True,
             )
         ]
     )
     result.sort(key=lambda c: c.get("closes") or "", reverse=True)
     return result
+
 
 @blueprint.route("/reviews")
 @utils.staff_required
@@ -261,7 +271,7 @@ def get_calls_xlsx_response(filename, calls, counts=True):
     response.headers.set("Content-Type", constants.XLSX_MIMETYPE)
     response.headers.set("Content-Disposition", "attachment", filename=filename)
     return response
-    
+
 
 def get_calls_xlsx(calls, counts):
     "Return the content of an XLSX file for all closed calls."
@@ -277,14 +287,14 @@ def get_calls_xlsx(calls, counts):
     ws.set_column(4, 6, 10, formats["normal"])
 
     nrow = 0
-    row = ["Call",
-           "Call title",
-           f"Opens\n({flask.current_app.config['TIMEZONE']})",
-           f"Closes\n({flask.current_app.config['TIMEZONE']})"]
+    row = [
+        "Call",
+        "Call title",
+        f"Opens\n({flask.current_app.config['TIMEZONE']})",
+        f"Closes\n({flask.current_app.config['TIMEZONE']})",
+    ]
     if counts:
-        row.extend(["# proposals",
-                    "# reviews",
-                    "# grants"])
+        row.extend(["# proposals", "# reviews", "# grants"])
     ws.write_row(nrow, 0, row)
     nrow += 1
 
@@ -294,21 +304,37 @@ def get_calls_xlsx(calls, counts):
             nrow,
             ncol,
             flask.url_for("call.display", cid=call["identifier"], _external=True),
-            string=call["identifier"]
+            string=call["identifier"],
         )
         ncol += 1
         ws.write_string(nrow, ncol, call.get("title") or "[No title]")
         ncol += 1
-        ws.write_string(nrow, ncol, utils.timezone_from_utc_isoformat(call["opens"], tz=False))
+        ws.write_string(
+            nrow, ncol, utils.timezone_from_utc_isoformat(call["opens"], tz=False)
+        )
         ncol += 1
-        ws.write_string(nrow, ncol, utils.timezone_from_utc_isoformat(call["closes"], tz=False))
+        ws.write_string(
+            nrow, ncol, utils.timezone_from_utc_isoformat(call["closes"], tz=False)
+        )
         ncol += 1
         if counts:
-            ws.write(nrow, ncol, anubis.database.get_count("proposals", "call", call["identifier"]))
+            ws.write(
+                nrow,
+                ncol,
+                anubis.database.get_count("proposals", "call", call["identifier"]),
+            )
             ncol += 1
-            ws.write(nrow, ncol, anubis.database.get_count("reviews", "call", call["identifier"]))
+            ws.write(
+                nrow,
+                ncol,
+                anubis.database.get_count("reviews", "call", call["identifier"]),
+            )
             ncol += 1
-            ws.write(nrow, ncol, anubis.database.get_count("grants", "call", call["identifier"]))
+            ws.write(
+                nrow,
+                ncol,
+                anubis.database.get_count("grants", "call", call["identifier"]),
+            )
             ncol += 1
         nrow += 1
 

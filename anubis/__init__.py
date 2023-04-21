@@ -5,7 +5,7 @@ import re
 import string
 import sys
 
-__version__ = "2.5.1"
+__version__ = "2.6.0"
 
 
 class Constants:
@@ -89,6 +89,9 @@ class Constants:
     GRANT = "grant"
     LOG = "log"
     META = "meta"
+
+    # CouchDB upper value.
+    CEILING = "ZZZZZZZZ"
 
     # Generic fields in CouchDB document.
     GENERIC_FIELDS = frozenset(
@@ -178,7 +181,29 @@ class Constants:
         "allow_chair_create_reviews",
     )
 
-    # Call order key alternatives.
+    # Delimiters to remove when searching in proposal titles.
+    PROPOSALS_SEARCH_DELIMS_LINT = (":", ",", ";", "'", '"', "(", ")")
+
+    # Words to remove when searching in proposal titles.
+    PROPOSALS_SEARCH_LINT = (
+        "an",
+        "and",
+        "as",
+        "at",
+        "be",
+        "by",
+        "for",
+        "is",
+        "in",
+        "not",
+        "of",
+        "on",
+        "the",
+        "to",
+        "was",
+    )
+
+    # Call order (sorting) key alternatives.
     CALL_ORDER_KEYS = frozenset(["closes", "title", "identifier"])
 
     # Site files, caching timeout.
