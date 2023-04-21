@@ -151,9 +151,9 @@ def search():
     - identifier (exact)
     - title (terms)
     """
-    orig_term = term = flask.request.args.get("term", "")
     proposals = {}
-    parts = term.split()
+
+    parts = flask.request.args.get("term", "").split()
     parts = [p for p in parts if p]
 
     # Exact proposal identifier.
@@ -173,7 +173,7 @@ def search():
         "".join(
             [
                 c in constants.PROPOSALS_SEARCH_DELIMS_LINT and " " or c
-                for c in orig_term
+                for c in flask.request.args.get("term", "")
             ]
         )
         .strip()
@@ -203,8 +203,8 @@ def search():
 
     # All term parts (=words) must exist in the title.
     if id_sets:
-        for id in functools.reduce(lambda i, j: i.intersection(j), id_sets):
-            proposal = anubis.database.get_doc(id)  # Is always a proposal.
+        ids = functools.reduce(lambda i, j: i.intersection(j), id_sets)
+        for proposal in flask.g.db.get_bulk(ids):
             proposals[proposal["identifier"]] = proposal
 
     # Seletc those proposals which the current user may view.
@@ -214,7 +214,9 @@ def search():
         if anubis.proposal.allow_view(proposal)
     ]
     proposals.sort(key=lambda p: p.get("submitted") or "-", reverse=True)
-    return flask.render_template("search.html", proposals=proposals, term=orig_term)
+    return flask.render_template(
+        "search.html", proposals=proposals, term=flask.request.args.get("term", "")
+    )
 
 
 @app.route("/documentation")

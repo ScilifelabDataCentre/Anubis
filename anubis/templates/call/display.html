@@ -278,6 +278,7 @@
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Proposal fields</div>
   <div class="col-md">
+    {% if call['proposal'] %}
     <table class="table table-sm">
       <tbody>
         {% for field in call['proposal'] %}
@@ -285,12 +286,16 @@
         {% endfor %}
       </tbody>
     </table>
+    {% else %}
+    -
+    {% endif %}
   </div>
 </div>
 
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Review fields</div>
   <div class="col-md">
+    {% if call['review'] %}
     <table class="table table-sm">
       <tbody>
         {% for field in call['review'] %}
@@ -298,12 +303,16 @@
         {% endfor %}
       </tbody>
     </table>
+    {% else %}
+    -
+    {% endif %}
   </div>
 </div>
 
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Decision fields</div>
   <div class="col-md">
+    {% if call['decision'] %}
     <table class="table table-sm">
       <tbody>
         {% for field in call['decision'] %}
@@ -311,12 +320,16 @@
         {% endfor %}
       </tbody>
     </table>
+    {% else %}
+    -
+    {% endif %}
   </div>
 </div>
 
 <div class="row mt-4">
   <div class="col-md-2 font-weight-bold text-right">Grant dossier fields</div>
   <div class="col-md">
+    {% if call['grant'] %}
     <table class="table table-sm">
       <tbody>
         {% for field in call.get('grant', []) %}
@@ -324,6 +337,9 @@
         {% endfor %}
       </tbody>
     </table>
+    {% else %}
+    -
+    {% endif %}
   </div>
 </div>
 

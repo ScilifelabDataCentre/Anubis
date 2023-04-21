@@ -83,6 +83,7 @@
   <div class="col-md-2 font-weight-bold text-right">Submitted</div>
   <div class="col-md">
     {% if proposal.get('submitted') %}
+    {{ proposal['submitted'] | display_datetime_timezone(tz=True) }}
     <span class="badge badge-pill badge-success">Submitted</span>
     {% else %}
     <span class="badge badge-pill badge-warning">Not submitted</span>
