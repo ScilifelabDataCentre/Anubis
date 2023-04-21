@@ -9,6 +9,7 @@ A review is defined by the review fields in the call.
 
 import os.path
 
+import couchdb2
 import flask
 
 import anubis.call
@@ -359,7 +360,7 @@ def get_review(iuid):
     except KeyError:
         try:
             review = flask.g.db[iuid]
-        except KeyError:
+        except couchdb2.NotFoundError:
             return None
         if review["doctype"] != constants.REVIEW:
             raise ValueError

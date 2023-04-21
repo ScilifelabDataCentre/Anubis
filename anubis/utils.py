@@ -87,7 +87,7 @@ def cache_get(identifier):
     "Get the document by identifier from the cache. Raise KeyError if not available."
     try:
         return flask.g.cache[identifier]
-    except AttributeError:
+    except AttributeError:      # No dict implies empty; therefore KeyError.
         flask.g.cache = dict()
         raise KeyError
 

@@ -132,15 +132,13 @@ def display_datetime_timezone(value, tz=False, plain=False):
     By default, the name of the timezone is included.
     By default, an undefined value is show as a dash.
     """
-    if value:
-        result = utils.timezone_from_utc_isoformat(value, tz=tz)
-        if not plain:
-            result = f'<span class="text-nowrap">{result}</span>'
-    elif plain:
-        result = ""
+    if not value:
+        return "" if plain else "-"
+    result = utils.timezone_from_utc_isoformat(value, tz=tz)
+    if plain:
+        return result
     else:
-        result = "-"
-    return markupsafe.Markup(result)
+        return markupsafe.Markup(f'<span class="text-nowrap">{result}</span>')
 
 
 def call_closes_badge(call):

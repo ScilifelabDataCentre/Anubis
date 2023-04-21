@@ -288,6 +288,13 @@ app.register_blueprint(anubis.admin.blueprint, url_prefix="/admin")
 app.register_blueprint(anubis.api.blueprint, url_prefix="/api")
 
 
+@app.route("/<path:path>")
+def catchall(path):
+    "Catch URL that doesn't match anything. Has to be added as the last item."
+    utils.flash_error(f"No such page: '/{path}'")
+    return flask.redirect(flask.url_for("home"))
+
+
 # This part is used only during development.
 if __name__ == "__main__":
     app.run()
