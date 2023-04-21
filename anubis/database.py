@@ -40,21 +40,21 @@ def update_design_documents():
     db = get_db()
     app = flask.current_app
     if db.put_design("calls", CALLS_DESIGN_DOC):
-        app.logger.info("Updated calls design document.")
+        app.logger.info("Updated calls CouchDB design document.")
     if db.put_design("proposals", PROPOSALS_DESIGN_DOC):
-        app.logger.info("Updated proposals design document.")
+        app.logger.info("Updated proposals CouchDB design document.")
     if db.put_design("reviews", REVIEWS_DESIGN_DOC):
-        app.logger.info("Updated reviews design document.")
+        app.logger.info("Updated reviews CouchDB design document.")
     if db.put_design("decisions", DECISIONS_DESIGN_DOC):
-        app.logger.info("Updated decisions design document.")
+        app.logger.info("Updated decisions CouchDB design document.")
     if db.put_design("grants", GRANTS_DESIGN_DOC):
-        app.logger.info("Updated grants design document.")
+        app.logger.info("Updated grants CouchDB design document.")
     if db.put_design("users", USERS_DESIGN_DOC):
-        app.logger.info("Updated users design document.")
+        app.logger.info("Updated users CouchDB design document.")
     if db.put_design("logs", LOGS_DESIGN_DOC):
-        app.logger.info("Updated logs design document.")
+        app.logger.info("Updated logs CouchDB design document.")
     if db.put_design("meta", META_DESIGN_DOC):
-        app.logger.info("Updated meta design document.")
+        app.logger.info("Updated meta CouchDB design document.")
 
 
 def get_doc(identifier):
