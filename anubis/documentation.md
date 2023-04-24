@@ -143,7 +143,7 @@ A date and time for when reviews are due is set by the call owner.
 The reviews are visible to the admin, the call owner, and optionally
 by the other reviewers in the call.
 
-At no point can the proposal creator view the reviews of her proposal.
+At no stage can the proposal creator view the reviews of her proposal.
 
 #### Reviewer actions
 
@@ -417,7 +417,7 @@ another user account to view and/or edit her proposal.
 </tr>
 
 <tr>
-<th rowspan="4">Review</th>
+<th rowspan="6">Review</th>
 <th>Create</th>
 <td>No</td>
 <td>Chair if call setting</td>
@@ -439,6 +439,24 @@ another user account to view and/or edit her proposal.
 <th>Edit</th>
 <td>No</td>
 <td>One's own</td>
+<td>Any in one's own call</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+
+<tr>
+<th>Finalize</th>
+<td>No</td>
+<td>One's own</td>
+<td>Any in one's own call</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+
+<tr>
+<th>Unfinalize</th>
+<td>No</td>
+<td>One's own, before due date</td>
 <td>Any in one's own call</td>
 <td>No</td>
 <td>Yes</td>
@@ -645,14 +663,16 @@ reviews are done.
 ### Basic information about reviewers
 
 - A user account is set as a reviewer for a specific call by the admin
-  of the Anubis system.
-- The admin  also creates the review instances for the proposals for
-  each reviewer. A reviewer cannot create the review instances, only the
-  admin can do this.
+  or the call creator.
+- The admin or call creator also creates the review instances for the
+  proposals for each reviewer. A reviewer cannot create their own
+  review instances, only edit existing ones.
 - Depending on the policy for the call, a reviewer may have to write a
-  review for all or only some proposals. The admin handles this
-  by creating those review instances that the reviewer should fill in.
-- The content (input fields) of the reviews are set for the call by the admin.
+  review for all or only some proposals. The admin or call creator
+  handles this by creating those review instances that the reviewer
+  should fill in.
+- The content (input fields) of the reviews are set for the call by the admin
+  or call creator.
 - The reviews of a call have a **due** date, before which all reviews must
   have been finalized by the reviewers.
 - There may be a chair designated for a call. This is a reviewer
@@ -663,12 +683,13 @@ reviews are done.
 ### Reviewer privileges
 
 - The reviewer may view all proposals in the call.
-- The reviewer can edit her review instance.
+- The reviewer can edit her review instances.
 - The reviewers cannot create or delete review instances.
-- The chair, if any, of a call may create review instances, if so set by the admin.
-- The chair, if any, may view all reviews, if so set by the admin.
+- The chair, if any, of a call may create review instances, if so set
+  by the admin or call creator.
+- The chair, if any, may view all reviews, if so set by the admin or call creator.
 - A reviewer may view finalized reviews by other reviewers only if the
-  admin allows it for the call.
+  admin or call creator allows it for the call.
 
 
 ## Instructions for staff
@@ -689,6 +710,7 @@ web interface.
 - The admin may register user accounts.
 - The admin may edit, enable or disable user accounts.
 - An admin may set other user accounts to be admin.
+- An admin may enable an ordinary user account to create calls.
 
 
 ### Call handling
