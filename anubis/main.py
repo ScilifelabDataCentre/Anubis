@@ -221,7 +221,7 @@ def search():
 
 @app.route("/documentation")
 def documentation():
-    "Documentation page; the README page of the GitHub repo."
+    "Documentation page; the prepocessed file 'documentation.md'."
     return flask.render_template("documentation.html")
 
 

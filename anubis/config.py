@@ -103,7 +103,7 @@ def init(app):
     # Is the timezone recognizable?
     pytz.timezone(config["TIMEZONE"])
 
-    # Read and preprocess the documentation.
+    # Read and preprocess the documentation file.
     with open("documentation.md") as infile:
         lines = infile.readlines()
     toc = []
@@ -113,7 +113,7 @@ def init(app):
             parts = line.split()
             level = len(parts[0])
             title = " ".join(parts[1:])
-            # All headers in README are "clean", i.e. text only, no markup.
+            # All headers in the file are "clean", i.e. text only, no markup.
             id = title.strip().replace(" ", "-").lower()
             id = "".join(c for c in id if c in constants.ALLOWED_ID_CHARACTERS)
             # Add to table of contents.
