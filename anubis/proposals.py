@@ -48,9 +48,7 @@ def call(cid):
         "Emails to for submitted proposals": ", ".join(submitted_emails),
         "Emails for all proposals": ", ".join(all_emails),
     }
-    rank_fields, rank_errors = get_review_rank_fields_errors(call, proposals)
-    for error in rank_errors:
-        utils.flash_warning(error)
+    rank_fields, rank_errors = get_rank_fields_errors(call, proposals)
     return flask.render_template(
         "proposals/call.html",
         call=call,
@@ -381,9 +379,9 @@ def get_review_score_fields(call, proposals):
     return fields
 
 
-def get_review_rank_fields_errors(call, proposals):
+def get_rank_fields_errors(call, proposals):
     """Return a tuple containing a dictionary of the rank banner fields
-    in the reviews and a list of errors.
+    in the reviews and a list of reviewers with rank field errors.
     Check that the ranks are consecutive for all reviewers.
     Compute the ranking factors of each proposal from all finalized
     non-conflict-of-interest reviews.
@@ -395,10 +393,10 @@ def get_review_rank_fields_errors(call, proposals):
             if f.get("banner") and f["type"] == constants.RANK
         ]
     )
-    errors = []
+    rank_errors = []
     for id in rank_fields.keys():
         # Collect the ranks set by each reviewer for each proposal under their review.
-        ranks = dict()  # key: reviewer, value: dict(proposal: rank)
+        ranks = dict()  # key: reviewerid, value: dict(pid: rank)
         for proposal in proposals:
             reviews = anubis.database.get_docs(
                 "reviews", "proposal", proposal["identifier"]
@@ -421,11 +419,8 @@ def get_review_rank_fields_errors(call, proposals):
         for reviewer, values in ranks.items():
             series = list(values.values())
             if series:
-                fullname = anubis.user.get_fullname(reviewer)
-                if min(series) != 1:
-                    errors.append(f"{fullname} reviews '{id}' do not start with 1.")
-                elif set(series) != set(range(1, max(series) + 1)):
-                    errors.append(f"{fullname} reviews '{id}' are not consecutive.")
+                if set(series) != set(range(1, max(series) + 1)):
+                    rank_errors.append(anubis.user.get_user(username=reviewer))
         # For each proposal, compute ranking factor.
         for proposal in proposals:
             factors = []
@@ -446,4 +441,4 @@ def get_review_rank_fields_errors(call, proposals):
                 rf[id]["stdev"] = round(10.0 * statistics.stdev(factors), 1)
             except statistics.StatisticsError:
                 rf[id]["stdev"] = None
-    return rank_fields, errors
+    return rank_fields, rank_errors

@@ -52,6 +52,11 @@ User {{ user['username'] }}
         {% if user['username'] in call['chairs'] %}
         Chair of this call.
         {% endif %}
+        {% if call['identifier'] in review_rank_errors %}
+        <span class="badge badge-warning">
+          The reviews rank field contains non-consecutive values.
+        </span>
+        {% endif %}
       </p>
       {% endfor %}
     </td>

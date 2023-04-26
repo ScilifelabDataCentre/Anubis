@@ -265,6 +265,10 @@ def display(username):
         "user/display.html",
         user=user,
         reviewer_calls=reviewer_calls,
+        review_rank_errors=set(
+            [call["identifier"] for call in reviewer_calls
+             if anubis.reviews.get_rank_error(call, username)]
+        ),
         allow_create_call=anubis.call.allow_create(user),
         user_calls_count=anubis.database.get_count("calls", "owner", user["username"]),
         user_proposals_count=user_proposals_count,

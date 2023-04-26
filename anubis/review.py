@@ -80,6 +80,7 @@ def display(iuid):
         n_reviews=anubis.database.get_count(
             "reviews", "proposal", proposal["identifier"]
         ),
+        rank_error=anubis.reviews.get_rank_error(call, review["reviewer"]),
         allow_edit=allow_edit(review),
         allow_delete=allow_delete(review),
         allow_finalize=allow_finalize(review),

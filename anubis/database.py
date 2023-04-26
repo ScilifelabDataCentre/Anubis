@@ -412,7 +412,7 @@ REVIEWS_DESIGN_DOC = {
         },
         "reviewer": {  # Reviews per reviewer, in any call
             "reduce": "_count",
-            "map": "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit(doc.reviewer, null);}",
+            "map": "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit(doc.reviewer, doc.call);}",
         },
         "call_reviewer": {  # Reviews per call and reviewer.
             "reduce": "_count",
