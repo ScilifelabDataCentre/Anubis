@@ -5,7 +5,7 @@ import re
 import string
 import sys
 
-__version__ = "2.6.2"
+__version__ = "2.7.0"
 
 
 class Constants:
@@ -27,7 +27,7 @@ class Constants:
     MARKO_URL = "https://pypi.org/project/marko/"
 
     BOOTSTRAP_VERSION = "4.6.1"
-    BOOTSTRAP_URL = "https://getbootstrap.com/"
+    BOOTSTRAP_URL = "https://getbootstrap.com/docs/4.6/getting-started/introduction/"
     BOOTSTRAP_CSS_URL = (
         "https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
     )
