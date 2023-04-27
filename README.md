@@ -27,7 +27,7 @@ reviews, decisions and grant dossiers. It allows:
 
 The source code is available the [Anubis GitHub repo](https://github.com/pekrau/Anubis).
 
-Anubis requires Python >= 3.9.
+Anubis requires Python >= 3.10.
 
 ### Source code
 
@@ -36,20 +36,21 @@ Get the source code by downloading the
 and unpacking it. For simplicity, rename the top directory to `Anubis`.
 
 It is recommended to set up a virtual environment for Anubis. On my
-development machine, I am using the `virtualenv` system. Refer to its documentation.
+development machine, I am using the `virtualenv` system. Refer to its
+documentation.
 
 ```bash
 $ mkvirtualenv Anubis
 $ cd Anubis
-$ add2virtualenv $PWD   # To add the top Anubis dir to Python path.
-$ setvirtualenvproject  # To make this dir the default when doing 'workon'.
+$ add2virtualenv $PWD    # To add the root Anubis dir to Python path.
+$ setvirtualenvproject   # To make this dir the default when doing 'workon'.
 ```
 
 Within the virtual environment, download and install the required
 Python packages from PyPi:
 
 ```bash
-$ workon Anubis  # Activate the virtual environment
+$ workon Anubis   # Activate the virtual environment and move into root dir.
 $ pip install -r requirements.txt
 ```
 
@@ -72,20 +73,23 @@ access and modify its data. Refer to the CouchDB documentation.
 
 There are two phases of configuration:
 
-1. Server configuration. This should be done once when installing the system. This
-   requires access to the server machine.
+1. Server configuration. This should be done once when installing the
+   system. This requires access to the server machine.
 
-   Server configuration takes effect when the web server process is started.
-   This means that if it is changed, the web server process will have to be restarted.
+   Server configuration takes effect when the web server process is
+   started.  This means that if it is changed, the web server process
+   will have to be restarted.
 
-2. Web interface configuration. This is done when the web server is up and running,
-   and requires an administrator account ('admin') in the Anubis site. This should
-   usually be done before launching the site for general use. The various
-   configuration pages can be reached from the top menu item 'Admin', which is
-   visible only to admins.
+2. Web interface configuration. This is done when the web server is up
+   and running, and requires an administrator account (role 'admin')
+   in the Anubis site. This should usually be done before launching
+   the site for general use. The various configuration pages can be
+   reached from the top menu item 'Admin', which is visible only to
+   admins.
 
-   These changes take effect immediately. The values are stored in the database,
-   and are read from it when the server process is restarted.
+   These changes take effect immediately. The values are stored in the
+   database, and are read from it when the server process is
+   restarted.
 
 ### Server configuration
 
@@ -102,7 +106,7 @@ The configuration values can be set in one of two ways:
    of this file can be specified by the environment variable ANUBIS_SETTINGS_FILEPATH
    or it can be located in a directory `Anubis/site`, which you must create.
 
-The following configuration settings need to be set:
+The following configuration settings need to be reviewed and set:
 
 - `COUCHDB_URL`: The absolute URL for the CouchDB instance interface.
 - `COUCHDB_DBNAME`: The name of the CouchDB database used for Anubis.
@@ -132,16 +136,16 @@ it will be possible to execute the command-line interface (CLI) script
 in the same environment as the web server is executing.
 
 ```bash
-$ workon
-$ cd Anubis/anubis
+$ workon Anubis   # Activate the virtual environment and move into root dir.
+$ cd anubis
 $ python cli.py --help
 ```
 
 At least one administrator account ('admin') must be created using the CLI:
 
 ```bash
-$ workon
-$ cd Anubis/anubis
+$ workon Anubis   # Activate the virtual environment and move into root dir.
+$ cd anubis
 $ python cli.py admin   # And provide input to the questions asked...
 ```
 
