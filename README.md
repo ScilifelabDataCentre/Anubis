@@ -42,6 +42,7 @@ documentation.
 ```bash
 $ mkvirtualenv Anubis
 $ cd Anubis
+
 $ add2virtualenv $PWD    # To add the root Anubis dir to Python path.
 $ setvirtualenvproject   # To make this dir the default when doing 'workon'.
 ```
