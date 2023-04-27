@@ -169,7 +169,7 @@
     {% elif field['type'] == constants.RANK %}
     <div class="form-row">
       <input type="number" step="1" id="{{ fid }}" name="{{ fid }}"
-             min="1" class="form-control col-md-2"
+             min="1" max="{{ n_reviews }}" class="form-control col-md-2"
              {% if value is not none %}
 	     value="{{ value }}"
              {% endif %}
