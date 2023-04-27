@@ -19,6 +19,17 @@ Reviews by user {{ user['username'] }} in call {{ call['identifier'] }}
 {% endblock %}
 
 {% block supermain %}
+{% if rank_error %}
+<div class="row mb-2">
+  <div class="col-md-2 text-right font-weight-bold">Rank errors</div>
+  <div class="col-md-8">
+    <span class="bg-warning px-3 py-1">
+      The reviews rank field contains non-consecutive values.
+    </span>
+  </div>
+</div>
+{% endif %} {# if rank_error #}
+
 <div class="row mb-2">
   <div class="col-md-2 text-right font-weight-bold">Due</div>
   <div class="col-md-8">

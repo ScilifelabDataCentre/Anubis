@@ -1,4 +1,4 @@
-"Flask app setup and creation; main entry point.."
+"Flask web app creation and setup; main entry point."
 
 import functools
 import http.client
@@ -7,7 +7,6 @@ import io
 import couchdb2
 import flask
 import markupsafe
-import werkzeug.routing
 
 import anubis.api
 import anubis.database
@@ -29,70 +28,13 @@ import anubis.user
 from anubis import constants
 from anubis import utils
 
-# The global Flask app.
-app = flask.Flask(__name__)
 
-# Configure Flask app from settings file and/or environment variables.
-anubis.config.init(app)
+# Create the global Flask app with main configuration.
+app = anubis.config.create_app()
+
+# Further configuration for the web app.
 anubis.utils.init(app)
 anubis.display.init(app)
-
-# Hard-wired Flask configuration.
-app.json.ensure_ascii = False
-app.json.sort_keys = False
-app.config["SEND_FILE_MAX_AGE_DEFAULT"] = constants.SITE_FILE_MAX_AGE
-
-
-@app.before_first_request
-def update_initialize():
-    """The CLI cannot create a database if this code is executed when the app is
-    created in the call 'anubis.config.init(app)' above. That is why this code has
-    to be in this special procedure.
-    - Update design document.
-    - Update contents of db for version changes.
-    - Get configuration values that are nowadays stored in the database.
-    """
-    anubis.database.update_design_documents()
-    anubis.database.update()
-    anubis.config.init_from_db()
-
-
-# Add a custom converter to handle IUID URLs.
-class IuidConverter(werkzeug.routing.BaseConverter):
-    "URL route converter for a IUID."
-
-    def to_python(self, value):
-        if not constants.IUID_RX.match(value):
-            raise werkzeug.routing.ValidationError
-        return value.lower()  # Case-insensitive
-
-
-app.url_map.converters["iuid"] = IuidConverter
-
-
-@app.context_processor
-def setup_template_context():
-    "Add to the global context of Jinja2 templates."
-    return dict(
-        enumerate=enumerate,
-        range=range,
-        sorted=sorted,
-        len=len,
-        min=min,
-        max=max,
-        set=set,
-        constants=constants,
-        csrf_token=utils.csrf_token,
-        get_user=anubis.user.get_user,
-        get_call=anubis.call.get_call,
-        get_banner_fields=anubis.call.get_banner_fields,
-        get_proposal=anubis.proposal.get_proposal,
-        get_review=anubis.review.get_review,
-        get_decision=anubis.decision.get_decision,
-        get_grant=anubis.grant.get_grant,
-        get_grant_proposal=anubis.grant.get_grant_proposal,
-    )
-
 
 @app.before_request
 def prepare():
@@ -221,7 +163,7 @@ def search():
 
 @app.route("/documentation")
 def documentation():
-    "Documentation page; the README page of the GitHub repo."
+    "Documentation page; the prepocessed file 'documentation.md'."
     return flask.render_template("documentation.html")
 
 

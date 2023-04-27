@@ -21,40 +21,44 @@ class MetaSaver(Saver):
         pass
 
 
-def get_server():
+def get_server(app=None):
     "Get a connection to the CouchDB server."
+    if app is None:
+        app = flask.current_app
     return couchdb2.Server(
-        href=flask.current_app.config["COUCHDB_URL"],
-        username=flask.current_app.config["COUCHDB_USERNAME"],
-        password=flask.current_app.config["COUCHDB_PASSWORD"],
+        href=app.config["COUCHDB_URL"],
+        username=app.config["COUCHDB_USERNAME"],
+        password=app.config["COUCHDB_PASSWORD"],
     )
 
 
-def get_db():
+def get_db(app=None):
     "Get a connection to the database."
-    return get_server()[flask.current_app.config["COUCHDB_DBNAME"]]
+    if app is None:
+        app = flask.current_app
+    return get_server(app)[app.config["COUCHDB_DBNAME"]]
 
 
-def update_design_documents():
+def update_design_documents(app):
     "Ensure that all CouchDB design documents are up to date."
-    db = get_db()
-    app = flask.current_app
+    db = get_db(app)
+    # app = flask.current_app
     if db.put_design("calls", CALLS_DESIGN_DOC):
-        app.logger.info("Updated calls design document.")
+        app.logger.info("Updated calls CouchDB design document.")
     if db.put_design("proposals", PROPOSALS_DESIGN_DOC):
-        app.logger.info("Updated proposals design document.")
+        app.logger.info("Updated proposals CouchDB design document.")
     if db.put_design("reviews", REVIEWS_DESIGN_DOC):
-        app.logger.info("Updated reviews design document.")
+        app.logger.info("Updated reviews CouchDB design document.")
     if db.put_design("decisions", DECISIONS_DESIGN_DOC):
-        app.logger.info("Updated decisions design document.")
+        app.logger.info("Updated decisions CouchDB design document.")
     if db.put_design("grants", GRANTS_DESIGN_DOC):
-        app.logger.info("Updated grants design document.")
+        app.logger.info("Updated grants CouchDB design document.")
     if db.put_design("users", USERS_DESIGN_DOC):
-        app.logger.info("Updated users design document.")
+        app.logger.info("Updated users CouchDB design document.")
     if db.put_design("logs", LOGS_DESIGN_DOC):
-        app.logger.info("Updated logs design document.")
+        app.logger.info("Updated logs CouchDB design document.")
     if db.put_design("meta", META_DESIGN_DOC):
-        app.logger.info("Updated meta design document.")
+        app.logger.info("Updated meta CouchDB design document.")
 
 
 def get_doc(identifier):
@@ -168,10 +172,9 @@ def delete(doc):
     flask.g.db.delete(doc)
 
 
-def update():
+def update(app):
     "Update the contents of the database for changes in new version(s)."
-    db = get_db()
-    app = flask.current_app
+    db = get_db(app)
 
     # Change all stored datetimes (call opens, closes, reviews_due) to UTC ISO format.
     calls = [row.doc for row in db.view("calls", "identifier", include_docs=True)]
@@ -409,7 +412,7 @@ REVIEWS_DESIGN_DOC = {
         },
         "reviewer": {  # Reviews per reviewer, in any call
             "reduce": "_count",
-            "map": "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit(doc.reviewer, null);}",
+            "map": "function(doc) {if (doc.doctype !== 'review' || doc.archived) return; emit(doc.reviewer, doc.call);}",
         },
         "call_reviewer": {  # Reviews per call and reviewer.
             "reduce": "_count",

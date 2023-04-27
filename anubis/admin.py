@@ -50,7 +50,7 @@ def site_configuration():
                     saver.add_attachment("host_logo", infile.read(), infile.mimetype)
         except ValueError as error:
             utils.flash_error(error)
-        anubis.config.init_from_db()
+        anubis.config.init_from_db(flask.current_app)
         return flask.redirect(flask.url_for("admin.site_configuration"))
 
 
@@ -82,7 +82,7 @@ def user_configuration():
                     )
         except ValueError as error:
             utils.flash_error(error)
-        anubis.config.init_from_db()
+        anubis.config.init_from_db(flask.current_app)
         return flask.redirect(flask.url_for("admin.user_configuration"))
 
 
@@ -141,7 +141,7 @@ def call_configuration():
                 saver["open_order_key"] = value
         except ValueError as error:
             utils.flash_error(error)
-        anubis.config.init_from_db()
+        anubis.config.init_from_db(flask.current_app)
         return flask.redirect(flask.url_for("admin.call_configuration"))
 
 

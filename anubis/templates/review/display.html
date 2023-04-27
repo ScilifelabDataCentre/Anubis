@@ -29,6 +29,17 @@
   <div class="col-md">{{ call | call_link }}</div>
 </div>
 
+{% if rank_error %}
+<div class="row mb-2">
+  <div class="col-md-2 text-right font-weight-bold">Rank error</div>
+  <div class="col-md-8">
+    <span class="bg-warning px-3 py-1">
+      The rank field of your reviews in this call contains non-consecutive values.
+    </span>
+  </div>
+</div>
+{% endif %} {# if rank_error #}
+
 {% if allow_view_reviews %}
 <div class="row mb-2">
   <div class="col-md-2 font-weight-bold text-right">Reviews of proposal</div>

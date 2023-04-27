@@ -8,6 +8,10 @@ from anubis import utils
 
 import anubis.database
 import anubis.call
+import anubis.decision
+import anubis.grant
+import anubis.proposal
+import anubis.review
 import anubis.user
 
 
@@ -34,6 +38,29 @@ def init(app):
         grant_link,
     ]:
         app.jinja_env.filters[func.__name__] = func
+    app.context_processor(setup_template_context)
+
+def setup_template_context():
+    "Add to the global context of Jinja2 templates."
+    return dict(
+        enumerate=enumerate,
+        range=range,
+        sorted=sorted,
+        len=len,
+        min=min,
+        max=max,
+        set=set,
+        constants=constants,
+        csrf_token=utils.csrf_token,
+        get_user=anubis.user.get_user,
+        get_call=anubis.call.get_call,
+        get_banner_fields=anubis.call.get_banner_fields,
+        get_proposal=anubis.proposal.get_proposal,
+        get_review=anubis.review.get_review,
+        get_decision=anubis.decision.get_decision,
+        get_grant=anubis.grant.get_grant,
+        get_grant_proposal=anubis.grant.get_grant_proposal,
+    )
 
 
 def display_markdown(value):

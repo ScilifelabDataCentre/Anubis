@@ -167,6 +167,7 @@ def call_reviewer(cid, username):
         proposals=proposals,
         user=user,
         reviews_lookup=reviews_lookup,
+        rank_error=anubis.reviews.get_rank_error(call, username),
     )
 
 
@@ -558,3 +559,30 @@ def get_reviews_xlsx(call, proposals, reviews_lookup):
 
     wb.close()
     return output.getvalue()
+
+
+def get_rank_error(call, username):
+    """Return True if the reviews by the reviewer in the call has
+    rank fields with non-consecutive values.
+    """
+    reviews = anubis.database.get_docs(
+        "reviews", "call_reviewer", [call["identifier"], username]
+    )
+    reviews = [r for r in reviews if r.get("finalized")]
+    reviews = [
+        r for r in reviews if not r["values"].get("conflict_of_interest")
+    ]
+    if not reviews:
+        return False
+    identifiers = [
+        f["identifier"]
+        for f in call["review"]
+        if f.get("banner") and f["type"] == constants.RANK
+    ]
+    for identifier in identifiers:
+        ranks = set()
+        for review in reviews:
+            ranks.add(review["values"].get(identifier))
+        if ranks != set(range(1, max(ranks) + 1)):
+            return True
+    return False

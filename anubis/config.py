@@ -12,12 +12,13 @@ import couchdb2
 import dotenv
 import flask
 import pytz
-from werkzeug.middleware.proxy_fix import ProxyFix
+import werkzeug.routing
+import werkzeug.middleware.proxy_fix
 
 from anubis import constants
 from anubis import utils
-
 import anubis.database
+
 
 # Default configurable settings.
 DEFAULT_CONFIG = dict(
@@ -40,8 +41,32 @@ DEFAULT_CONFIG = dict(
 )
 
 
+class IuidConverter(werkzeug.routing.BaseConverter):
+    "URL route converter for a IUID."
+
+    def to_python(self, value):
+        if not constants.IUID_RX.match(value):
+            raise werkzeug.routing.ValidationError
+        return value.lower()  # Case-insensitive
+
+
+def create_app(config_with_db=True, update_db=True):
+    "Create the Flask app instance and do the main configuration."
+    app = flask.Flask(__name__)
+    init(app)
+    if config_with_db:
+        anubis.database.update_design_documents(app)
+        if update_db:
+            anubis.database.update(app)
+            init_from_db(app)
+    app.url_map.converters["iuid"] = IuidConverter
+    app.json.ensure_ascii = False
+    app.json.sort_keys = False
+    return app
+
+
 def init(app):
-    """Perform the configuration of the Flask app.
+    """Perform the main configuration of the Flask app.
     1) Initialize with the values in DEFAULT_CONFIG.
     2) Set environment variables from file '.env', if any, using 'dotenv.load_dotenv'.
        This does not overwrite any already existing environment variables.
@@ -55,6 +80,7 @@ def init(app):
     Raise ValueError if a settings variable value is invalid.
     """
     config = DEFAULT_CONFIG.copy()
+    config["SEND_FILE_MAX_AGE_DEFAULT"] = constants.SITE_FILE_MAX_AGE
 
     # Dotenv file '.env' is optional. It is useful for development.
     if dotenv.load_dotenv():
@@ -103,7 +129,7 @@ def init(app):
     # Is the timezone recognizable?
     pytz.timezone(config["TIMEZONE"])
 
-    # Read and preprocess the documentation.
+    # Read and preprocess the documentation file.
     with open("documentation.md") as infile:
         lines = infile.readlines()
     toc = []
@@ -113,7 +139,7 @@ def init(app):
             parts = line.split()
             level = len(parts[0])
             title = " ".join(parts[1:])
-            # All headers in README are "clean", i.e. text only, no markup.
+            # All headers in the file are "clean", i.e. text only, no markup.
             id = title.strip().replace(" ", "-").lower()
             id = "".join(c for c in id if c in constants.ALLOWED_ID_CHARACTERS)
             # Add to table of contents.
@@ -141,7 +167,7 @@ def init(app):
 
     # Must be done after all possible settings sources have been processed.
     if app.config["REVERSE_PROXY"]:
-        app.wsgi_app = ProxyFix(app.wsgi_app)
+        app.wsgi_app = werkzeug.middleware.proxy_fix.ProxyFix(app.wsgi_app)
 
     # Checks that the CouchDB server is reachable, and its version.
     with app.app_context():
@@ -163,12 +189,11 @@ def init(app):
         app.logger.info(f"'{key}' setting from environment variable.")
 
 
-def init_from_db():
+def init_from_db(app):
     """Set configuration from values stored in the database.
     These are no longer settable by environment variables or the settings file.
     """
-    db = anubis.database.get_db()
-    app = flask.current_app
+    db = anubis.database.get_db(app)
 
     # Site configuration values from database to Flask config.
     configuration = db["site_configuration"]

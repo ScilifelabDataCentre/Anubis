@@ -80,6 +80,7 @@ def display(iuid):
         n_reviews=anubis.database.get_count(
             "reviews", "proposal", proposal["identifier"]
         ),
+        rank_error=anubis.reviews.get_rank_error(call, review["reviewer"]),
         allow_edit=allow_edit(review),
         allow_delete=allow_delete(review),
         allow_finalize=allow_finalize(review),
@@ -105,7 +106,13 @@ def edit(iuid):
         if not allow_edit(review):
             return utils.error("You are not allowed to edit this review.")
         return flask.render_template(
-            "review/edit.html", review=review, proposal=proposal, call=call
+            "review/edit.html",
+            review=review,
+            proposal=proposal,
+            call=call,
+            n_reviews=anubis.database.get_count(
+                "reviews", "proposal", proposal["identifier"]
+            ),
         )
 
     elif utils.http_POST():

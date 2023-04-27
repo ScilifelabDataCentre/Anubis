@@ -27,6 +27,22 @@
 {% endblock %}
 
 {% block supermain %}
+{% if review_rank_errors %}
+<div class="row mb-2">
+  <div class="col-md-2 text-right font-weight-bold">Rank errors</div>
+  <div class="col-md-8">
+    <span class="bg-warning p-1">
+      The following reviewers have reviews with rank fields containing
+      non-consecutive values:
+    </span>
+    {% for user in review_rank_errors %}
+    <br>
+    {{ user | user_link }}
+    {% endfor %}
+  </div>
+</div>
+{% endif %} {# if review_rank_errors #}
+
 <div class="row">
   <div class="col-md-10">
     {% include 'email_lists.html' %}
