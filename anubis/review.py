@@ -111,7 +111,7 @@ def edit(iuid):
             proposal=proposal,
             call=call,
             n_reviews=anubis.database.get_count(
-                "reviews", "proposal", proposal["identifier"]
+                "reviews", "call_reviewer", [call["identifier"], review["reviewer"]]
             ),
         )
 
