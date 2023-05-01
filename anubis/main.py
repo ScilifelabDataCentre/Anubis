@@ -33,7 +33,6 @@ from anubis import utils
 app = anubis.config.create_app()
 
 # Further configuration for the web app.
-anubis.utils.init(app)
 anubis.display.init(app)
 
 @app.before_request

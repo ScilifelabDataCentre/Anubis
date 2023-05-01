@@ -182,5 +182,5 @@ def document(identifier):
 @utils.admin_required
 def settings():
     "Display the current config."
-    config = anubis.config.get_config(not flask.current_app.config.get("FLASK_DEBUG"))
+    config = anubis.config.get_config()
     return flask.render_template("admin/settings.html", items=config.items())

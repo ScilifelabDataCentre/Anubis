@@ -106,7 +106,7 @@ def database_destroy(force):
 @cli.command
 def database_create():
     "Create the database within CouchDB and load the design documents."
-    app = anubis.config.create_app(config_with_db=False)
+    app = anubis.config.create_app(config_from_db=False)
     with app.app_context():
         server = anubis.database.get_server(app)
         if app.config["COUCHDB_DBNAME"] in server:
