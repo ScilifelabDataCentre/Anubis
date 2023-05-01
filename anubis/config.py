@@ -9,11 +9,10 @@ import os
 import os.path
 
 import couchdb2
-import dotenv
 import flask
 import pytz
-import werkzeug.routing
 import werkzeug.middleware.proxy_fix
+import werkzeug.routing
 
 from anubis import constants
 from anubis import utils
@@ -41,20 +40,17 @@ DEFAULT_CONFIG = dict(
 )
 
 
-class IuidConverter(werkzeug.routing.BaseConverter):
-    "URL route converter for a IUID."
-
-    def to_python(self, value):
-        if not constants.IUID_RX.match(value):
-            raise werkzeug.routing.ValidationError
-        return value.lower()  # Case-insensitive
-
-
-def create_app(config_with_db=True, update_db=True):
+def create_app(config_from_db=True, update_db=True):
     "Create the Flask app instance and do the main configuration."
+    # The reason this is defined here, and not in 'main.py', is that the
+    # standalone 'cli.py' must also use it. There is further initialization
+    # done at the module level in 'main.py', which must not be done when this
+    # function is called from 'cli.py'. Therefore, the module 'anubis.main'
+    # cannot be imported by 'cli.py'.
     app = flask.Flask(__name__)
     init(app)
-    if config_with_db:
+    utils.init(app)
+    if config_from_db:
         anubis.database.update_design_documents(app)
         if update_db:
             anubis.database.update(app)
@@ -65,26 +61,29 @@ def create_app(config_with_db=True, update_db=True):
     return app
 
 
+class IuidConverter(werkzeug.routing.BaseConverter):
+    "URL route converter for IUID."
+
+    def to_python(self, value):
+        if not constants.IUID_RX.match(value):
+            raise werkzeug.routing.ValidationError
+        return value.lower()  # To avoid potential problems with character case.
+
+
 def init(app):
     """Perform the main configuration of the Flask app.
     1) Initialize with the values in DEFAULT_CONFIG.
-    2) Set environment variables from file '.env', if any, using 'dotenv.load_dotenv'.
-       This does not overwrite any already existing environment variables.
-    3) Collect the possible settings file paths in the following order:
+    2) Collect the possible settings file paths in the following order:
        - The environment variable ANUBIS_SETTINGS_FILEPATH, if any.
        - The file 'settings.json' in this directory.
        - The file '../site/settings.json' relative to this directory.
-    4) Use the first of these files that is found and can be read.
-    5) Use any environment variables defined; settings file values are overwritten.
+    3) Use the first of these files that is found and can be read.
+    4) Use any environment variables defined; settings file values are overwritten.
     Raise KeyError if a settings variable is missing.
     Raise ValueError if a settings variable value is invalid.
     """
     config = DEFAULT_CONFIG.copy()
     config["SEND_FILE_MAX_AGE_DEFAULT"] = constants.SITE_FILE_MAX_AGE
-
-    # Dotenv file '.env' is optional. It is useful for development.
-    if dotenv.load_dotenv():
-        config["SETTINGS_DOTENV_FILEPATH"] = dotenv.find_dotenv()
 
     # Find and read the settings file, updating the defaults.
     try:
@@ -100,7 +99,7 @@ def init(app):
         obsolete_keys = []
     else:
         config.update(from_settings_file)
-        config["SETTINGS_FILE"] = filepath
+        config["SETTINGS_FILEPATH"] = filepath
         obsolete_keys = set(from_settings_file.keys()).difference(DEFAULT_CONFIG)
 
     # Modify the configuration from environment variables; convert to correct type.
@@ -162,7 +161,7 @@ def init(app):
     app.config.from_mapping(config)
 
     # Set INFO OR DEBUG logging level.
-    if not config.get("FLASK_DEBUG"):
+    if not app.config.get("DEBUG"):
         app.logger.setLevel(logging.INFO)
 
     # Must be done after all possible settings sources have been processed.
@@ -177,10 +176,6 @@ def init(app):
 
     # Output the sources of settings.
     app.logger.info(f"Anubis version {constants.VERSION}")
-    if app.config.get("SETTINGS_DOTENV_FILEPATH"):
-        app.logger.info(
-            f"""Environment variables set from '{app.config.get("SETTINGS_DOTENV_FILEPATH")}'"""
-        )
     if app.config.get("SETTINGS_FILEPATH"):
         app.logger.info(f"settings file: {app.config['SETTINGS_FILEPATH']}")
         for key in sorted(obsolete_keys):
@@ -238,17 +233,17 @@ def init_from_db(app):
         app.config[f"CALL_{key.upper()}"] = value
 
 
-def get_config(hidden=True):
+def get_config():
     """Return the current configuration. Only those items that are supposed
     to be set by the admin for a site, not those that are set by the software.
+    Hide secret values.
     """
     result = {"ROOT": constants.ROOT}
-    for key in ["SETTINGS_DOTENV_FILEPATH", "SETTINGS_ENVVAR", "SETTINGS_FILEPATH"]:
+    for key in ["DEBUG", "SETTINGS_ENVVAR", "SETTINGS_FILEPATH"]:
         result[key] = flask.current_app.config.get(key)
-    for key in anubis.config.DEFAULT_CONFIG:
+    for key in DEFAULT_CONFIG:
         result[key] = flask.current_app.config[key]
-    if hidden:
-        for key in ["SECRET_KEY", "COUCHDB_PASSWORD", "MAIL_PASSWORD"]:
-            if result[key]:
-                result[key] = "<hidden>"
+    for key in ["SECRET_KEY", "COUCHDB_PASSWORD", "MAIL_PASSWORD"]:
+        if result[key]:
+            result[key] = "<hidden>"
     return result
