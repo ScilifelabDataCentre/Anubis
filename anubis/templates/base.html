@@ -96,25 +96,33 @@
 
           {% if g.am_admin or g.am_staff %}
           <li class="nav-item dropdown">
+            <a href="#" id="navbarUsers" class="nav-link dropdown-toggle pr-4"
+               role="button" data-toggle="dropdown"
+               aria-haspopup="true" aria-expanded="false">Users</a>
+            <div class="dropdown-menu" aria-labelledby="navbarUsers">
+              <a class="dropdown-item" href="{{ url_for('user.pending') }}">Pending users</a>
+              <a class="dropdown-item" href="{{ url_for('user.staff') }}">Admin and staff users</a>
+              <a class="dropdown-item" href="{{ url_for('user.all') }}">All users</a>
+              <a class="dropdown-item" href="{{ url_for('user.register') }}">Register user</a>
+            </div>
+          </li>
+          {% endif %} {# if g.am_admin or g.am_staff #}
+
+          {% if g.am_admin %}
+          <li class="nav-item dropdown">
             <a href="#" id="navbarAdmin" class="nav-link dropdown-toggle pr-4"
                role="button" data-toggle="dropdown"
                aria-haspopup="true" aria-expanded="false">Admin</a>
             <div class="dropdown-menu" aria-labelledby="navbarAdmin">
-              <a class="dropdown-item" href="{{ url_for('user.all') }}">All users</a>
-              <a class="dropdown-item" href="{{ url_for('user.pending') }}">Pending users</a>
-              <a class="dropdown-item" href="{{ url_for('user.staff') }}">Admin and staff users</a>
-              <a class="dropdown-item" href="{{ url_for('user.register') }}">Register user</a>
-              {% if g.am_admin %}
+              <a class="dropdown-item" href="{{ url_for('admin.alert_text') }}">Alert text</a>
               <a class="dropdown-item" href="{{ url_for('admin.site_configuration') }}">Site configuration</a>
               <a class="dropdown-item" href="{{ url_for('admin.user_configuration') }}">User configuration</a>
               <a class="dropdown-item" href="{{ url_for('admin.call_configuration') }}">Call configuration</a>
-              <a class="dropdown-item" href="{{ url_for('admin.alert_text') }}">Alert text</a>
               <a class="dropdown-item" href="{{ url_for('admin.database') }}">Database</a>
               <a class="dropdown-item" href="{{ url_for('admin.settings') }}">Settings</a>
-              {% endif %} {# if g.am_admin #}
             </div>
           </li>
-          {% endif %} {# if g.am_admin or g.am_staff #}
+          {% endif %} {# if g.am_admin #}
 
           <a href="{{ url_for('documentation') }}" target="documentation"
              class="nav-link mr-2">Documentation</a>

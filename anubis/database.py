@@ -42,23 +42,22 @@ def get_db(app=None):
 def update_design_documents(app):
     "Ensure that all CouchDB design documents are up to date."
     db = get_db(app)
-    # app = flask.current_app
     if db.put_design("calls", CALLS_DESIGN_DOC):
-        app.logger.info("Updated calls CouchDB design document.")
+        app.logger.info("Updated 'calls' CouchDB design document.")
     if db.put_design("proposals", PROPOSALS_DESIGN_DOC):
-        app.logger.info("Updated proposals CouchDB design document.")
+        app.logger.info("Updated 'proposals' CouchDB design document.")
     if db.put_design("reviews", REVIEWS_DESIGN_DOC):
-        app.logger.info("Updated reviews CouchDB design document.")
+        app.logger.info("Updated 'reviews' CouchDB design document.")
     if db.put_design("decisions", DECISIONS_DESIGN_DOC):
-        app.logger.info("Updated decisions CouchDB design document.")
+        app.logger.info("Updated 'decisions' CouchDB design document.")
     if db.put_design("grants", GRANTS_DESIGN_DOC):
-        app.logger.info("Updated grants CouchDB design document.")
+        app.logger.info("Updated 'grants' CouchDB design document.")
     if db.put_design("users", USERS_DESIGN_DOC):
-        app.logger.info("Updated users CouchDB design document.")
+        app.logger.info("Updated 'users' CouchDB design document.")
     if db.put_design("logs", LOGS_DESIGN_DOC):
-        app.logger.info("Updated logs CouchDB design document.")
+        app.logger.info("Updated 'logs' CouchDB design document.")
     if db.put_design("meta", META_DESIGN_DOC):
-        app.logger.info("Updated meta CouchDB design document.")
+        app.logger.info("Updated 'meta' CouchDB design document.")
 
 
 def get_doc(identifier):
