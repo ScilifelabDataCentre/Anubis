@@ -1,0 +1,8 @@
+{
+    "COUCHDB_URL": "http://127.0.0.1:5984/",
+    "COUCHDB_DBNAME": "anubis",
+    "COUCHDB_USERNAME": "the-couchdb-account-used-by-anubus",
+    "COUCHDB_PASSWORD": "the-password-for-the-couchdb-account",
+    "SECRET_KEY": "longish-string-of-random-characters-for-session-handling",
+    "TIMEZONE": "Europe/Stockholm"
+}
