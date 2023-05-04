@@ -1,7 +1,5 @@
-.env
 settings.json
 site*
 __pycache__
 .pytest_cache
-*.log
 *~

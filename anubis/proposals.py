@@ -99,7 +99,7 @@ def get_call_xlsx(call, submitted=False, proposals=None):
     allow_view_reviews = anubis.call.allow_view_reviews(call)
     if allow_view_reviews:
         score_fields = get_review_score_fields(call, proposals)
-        rank_fields, rank_errors = get_review_rank_fields_errors(call, proposals)
+        rank_fields, rank_errors = get_rank_fields_errors(call, proposals)
     output = io.BytesIO()
     wb = xlsxwriter.Workbook(output, {"in_memory": True})
     formats = utils.create_xlsx_formats(wb)
