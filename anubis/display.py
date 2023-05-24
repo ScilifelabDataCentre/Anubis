@@ -40,6 +40,7 @@ def init(app):
         app.jinja_env.filters[func.__name__] = func
     app.context_processor(setup_template_context)
 
+
 def setup_template_context():
     "Add to the global context of Jinja2 templates."
     return dict(

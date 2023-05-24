@@ -35,6 +35,7 @@ app = anubis.config.create_app()
 # Further configuration for the web app.
 anubis.display.init(app)
 
+
 @app.before_request
 def prepare():
     "Set the database connection, get the current user."
