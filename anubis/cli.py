@@ -104,20 +104,29 @@ def database_destroy(force):
 
 
 @cli.command
-def database_create():
+@click.option(
+    "-s",
+    "--silent",
+    is_flag=True,
+    default=False,
+    help="Do not complain if database already exists.",
+)
+def database_create(silent):
     "Create the database within CouchDB and load the design documents."
     app = anubis.config.create_app(config_from_db=False)
     with app.app_context():
         server = anubis.database.get_server(app)
         if app.config["COUCHDB_DBNAME"] in server:
-            raise click.ClickException(
-                f"""Database '{app.config["COUCHDB_DBNAME"]}' already exists."""
-            )
-        server.create(app.config["COUCHDB_DBNAME"])
+            if not silent:
+                raise click.ClickException(
+                    f"""Database '{app.config["COUCHDB_DBNAME"]}' already exists."""
+                )
+        else:
+            server.create(app.config["COUCHDB_DBNAME"])
+            click.echo(f"""Created database '{app.config["COUCHDB_DBNAME"]}'.""")
         # Do not update the database more than this!
         # A dump file may contain configuration documents to be loaded.
         anubis.database.update_design_documents(app)
-        click.echo(f"""Created database '{app.config["COUCHDB_DBNAME"]}'.""")
 
 
 @cli.command

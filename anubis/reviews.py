@@ -569,9 +569,7 @@ def get_rank_error(call, username):
         "reviews", "call_reviewer", [call["identifier"], username]
     )
     reviews = [r for r in reviews if r.get("finalized")]
-    reviews = [
-        r for r in reviews if not r["values"].get("conflict_of_interest")
-    ]
+    reviews = [r for r in reviews if not r["values"].get("conflict_of_interest")]
     if not reviews:
         return False
     identifiers = [
