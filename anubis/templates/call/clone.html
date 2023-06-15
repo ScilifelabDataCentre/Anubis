@@ -13,26 +13,12 @@
         <div class="card-body">
           The following call data is <strong>not</strong> copied into the clone:
           <ul>
-            <li>Open, close and review due dates.</li>
+            <li>Dates for opens, closes and reviews due.</li>
             <li>Attached documents.</li>
             <li>Reviewers and chairs set for the call.</li>
           </ul>
         </div>
       </div>
-    </div>
-  </div>
-
-  <div class="form-group row">
-    <label for="title"  class="col-md-2 col-form-label text-right font-weight-bold">
-      Title</label>
-    <div class="col-md">
-      <input type="text" id="title" name="title"
-             class="form-control" aria-describedby="titleHelp"
-	     value="{{ call['title'] }}">
-      <small id="titleHelp" class="form-text text-muted">
-        <strong>Required!</strong>
-        Brief descriptive title for the call.
-      </small>
     </div>
   </div>
 
@@ -48,11 +34,27 @@
       </div>
       <small id="identifierHelp" class="form-text text-muted">
         <strong>Required!</strong>
-        Call identifier, which cannot be changed.
+        Call identifier, which must be unique. It can be edited only
+        if no proposals or other dependent objects have been
+        created in the call, and the call has not been opened.
         <br>
         The call identifier must begin with a letter and continue with
         letters, digits or underscore. No other characters are
         allowed. It is a good idea to keep it short.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label for="title"  class="col-md-2 col-form-label text-right font-weight-bold">
+      Title</label>
+    <div class="col-md">
+      <input type="text" id="title" name="title"
+             class="form-control" aria-describedby="titleHelp"
+	     value="{{ call['title'] }}">
+      <small id="titleHelp" class="form-text text-muted">
+        <strong>Required!</strong>
+        Brief descriptive title for the call, which can be edited later.
       </small>
     </div>
   </div>
