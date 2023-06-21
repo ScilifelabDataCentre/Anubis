@@ -417,14 +417,7 @@
 
 {% block doclinks %}
 {{ super() }}
-<a href="{{ url_for('documentation', _anchor='call') }}"
-   target="documentation" role="button"
-   class="btn btn-outline-primary btn-block">
-  Documentation: Call</a>
-<a href="{{ url_for('documentation', _anchor='how-to-create-a-call') }}"
-   target="documentation" role="button"
-   class="btn btn-outline-primary btn-block">
-  How to create a call</a>
+{% include 'call/doclinks.html' %}
 {% endblock %} {# block doclinks #}
 
 {% block info %}
