@@ -21,6 +21,7 @@ import anubis.database
 
 # Default configurable settings.
 DEFAULT_CONFIG = dict(
+    DEBUG=False,
     COUCHDB_URL="http://127.0.0.1:5984/",  # Likely, if CouchDB on local machine.
     COUCHDB_DBNAME="anubis",  # The database instance within CouchDB.
     COUCHDB_USERNAME=None,  # Must probably be set; depends on CouchDB setup.

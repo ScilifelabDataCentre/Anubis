@@ -41,6 +41,11 @@
 </table>
 {% endblock %} {# block main #}
 
+{% block doclinks %}
+{{ super() }}
+{% include 'call/doclinks.html' %}
+{% endblock %} {# block doclinks #}
+
 {% block javascript %}
 <script>
   $(function() {

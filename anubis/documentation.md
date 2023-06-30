@@ -744,6 +744,93 @@ web interface.
 - The admin is allowed to change the ownership of a proposal.
 
 
+## How to create a call
+
+A call can be created by
+- An admin account.
+- A staff account, if so set by the admin in the [call configuration page](/admin/call_configuration)
+- An ordinary user account which an admin has explicitly set to be able to create calls.
+
+There are two ways of creating a call: From scratch, or by cloning an existing call.
+
+### Alt 1: Create a call from scratch
+
+1. In the top pull-down menu **Calls**, use the item **Create a call**.
+2. Provide the identifier for the new call. When the call has been opened and any
+   proposals created, this cannot be changed, so choose wisely.
+3. Provide the title for the new call. This can be edited later.
+4. Click **Create**.
+5 Edit the call; see the section after the next.
+
+### Alt 2: Create a call by cloning
+
+1. Find an existing call to clone from. Since it's the creation and editing of
+   input fields for proposals and reviews that requires most work, use a call
+   that has similar input fields.
+2. Click the button **Clone**.
+3. Provide the identifier for the new call. When the call has been opened and any
+   proposals created, this cannot be changed, so choose wisely.
+4. Provide the title for the new call. This can be edited later.
+5. Click **Create**.
+6. Edit the call; see next section.
+
+### Edit the call metadata
+
+- The field "Description" is intended to give the potential proposal writer an
+  explanation of what the call is about. It can use
+  [Markdown](https://www.markdownguide.org/basic-syntax/) formatting.
+- The field "Home page description", if provided, is used on the home page of the
+  Anubis web service. The description there has to be short in order not to crowd
+  out the other open calls. It should be used then the "Description" field (see above)
+  is too long.
+- Field "Labels" is to assist filtering when using the API to fetch call information.
+  It is optional.
+- The field "Opens" determines when the call is automatically opened for
+  the applicants to create their proposals. It is a date-and-time field,
+  e.g. "2023-06-12 10:00". The date must be an ISO-format date,
+  i.e. year-month-day. The time is in the 24 hour clock, and in the
+  timezone set for the Anubis web server.
+- **NOTE**: If the date is supposed to denote midnight in the evening of 2023-06-12,
+  then the time must be given as **23:59**. If one specifies 00:00, then this
+  means the morning of that day.
+- **NOTE**: This field has to be set for a call to be published.
+- The field **Closes** determines the deadline for creating and submitting a
+  proposal in a call. When set, the Anubis system automatically closes the call
+  on the given date and time. The format is the same as for the "Opens" field.
+- **NOTE**: This field has to be set for a call to be published.
+- The field **Reviews due** is for the deadline for reviews. This is a "soft" deadline;
+  reviews can still be submitted after it. This field is optional.
+- The "Privileges" checkboxes allows selecting certain additional privileges for
+  the call, if required.
+
+### Edit the input fields
+
+The input fields for the **proposals**, **reviews**, **decisions** and **grants**
+are all defined in the call.
+
+- To edit the input fields of an entity, click one of the buttons
+  **Edit {entity} fields**.
+- The input fields should be created before allowing users
+  to create and edit the entity.
+- It is possible to modify the fields later, but it may invalidate an existing
+  entity by creating a mismatch between the data of a field and its definition.
+- The input fields have a type which is determined when it is
+  created. It is not possible to change a field type; one has to delete
+  that field and create it again.
+- It is possible, but cumbersome, to change the order of fields. It is a good idea
+  to plan the order the fields before actually creating them.
+- Existing fields can be edited for anything except their identifier and type.
+- An existing field can be delete. All data for it in an entity (proposal, etc) will
+  then be irretrievably list.
+
+### Test the proposal in a call
+
+- As admin, one may test the proposal defined in a call by creating it before the
+  call has been published.
+- After having edited and viewed the test proposal, one should delete it.
+- One should also click the button **Reset proposals counter** to begin the numbering
+  of proposals created starting from 1 again.
+
 # Input field types
 
 The input fields are the means to store information in proposals,
