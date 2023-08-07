@@ -169,8 +169,9 @@ accept/reject decision.
 Creating a decision does not send any email to the proposal
 author. This has to be done outside of the Anubis system.
 
-Finalizing a decision does not automatically let the proposal creator view it;
-in addition, the call owner has to set the flag for this in the call.
+Finalizing a decision does not automatically let the proposal creator
+view it; in addition, the call owner has to set the flag for this in
+the call.
 
 
 ## Grant dossier
@@ -194,6 +195,9 @@ defined for it in the call.
 A grant dossier is created by the admin or staff, who also configure
 the input fields in it. The proposal owner (which presumably is the
 grant receiver) can view and edit it.
+
+A grant dossier cannot be created unless the decision object for the
+proposal has been set to verdict "Accepted" and finalized.
 
 A grant dossier can be locked by the admin, which makes it impossible
 for the grant receiver to further edit it. It can also be unlocked by the
@@ -636,8 +640,7 @@ reviews are done.
      file and all files attached to the proposals. The naming of
      the files indicates which one belongs to which proposal.
 - It is also possible to browse the proposals in a list display by
-  clicking the blue button by the item **All proposals** on the call
-  page.
+  clicking the button by the item **All proposals** on the call page.
 
 
 ### How to fill in your reviews
@@ -820,8 +823,8 @@ are all defined in the call.
 - It is possible, but cumbersome, to change the order of fields. It is a good idea
   to plan the order the fields before actually creating them.
 - Existing fields can be edited for anything except their identifier and type.
-- An existing field can be delete. All data for it in an entity (proposal, etc) will
-  then be irretrievably list.
+- An existing field can be deleted. All data for it in an entity (proposal, etc) will
+  then be irretrievably lost.
 
 ### Test the proposal in a call
 
@@ -830,6 +833,131 @@ are all defined in the call.
 - After having edited and viewed the test proposal, one should delete it.
 - One should also click the button **Reset proposals counter** to begin the numbering
   of proposals created starting from 1 again.
+
+## How to set up reviews
+
+The admin sets up the reviews for a call. This entails defining what input fields
+should be present in the review, setting which accounts are reviewers of the call,
+and creating the reviews for each reviewer.
+
+### The review input fields
+
+The admin must define the input fields that each review should
+have. The mechanism is basically the same as for the input fields of a
+proposal in a call. In addition to the input field types available for
+proposals, there are also [score](#score-field) and
+[rank](#rank-field).
+
+Similar to input fields for proposals, it is best to define these
+fields before creating the review forms for the reviewers. However, it
+is possible to modify the review input fields after the review forms
+have been created.
+
+By default, the first field of a review is Conflict of interest",
+which is intended to allow a reviewer to declare that she should not
+perform the review of a specific proposal. This is treated specially
+so that it is possible to finalize a review if this is marked as
+"Yes", even if other input fields of the review have been left
+empty. It is possible to delete this input field.
+
+
+### Setting the reviewers
+
+All reviewers of the proposals in a call must have an account in the
+system.  Either they can create the account themselves, exactly as any
+other ordinary user does. Or the admin may create an account for
+them. Since an email is sent out by default when an account is
+created, it is best if the reviewers have been informed about this
+beforehand, else the email may be confusing.
+
+Once the reviewers have accounts, the admin goes to the call page and
+clicks on the button "0 reviewers" (where 0 may be another number if
+some reviewers have already been set up). On the page "Edit reviewers
+for call", the admin may simply add the accounts of the reviewers, one
+by one.
+
+If a reviewer has no review forms created, it is possible to remove
+her. This is not possible if review forms have been created. In that
+case, one must first delete each if the review forms for that reviewer
+before it is possible to remove her as reviewer.
+
+### Review chair
+
+It is possible to set a reviewer as chair. The idea is that the review chair(s)
+should be able to handle the review process without requiring the actions of the
+admin. A review chair may view all other reviews, and create and delete reviews,
+if so set by the admin.
+
+### Creating reviews
+
+The reviewer herself cannot create the review forms. The idea is that
+the admin (or review chair) determines which reviewer should review
+which proposal by creating the relevant review forms. This makes it
+clear to the reviewer which reviews she has to complete.
+
+The admin (or chair, if so set by the admin) may create and delete the
+review forms for each reviewer. This is done by going to the page of
+the call, clicking the button "X reviewers", where X is a number.
+
+On the page "Edit reviewers for call", there is a button "X reviews"
+for each reviewer. Clicking on it leads to a page listing all reviews
+for that reviewer. For all proposals, there is either a link to the
+review form, or a button "Create". Click each such button, scroll down
+to the bottom of the page, and click "Create reviews". This may have
+to be done for each page of the table on that page.
+
+### Deleting reviews
+
+To delete a review form, one has to go to the review form page and click
+"Delete". There is no way to mass delete more that one review form in
+one operation.
+
+
+## How to set up decisions
+
+The admin and the review chair(s) may create decision forms for the
+proposals in a call. This is intended to record the decision of the
+review committee, or other body that actually makes the decisions about
+which proposals to fund.
+
+The decision forms may contain more than a simple "Accepted" or
+"Declined" statement. For example, information on the amount funded,
+or relevant documents may be provided. The admin has to create the
+input fields for the decision forms in a similar way as for the
+proposal and review input fields.
+
+
+## How to set up grant dossiers
+
+Grant dossiers are meant to be an space for exchange of information
+between the admin of Anubis and the proposal submitter. This may
+include information on how to submit the budget for a proposal, the
+contact persons for technical economical information, the grant
+requisition documents, and similar.
+
+The admin may create grant dossier objects (or grants) for each
+proposal whose decision form has been set to verdict "Accepted" and
+finalized.
+
+Grant dossier may contain the same input fields as proposals, and
+additionally also a field that allows repitition of a set of other input
+fields.
+
+The repitition field was implemented to handle the case where there are
+several separate collaborators for a single grant, all of which must add
+their data for obtaining the grant money.
+
+The main grant holder (presumably the author of the proposal) must
+fill in the number of collaborators, which includes herself. That is,
+the number must be at least 1. This causes that many subpanels to be
+created for all input fields which the admin has set to be controlled
+by the repitition field.
+
+Only the account of the proposal submitter has access to the grant dossier,
+by default. The admin has to add each account to the access list for a grant
+dossier. This often means the collaborator and/or her economist. Each such 
+person has to have her own account in the system.
+
 
 # Input field types
 
@@ -952,10 +1080,15 @@ a slider.
 
 ## Rank field
 
-A field of type rank is intended for reviews. The reviewer must assign
-a value to the field of each of her reviews in a call such that the
-values are unique and consecutive starting from 1, else an error will
-be flagged.
+A field of type rank is intended for reviews. The reviewer is supposed
+to rank all proposals under her review. The reviewer assigns a value
+to this field of each of her reviews in a call such that the values
+are unique and consecutive starting from 1, else an error will be
+flagged.
+
+This field is then used to by Anubis calculate a composite value from
+all reviewers' rankings of each proposal. This is the ranking factor
+for a proposal.
 
 A field set as banner will produce an extra column named "Ranking
 factor" (F(x) below) which is computed from all values in finalized
