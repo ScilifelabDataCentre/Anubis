@@ -935,28 +935,30 @@ include information on how to submit the budget for a proposal, the
 contact persons for technical economical information, the grant
 requisition documents, and similar.
 
-The admin may create grant dossier objects (or grants) for each
-proposal whose decision form has been set to verdict "Accepted" and
-finalized.
-
-Grant dossier may contain the same input fields as proposals, and
-additionally also a field that allows repitition of a set of other input
-fields.
-
-The repitition field was implemented to handle the case where there are
-several separate collaborators for a single grant, all of which must add
-their data for obtaining the grant money.
-
-The main grant holder (presumably the author of the proposal) must
-fill in the number of collaborators, which includes herself. That is,
-the number must be at least 1. This causes that many subpanels to be
-created for all input fields which the admin has set to be controlled
-by the repitition field.
-
-Only the account of the proposal submitter has access to the grant dossier,
-by default. The admin has to add each account to the access list for a grant
-dossier. This often means the collaborator and/or her economist. Each such 
-person has to have her own account in the system.
+1) To create a grant dossier for a set or successful proposals, first
+   define the fields to be used in the grant dossier. The same input
+   fields can be used as for the proposals.
+2) There is a special input field that can be used for grant dossier:
+   **The repetition field**. This handles the case where several separate
+   collaborators on a single grant need to submit information.
+3) A number of other input fields can be set to depend on the repetition field.
+   When the value of the repetition field is entered, that many distinct 
+   panels containing the dependent input fields will be created. If the number
+   of collaborators is 3 (including the primary grant receiver), then the
+   primary grant receiver is supposed to enter the number 3. This will cause
+   a total of 3 panels to be displayed, each of which contains the input fields
+   that were set as depending on the repeat field.
+4) In order to create a grant dossier, once the input fields have been defined,
+   the proposal must have a decision object created for it, which must
+   have been set to verdict "Accepted", and finalized. This is done by the admin
+   of Anubis.
+5) If someone else apart from the primary grant receiver (who is assumed to
+   be the using the same account as was used for submitting the proposal
+   in the first place) is required to fill in information, then these other
+   persons must have their own accounts in Anubis, and they must be explicitly
+   allowed to edit the grant dossier. The primary grant receiver can add the edit
+   privileges for these other accounts to the grant dossier, but experience shows
+   that it is usually the admin of Anubis that has to do this.
 
 
 # Input field types
