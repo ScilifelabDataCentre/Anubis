@@ -37,7 +37,13 @@ def create(username):
     try:
         if user["username"] not in call["reviewers"]:
             raise ValueError(f"User is not a reviewer in the call '{cid}'.")
-        for pid in flask.request.form.getlist("pid"):
+        if utils.to_bool(flask.request.form.get("every", None)):
+            pidlist = [prop["identifier"] for prop in
+                       anubis.proposals.get_call_proposals(call, submitted=True)
+                       if anubis.review.get_reviewer_review(prop, user) is None]
+        else:
+            pidlist = flask.request.form.getlist("pid")
+        for pid in pidlist:
             proposal = anubis.proposal.get_proposal(pid)
             if proposal is None:
                 continue
