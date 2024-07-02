@@ -24,6 +24,7 @@ reviews, decisions and grant dossiers. It allows:
 
 # Entities
 
+All entities in Anubis are listed below. 
 
 ## Call
 
