@@ -22,7 +22,7 @@ PyYAML==6.0.1
 requests==2.31.0
 six==1.16.0
 soupsieve==2.3.2.post1
-tqdm==4.64.1
+tqdm==4.66.3
 urllib3==1.26.18
 Werkzeug==3.0.1
 XlsxWriter==3.0.5
