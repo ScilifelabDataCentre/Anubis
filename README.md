@@ -185,4 +185,6 @@ The implementation of Anubis is based on the following design decisions:
   # License
 
   This project is licensed under the terms of the MIT license.
-  Copyright (c) 2025 SciLifeLab Data Centre
+
+  Copyright &copy; 2025 SciLifeLab Data Centre
+  
