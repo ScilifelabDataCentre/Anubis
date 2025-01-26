@@ -180,3 +180,9 @@ The implementation of Anubis is based on the following design decisions:
     of the system.
 - There is a command-line interface (CLI) tool for certain operations,
   such as creating and loading backup dumps.
+
+
+  # License
+
+  This project is licensed under the terms of the MIT license.
+  Copyright (c) 2025 SciLifeLab Data Centre
