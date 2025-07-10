@@ -117,8 +117,15 @@ def register():
                 "User account created; an email will be sent"
                 " when it has been enabled by the admin."
             )
-            admins = get_users(role=constants.ADMIN, status=constants.ENABLED)
-            recipients = [u["email"] for u in admins if u["email"]]
+            #admins = get_users(role=constants.ADMIN, status=constants.ENABLED)
+            #recipients = [u["email"] for u in admins if u["email"]]
+            admins   = get_users(role=constants.ADMIN, status=constants.ENABLED)
+            # respect each admin’s opt-out setting (defaulting to True if it's missing)
+            recipients = [
+                u["email"]
+                for u in admins
+                if u["email"] and u.get("notify_account_pending", True)
+            ]
             site = flask.current_app.config["SITE_NAME"]
             title = f"{site} user account pending"
             url = flask.url_for(
@@ -326,6 +333,10 @@ def edit(username):
                 )
                 saver.set_postaladdress(flask.request.form.get("postaladdress"))
                 saver.set_phone(flask.request.form.get("phone"))
+                # new -- pending-account email preference
+                saver.set_notify_account_pending(
+                    utils.to_bool(flask.request.form.get("notify_account_pending"))
+                )
         except ValueError as error:
             utils.flash_error(error)
         return flask.redirect(flask.url_for("user.display", username=user["username"]))
@@ -453,6 +464,7 @@ class UserSaver(Saver):
     def initialize(self):
         "Set the status for a new user."
         self.doc["status"] = constants.PENDING
+        self.doc["notify_account_pending"] = True
 
     def finish(self):
         "Check that required fields have been set."
@@ -574,6 +586,10 @@ class UserSaver(Saver):
 
     def set_phone(self, phone):
         self.doc["phone"] = flask.current_app.config["USER_PHONE"] and phone or None
+
+    def set_notify_account_pending(self, yes):
+        # Opt-in/out of ‘account pending’ admin emails.
+        self.doc["notify_account_pending"] = bool(yes)
 
     def set_password(self, password=None):
         "Set the password; a one-time code if no password provided."
