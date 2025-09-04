@@ -31,7 +31,8 @@ jobs:
         with:
           images: ghcr.io/scilifelabdatacentre/anubis-dev
           tags: |
-                  type=sha,format=short,prefix=dev-type=raw,value=latest
+            type=sha,format=short,prefix=dev-
+            type=raw,value=latest
 
       - name: Build and push
         uses: docker/build-push-action@v3
