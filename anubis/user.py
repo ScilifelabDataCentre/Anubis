@@ -14,12 +14,14 @@ import anubis.database
 from anubis import constants
 from anubis import utils
 from anubis.saver import Saver
+from anubis.limiting import limiter
 
 
 blueprint = flask.Blueprint("user", __name__)
 
 
 @blueprint.route("/login", methods=["GET", "POST"])
+@limiter.limit("5 per 5 minutes", methods=["POST"])
 def login():
     "Login to a user account."
     if utils.http_GET():
@@ -454,7 +456,7 @@ class UserSaver(Saver):
 
     def finish(self):
         "Check that required fields have been set."
-        for key in ["username", "role", "status"]:
+        for key in ["username", "role", "status", "orcid"]:
             if not self.doc.get(key):
                 raise ValueError(f"invalid user: {key} not set")
 
