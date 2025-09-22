@@ -468,9 +468,12 @@ class UserSaver(Saver):
 
     def finish(self):
         "Check that required fields have been set."
-        for key in ["username", "role", "status", "orcid"]:
+        for key in ["username", "role", "status"]:
             if not self.doc.get(key):
                 raise ValueError(f"invalid user: {key} not set")
+        if self.doc.get("role") != constants.ADMIN:
+            if not self.doc.get("orcid"):
+                raise ValueError("invalid user: orcid not set")
 
     def set_username(self, username):
         if "username" in self.doc:
