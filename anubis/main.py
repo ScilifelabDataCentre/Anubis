@@ -27,14 +27,9 @@ import anubis.user
 
 from anubis import constants
 from anubis import utils
-from anubis.limiting import init_app as init_limiter
 
 # Create the global Flask app with main configuration.
 app = anubis.config.create_app()
-
-# Create the Flask Limiter
-
-init_limiter(app)
 
 # Further configuration for the web app.
 anubis.display.init(app)
@@ -222,9 +217,16 @@ def sitemap():
 from werkzeug.exceptions import HTTPException
 @app.errorhandler(429)
 def ratelimit_handler(err: HTTPException):
+    if flask.request.path == flask.url_for("user.login"):
+        utils.flash_error("Too many login attempts from this IP. Please wait a few minutes and try again.")
+        return flask.render_template("user/login.html"), 429
+
+    if flask.request.accept_mimetypes.accept_json and not flask.request.accept_mimetypes.accept_html:
+        return flask.jsonify(error="rate_limited", message="Too many requests. Please wait a few minutes and try again."), 429
+
     return utils.error(
-        "Too many login attempts from this IP. Please wait a few minutes and try again.",
-        flask.url_for("user.login"),
+        "Too many requests. Please wait a few minutes and try again.",
+        flask.url_for("home"),
     ), 429
 
 

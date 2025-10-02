@@ -14,14 +14,63 @@ import anubis.database
 from anubis import constants
 from anubis import utils
 from anubis.saver import Saver
-from anubis.limiting import limiter
+import time
+import couchdb2
 
 
 blueprint = flask.Blueprint("user", __name__)
+_LOGIN_LIMIT = 5
+_LOGIN_WINDOW_SECONDS = 5 * 60
+
+def _client_ip():
+    xff = flask.request.headers.get("X-Forwarded-For", "")
+    if xff:
+        return xff.split(",")[0].strip()
+    xri = flask.request.headers.get("X-Real-IP")
+    if xri:
+        return xri
+    return flask.request.remote_addr or "unknown"
+
+def _login_rate_doc_id(ip: str) -> str:
+    return f"login_rate:{ip}"
+
+def _prune_old(ts_list, now):
+    threshold = now - _LOGIN_WINDOW_SECONDS
+    return [t for t in ts_list if t >= threshold]
+
+def enforce_login_rate_limit():
+    ip = _client_ip()
+    now = int(time.time())
+    db = flask.g.db
+    doc_id = _login_rate_doc_id(ip)
+
+    for _ in range(5):
+        try:
+            doc = db[doc_id]
+        except couchdb2.NotFoundError:
+            doc = {"_id": doc_id, "doctype": "login_rate", "ip": ip, "timestamps": []}
+
+        timestamps = _prune_old(doc.get("timestamps", []), now)
+        if len(timestamps) >= _LOGIN_LIMIT:
+            flask.abort(429)
+
+        timestamps.append(now)
+        doc["timestamps"] = timestamps
+
+        try:
+            db.put(doc)
+            return
+        except Exception as e:
+            text = str(e).lower()
+            is_conflict = "conflict" in text or "409" in text
+            if is_conflict:
+                continue
+            raise
+
+    flask.abort(429)
 
 
 @blueprint.route("/login", methods=["GET", "POST"])
-@limiter.limit("5 per 5 minutes", methods=["POST"])
 def login():
     "Login to a user account."
     if utils.http_GET():
@@ -32,6 +81,7 @@ def login():
         return flask.render_template("user/login.html")
 
     elif utils.http_POST():
+        enforce_login_rate_limit()
         try:
             do_login(
                 flask.request.form.get("username"), flask.request.form.get("password")
