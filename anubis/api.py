@@ -21,7 +21,9 @@ def calls_open():
         "title": "All open calls.",
     }
     data["calls"] = [get_call_json(c) for c in anubis.calls.get_open_calls()]
-    return flask.jsonify(data)
+    response = flask.jsonify(data)
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
 
 @blueprint.route("/calls/closed")
@@ -33,7 +35,9 @@ def calls_closed():
         "title": "All closed calls.",
     }
     data["calls"] = [get_call_json(c) for c in anubis.calls.get_closed_calls()]
-    return flask.jsonify(data)
+    response = flask.jsonify(data)
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
 
 def get_call_json(call):
