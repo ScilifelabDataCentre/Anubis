@@ -6,7 +6,7 @@ on:
 
 jobs:
   push_to_registry:
-    if: github.repository == 'pekrau/anubis'
+    if: github.repository == 'ScilifelabDataCentre/Anubis'
     name: Publish Docker Image
     runs-on: ubuntu-latest
     steps:
