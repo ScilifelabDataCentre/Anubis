@@ -12,7 +12,7 @@ pluggy==1.0.0
 py==1.11.0
 pyee==8.1.0
 pyparsing==3.0.7
-pyrsistent==0.18.1
+pyrsistent==0.20.0
 pytest==7.0.1
 pytest-base-url==1.4.2
 pytest-playwright==0.2.3
