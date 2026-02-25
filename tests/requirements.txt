@@ -7,7 +7,7 @@ importlib-resources==5.4.0
 iniconfig==1.1.1
 jsonschema==4.4.0
 packaging==21.3
-playwright==1.19.0
+playwright==1.58.0
 pluggy==1.0.0
 py==1.11.0
 pyee==8.1.0
