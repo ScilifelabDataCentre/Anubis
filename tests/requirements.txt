@@ -8,7 +8,7 @@ iniconfig==1.1.1
 jsonschema==4.4.0
 packaging==21.3
 playwright==1.19.0
-pluggy==1.0.0
+pluggy==1.6.0
 py==1.11.0
 pyee==8.1.0
 pyparsing==3.0.7
