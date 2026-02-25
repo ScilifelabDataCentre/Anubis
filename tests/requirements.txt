@@ -14,7 +14,7 @@ pyee==8.1.0
 pyparsing==3.0.7
 pyrsistent==0.18.1
 pytest==7.0.1
-pytest-base-url==1.4.2
+pytest-base-url==2.1.0
 pytest-playwright==0.2.3
 python-slugify==6.1.0
 requests==2.31.0
