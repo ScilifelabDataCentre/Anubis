@@ -6,6 +6,9 @@ jobs:
     Ruff-linting:
         runs-on: ubuntu-latest
         steps:
+            - name: Checkout repo
+              uses: actions/checkout@v6
+              
             - name: Lint check with ruff
               uses: astral-sh/ruff-action@v3
               with:
