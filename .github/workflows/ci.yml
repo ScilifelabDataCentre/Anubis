@@ -8,3 +8,5 @@ jobs:
         steps:
             - name: Lint check with ruff
               uses: astral-sh/ruff-action@v3
+              with:
+                src: ./anubis
