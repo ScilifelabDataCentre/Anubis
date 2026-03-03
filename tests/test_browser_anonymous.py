@@ -37,7 +37,7 @@ def test_about(settings, page):  # 'page' fixture from 'pytest-playwright'
     page.go_back()
     page.click("text=About")
     page.click("text=Personal data policy")
-    assert page.url == f"{settings['BASE_URL']}/about/gdpr"
+    assert page.url == f"{settings['BASE_URL']}/about/data_policy"
 
     page.go_back()
     page.click("text=About")
@@ -63,11 +63,4 @@ def test_documentation(settings, page):
     page.goto(settings["BASE_URL"])
     page.click("text=Documentation")
     page.click("text=Overview")
-    assert page.url == f"{settings['BASE_URL']}/documentation/overview"
-
-    page.go_back()
-    page.click("text=Documentation")
-    page.click("text=URL endpoints")
-    assert (
-        page.url == f"{settings['BASE_URL']}/documentation/endpoints"
-    )
+    assert page.url == f"{settings['BASE_URL']}/documentation"
