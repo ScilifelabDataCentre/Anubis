@@ -1,6 +1,7 @@
 "Utility functions for the tests."
 
 import json
+import os
 
 
 def get_settings(**defaults):
@@ -15,6 +16,9 @@ def get_settings(**defaults):
             pass
         if result.get(key) is None:
             raise KeyError(f"Missing {key} value in settings.")
+    # Allow BASE_URL to be overridden by environment variable
+    if os.environ.get("BASE_URL"):
+        result["BASE_URL"] = os.environ.get("BASE_URL")
     # Remove any trailing slash in the base URL.
     result["BASE_URL"] = result["BASE_URL"].rstrip("/")
     return result
