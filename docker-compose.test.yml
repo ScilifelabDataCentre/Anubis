@@ -22,7 +22,7 @@ services:
     depends_on:
       couchdb:
         condition: service_healthy
-    env_file: site/test.env
+    env_file: docker/test.env
     command: sh -c "
       python cli.py database-create &&
       python cli.py admin --username testadmin --email admin@test.com --password testpass123 &&
