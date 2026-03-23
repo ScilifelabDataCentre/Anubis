@@ -1,4 +1,4 @@
-name: e2e call lifecycle tests
+name: e2e tests
 
 on:
     pull_request:
@@ -29,7 +29,15 @@ jobs:
               working-directory: tests
               env: 
                 BASE_URL: http://localhost:8080
-              run: pytest test_browser_call_lifecycle.py
+              run: pytest
+            
+            - name: Upload artifact if test fail
+              if: failure()
+              uses: actions/upload-artifact@v4
+              with:
+                name: pytest-failure
+                path: tests/test-results/
+                retention-days: 7
             
             - name: Teardown test environment
               if: always()

@@ -3,20 +3,74 @@ import pytest
 import utils
 
 
+CALL_ID = "CI_LIFECYCLE_TEST"
 
-@pytest.fixture(scope="module")
-def settings():
-    "Get the settings from the file 'settings.json' in this directory."
-    result = utils.get_settings(
-        BASE_URL="http://localhost:5002",
-        ADMIN_USERNAME=None,
-        ADMIN_PASSWORD=None,
-        USER_USERNAME=None,
-        USER_PASSWORD=None,
-        REVIEWER_USERNAME=None,
-        REVIEWER_PASSWORD=None,
-    )
-    return result
+
+@pytest.fixture(autouse=True)
+def pre_test_cleanup(settings, browser):
+    """Delete any leftover test data before the test runs."""
+    context = browser.new_context()
+    page = context.new_page()
+    _cleanup_leftovers(settings, page, CALL_ID)
+    context.close()
+    yield
+
+
+def _cleanup_leftovers(settings, page, call_id):
+    """Delete leftover test artifacts, tolerating missing items."""
+    base = settings["BASE_URL"]
+    utils.login(settings, page, admin=True)
+
+    # Grant: unlock if locked, then delete
+    page.goto(f"{base}/grant/{call_id}:G:001")
+    if page.url.startswith(f"{base}/grant/"):
+        if page.get_by_role("button", name="Unlock").is_visible():
+            page.get_by_role("button", name="Unlock").click()
+        delete_btn = page.get_by_role("button", name="Delete")
+        if delete_btn.is_visible():
+            page.once("dialog", lambda dialog: dialog.accept())
+            delete_btn.click()
+
+    # Decision: navigate from proposal page, unfinalize if needed, then delete
+    page.goto(f"{base}/proposal/{call_id}:001")
+    if page.url.startswith(f"{base}/proposal/") and page.get_by_role("button", name="Accepted").is_visible():
+        page.get_by_role("button", name="Accepted").click()
+        if page.get_by_role("button", name="Unfinalize").is_visible():
+            page.get_by_role("button", name="Unfinalize").click()
+        delete_btn = page.get_by_role("button", name="Delete")
+        if delete_btn.is_visible():
+            page.once("dialog", lambda dialog: dialog.accept())
+            delete_btn.click()
+
+    # Review: unfinalize if finalized, then delete
+    page.goto(f"{base}/reviews/call/{call_id}")
+    if page.url.startswith(f"{base}/reviews/call/"):
+        review_link = page.get_by_role("link", name="Review", exact=True)
+        if review_link.is_visible():
+            review_link.click()
+            if page.get_by_role("button", name="Unfinalize").is_visible():
+                page.get_by_role("button", name="Unfinalize").click()
+            delete_btn = page.get_by_role("button", name="Delete")
+            if delete_btn.is_visible():
+                page.once("dialog", lambda dialog: dialog.accept())
+                delete_btn.click()
+
+    # Proposal
+    page.goto(f"{base}/proposal/{call_id}:001")
+    if page.url.startswith(f"{base}/proposal/"):
+        delete_btn = page.get_by_role("button", name="Delete")
+        if delete_btn.is_visible():
+            page.once("dialog", lambda dialog: dialog.accept())
+            delete_btn.click()
+
+    # Call
+    page.goto(f"{base}/call/{call_id}")
+    if page.url.startswith(f"{base}/call/"):
+        delete_btn = page.get_by_role("button", name="Delete")
+        if delete_btn.is_visible():
+            page.once("dialog", lambda dialog: dialog.accept())
+            delete_btn.click()
+
 
 
 def test_call_lifecycle(settings, page):
@@ -26,7 +80,7 @@ def test_call_lifecycle(settings, page):
     create and finalize review -> create and finalize decision ->
     create grant -> lock grant -> cleanup
     """
-    call_id = "CI_LIFECYCLE_TEST"
+    call_id = CALL_ID
     proposal_title = "CI Lifecycle test proposal"
 
     create_call_with_review_fields(settings, page, call_id)
@@ -76,7 +130,7 @@ def add_reviewer(settings, page, call_id):
     page.goto(f"{settings['BASE_URL']}/call/{call_id}/reviewers")
     page.locator("#reviewer").fill(settings["REVIEWER_USERNAME"])
     page.get_by_role("button", name="Add", exact=True).click()
-    assert page.locator(f"text={settings['REVIEWER_USERNAME']}").is_visible()
+    assert page.get_by_role("link", name=settings["REVIEWER_USERNAME"]).is_visible()
 
     utils.logout(settings, page, settings["ADMIN_USERNAME"])
 
