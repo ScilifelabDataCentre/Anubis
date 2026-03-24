@@ -728,9 +728,9 @@ def create_proposal(cid):
             cid, flask.g.current_user["username"]
         )
         if proposal:
-            return utils.message(
-                "Proposal already exists for the call.",
-                flask.url_for("proposal.display", pid=proposal["identifier"]),
+            flask.flash("Proposal already exists for the call.", "message")
+            return flask.redirect(
+                flask.url_for("proposal.display", pid=proposal["identifier"])
             )
         else:
             with anubis.proposal.ProposalSaver(
