@@ -138,7 +138,7 @@ def reviewer_page(settings, browser):
 
 
 @pytest.fixture(scope="session")
-def seeded_call(settings, browser, _pre_session_cleanup):
+def seeded_call(settings, browser, pre_session_cleanup):
     """Create a fully configured open call shared across test modules.
 
     The call has a required line proposal field, a required score review field,
