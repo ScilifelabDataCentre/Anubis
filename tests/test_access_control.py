@@ -44,3 +44,8 @@ def test_proposal_access_anonymous(settings, browser, submitted_proposal):
     page.goto(submitted_proposal)
     assert page.url.startswith(f"{base_url}/user/login")
     context.close()
+
+def test_edit_submitted_proposal(settings, user_page, submitted_proposal):
+    user_page.goto(f"{submitted_proposal}/edit")
+    assert user_page.url.rstrip("/") == settings["BASE_URL"].rstrip("/")
+    assert user_page.get_by_text("You are not allowed to edit this proposal.").is_visible()
