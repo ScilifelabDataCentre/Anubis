@@ -4,10 +4,8 @@ Testing access control for admin, user, reviewer and non-user.
 
 import pytest
 from playwright.sync_api import Browser
-from conftest import _create_call, _cleanup_call
+from conftest import _create_call, _cleanup_call, SEEDED_CLOSED_CALL_ID
 
-
-SEEDED_CLOSED_CALL_ID = "CI_CLOSED_CALL_ID"
 
 @pytest.fixture(scope="session")
 def submitted_proposal(settings, seeded_call, user_page):
@@ -31,6 +29,7 @@ def user2_page(settings, admin_page, browser: Browser):
     user2_password = "testuserpass123"
     base = settings["BASE_URL"]
 
+    # Register user2 and set password via admin
     admin_page.get_by_role("button", name="Users", exact=True).click()
     admin_page.get_by_role("link", name="Register user").click()
     admin_page.get_by_role("textbox", name="User name").fill(user2_username)
@@ -43,6 +42,7 @@ def user2_page(settings, admin_page, browser: Browser):
     admin_page.get_by_role("textbox", name="Password").fill(user2_password)
     admin_page.get_by_role("button", name="Set password").click()
 
+    # Log in as user2
     context = browser.new_context()
     user2_page = context.new_page()
     user2_page.set_default_timeout(15_000)
@@ -54,6 +54,8 @@ def user2_page(settings, admin_page, browser: Browser):
     assert user2_page.url.rstrip("/") == base
 
     yield user2_page
+
+    # Teardown: delete user2
     context.close()
     admin_page.get_by_role("button", name="Users", exact=True).click()
     admin_page.get_by_role("link", name="All users").click()

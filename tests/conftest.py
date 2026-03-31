@@ -12,7 +12,9 @@ import utils
 
 
 SEEDED_CALL_ID = "CI_SEEDED_CALL"
-
+SEEDED_TRANSITION_CALL_ID = "CI_TRANSITION_CALL_ID"
+CALL_ID = "CI_LIFECYCLE_TEST"
+SEEDED_CLOSED_CALL_ID = "CI_CLOSED_CALL_ID"
 
 @pytest.fixture(scope="session")
 def settings():
@@ -30,7 +32,7 @@ def settings():
 def _cleanup_call(settings, page, call_id):
     "Delete all artifacts for call_id (grant -> decision -> review -> proposal -> call), tolerating missing items."
     base = settings["BASE_URL"]
-    utils.login(settings, page, admin=True)
+    utils.login(settings, page, "admin")
 
     # Grant: unlock if locked, then delete
     page.goto(f"{base}/grant/{call_id}:G:001")
@@ -96,6 +98,8 @@ def pre_session_cleanup(settings, browser):
     context = browser.new_context()
     page = context.new_page()
     _cleanup_call(settings, page, SEEDED_CALL_ID)
+    _cleanup_call(settings, page, SEEDED_CLOSED_CALL_ID)
+    _cleanup_call(settings, page, SEEDED_TRANSITION_CALL_ID)
     context.close()
     yield
 
@@ -105,7 +109,7 @@ def admin_page(settings, browser):
     context = browser.new_context()
     page = context.new_page()
     page.set_default_timeout(15_000)
-    utils.login(settings, page, admin=True)
+    utils.login(settings, page, "admin")
     yield page
     context.close()
 
@@ -115,7 +119,7 @@ def user_page(settings, browser):
     context = browser.new_context()
     page = context.new_page()
     page.set_default_timeout(15_000)
-    utils.login(settings, page, admin=False)
+    utils.login(settings, page, "user")
     yield page
     context.close()
 
@@ -165,7 +169,7 @@ def _create_call(browser, settings, call_id, opening_date, closing_date):
     context = browser.new_context()
     page = context.new_page()
     page.set_default_timeout(15_000)
-    utils.login(settings, page, admin=True)
+    utils.login(settings, page, "admin")
 
     # Create call
     page.get_by_role("button", name="Calls", exact=True).click()

@@ -1,9 +1,8 @@
 from datetime import datetime, timedelta
 import pytest
 import utils
+from conftest import CALL_ID
 
-
-CALL_ID = "CI_LIFECYCLE_TEST"
 
 
 @pytest.fixture(autouse=True)
@@ -19,7 +18,7 @@ def pre_test_cleanup(settings, browser):
 def _cleanup_leftovers(settings, page, call_id):
     """Delete leftover test artifacts, tolerating missing items."""
     base = settings["BASE_URL"]
-    utils.login(settings, page, admin=True)
+    utils.login(settings, page, "admin")
 
     # Grant: unlock if locked, then delete
     page.goto(f"{base}/grant/{call_id}:G:001")
@@ -96,7 +95,7 @@ def test_call_lifecycle(settings, page):
 
 def create_call_with_review_fields(settings, page, call_id):
     """Admin creates a call and adds a score review field."""
-    utils.login(settings, page, admin=True)
+    utils.login(settings, page, "admin")
 
     # Create the call
     page.get_by_role("button", name="Calls", exact=True).click()
@@ -125,7 +124,7 @@ def create_call_with_review_fields(settings, page, call_id):
 
 def add_reviewer(settings, page, call_id):
     """Admin adds the reviewer to the call."""
-    utils.login(settings, page, admin=True)
+    utils.login(settings, page, "admin")
 
     page.goto(f"{settings['BASE_URL']}/call/{call_id}/reviewers")
     page.locator("#reviewer").fill(settings["REVIEWER_USERNAME"])
@@ -137,7 +136,7 @@ def add_reviewer(settings, page, call_id):
 
 def set_call_dates_to_open(settings, page, call_id):
     """Admin sets the call open/close dates so the call is open."""
-    utils.login(settings, page, admin=True)
+    utils.login(settings, page, "admin")
 
     now = datetime.now()
     opens = (now - timedelta(hours=1)).strftime("%Y-%m-%d %H:%M")
@@ -155,7 +154,7 @@ def set_call_dates_to_open(settings, page, call_id):
 
 def create_and_submit_proposal(settings, page, call_id, proposal_title):
     """User creates and submits a proposal."""
-    utils.login(settings, page, admin=False)
+    utils.login(settings, page, "user")
 
     page.goto(f"{settings['BASE_URL']}/call/{call_id}")
     page.get_by_role("button", name="Create proposal").click()
@@ -173,7 +172,7 @@ def fill_and_finalize_review(settings, page, call_id):
     
     
     # Admin creates the review assignment
-    utils.login(settings, page, admin=True)
+    utils.login(settings, page, "admin")
 
     page.goto(f"{settings['BASE_URL']}/reviews/call/{call_id}/reviewer/{settings['REVIEWER_USERNAME']}")
     page.get_by_role("checkbox", name="Create").check()
@@ -204,7 +203,7 @@ def fill_and_finalize_review(settings, page, call_id):
 
 def create_and_finalize_decision(settings, page, call_id):
     """Admin creates a decision, sets verdict to accepted, and finalizes."""
-    utils.login(settings, page, admin=True)
+    utils.login(settings, page, "admin")
 
     page.goto(f"{settings['BASE_URL']}/proposal/{call_id}:001")
     page.get_by_role("button", name="Create decision").click()
@@ -220,7 +219,7 @@ def create_and_finalize_decision(settings, page, call_id):
 
 def create_grant(settings, page, call_id):
     """Admin creates a grant dossier from the accepted proposal."""
-    utils.login(settings, page, admin=True)
+    utils.login(settings, page, "admin")
 
     page.goto(f"{settings['BASE_URL']}/proposal/{call_id}:001")
     page.get_by_role("button", name="Create grant dossier").click()
@@ -231,7 +230,7 @@ def create_grant(settings, page, call_id):
 
 def lock_grant(settings, page, call_id):
     """Admin locks the grant dossier."""
-    utils.login(settings, page, admin=True)
+    utils.login(settings, page, "admin")
 
     page.goto(f"{settings['BASE_URL']}/grant/{call_id}:G:001")
     page.get_by_role("button", name="Lock").click()
@@ -242,7 +241,7 @@ def lock_grant(settings, page, call_id):
 
 def cleanup(settings, page, call_id):
     "Admin deletes everything created during the test (in reverse order)."
-    utils.login(settings, page, admin=True)
+    utils.login(settings, page, "admin")
 
     # Unlock and delete the grant
     page.goto(f"{settings['BASE_URL']}/grant/{call_id}:G:001")

@@ -2,7 +2,7 @@
 
 import json
 import os
-
+from typing import Literal
 
 def get_settings(**defaults):
     "Update the default settings by the contents of the 'settings.json' file."
@@ -24,16 +24,24 @@ def get_settings(**defaults):
     return result
 
 
-def login(settings, page, admin=False):
+def login(settings, page, role: Literal["admin", "user", "reviewer"]):
     "Login to the system, admin or ordinary user."
+    credentials = {
+        "admin": ("ADMIN_USERNAME", "ADMIN_PASSWORD"),
+        "user": ("USER_USERNAME", "USER_PASSWORD"),
+        "reviewer": ("REVIEWER_USERNAME", "REVIEWER_PASSWORD")
+    }
+    if role not in credentials:
+        raise ValueError(f"Invalid role: {role!r}. Must be one of {list(credentials)}")
+
     page.goto(settings["BASE_URL"])
     page.click("text=Login")
     assert page.url.split("?")[0] == f"{settings['BASE_URL']}/user/login"
     page.click('input[name="username"]')
-    username = admin and settings["ADMIN_USERNAME"] or settings["USER_USERNAME"]
+    username = settings[credentials[role][0]]
     page.fill('input[name="username"]', username)
     page.press('input[name="username"]', "Tab")
-    password = admin and settings["ADMIN_PASSWORD"] or settings["USER_PASSWORD"]
+    password = settings[credentials[role][1]]
     page.fill('input[name="password"]', password)
     page.click("id=login")
     assert page.url.rstrip("/") == settings["BASE_URL"]
