@@ -4,10 +4,14 @@ Testing access control for admin, user, reviewer and non-user.
 
 import pytest
 from playwright.sync_api import Browser
+from conftest import _create_call, _cleanup_call
+
+
+SEEDED_CLOSED_CALL_ID = "CI_CLOSED_CALL_ID"
 
 @pytest.fixture(scope="session")
 def submitted_proposal(settings, seeded_call, user_page):
-    
+    """Submit a proposal to the seeded call as testuser. Read-only — tests must not modify it."""
     base = settings["BASE_URL"]
 
     user_page.goto(f"{base}/call/{seeded_call}")
@@ -54,10 +58,22 @@ def user2_page(settings, admin_page, browser: Browser):
     admin_page.get_by_role("button", name="Users", exact=True).click()
     admin_page.get_by_role("link", name="All users").click()
     admin_page.get_by_role("link", name=user2_username).click()
-    admin_page.once("dialog", lambda dialog: dialog.dismiss())
+    admin_page.once("dialog", lambda dialog: dialog.accept())
     admin_page.get_by_role("button", name="Delete").click()
 
+
+@pytest.fixture(scope="session")
+def create_closed_call(settings, browser, pre_session_cleanup):
+    call_id = SEEDED_CLOSED_CALL_ID
+    opens = "1926-12-24 10:00"
+    closes = "1926-12-24 10:01"
     
+    yield _create_call(browser, settings, call_id, opens, closes)
+
+    td_context = browser.new_context()
+    td_page = td_context.new_page()
+    _cleanup_call(settings, td_page, call_id)
+    td_context.close()
 
 
 def test_proposal_access_admin(admin_page, submitted_proposal):
@@ -95,3 +111,9 @@ def test_user2_proposal_access(settings, user2_page, submitted_proposal):
     user2_page.goto(f"{submitted_proposal}")
     assert user2_page.url.rstrip("/") == settings["BASE_URL"].rstrip("/")
     assert user2_page.get_by_text("You are not allowed to view this proposal.").is_visible()
+
+def test_create_proposal_for_closed_call(settings, create_closed_call, user_page):
+    base = settings["BASE_URL"]
+    user_page.goto(f"{base}/call/{create_closed_call}")
+    assert user_page.get_by_text("Call is closed; a proposal cannot be created.").is_visible()
+    assert not user_page.locator("button").filter(has_text="Create proposal").is_visible()

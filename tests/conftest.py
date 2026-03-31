@@ -146,8 +146,22 @@ def seeded_call(settings, browser, pre_session_cleanup):
     Yields the call identifier string. Cleaned up after the session ends.
     """
     call_id = SEEDED_CALL_ID
-    base = settings["BASE_URL"]
+    # Set dates so the call is open
+    now = datetime.now()
+    opens = (now - timedelta(hours=1)).strftime("%Y-%m-%d %H:%M")
+    closes = (now + timedelta(days=30)).strftime("%Y-%m-%d %H:%M")
+    yield _create_call(browser, settings, call_id, opens, closes)
 
+
+    # Teardown
+    td_context = browser.new_context()
+    td_page = td_context.new_page()
+    _cleanup_call(settings, td_page, call_id)
+    td_context.close()
+
+
+def _create_call(browser, settings, call_id, opening_date, closing_date):
+    base = settings["BASE_URL"]
     context = browser.new_context()
     page = context.new_page()
     page.set_default_timeout(15_000)
@@ -187,23 +201,14 @@ def seeded_call(settings, browser, pre_session_cleanup):
     page.get_by_role("button", name="Add", exact=True).click()
     assert page.get_by_role("link", name=settings["REVIEWER_USERNAME"]).is_visible()
 
-    # Set dates so the call is open
-    now = datetime.now()
-    opens = (now - timedelta(hours=1)).strftime("%Y-%m-%d %H:%M")
-    closes = (now + timedelta(days=30)).strftime("%Y-%m-%d %H:%M")
     page.goto(f"{base}/call/{call_id}/edit")
-    page.get_by_role("textbox", name="Labels Opens").fill(opens)
-    page.get_by_role("textbox", name="Closes").fill(closes)
+    page.get_by_role("textbox", name="Labels Opens").fill(opening_date)
+    page.get_by_role("textbox", name="Closes").fill(closing_date)
     page.get_by_role("button", name="Save").click()
     assert page.url == f"{base}/call/{call_id}"
 
     utils.logout(settings, page, settings["ADMIN_USERNAME"])
     context.close()
 
-    yield call_id
+    return call_id
 
-    # Teardown
-    td_context = browser.new_context()
-    td_page = td_context.new_page()
-    _cleanup_call(settings, td_page, call_id)
-    td_context.close()
