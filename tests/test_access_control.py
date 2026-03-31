@@ -3,6 +3,7 @@ Testing access control for admin, user, reviewer and non-user.
 """
 
 import pytest
+from playwright.sync_api import Browser
 
 @pytest.fixture(scope="session")
 def submitted_proposal(settings, seeded_call, user_page):
@@ -17,6 +18,46 @@ def submitted_proposal(settings, seeded_call, user_page):
     user_page.locator("text=Save & submit").click()
 
     yield user_page.url
+
+@pytest.fixture(scope="session")
+def user2_page(settings, admin_page, browser: Browser):
+
+    user2_username = "testuser2"
+    user2_email = "testuser2@test.com"
+    user2_password = "testuserpass123"
+    base = settings["BASE_URL"]
+
+    admin_page.get_by_role("button", name="Users", exact=True).click()
+    admin_page.get_by_role("link", name="Register user").click()
+    admin_page.get_by_role("textbox", name="User name").fill(user2_username)
+    admin_page.get_by_role("textbox", name="Email").fill(user2_email)
+    admin_page.get_by_role("button", name="Register").click()
+    admin_page.goto(f"{base}/user/all")
+    admin_page.get_by_role("link", name="testuser2").click()
+    admin_page.get_by_role("button", name="Set password", exact=True).click()
+    admin_page.get_by_role("textbox", name="Password").click()
+    admin_page.get_by_role("textbox", name="Password").fill(user2_password)
+    admin_page.get_by_role("button", name="Set password").click()
+
+    context = browser.new_context()
+    user2_page = context.new_page()
+    user2_page.set_default_timeout(15_000)
+    user2_page.goto(base)
+    user2_page.click("text=Login")
+    user2_page.fill('input[name="username"]', user2_username)
+    user2_page.fill('input[name="password"]', user2_password)
+    user2_page.click("id=login")
+    assert user2_page.url.rstrip("/") == base
+
+    yield user2_page
+    context.close()
+    admin_page.get_by_role("button", name="Users", exact=True).click()
+    admin_page.get_by_role("link", name="All users").click()
+    admin_page.get_by_role("link", name=user2_username).click()
+    admin_page.once("dialog", lambda dialog: dialog.dismiss())
+    admin_page.get_by_role("button", name="Delete").click()
+
+    
 
 
 def test_proposal_access_admin(admin_page, submitted_proposal):
@@ -49,3 +90,8 @@ def test_edit_submitted_proposal(settings, user_page, submitted_proposal):
     user_page.goto(f"{submitted_proposal}/edit")
     assert user_page.url.rstrip("/") == settings["BASE_URL"].rstrip("/")
     assert user_page.get_by_text("You are not allowed to edit this proposal.").is_visible()
+
+def test_user2_proposal_access(settings, user2_page, submitted_proposal):
+    user2_page.goto(f"{submitted_proposal}")
+    assert user2_page.url.rstrip("/") == settings["BASE_URL"].rstrip("/")
+    assert user2_page.get_by_text("You are not allowed to view this proposal.").is_visible()
