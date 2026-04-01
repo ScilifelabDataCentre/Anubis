@@ -1,7 +1,7 @@
 """Test browser anonymous access."""
 
 def test_about(settings, page):  # 'page' fixture from 'pytest-playwright'
-    "Test access to 'About' pages."
+    page.set_default_timeout(15_000)
     page.goto(settings["BASE_URL"])
     page.click("text=About")
     page.click("text=Contact")
@@ -19,7 +19,7 @@ def test_about(settings, page):  # 'page' fixture from 'pytest-playwright'
 
 
 def test_calls(settings, page):
-    "Test access to calls pages."
+    page.set_default_timeout(15_000)
     page.goto(settings["BASE_URL"])
     page.click("text=Calls")
     page.click("text=Open calls")
@@ -32,6 +32,6 @@ def test_calls(settings, page):
 
 
 def test_documentation(settings, page):
-    "Test access to documentation pages."
+    page.set_default_timeout(15_000)
     page.goto(f"{settings['BASE_URL']}/documentation")
     assert page.url == f"{settings['BASE_URL']}/documentation"

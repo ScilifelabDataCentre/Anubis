@@ -25,42 +25,20 @@ def _cleanup_leftovers(settings, page, call_id):
     if page.url.startswith(f"{base}/grant/"):
         if page.get_by_role("button", name="Unlock").is_visible():
             page.get_by_role("button", name="Unlock").click()
+            page.wait_for_load_state("load")
         delete_btn = page.get_by_role("button", name="Delete")
         if delete_btn.is_visible():
             page.once("dialog", lambda dialog: dialog.accept())
             delete_btn.click()
-
-    # Decision: navigate from proposal page, unfinalize if needed, then delete
-    page.goto(f"{base}/proposal/{call_id}:001")
-    if page.url.startswith(f"{base}/proposal/") and page.get_by_role("button", name="Accepted").is_visible():
-        page.get_by_role("button", name="Accepted").click()
-        if page.get_by_role("button", name="Unfinalize").is_visible():
-            page.get_by_role("button", name="Unfinalize").click()
-        delete_btn = page.get_by_role("button", name="Delete")
-        if delete_btn.is_visible():
-            page.once("dialog", lambda dialog: dialog.accept())
-            delete_btn.click()
-
-    # Review: unfinalize if finalized, then delete
-    page.goto(f"{base}/reviews/call/{call_id}")
-    if page.url.startswith(f"{base}/reviews/call/"):
-        review_link = page.get_by_role("link", name="Review", exact=True)
-        if review_link.is_visible():
-            review_link.click()
-            if page.get_by_role("button", name="Unfinalize").is_visible():
-                page.get_by_role("button", name="Unfinalize").click()
-            delete_btn = page.get_by_role("button", name="Delete")
-            if delete_btn.is_visible():
-                page.once("dialog", lambda dialog: dialog.accept())
-                delete_btn.click()
 
     # Proposal
-    page.goto(f"{base}/proposal/{call_id}:001")
-    if page.url.startswith(f"{base}/proposal/"):
-        delete_btn = page.get_by_role("button", name="Delete")
-        if delete_btn.is_visible():
-            page.once("dialog", lambda dialog: dialog.accept())
-            delete_btn.click()
+    page.goto(f"{base}/proposals/call/{call_id}")
+    proposals_links = [link.get_attribute("href") for link in page.locator("a[title='Proposal']").all()]
+    for prop_link in proposals_links:
+        page.goto(base + prop_link)
+        page.once("dialog", lambda d: d.accept())
+        page.get_by_role("button", name="Delete").click()
+        page.wait_for_load_state("load")
 
     # Call
     page.goto(f"{base}/call/{call_id}")
@@ -181,13 +159,7 @@ def fill_and_finalize_review(settings, page, call_id):
     utils.logout(settings, page, settings["ADMIN_USERNAME"])
 
     # Reviewer fills and finalizes the review
-    page.goto(settings["BASE_URL"])
-    page.click("text=Login")
-    page.click('input[name="username"]')
-    page.fill('input[name="username"]', settings["REVIEWER_USERNAME"])
-    page.press('input[name="username"]', "Tab")
-    page.fill('input[name="password"]', settings["REVIEWER_PASSWORD"])
-    page.click("id=login")
+    utils.login(settings, page, "reviewer")
 
     page.get_by_role("link", name="My reviews").click()
     page.get_by_role("link", name="Review", exact=True).click()

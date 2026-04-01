@@ -40,46 +40,20 @@ def _cleanup_call(settings, page, call_id):
         unlock_btn = page.get_by_role("button", name="Unlock")
         if unlock_btn.is_visible():
             unlock_btn.click()
+            page.wait_for_load_state("load")
         delete_btn = page.get_by_role("button", name="Delete")
         if delete_btn.is_visible():
             page.once("dialog", lambda d: d.accept())
             delete_btn.click()
-
-    # Decision: reached via the proposal page
-    page.goto(f"{base}/proposal/{call_id}:001")
-    if page.url.startswith(f"{base}/proposal/"):
-        accepted_btn = page.get_by_role("button", name="Accepted")
-        if accepted_btn.is_visible():
-            accepted_btn.click()
-            unfinalize_btn = page.get_by_role("button", name="Unfinalize")
-            if unfinalize_btn.is_visible():
-                unfinalize_btn.click()
-            delete_btn = page.get_by_role("button", name="Delete")
-            if delete_btn.is_visible():
-                page.once("dialog", lambda d: d.accept())
-                delete_btn.click()
-
-    # Review
-    page.goto(f"{base}/reviews/call/{call_id}")
-    if page.url.startswith(f"{base}/reviews/call/"):
-        review_link = page.get_by_role("link", name="Review", exact=True)
-        if review_link.is_visible():
-            review_link.click()
-            unfinalize_btn = page.get_by_role("button", name="Unfinalize")
-            if unfinalize_btn.is_visible():
-                unfinalize_btn.click()
-            delete_btn = page.get_by_role("button", name="Delete")
-            if delete_btn.is_visible():
-                page.once("dialog", lambda d: d.accept())
-                delete_btn.click()
 
     # Proposal
-    page.goto(f"{base}/proposal/{call_id}:001")
-    if page.url.startswith(f"{base}/proposal/"):
-        delete_btn = page.get_by_role("button", name="Delete")
-        if delete_btn.is_visible():
-            page.once("dialog", lambda d: d.accept())
-            delete_btn.click()
+    page.goto(f"{base}/proposals/call/{call_id}")
+    proposal_links = [link.get_attribute("href") for link in page.locator("a[title='Proposal']").all()]
+    for prop_link in proposal_links:
+        page.goto(base + prop_link)
+        page.once("dialog", lambda d: d.accept())
+        page.get_by_role("button", name="Delete").click()
+        page.wait_for_load_state("load")
 
     # Call
     page.goto(f"{base}/call/{call_id}")
@@ -126,16 +100,11 @@ def user_page(settings, browser):
 
 @pytest.fixture(scope="session")
 def reviewer_page(settings, browser):
+    base = settings["BASE_URL"]
     context = browser.new_context()
     page = context.new_page()
     page.set_default_timeout(15_000)
-    base = settings["BASE_URL"]
-    page.goto(base)
-    page.click("text=Login")
-    page.fill('input[name="username"]', settings["REVIEWER_USERNAME"])
-    page.press('input[name="username"]', "Tab")
-    page.fill('input[name="password"]', settings["REVIEWER_PASSWORD"])
-    page.click("id=login")
+    utils.login(settings, page, "reviewer")
     assert page.url.rstrip("/") == base
     yield page
     context.close()
