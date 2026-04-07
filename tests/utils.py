@@ -3,6 +3,8 @@
 import json
 import os
 from typing import Literal
+import requests
+import re
 
 def get_settings(**defaults):
     "Update the default settings by the contents of the 'settings.json' file."
@@ -52,3 +54,20 @@ def logout(settings, page, username):
     page.goto(f"{settings['BASE_URL']}/user/display/{username}")
     page.click("text=Logout")
     assert page.url.rstrip("/") == settings["BASE_URL"]
+
+
+def get_admin_session(settings):
+    "Returns an authenticated requests.Session for admin."
+    base = settings["BASE_URL"]
+    s = requests.Session()
+    resp = s.get(f"{base}/user/login")
+    pattern = 'name="_csrf_token" value="([^"]+)'
+    csrf_token = re.search(pattern, resp.text).group(1)
+
+    s.post(f"{base}/user/login", data={
+        "username": settings["ADMIN_USERNAME"],
+        "password": settings["ADMIN_PASSWORD"],
+        "_csrf_token": csrf_token
+    })
+
+    return s
