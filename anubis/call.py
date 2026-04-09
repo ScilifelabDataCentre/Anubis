@@ -14,7 +14,6 @@ system itself).  Change an open call with care.
 import copy
 import io
 import zipfile
-from typing import Optional, Dict, List, Any
 
 import flask
 
@@ -59,8 +58,8 @@ KEY_CALL_REVIEWER_ARCHIVED = "call_reviewer_archived"
 KEY_IDENTIFIER = "identifier"
 
 
-def _get_email_lists(call: Dict[str, Any]) -> Dict[str, str]:
-    """Build email lists for call display."""
+def _get_email_lists(call):
+    "Build email lists for call display."
     reviewers = [anubis.user.get_user(r) for r in call[FIELD_REVIEWERS]]
     reviewer_emails = [r["email"] for r in reviewers if r.get("email")]
 
@@ -78,8 +77,8 @@ def _get_email_lists(call: Dict[str, Any]) -> Dict[str, str]:
     }
 
 
-def _get_user_context(call: Dict[str, Any], user: Dict[str, Any]) -> Dict[str, Any]:
-    """Get user-specific context for call display."""
+def _get_user_context(call, user):
+    "Get user-specific context for call display."
     return {
         "my_proposal": anubis.proposal.get_call_user_proposal(
             call["identifier"], user["username"]
@@ -93,8 +92,8 @@ def _get_user_context(call: Dict[str, Any], user: Dict[str, Any]) -> Dict[str, A
     }
 
 
-def _get_archived_reviews_count(call: Dict[str, Any]) -> int:
-    """Get count of archived reviews for the call."""
+def _get_archived_reviews_count(call):
+    "Get count of archived reviews for the call."
     result = flask.g.db.view(
         VIEW_REVIEWS,
         KEY_CALL_REVIEWER_ARCHIVED,
@@ -1107,7 +1106,7 @@ class CallSaver(AccessSaverMixin, Saver):
             self.doc[FIELD_PRIVILEGES][flag] = utils.to_bool(form.get(flag))
 
 
-def get_call(cid: str) -> Optional[Dict[str, Any]]:
+def get_call(cid):
     "Return the call with the given identifier."
     key = f"{CACHE_PREFIX_CALL} {cid}"
     try:
@@ -1123,12 +1122,12 @@ def get_call(cid: str) -> Optional[Dict[str, Any]]:
             return None
 
 
-def get_banner_fields(fields: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def get_banner_fields(fields):
     "Return fields flagged as banner fields. Avoid repeated fields."
     return [f for f in fields if f.get("banner") and not f.get("repeat")]
 
 
-def allow_create(user: Optional[Dict[str, Any]] = None) -> bool:
+def allow_create(user=None):
     """Allow admin, staff (depending on configuration) and users with
     'call_creator' flag set to create a call.
     """
