@@ -3,8 +3,6 @@ name: e2e tests
 on:
     pull_request:
         branches: [ "master" ]
-    push:
-        branches: [ "ci/e2e-tests" ]
 
 jobs:
     e2e:

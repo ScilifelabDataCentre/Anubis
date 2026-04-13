@@ -1,4 +1,4 @@
-settings.json
+site/settings.json
 site*
 __pycache__
 .pytest_cache
