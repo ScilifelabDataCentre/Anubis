@@ -2,9 +2,6 @@
 
 import datetime
 import fnmatch
-import http.client
-import json
-import re
 
 import flask
 import werkzeug.security

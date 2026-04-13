@@ -320,7 +320,6 @@ def change_access(pid):
         return utils.error("No such proposal.")
     if not allow_edit(proposal):
         return utils.error("You are not allowed to edit this proposal.")
-    call = anubis.call.get_call(proposal["call"])
 
     if utils.http_GET():
         users_edit = sorted(proposal.get("access_edit", []))
@@ -507,9 +506,7 @@ def get_call_user_proposal(cid, username):
 def get_proposal_docx(proposal):
     "Return the proposal as a io.BytesIO instance containing the DOCX file."
     call = anubis.call.get_call(proposal["call"])
-    am_submitter = (
-        flask.g.current_user and flask.g.current_user["username"] == proposal["user"]
-    )
+
     submitter = anubis.user.get_user(username=proposal["user"])
     doc = docx.Document()
     doc.add_heading(f"Proposal {proposal['identifier']}", 0)
@@ -582,9 +579,6 @@ def get_proposal_docx(proposal):
 def get_proposal_xlsx(proposal):
     "Return the proposal as a io.BytesIO instance containing the XLSX file."
     call = anubis.call.get_call(proposal["call"])
-    am_submitter = (
-        flask.g.current_user and flask.g.current_user["username"] == proposal["user"]
-    )
     submitter = anubis.user.get_user(username=proposal["user"])
     result = io.BytesIO()
     wb = xlsxwriter.Workbook(result, {"in_memory": True})

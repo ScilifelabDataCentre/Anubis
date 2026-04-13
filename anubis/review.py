@@ -48,7 +48,7 @@ def create(pid, username):
         if review is not None:
             utils.flash_message("The review already exists.")
             return flask.redirect(flask.url_for("review.display", iuid=review["_id"]))
-        with ReviewSaver(proposal=proposal, user=user) as saver:
+        with ReviewSaver(proposal=proposal, user=user):
             pass
     except ValueError as error:
         utils.flash_error(error)
@@ -306,7 +306,6 @@ class ReviewSaver(FieldSaverMixin, Saver):
     def finish(self):
         "Check rank fields for conflicts with other reviews in same call."
         call = anubis.call.get_call(self["call"])
-        proposal = anubis.proposal.get_proposal(self["proposal"])
         reviewer = anubis.user.get_user(self["reviewer"])
         reviews = anubis.database.get_docs(
             "reviews", "call_reviewer", [call["identifier"], reviewer["username"]]

@@ -4,7 +4,6 @@ import couchdb2
 import flask
 
 import anubis.database
-from anubis import constants
 from anubis import utils
 
 

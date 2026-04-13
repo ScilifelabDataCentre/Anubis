@@ -58,7 +58,7 @@ def create(username):
 
             review = anubis.review.get_reviewer_review(proposal, user)
             if review is None:
-                with anubis.review.ReviewSaver(proposal=proposal, user=user) as saver:
+                with anubis.review.ReviewSaver(proposal=proposal, user=user):
                     pass
             else:
                 utils.flash_message(f"The review for '{pid}' already exists.")

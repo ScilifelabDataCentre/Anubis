@@ -194,7 +194,7 @@ def call_closes_badge(call):
                 f"{24*remaining:.1f} hours remaining.</div>"
             )
     elif anubis.call.is_closed(call):
-        result = f'<div class="badge badge-pill badge-dark mx-2">Closed.</div>'
+        result = '<div class="badge badge-pill badge-dark mx-2">Closed.</div>'
     else:
         result = ""
     return markupsafe.Markup(result)
@@ -211,7 +211,7 @@ def reviews_due_badge(call):
         elif remaining >= 0:
             result = f'<div class="badge badge-pill badge-danger mx-2">{24*remaining:.1f} hours remaining.</div>'
         else:
-            result = f'<div class="badge badge-pill badge-danger mx-2">Overdue!</div>'
+            result = '<div class="badge badge-pill badge-danger mx-2">Overdue!</div>'
     else:
         result = ""
     return markupsafe.Markup(result)
@@ -352,7 +352,7 @@ def decision_link(decision, small=False):
         if decision.get("verdict"):
             color = "btn-outline-success font-weight-bold"
             label = "Accepted"
-        elif decision.get("verdict") == False:
+        elif decision.get("verdict") == False: # noqa: E712 - verdict can be True/False/None; == False intentionally excludes None
             color = "btn-outline-secondary font-weight-bold"
             label = "Declined"
         else:

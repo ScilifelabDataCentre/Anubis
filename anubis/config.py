@@ -145,11 +145,11 @@ def init(app):
             # Add to table of contents.
             if level <= 2:
                 if level > current_level:
-                    for l in range(current_level, level):
+                    for lev in range(current_level, level):
                         toc.append('<ul class="list-unstyled ml-3">')
                     current_level = level
                 elif level < current_level:
-                    for l in range(level, current_level):
+                    for lev in range(level, current_level):
                         toc.append("</ul>")
                     current_level = level
                 toc.append(f'<li><a href="#{id}">{title}</a></li>')
