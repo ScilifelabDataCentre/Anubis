@@ -6,7 +6,6 @@ import io
 
 import couchdb2
 import flask
-import markupsafe
 
 import anubis.api
 import anubis.database

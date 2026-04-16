@@ -16,7 +16,6 @@ import anubis.grant
 import anubis.user
 
 from anubis import constants
-from anubis import utils
 
 
 def set_db(app):

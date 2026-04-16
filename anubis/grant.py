@@ -140,7 +140,6 @@ def change_access(gid):
         return utils.error(
             "You are not allowed to change access for this grant dossier."
         )
-    call = anubis.call.get_call(grant["call"])
 
     if utils.http_GET():
         users_edit = sorted(grant.get("access_edit", []))
@@ -284,7 +283,6 @@ def get_grant_documents(grant):
             documentname = grant["values"][field["identifier"]]
         except KeyError:
             continue
-        stub = grant["_attachments"][documentname]
         ext = os.path.splitext(documentname)[1]
         filename = f"{gid}-{field['identifier']}{ext}"
         outfile = flask.g.db.get_attachment(grant, documentname)
@@ -303,7 +301,7 @@ def get_grant_documents(grant):
                 field2name = f"{field2['identifier']}-{n}"
                 try:
                     documentname = grant["values"][field2name]
-                    stub = grant["_attachments"][documentname]
+                    grant["_attachments"][documentname]
                 except KeyError:
                     continue
                 outfile = flask.g.db.get_attachment(grant, documentname)

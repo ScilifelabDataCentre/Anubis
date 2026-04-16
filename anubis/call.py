@@ -206,9 +206,9 @@ def edit(cid):
                         value = utils.utc_from_timezone_isoformat(value)
                     saver[key] = value
                 saver["labels"] = [
-                    l.strip()
-                    for l in flask.request.form.get("labels", "").split(",")
-                    if l.strip()
+                    label.strip()
+                    for label in flask.request.form.get("labels", "").split(",")
+                    if label.strip()
                 ]
                 saver.edit_privileges(flask.request.form)
             call = saver.doc
@@ -1057,7 +1057,7 @@ class CallSaver(AccessSaverMixin, Saver):
 
     def add_grant_field(self, form):
         "Add a field to the grant dossier definition."
-        if not FIELD_GRANT in self.doc:  # To upgrade from older versions.
+        if FIELD_GRANT not in self.doc:  # To upgrade from older versions.
             self.doc[FIELD_GRANT] = []
         if form["type"] not in constants.GRANT_FIELD_TYPES:
             raise ValueError("Invalid field type.")
