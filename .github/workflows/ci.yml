@@ -1,0 +1,28 @@
+name: Lint and building
+
+on: push
+
+jobs:
+    Ruff-linting:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v6
+
+            - name: Lint check with ruff
+              uses: astral-sh/ruff-action@v3
+              with:
+                src: anubis/
+
+    Image-building:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v6
+
+            - name: Build image (without pushing)
+              uses: docker/build-push-action@v6
+              with:
+                file: docker/Dockerfile-prod
+                context: .
+                push: false

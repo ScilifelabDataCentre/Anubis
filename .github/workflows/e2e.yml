@@ -1,0 +1,42 @@
+name: e2e tests
+
+on:
+    pull_request:
+        branches: [ "master" ]
+
+jobs:
+    e2e:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v6
+            
+            - name: Start test environment
+              run: docker compose -f docker-compose.test.yml up --detach --build
+
+            - name: Wait for Anubis to be ready
+              run: until curl -s http://localhost:8080 > /dev/null; do sleep 1; done
+            
+            - name: Install dependencies
+              run: pip install -r tests/requirements.txt
+            
+            - name: Install Playwright browser binaries
+              run: playwright install chromium
+
+            - name: Run Playwright tests
+              working-directory: tests
+              env: 
+                BASE_URL: http://localhost:8080
+              run: pytest
+            
+            - name: Upload artifact if test fail
+              if: failure()
+              uses: actions/upload-artifact@v4
+              with:
+                name: pytest-failure
+                path: tests/test-results/
+                retention-days: 7
+            
+            - name: Teardown test environment
+              if: always()
+              run: docker compose -f docker-compose.test.yml down -v

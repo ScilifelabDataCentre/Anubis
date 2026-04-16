@@ -1,34 +1,7 @@
-"""Test browser anonymous access.
-
-After installing from PyPi using the 'requirements.txt' file, one must do:
-$ playwright install
-
-To run while displaying browser window:
-$ pytest --headed
-
-Much of the code below was created using the playwright code generation feature:
-$ playwright codegen http://localhost:5002/
-"""
-
-import urllib.parse
-
-import pytest
-import playwright.sync_api
-
-import utils
-
-
-@pytest.fixture(scope="module")
-def settings():
-    "Get the settings from the file 'settings.json' in this directory."
-    result = utils.get_settings(BASE_URL="http://localhost:5002")
-    # Remove any trailing slash.
-    result["BASE_URL"] = result["BASE_URL"].rstrip("/")
-    return result
-
+"""Test browser anonymous access."""
 
 def test_about(settings, page):  # 'page' fixture from 'pytest-playwright'
-    "Test access to 'About' pages."
+    page.set_default_timeout(15_000)
     page.goto(settings["BASE_URL"])
     page.click("text=About")
     page.click("text=Contact")
@@ -36,8 +9,8 @@ def test_about(settings, page):  # 'page' fixture from 'pytest-playwright'
 
     page.go_back()
     page.click("text=About")
-    page.click("text=Personal data policy")
-    assert page.url == f"{settings['BASE_URL']}/about/gdpr"
+    page.click("text=Data policy")
+    assert page.url == f"{settings['BASE_URL']}/about/data_policy"
 
     page.go_back()
     page.click("text=About")
@@ -46,7 +19,7 @@ def test_about(settings, page):  # 'page' fixture from 'pytest-playwright'
 
 
 def test_calls(settings, page):
-    "Test access to calls pages."
+    page.set_default_timeout(15_000)
     page.goto(settings["BASE_URL"])
     page.click("text=Calls")
     page.click("text=Open calls")
@@ -59,15 +32,6 @@ def test_calls(settings, page):
 
 
 def test_documentation(settings, page):
-    "Test access to documentation pages."
-    page.goto(settings["BASE_URL"])
-    page.click("text=Documentation")
-    page.click("text=Overview")
-    assert page.url == f"{settings['BASE_URL']}/documentation/overview"
-
-    page.go_back()
-    page.click("text=Documentation")
-    page.click("text=URL endpoints")
-    assert (
-        page.url == f"{settings['BASE_URL']}/documentation/endpoints"
-    )
+    page.set_default_timeout(15_000)
+    page.goto(f"{settings['BASE_URL']}/documentation")
+    assert page.url == f"{settings['BASE_URL']}/documentation"

@@ -1,0 +1,32 @@
+
+
+services: 
+  couchdb:
+    image: couchdb:3.5.1
+    environment:
+      COUCHDB_USER: "admin"
+      COUCHDB_PASSWORD: "admin"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5984/"]
+      interval: 5s
+      retries: 5
+    
+
+
+  anubis:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile-prod
+    ports:
+      - "8080:8000"
+    depends_on:
+      couchdb:
+        condition: service_healthy
+    env_file: docker/test.env
+    command: sh -c "
+      python cli.py database-create &&
+      python cli.py admin --username testadmin --email admin@test.com --password testpass123 &&
+      python cli.py user --username testuser --email user@test.com --password userpass123 &&
+      python cli.py user --username revieweruser --email revieweruser@test.com --password reviewerpassword &&
+      gunicorn main:app
+      "

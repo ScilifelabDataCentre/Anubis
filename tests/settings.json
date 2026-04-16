@@ -1,0 +1,9 @@
+{
+  "BASE_URL": "http://localhost:8080",
+  "ADMIN_USERNAME": "testadmin",
+  "ADMIN_PASSWORD": "testpass123",
+  "USER_USERNAME": "testuser",
+  "USER_PASSWORD": "userpass123",
+  "REVIEWER_USERNAME": "revieweruser",
+  "REVIEWER_PASSWORD": "reviewerpassword"
+}
