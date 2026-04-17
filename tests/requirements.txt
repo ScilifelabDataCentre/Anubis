@@ -39,4 +39,4 @@ tqdm==4.64.1
 typing_extensions==4.15.0
 urllib3==1.26.18
 Werkzeug==3.0.1
-XlsxWriter==3.0.5
+XlsxWriter==3.2.9
