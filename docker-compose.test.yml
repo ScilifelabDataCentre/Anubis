@@ -11,8 +11,12 @@ services:
       interval: 5s
       retries: 5
     
+  mailpit:
+    image: axllent/mailpit:v1.29
+    ports:
+      - "8025:8025"
 
-
+    
   anubis:
     build:
       context: .
@@ -21,6 +25,8 @@ services:
       - "8080:8000"
     depends_on:
       couchdb:
+        condition: service_healthy
+      mailpit:
         condition: service_healthy
     env_file: docker/test.env
     command: sh -c "
