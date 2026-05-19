@@ -11,7 +11,7 @@ htmldocx==0.0.6
 idna==3.13
 itsdangerous==2.2.0
 Jinja2==3.1.6
-lxml==6.1.0
+lxml==6.1.1
 marko==2.2.2
 MarkupSafe==3.0.3
 pillow==12.2.0
