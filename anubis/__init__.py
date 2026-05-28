@@ -1,11 +1,11 @@
 "Anubis: System to handle calls, proposals, reviews, decisions, grants."
 
-import os.path
+import os
 import re
 import string
 import sys
 
-__version__ = "2.9.0"
+__version__ = "2.9.0"  # x-release-please-version
 
 
 class Constants:
@@ -13,7 +13,19 @@ class Constants:
         raise ValueError("cannot set constant")
 
     VERSION = __version__
-    URL = "https://github.com/pekrau/Anubis"
+    _git_sha = os.environ.get("GIT_SHA", "")
+    _git_ref = os.environ.get("GIT_REF", "")
+
+    PUBLIC_VERSION = __version__
+
+    if _git_ref.startswith("refs/tags/v"):
+        FULL_VERSION = __version__
+    elif _git_sha:
+        FULL_VERSION = f"{__version__}+sha.{_git_sha[:7]}"
+    else:
+        FULL_VERSION = f"{__version__}-local"
+    
+    URL = "https://github.com/ScilifelabDataCentre/Anubis"
     ROOT = os.path.dirname(os.path.abspath(__file__))
 
     PYTHON_VERSION = ".".join([str(i) for i in sys.version_info[0:3]])

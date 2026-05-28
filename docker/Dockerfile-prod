@@ -7,6 +7,11 @@ RUN pip install -r /requirements.txt gunicorn
 COPY ./anubis /code/anubis
 RUN mkdir /code/site
 
+ARG GIT_SHA=
+ARG GIT_REF=
+ENV GIT_SHA=${GIT_SHA}
+ENV GIT_REF=${GIT_REF}
+
 WORKDIR /code/anubis
 ENV PYTHONPATH=/code
 
