@@ -37,3 +37,46 @@ jobs:
                 file: docker/Dockerfile-prod
                 context: .
                 push: false
+
+    Container-Scanning:
+            runs-on: ubuntu-latest
+            permissions:
+                contents: read
+                security-events: write
+            steps:
+                - name: Checkout repo
+                  uses: actions/checkout@v6
+
+                - name: Build image for scanning
+                  uses: docker/build-push-action@v7
+                  with:
+                    file: docker/Dockerfile-prod
+                    context: .
+                    push: false
+                    load: true
+                    tags: anubis:trivy-scan
+
+                - name: Trivy scan (CRITICAL+HIGH -> SARIF, no fail)
+                  uses: aquasecurity/trivy-action@v0.36.0
+                  with:
+                    image-ref: anubis:trivy-scan
+                    format: sarif
+                    output: trivy-results.sarif
+                    severity: CRITICAL,HIGH
+                    exit-code: '0'
+                    ignore-unfixed: true
+
+                - name: Trivy gate (CRITICAL -> fail build)
+                  uses: aquasecurity/trivy-action@v0.36.0
+                  with:
+                    image-ref: anubis:trivy-scan
+                    severity: CRITICAL
+                    exit-code: '1'
+                    ignore-unfixed: true
+
+                - name: Upload Trivy SARIF
+                  if: always()
+                  uses: github/codeql-action/upload-sarif@v3
+                  with:
+                    sarif_file: trivy-results.sarif
+                    category: trivy
