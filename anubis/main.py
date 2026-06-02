@@ -169,7 +169,10 @@ def documentation():
 @app.route("/status")
 def status():
     "Return JSON for the current status and some counts for the database."
-    result = dict(status="ok")
+    result = dict(
+        status="ok",
+        version=constants.PUBLIC_VERSION,
+    )
     result.update(anubis.database.get_counts())
     return result
 

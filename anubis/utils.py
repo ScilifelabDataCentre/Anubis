@@ -53,7 +53,7 @@ def get_software():
     import anubis.database
 
     return [
-        ("Anubis", constants.VERSION, constants.URL),
+        ("Anubis", constants.PUBLIC_VERSION, constants.URL),
         ("Python", constants.PYTHON_VERSION, constants.PYTHON_URL),
         ("Flask", flask.__version__, constants.FLASK_URL),
         ("Jinja2", jinja2.__version__, constants.JINJA2_URL),

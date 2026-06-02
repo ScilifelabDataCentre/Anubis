@@ -176,7 +176,7 @@ def init(app):
             raise ValueError("CouchDB server is too old; upgrade to >= 2.3.1.")
 
     # Output the sources of settings.
-    app.logger.info(f"Anubis version {constants.VERSION}")
+    app.logger.info(f"Anubis version {constants.FULL_VERSION}")
     if app.config.get("SETTINGS_FILEPATH"):
         app.logger.info(f"settings file: {app.config['SETTINGS_FILEPATH']}")
         for key in sorted(obsolete_keys):
