@@ -12,7 +12,6 @@ class Constants:
     def __setattr__(self, key, value):
         raise ValueError("cannot set constant")
 
-    VERSION = __version__
     _git_sha = os.environ.get("GIT_SHA", "")
     _git_ref = os.environ.get("GIT_REF", "")
 
@@ -24,7 +23,7 @@ class Constants:
         FULL_VERSION = f"{__version__}+sha.{_git_sha[:7]}"
     else:
         FULL_VERSION = f"{__version__}-local"
-    
+
     URL = "https://github.com/ScilifelabDataCentre/Anubis"
     ROOT = os.path.dirname(os.path.abspath(__file__))
 
