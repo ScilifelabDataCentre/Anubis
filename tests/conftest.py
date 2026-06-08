@@ -45,6 +45,7 @@ def _cleanup_call(settings, page, call_id):
         if delete_btn.is_visible():
             page.once("dialog", lambda d: d.accept())
             delete_btn.click()
+            page.wait_for_load_state("load")
 
     # Proposal
     page.goto(f"{base}/proposals/call/{call_id}")
@@ -62,6 +63,7 @@ def _cleanup_call(settings, page, call_id):
         if delete_btn.is_visible():
             page.once("dialog", lambda d: d.accept())
             delete_btn.click()
+            page.wait_for_load_state("load")
 
     utils.logout(settings, page, settings["ADMIN_USERNAME"])
 
