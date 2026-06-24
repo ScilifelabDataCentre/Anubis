@@ -35,3 +35,23 @@ def test_documentation(settings, page):
     page.set_default_timeout(15_000)
     page.goto(f"{settings['BASE_URL']}/documentation")
     assert page.url == f"{settings['BASE_URL']}/documentation"
+
+
+def test_status_endpoint(settings, page):
+    "The /status health endpoint returns ok plus the database counts (SMOKE_TESTS #1)."
+    resp = page.request.get(f"{settings['BASE_URL']}/status")
+    assert resp.status == 200
+    body = resp.json()
+    assert body["status"] == "ok"
+    assert "version" in body
+    assert "n_calls" in body
+
+
+def test_sitemap(settings, page):
+    "The /sitemap endpoint returns an XML document that includes the home URL."
+    resp = page.request.get(f"{settings['BASE_URL']}/sitemap")
+    assert resp.status == 200
+    assert "xml" in resp.headers["content-type"]
+    body = resp.text()
+    assert "<url>" in body
+    assert settings["BASE_URL"] in body

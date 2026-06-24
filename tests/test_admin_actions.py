@@ -1,4 +1,5 @@
-"""End-to-end tests for admin lifecycle inverse actions.
+"""
+End-to-end tests for admin lifecycle inverse actions.
 
 Forward lifecycle actions (submit, finalize, lock) all have inverse counterparts
 (unsubmit, unfinalize, unlock). These are easy to forget in refactors and
@@ -13,7 +14,14 @@ read-only session-scoped proposal in test_access_control.py does not block the
 from datetime import datetime, timedelta
 
 import pytest
-from conftest import _cleanup_call, _create_call
+from conftest import (
+    _cleanup_call,
+    _create_and_finalize_decision,
+    _create_and_finalize_review,
+    _create_call,
+    _delete_proposal,
+    _submit_proposal,
+)
 from playwright.sync_api import expect
 
 
@@ -39,60 +47,6 @@ def actions_call(settings, browser, pre_session_cleanup):
     td_page.set_default_timeout(15_000)
     _cleanup_call(settings, td_page, ACTIONS_CALL_ID)
     td_context.close()
-
-
-def _submit_proposal(settings, call_id, user_page, title):
-    "Submit a proposal as user to the given call. Returns the proposal URL."
-    base = settings["BASE_URL"]
-    user_page.goto(f"{base}/call/{call_id}")
-    user_page.locator("text=Create proposal").click()
-    user_page.locator("#_title").fill(title)
-    user_page.locator("#project_title").fill("Project title")
-    user_page.locator("text=Save & submit").click()
-    return user_page.url
-
-
-def _create_and_finalize_review(settings, call_id, admin_page, reviewer_page):
-    "Admin creates the review assignment, reviewer fills the score and finalizes. Returns review URL."
-    base = settings["BASE_URL"]
-    reviewer_username = settings["REVIEWER_USERNAME"]
-
-    admin_page.goto(f"{base}/reviews/call/{call_id}/reviewer/{reviewer_username}")
-    admin_page.get_by_role("checkbox", name="Create").check()
-    admin_page.get_by_role("button", name="Create checked reviews").click()
-
-    reviewer_page.goto(base)
-    reviewer_page.get_by_role("link", name="My reviews").click()
-    reviewer_page.get_by_role("link", name="Review", exact=True).click()
-    review_url = reviewer_page.url
-    reviewer_page.get_by_role("button", name="Edit").click()
-    reviewer_page.get_by_text("No", exact=True).click()
-    reviewer_page.locator('label[for="quality_score_4"]').click()
-    reviewer_page.get_by_role("button", name="Save").click()
-    reviewer_page.get_by_role("button", name="Finalize").click()
-    expect(reviewer_page.locator(".badge-success", has_text="Finalized")).to_be_visible()
-    return review_url
-
-
-def _create_and_finalize_decision(proposal_url, admin_page):
-    "Admin creates a decision, sets verdict to Accepted, and finalizes. Returns decision URL."
-    admin_page.goto(proposal_url)
-    admin_page.get_by_role("button", name="Create decision").click()
-    decision_url = admin_page.url
-    admin_page.get_by_role("button", name="Edit").click()
-    admin_page.get_by_text("Accepted").click()
-    admin_page.get_by_role("button", name="Save").click()
-    admin_page.get_by_role("button", name="Finalize").click()
-    expect(admin_page.locator(".badge-success", has_text="Finalized")).to_be_visible()
-    return decision_url
-
-
-def _delete_proposal(admin_page, proposal_url):
-    "Admin deletes a proposal. Cascades to its reviews and decisions."
-    admin_page.goto(proposal_url)
-    admin_page.once("dialog", lambda d: d.accept())
-    admin_page.get_by_role("button", name="Delete").click()
-    admin_page.wait_for_load_state("load")
 
 
 def test_proposal_unsubmit(settings, actions_call, user_page, admin_page):
