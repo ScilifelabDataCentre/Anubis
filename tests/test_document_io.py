@@ -10,14 +10,14 @@ from datetime import datetime, timedelta
 
 import pytest
 import utils
-from conftest import _cleanup_call
-from playwright.sync_api import expect
-from test_admin_actions import (
+from conftest import (
+    _cleanup_call,
     _create_and_finalize_decision,
     _create_and_finalize_review,
     _delete_proposal,
     _submit_proposal,
 )
+from playwright.sync_api import expect
 
 
 DOC_CALL_ID = "CI_DOC_IO_CALL"
