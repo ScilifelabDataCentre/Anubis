@@ -31,7 +31,7 @@ python-slugify==8.0.4
 pytz==2026.2
 PyYAML==6.0.3
 requests==2.34.2
-ruff==0.15.18
+ruff==0.15.19
 six==1.17.0
 soupsieve==2.8.4
 text-unidecode==1.3
