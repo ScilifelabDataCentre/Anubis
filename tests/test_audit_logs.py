@@ -1,10 +1,12 @@
 """
 End-to-end tests for the audit-log views.
 
-Every major category (call, proposal, review, grant, user) exposes a /logs page
-that renders its change history. Each test loads the page against the fully
-populated call and asserts the heading, the log table, and (for the entities
-that the fixture demonstrably edited) at least one log row.
+Every major category (call, proposal, review, decision, grant, user) exposes a
+/logs page that renders its change history. Most tests load the page against the
+fully populated call and assert the heading, the log table, and (for the entities
+that the fixture demonstrably edited) at least one log row. Two more guard the
+access gate: a non-staff user is denied the edit-gated call logs, and an
+anonymous visitor is redirected to login.
 """
 
 from playwright.sync_api import expect
@@ -52,3 +54,26 @@ def test_user_logs(settings, admin_page, populated_call):
     _assert_logs_render(
         admin_page, base, f"/user/logs/{admin_username}", f"Logs for User {admin_username}", expect_rows=False
     )
+
+
+def test_decision_logs(settings, admin_page, populated_call):
+    "The decision was created and finalized, so its log has entries."
+    base = settings["BASE_URL"]
+    iuid = populated_call["decision"]
+    pid = populated_call["proposal"]
+    _assert_logs_render(admin_page, base, f"/decision/{iuid}/logs", f"Logs for Decision for {pid}")
+
+
+def test_call_logs_denied_for_user(settings, user_page, populated_call):
+    "Call logs are gated by edit access; a non-staff user is redirected away."
+    base = settings["BASE_URL"]
+    target = f"{base}/call/{populated_call['call']}/logs"
+    user_page.goto(target)
+    expect(user_page).not_to_have_url(target)
+
+
+def test_logs_require_login(settings, page, populated_call):
+    "Audit-log pages require login; an anonymous visitor is sent to the login page."
+    base = settings["BASE_URL"]
+    page.goto(f"{base}/proposal/{populated_call['proposal']}/logs")
+    assert page.url.startswith(f"{base}/user/login")
