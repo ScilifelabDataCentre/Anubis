@@ -48,3 +48,31 @@ def test_settings_view_admin_only(settings, admin_page, user_page):
 
     user_page.goto(target)
     expect(user_page).not_to_have_url(target)
+
+
+def test_alert_text_admin_only(settings, admin_page, user_page):
+    "Admin can load /admin/alert_text, non-admin user is redirected away."
+    base = settings["BASE_URL"]
+    target = f"{base}/admin/alert_text"
+
+    admin_page.goto(target)
+    expect(admin_page).to_have_url(target)
+
+    user_page.goto(target)
+    expect(user_page).not_to_have_url(target)
+
+
+def test_admin_document_denied_for_non_admin(settings, user_page):
+    """A non-admin cannot pull a raw document via /admin/document/<id>.
+
+    The endpoint returns a stored document verbatim as JSON, so its admin gate
+    is a data-exposure boundary. This asserts the denial, the regression that
+    would leak data. The admin-success path needs a live CouchDB _id, which is
+    not exposed through the API, so it is left to other coverage. The document
+    id here is arbitrary: admin_required rejects before any lookup.
+    """
+    base = settings["BASE_URL"]
+    target = f"{base}/admin/document/anything"
+
+    user_page.goto(target)
+    expect(user_page).not_to_have_url(target)
