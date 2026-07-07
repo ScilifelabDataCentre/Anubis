@@ -39,6 +39,12 @@ def to_addresses(msg):
     return [r["Address"] for r in msg.get("To", [])]
 
 
+def get_message_text(msg):
+    "Fetch the full plain-text body of a Mailpit message from its summary."
+    full = requests.get(f"{MAILPIT_BASE_URL}/api/v1/message/{msg['ID']}").json()
+    return full["Text"]
+
+
 @pytest.fixture
 def user_cleanup(settings, admin_page):
     "Track usernames to delete at end of test. Tests append usernames they register."
@@ -87,6 +93,7 @@ def test_user_registration_email(settings, admin_page, user_cleanup):
 
     msg = wait_for_email(lambda m: email in to_addresses(m) and "registered" in m["Subject"].lower())
     assert email in to_addresses(msg)
+    assert "To set your password, go to" in get_message_text(msg)
 
 
 def test_pending_registration_notifies_admins(settings, browser, user_cleanup):
@@ -102,6 +109,7 @@ def test_pending_registration_notifies_admins(settings, browser, user_cleanup):
     msg = wait_for_email(lambda m: "pending" in m["Subject"].lower())
     # The admin user is seeded in docker-compose as admin@test.com.
     assert "admin@test.com" in to_addresses(msg)
+    assert "To enable the user account, go to" in get_message_text(msg)
 
 
 def test_admin_enable_sends_email_to_user(settings, browser, admin_page, user_cleanup):
@@ -124,6 +132,7 @@ def test_admin_enable_sends_email_to_user(settings, browser, admin_page, user_cl
         lambda m: email in to_addresses(m) and "enabled" in m["Subject"].lower()
     )
     assert email in to_addresses(msg)
+    assert "has been enabled" in get_message_text(msg)
 
 
 def test_password_reset_email(settings, browser, admin_page, user_cleanup):
@@ -157,6 +166,7 @@ def test_password_reset_email(settings, browser, admin_page, user_cleanup):
         lambda m: email in to_addresses(m) and "password reset" in m["Subject"].lower()
     )
     assert email in to_addresses(msg)
+    assert "has had its password reset" in get_message_text(msg)
 
 
 def test_proposal_submission_email(settings, admin_page, seeded_call):
@@ -184,6 +194,7 @@ def test_proposal_submission_email(settings, admin_page, seeded_call):
         lambda m: "admin@test.com" in to_addresses(m) and "submitted" in m["Subject"].lower()
     )
     assert call_id in msg["Subject"]
+    assert "has been submitted in the" in get_message_text(msg)
 
     # Cleanup, deletes the proposal we just submitted so the seeded_call teardown can drop the call cleanly
     admin_page.goto(proposal_url)
