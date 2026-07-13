@@ -3,17 +3,49 @@
 Transfer reassigns a proposal to another user; the new owner gains access
 and the previous owner loses it. Only admin/staff/call-owner may transfer.
 There is no regression net for this today, and ownership change is high impact.
+
+These tests use their own call rather than the shared seeded_call: a user may
+have at most one proposal per call, and seeded_call already holds testuser's
+read-only submitted_proposal, which would block creating another here.
 """
+
+from datetime import datetime, timedelta
 
 import pytest
 from playwright.sync_api import expect
-from conftest import _submit_proposal, _delete_proposal
+from conftest import _create_call, _cleanup_call, _submit_proposal, _delete_proposal
+
+TRANSFER_CALL_ID = "CI_TRANSFER_CALL"
+
+
+@pytest.fixture(scope="session")
+def transfer_call(settings, browser):
+    "A dedicated open call for the transfer tests, isolated from seeded_call."
+    now = datetime.now()
+    opens = (now - timedelta(hours=1)).strftime("%Y-%m-%d %H:%M")
+    closes = (now + timedelta(days=30)).strftime("%Y-%m-%d %H:%M")
+
+    # Clear any call left behind by a prior failed run, then build fresh.
+    context = browser.new_context()
+    page = context.new_page()
+    page.set_default_timeout(15_000)
+    _cleanup_call(settings, page, TRANSFER_CALL_ID)
+    context.close()
+
+    yield _create_call(browser, settings, TRANSFER_CALL_ID, opens, closes)
+
+    # Teardown
+    context = browser.new_context()
+    page = context.new_page()
+    page.set_default_timeout(15_000)
+    _cleanup_call(settings, page, TRANSFER_CALL_ID)
+    context.close()
 
 
 @pytest.fixture
-def transferable_proposal(settings, seeded_call, user_page, admin_page):
-    "A fresh submitted proposal in the seeded call (mutable, function-scoped). Admin deletes it after."
-    url = _submit_proposal(settings, seeded_call, user_page, "Transfer test proposal")
+def transferable_proposal(settings, transfer_call, user_page, admin_page):
+    "A fresh submitted proposal in the dedicated call (mutable, function-scoped). Admin deletes it after."
+    url = _submit_proposal(settings, transfer_call, user_page, "Transfer test proposal")
     yield url
     _delete_proposal(admin_page, url)
 
