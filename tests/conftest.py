@@ -190,6 +190,49 @@ def _create_call(browser, settings, call_id, opening_date, closing_date):
     return call_id
 
 
+@pytest.fixture(scope="session")
+def user2_page(settings, admin_page, browser):
+    "A second regular user (testuser2), registered and logged in. Deleted at session end."
+    user2_username = "testuser2"
+    user2_email = "testuser2@test.com"
+    user2_password = "testuserpass123"
+    base = settings["BASE_URL"]
+
+    # Register user2 and set its password via admin
+    admin_page.get_by_role("button", name="Users", exact=True).click()
+    admin_page.get_by_role("link", name="Register user").click()
+    admin_page.get_by_role("textbox", name="User name").fill(user2_username)
+    admin_page.get_by_role("textbox", name="Email").fill(user2_email)
+    admin_page.get_by_role("button", name="Register").click()
+    admin_page.goto(f"{base}/user/all")
+    admin_page.get_by_role("link", name="testuser2").click()
+    admin_page.get_by_role("button", name="Set password", exact=True).click()
+    admin_page.get_by_role("textbox", name="Password").click()
+    admin_page.get_by_role("textbox", name="Password").fill(user2_password)
+    admin_page.get_by_role("button", name="Set password").click()
+
+    # Log in as user2 in its own context
+    context = browser.new_context()
+    page = context.new_page()
+    page.set_default_timeout(15_000)
+    page.goto(base)
+    page.click("text=Login")
+    page.fill('input[name="username"]', user2_username)
+    page.fill('input[name="password"]', user2_password)
+    page.click("id=login")
+    assert page.url.rstrip("/") == base
+
+    yield page
+
+    # Teardown: delete user2
+    context.close()
+    admin_page.get_by_role("button", name="Users", exact=True).click()
+    admin_page.get_by_role("link", name="All users").click()
+    admin_page.get_by_role("link", name=user2_username).click()
+    admin_page.once("dialog", lambda dialog: dialog.accept())
+    admin_page.get_by_role("button", name="Delete").click()
+
+
 # Lifecycle helpers shared across the state-mutating test modules. Each "forward"
 # action (submit, finalize) lives here so test_admin_actions, test_document_io,
 # the exports and the audit-log tests can reuse one proven implementation.
