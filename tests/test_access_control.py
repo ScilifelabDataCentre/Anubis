@@ -3,7 +3,6 @@ Testing access control for admin, user, reviewer and non-user.
 """
 
 import pytest
-from playwright.sync_api import Browser
 from conftest import _create_call, _cleanup_call, SEEDED_CLOSED_CALL_ID
 
 
@@ -20,48 +19,6 @@ def submitted_proposal(settings, seeded_call, user_page):
     user_page.locator("text=Save & submit").click()
 
     yield user_page.url
-
-@pytest.fixture(scope="session")
-def user2_page(settings, admin_page, browser: Browser):
-
-    user2_username = "testuser2"
-    user2_email = "testuser2@test.com"
-    user2_password = "testuserpass123"
-    base = settings["BASE_URL"]
-
-    # Register user2 and set password via admin
-    admin_page.get_by_role("button", name="Users", exact=True).click()
-    admin_page.get_by_role("link", name="Register user").click()
-    admin_page.get_by_role("textbox", name="User name").fill(user2_username)
-    admin_page.get_by_role("textbox", name="Email").fill(user2_email)
-    admin_page.get_by_role("button", name="Register").click()
-    admin_page.goto(f"{base}/user/all")
-    admin_page.get_by_role("link", name="testuser2").click()
-    admin_page.get_by_role("button", name="Set password", exact=True).click()
-    admin_page.get_by_role("textbox", name="Password").click()
-    admin_page.get_by_role("textbox", name="Password").fill(user2_password)
-    admin_page.get_by_role("button", name="Set password").click()
-
-    # Log in as user2
-    context = browser.new_context()
-    user2_page = context.new_page()
-    user2_page.set_default_timeout(15_000)
-    user2_page.goto(base)
-    user2_page.click("text=Login")
-    user2_page.fill('input[name="username"]', user2_username)
-    user2_page.fill('input[name="password"]', user2_password)
-    user2_page.click("id=login")
-    assert user2_page.url.rstrip("/") == base
-
-    yield user2_page
-
-    # Teardown: delete user2
-    context.close()
-    admin_page.get_by_role("button", name="Users", exact=True).click()
-    admin_page.get_by_role("link", name="All users").click()
-    admin_page.get_by_role("link", name=user2_username).click()
-    admin_page.once("dialog", lambda dialog: dialog.accept())
-    admin_page.get_by_role("button", name="Delete").click()
 
 
 @pytest.fixture(scope="session")
