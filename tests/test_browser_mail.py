@@ -6,43 +6,18 @@ that arrive. Override `MAILPIT_BASE_URL` via env var when running against a
 different mail catcher.
 """
 
-import os
 import time
 
 import pytest
 import requests
 from playwright.sync_api import expect
-
-MAILPIT_BASE_URL = os.environ.get("MAILPIT_BASE_URL", "http://localhost:8025").rstrip("/")
+from utils import MAILPIT_BASE_URL, wait_for_email, to_addresses, get_message_text
 
 
 @pytest.fixture(autouse=True)
 def pretest_mailpit_cleanup():
     "Empty the Mailpit inbox so each test only sees mail it produced."
     requests.delete(f"{MAILPIT_BASE_URL}/api/v1/messages")
-
-
-def wait_for_email(predicate, timeout=5.0):
-    "Poll Mailpit until a message satisfies predicate(msg), else fail the test."
-    deadline = time.time() + timeout
-    while time.time() < deadline:
-        messages = requests.get(f"{MAILPIT_BASE_URL}/api/v1/messages").json()["messages"]
-        for msg in messages:
-            if predicate(msg):
-                return msg
-        time.sleep(0.1)
-    pytest.fail(f"No matching email arrived within {timeout}s")
-
-
-def to_addresses(msg):
-    "Return the list of recipient addresses on a Mailpit message summary."
-    return [r["Address"] for r in msg.get("To", [])]
-
-
-def get_message_text(msg):
-    "Fetch the full plain-text body of a Mailpit message from its summary."
-    full = requests.get(f"{MAILPIT_BASE_URL}/api/v1/message/{msg['ID']}").json()
-    return full["Text"]
 
 
 @pytest.fixture
