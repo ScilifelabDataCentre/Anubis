@@ -1,7 +1,7 @@
 """End-to-end tests for archiving/unarchiving finalized reviews (anubis/review.py).
 
 Archiving a finalized review removes it from the active reviews and moves it to
-the call's archived list (so it no longer counts toward ranking); unarchiving
+the call's archived list (so it no longer counts toward ranking). Unarchiving
 restores it. Only an admin may archive/unarchive a finalized review.
 
 The review is created for the admin user (added as a reviewer) rather than the
@@ -9,11 +9,14 @@ shared reviewer, so navigation never depends on the reviewer's "My reviews" list
 Uses a dedicated call (a user may hold only one proposal per call).
 """
 
-from datetime import datetime, timedelta
-
 import pytest
 from playwright.sync_api import expect
-from conftest import _create_call, _cleanup_call, _submit_proposal
+from conftest import (
+    _cleanup_call_fresh_context,
+    _create_call,
+    _open_call_dates,
+    _submit_proposal,
+)
 
 ARCHIVE_CALL_ID = "CI_REVIEW_ARCHIVE_CALL"
 
@@ -23,17 +26,10 @@ def finalized_review(settings, browser, admin_page, user_page):
     "Dedicated call with a submitted proposal and one finalized review by the admin."
     base = settings["BASE_URL"]
     admin_username = settings["ADMIN_USERNAME"]
-    now = datetime.now()
-    opens = (now - timedelta(hours=1)).strftime("%Y-%m-%d %H:%M")
-    closes = (now + timedelta(days=30)).strftime("%Y-%m-%d %H:%M")
 
     # Clear any call left behind by a prior failed run, then build fresh.
-    context = browser.new_context()
-    page = context.new_page()
-    page.set_default_timeout(15_000)
-    _cleanup_call(settings, page, ARCHIVE_CALL_ID)
-    context.close()
-
+    _cleanup_call_fresh_context(browser, settings, ARCHIVE_CALL_ID)
+    opens, closes = _open_call_dates()
     cid = _create_call(browser, settings, ARCHIVE_CALL_ID, opens, closes)
 
     # Add admin as a reviewer so the review is created and finalized without
@@ -61,15 +57,11 @@ def finalized_review(settings, browser, admin_page, user_page):
     yield {"cid": cid, "review_url": review_url}
 
     # Teardown
-    context = browser.new_context()
-    page = context.new_page()
-    page.set_default_timeout(15_000)
-    _cleanup_call(settings, page, ARCHIVE_CALL_ID)
-    context.close()
+    _cleanup_call_fresh_context(browser, settings, ARCHIVE_CALL_ID)
 
 
 def test_archive_unarchive_round_trip(settings, admin_page, finalized_review):
-    "Admin archives a finalized review then unarchives it; the review page reflects each state."
+    "Admin archives a finalized review then unarchives it. The review page reflects each state."
     review_url = finalized_review["review_url"]
     # exact=True matters: name="Archive" would otherwise substring-match "Unarchive".
     archive_btn = admin_page.get_by_role("button", name="Archive", exact=True)

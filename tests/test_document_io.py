@@ -99,7 +99,7 @@ def doc_io_call(settings, browser, pre_session_cleanup):
     page.goto(f"{base}/call/{DOC_CALL_ID}/reviewers")
     page.locator("#reviewer").fill(settings["REVIEWER_USERNAME"])
     page.get_by_role("button", name="Add", exact=True).click()
-    assert page.get_by_role("link", name=settings["REVIEWER_USERNAME"]).is_visible()
+    expect(page.get_by_role("link", name=settings["REVIEWER_USERNAME"])).to_be_visible()
 
     utils.logout(settings, page, settings["ADMIN_USERNAME"])
     context.close()

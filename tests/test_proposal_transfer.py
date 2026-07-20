@@ -1,6 +1,6 @@
 """End-to-end tests for proposal ownership transfer (anubis/proposal.py).
 
-Transfer reassigns a proposal to another user; the new owner gains access
+Transfer reassigns a proposal to another user. The new owner gains access
 and the previous owner loses it. Only admin/staff/call-owner may transfer.
 There is no regression net for this today, and ownership change is high impact.
 
@@ -9,11 +9,9 @@ have at most one proposal per call, and seeded_call already holds testuser's
 read-only submitted_proposal, which would block creating another here.
 """
 
-from datetime import datetime, timedelta
-
 import pytest
 from playwright.sync_api import expect
-from conftest import _create_call, _cleanup_call, _submit_proposal, _delete_proposal
+from conftest import _dedicated_call, _submit_proposal, _delete_proposal
 
 TRANSFER_CALL_ID = "CI_TRANSFER_CALL"
 
@@ -21,25 +19,7 @@ TRANSFER_CALL_ID = "CI_TRANSFER_CALL"
 @pytest.fixture(scope="session")
 def transfer_call(settings, browser):
     "A dedicated open call for the transfer tests, isolated from seeded_call."
-    now = datetime.now()
-    opens = (now - timedelta(hours=1)).strftime("%Y-%m-%d %H:%M")
-    closes = (now + timedelta(days=30)).strftime("%Y-%m-%d %H:%M")
-
-    # Clear any call left behind by a prior failed run, then build fresh.
-    context = browser.new_context()
-    page = context.new_page()
-    page.set_default_timeout(15_000)
-    _cleanup_call(settings, page, TRANSFER_CALL_ID)
-    context.close()
-
-    yield _create_call(browser, settings, TRANSFER_CALL_ID, opens, closes)
-
-    # Teardown
-    context = browser.new_context()
-    page = context.new_page()
-    page.set_default_timeout(15_000)
-    _cleanup_call(settings, page, TRANSFER_CALL_ID)
-    context.close()
+    yield from _dedicated_call(browser, settings, TRANSFER_CALL_ID)
 
 
 @pytest.fixture
@@ -51,7 +31,7 @@ def transferable_proposal(settings, transfer_call, user_page, admin_page):
 
 
 def test_transfer_changes_owner(settings, admin_page, user_page, user2_page, transferable_proposal):
-    "Admin transfers a proposal to testuser2; user2 gains view access, the original owner loses it."
+    "Admin transfers a proposal to testuser2, who gains view access while the original owner loses it."
     base = settings["BASE_URL"]
     pid = transferable_proposal.rstrip("/").split("/")[-1]
     purl = f"{base}/proposal/{pid}"

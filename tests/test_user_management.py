@@ -1,4 +1,5 @@
 import pytest
+from playwright.sync_api import expect
 
 
 @pytest.fixture(scope="function")
@@ -32,11 +33,11 @@ def new_user(settings, browser, admin_page):
 
 def test_new_user_registration(settings, admin_page, new_user):
     base = settings["BASE_URL"]
-    assert new_user.get_by_text("Message: User account created").is_visible()
+    expect(new_user.get_by_text("Message: User account created")).to_be_visible()
     admin_page.goto(base)
     admin_page.get_by_role("button", name="Users", exact=True).click()
     admin_page.get_by_role("link", name="Pending users").click()
-    assert admin_page.get_by_role("gridcell", name="testnewuser", exact=True).is_visible()
+    expect(admin_page.get_by_role("gridcell", name="testnewuser", exact=True)).to_be_visible()
 
 
 def test_disable_user(settings, admin_page):
@@ -50,9 +51,9 @@ def test_disable_user(settings, admin_page):
         admin_page.get_by_role("textbox", name="Email").fill("testnewuser@test.com")
         admin_page.get_by_role("button", name="Register").click()
         admin_page.get_by_role("link", name=new_username).click()
-        assert admin_page.get_by_role("button", name="Disable").is_visible()
+        expect(admin_page.get_by_role("button", name="Disable")).to_be_visible()
         admin_page.get_by_role("button", name="Disable").click()
-        assert admin_page.get_by_role("button", name="Enable").is_visible()
+        expect(admin_page.get_by_role("button", name="Enable")).to_be_visible()
 
     finally:
         admin_page.goto(f"{base}/user/display/{new_username}")
@@ -78,7 +79,7 @@ def test_profile_editing(settings, browser, admin_page):
         admin_page.get_by_role("button", name="Set password", exact=True).click()
         admin_page.get_by_role("textbox", name="Password").fill(new_password)
         admin_page.get_by_role("button", name="Set password").click()
-        assert admin_page.get_by_text("Message: Password set.").is_visible()
+        expect(admin_page.get_by_text("Message: Password set.")).to_be_visible()
 
         page.goto(base)
         page.get_by_role("button", name="Login").click()
@@ -93,10 +94,10 @@ def test_profile_editing(settings, browser, admin_page):
         page.get_by_text("MSc").click()
         page.get_by_role("button", name="Save").click()
         assert page.url.rstrip("/") == f"{base}/user/display/{new_username}"
-        assert page.get_by_role("cell", name="newgivenname").is_visible()
-        assert page.get_by_role("cell", name="newfamilyname").is_visible()
-        assert page.get_by_role("cell", name="Male").is_visible()
-        assert page.get_by_role("cell", name="MSc").is_visible()
+        expect(page.get_by_role("cell", name="newgivenname")).to_be_visible()
+        expect(page.get_by_role("cell", name="newfamilyname")).to_be_visible()
+        expect(page.get_by_role("cell", name="Male")).to_be_visible()
+        expect(page.get_by_role("cell", name="MSc")).to_be_visible()
     finally:
         admin_page.goto(f"{base}/user/display/{new_username}")
         admin_page.once("dialog", lambda dialog: dialog.accept())

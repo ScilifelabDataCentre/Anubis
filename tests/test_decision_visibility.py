@@ -9,11 +9,15 @@ Uses a dedicated call: a user may hold only one proposal per call, so this must 
 collide with seeded_call's read-only submitted_proposal.
 """
 
-from datetime import datetime, timedelta
-
 import pytest
 from playwright.sync_api import expect
-from conftest import _create_call, _cleanup_call, _submit_proposal, _create_and_finalize_decision
+from conftest import (
+    _cleanup_call_fresh_context,
+    _create_and_finalize_decision,
+    _create_call,
+    _open_call_dates,
+    _submit_proposal,
+)
 
 DECISION_CALL_ID = "CI_DECISION_VIS_CALL"
 
@@ -21,17 +25,9 @@ DECISION_CALL_ID = "CI_DECISION_VIS_CALL"
 @pytest.fixture(scope="session")
 def decision_call(settings, browser, admin_page, user_page):
     "Dedicated call with a submitted proposal and a finalized (Accepted) decision."
-    now = datetime.now()
-    opens = (now - timedelta(hours=1)).strftime("%Y-%m-%d %H:%M")
-    closes = (now + timedelta(days=30)).strftime("%Y-%m-%d %H:%M")
-
     # Clear any call left behind by a prior failed run, then build fresh.
-    context = browser.new_context()
-    page = context.new_page()
-    page.set_default_timeout(15_000)
-    _cleanup_call(settings, page, DECISION_CALL_ID)
-    context.close()
-
+    _cleanup_call_fresh_context(browser, settings, DECISION_CALL_ID)
+    opens, closes = _open_call_dates()
     cid = _create_call(browser, settings, DECISION_CALL_ID, opens, closes)
     # Title must be exactly "Proposal": _cleanup_call finds proposals to delete via
     # a[title='Proposal'] (the link's title attribute is the proposal title), so any
@@ -42,11 +38,7 @@ def decision_call(settings, browser, admin_page, user_page):
     yield {"cid": cid, "proposal_url": proposal_url}
 
     # Teardown
-    context = browser.new_context()
-    page = context.new_page()
-    page.set_default_timeout(15_000)
-    _cleanup_call(settings, page, DECISION_CALL_ID)
-    context.close()
+    _cleanup_call_fresh_context(browser, settings, DECISION_CALL_ID)
 
 
 def _set_submitter_view_decision(settings, admin_page, cid, enabled):
