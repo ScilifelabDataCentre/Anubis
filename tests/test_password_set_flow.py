@@ -104,3 +104,35 @@ def test_reset_set_password_and_login(settings, browser, enabled_user):
     assert page.url.rstrip("/") == base
     expect(page.get_by_role("button", name=username)).to_be_visible()
     context.close()
+
+
+def test_password_set_rejects_wrong_code(settings, browser, enabled_user):
+    "Setting a password with a wrong one-time code is rejected."
+    base = settings["BASE_URL"]
+    context = browser.new_context()
+    page = context.new_page()
+    page.set_default_timeout(15_000)
+
+    page.goto(f"{base}/user/password?username={enabled_user['username']}&code=wrongcode")
+    page.locator("#password").fill("newpass123")
+    page.get_by_role("button", name="Set password").click()
+
+    expect(page.get_by_text("No such user or wrong code.")).to_be_visible()
+    context.close()
+
+
+def test_password_set_rejects_short_password(settings, browser, enabled_user):
+    "A password shorter than the minimum length is rejected even with a valid code."
+    # The code check precedes the length check, so a real emailed code is needed
+    # to reach the length validation.
+    url = _trigger_reset_get_url(browser, settings, enabled_user["email"])
+
+    context = browser.new_context()
+    page = context.new_page()
+    page.set_default_timeout(15_000)
+    page.goto(url)
+    page.locator("#password").fill("abc")
+    page.get_by_role("button", name="Set password").click()
+
+    expect(page.get_by_text("Too short password.")).to_be_visible()
+    context.close()
