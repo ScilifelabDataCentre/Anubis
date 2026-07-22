@@ -2,9 +2,12 @@
 
 import json
 import os
+import time
 from typing import Literal
 import requests
 import re
+
+MAILPIT_BASE_URL = os.environ.get("MAILPIT_BASE_URL", "http://localhost:8025").rstrip("/")
 
 def get_settings(**defaults):
     "Update the default settings by the contents of the 'settings.json' file."
@@ -71,3 +74,26 @@ def get_admin_session(settings):
     })
 
     return s
+
+
+def wait_for_email(predicate, timeout=5.0):
+    "Poll Mailpit until a message satisfies predicate(msg), else raise AssertionError."
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        messages = requests.get(f"{MAILPIT_BASE_URL}/api/v1/messages").json()["messages"]
+        for msg in messages:
+            if predicate(msg):
+                return msg
+        time.sleep(0.1)
+    raise AssertionError(f"No matching email arrived within {timeout}s")
+
+
+def to_addresses(msg):
+    "Return the list of recipient addresses on a Mailpit message summary."
+    return [r["Address"] for r in msg.get("To", [])]
+
+
+def get_message_text(msg):
+    "Fetch the full plain-text body of a Mailpit message from its summary."
+    full = requests.get(f"{MAILPIT_BASE_URL}/api/v1/message/{msg['ID']}").json()
+    return full["Text"]
