@@ -124,3 +124,15 @@ def test_coi_review_excluded_from_stats(settings, scoring_call, fresh_proposal, 
     row = admin_page.locator("tbody.table-borderless tr")
     expect(row).to_contain_text("4.0")      # mean of the single non-COI review
     expect(row).not_to_contain_text("3.0")  # the mean if the COI review had counted
+
+
+def test_proposals_list_staff_only(settings, scoring_call, admin_page, user_page):
+    "The proposals list exposes every reviewer score, so a non-staff user is denied."
+    base = settings["BASE_URL"]
+    target = f"{base}/proposals/call/{scoring_call}"
+
+    admin_page.goto(target)
+    expect(admin_page).to_have_url(target)
+
+    user_page.goto(target)
+    expect(user_page).not_to_have_url(target)
