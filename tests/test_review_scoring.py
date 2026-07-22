@@ -88,7 +88,11 @@ def _create_finalize_review(admin_page, filler_page, base, cid, reviewer_usernam
     filler_page.locator(f'label[for="quality_score_{score}"]').click()
     filler_page.get_by_role("button", name="Save").click()
     filler_page.get_by_role("button", name="Finalize").click()
-    expect(filler_page.locator(".badge-success", has_text="Finalized")).to_be_visible()
+    # A conflict-of-interest review finalizes with a distinct danger badge.
+    if coi:
+        expect(filler_page.locator(".badge-danger", has_text="Finalized; COI")).to_be_visible()
+    else:
+        expect(filler_page.locator(".badge-success", has_text="Finalized")).to_be_visible()
 
 
 def test_score_mean_and_stdev(settings, scoring_call, fresh_proposal, admin_page, reviewer_page):
@@ -104,3 +108,19 @@ def test_score_mean_and_stdev(settings, scoring_call, fresh_proposal, admin_page
     row = admin_page.locator("tbody.table-borderless tr")
     expect(row).to_contain_text("3.0")  # mean of 4 and 2
     expect(row).to_contain_text("1.4")  # stdev of 4 and 2
+
+
+def test_coi_review_excluded_from_stats(settings, scoring_call, fresh_proposal, admin_page, reviewer_page):
+    "A review flagged as a conflict of interest is left out of the score aggregation."
+    base = settings["BASE_URL"]
+    admin_username = settings["ADMIN_USERNAME"]
+    reviewer_username = settings["REVIEWER_USERNAME"]
+
+    # revieweruser scores 4 with no conflict, admin scores 2 but flags a conflict.
+    _create_finalize_review(admin_page, reviewer_page, base, scoring_call, reviewer_username, 4, False)
+    _create_finalize_review(admin_page, admin_page, base, scoring_call, admin_username, 2, True)
+
+    admin_page.goto(f"{base}/proposals/call/{scoring_call}")
+    row = admin_page.locator("tbody.table-borderless tr")
+    expect(row).to_contain_text("4.0")      # mean of the single non-COI review
+    expect(row).not_to_contain_text("3.0")  # the mean if the COI review had counted
