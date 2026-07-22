@@ -11,14 +11,11 @@ read-only session-scoped proposal in test_access_control.py does not block the
 "Create proposal" link these tests need.
 """
 
-from datetime import datetime, timedelta
-
 import pytest
 from conftest import (
-    _cleanup_call,
     _create_and_finalize_decision,
     _create_and_finalize_review,
-    _create_call,
+    _dedicated_call,
     _delete_proposal,
     _submit_proposal,
 )
@@ -31,22 +28,7 @@ ACTIONS_CALL_ID = "CI_ACTIONS_CALL"
 @pytest.fixture(scope="session")
 def actions_call(settings, browser, pre_session_cleanup):
     "Session-scoped call dedicated to the inverse-action tests, isolated from other test files' state."
-    context = browser.new_context()
-    page = context.new_page()
-    page.set_default_timeout(15_000)
-    _cleanup_call(settings, page, ACTIONS_CALL_ID)
-    context.close()
-
-    now = datetime.now()
-    opens = (now - timedelta(hours=1)).strftime("%Y-%m-%d %H:%M")
-    closes = (now + timedelta(days=30)).strftime("%Y-%m-%d %H:%M")
-    yield _create_call(browser, settings, ACTIONS_CALL_ID, opens, closes)
-
-    td_context = browser.new_context()
-    td_page = td_context.new_page()
-    td_page.set_default_timeout(15_000)
-    _cleanup_call(settings, td_page, ACTIONS_CALL_ID)
-    td_context.close()
+    yield from _dedicated_call(browser, settings, ACTIONS_CALL_ID)
 
 
 def test_proposal_unsubmit(settings, actions_call, user_page, admin_page):

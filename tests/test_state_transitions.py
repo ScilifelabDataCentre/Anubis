@@ -1,23 +1,13 @@
 import utils
 import pytest
-from conftest import _create_call, _cleanup_call, SEEDED_TRANSITION_CALL_ID
-from datetime import datetime, timedelta
+from playwright.sync_api import expect
+from conftest import _dedicated_call, SEEDED_TRANSITION_CALL_ID
 
 
 @pytest.fixture(scope="session")
 def transition_call(settings, browser, pre_session_cleanup):
     "Open call used exclusively by state transition tests. Cleaned up after the session ends."
-    call_id = SEEDED_TRANSITION_CALL_ID
-    now = datetime.now()
-    opens = (now - timedelta(hours=1)).strftime("%Y-%m-%d %H:%M")
-    closes = (now + timedelta(days=30)).strftime("%Y-%m-%d %H:%M")
-    
-    yield _create_call(browser, settings, call_id, opens, closes)
-
-    td_context = browser.new_context()
-    td_page = td_context.new_page()
-    _cleanup_call(settings, td_page, call_id)
-    td_context.close()
+    yield from _dedicated_call(browser, settings, SEEDED_TRANSITION_CALL_ID)
 
 @pytest.fixture(autouse=True)
 def pre_test_cleanup(settings, browser, transition_call):
@@ -94,9 +84,9 @@ def test_missing_required_proposal_fields(settings, transition_call, browser):
     page.get_by_role("button", name="Save & submit").click()
 
     assert page.url == f"{base}/proposal/{transition_call}:001"
-    assert page.get_by_text("Submit cannot be done; proposal is incomplete, or call is closed.").is_visible()
-    assert page.get_by_text("Missing value.").is_visible()
-    assert page.get_by_text("A proposal that contains errors cannot be submitted.").is_visible()
+    expect(page.get_by_text("Submit cannot be done; proposal is incomplete, or call is closed.")).to_be_visible()
+    expect(page.get_by_text("Missing value.").first).to_be_visible()
+    expect(page.get_by_text("A proposal that contains errors cannot be submitted.")).to_be_visible()
 
     page.once("dialog", lambda d: d.accept())
     page.get_by_role("button", name="Delete").click()
@@ -110,9 +100,9 @@ def test_missing_review_fields(settings, browser, review_assignment):
     page.set_default_timeout(15_000)
     utils.login(settings, page, "reviewer")
     page.goto(review_assignment)
-    assert not page.locator("button").filter(has_text="Finalize").is_visible()
-    assert page.get_by_text("Missing value.").first.is_visible()
-    assert page.get_by_text("Not finalized").is_visible()
+    expect(page.locator("button").filter(has_text="Finalize")).not_to_be_visible()
+    expect(page.get_by_text("Missing value.").first).to_be_visible()
+    expect(page.get_by_text("Not finalized")).to_be_visible()
 
     context.close()
 
@@ -140,7 +130,7 @@ def test_create_grant_without_finalized_decision(settings, browser, transition_c
     utils.login(settings, page, "admin")
     page.goto(proposal_url)
     page.wait_for_load_state("load")
-    assert not page.locator("button").filter(has_text="Create grant dossier").is_visible()
+    expect(page.locator("button").filter(has_text="Create grant dossier")).not_to_be_visible()
 
     page.once("dialog", lambda d: d.accept())
     page.get_by_role("button", name="Delete").click()
@@ -172,4 +162,4 @@ def test_deletion_of_call_with_proposals(settings, browser, transition_call):
     utils.login(settings, page, "admin")
 
     page.goto(f"{base}/call/{transition_call}")
-    assert not page.get_by_role("button", name="Delete").is_visible()
+    expect(page.get_by_role("button", name="Delete")).not_to_be_visible()

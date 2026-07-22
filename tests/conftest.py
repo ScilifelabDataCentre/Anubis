@@ -70,6 +70,37 @@ def _cleanup_call(settings, page, call_id):
     utils.logout(settings, page, settings["ADMIN_USERNAME"])
 
 
+def _open_call_dates():
+    "Return (opens, closes) strings for a call that is currently open for ~30 days."
+    now = datetime.now()
+    opens = (now - timedelta(hours=1)).strftime("%Y-%m-%d %H:%M")
+    closes = (now + timedelta(days=30)).strftime("%Y-%m-%d %H:%M")
+    return opens, closes
+
+
+def _cleanup_call_fresh_context(browser, settings, call_id):
+    "Run _cleanup_call in a throwaway browser context, for fixture setup or teardown."
+    context = browser.new_context()
+    page = context.new_page()
+    page.set_default_timeout(15_000)
+    _cleanup_call(settings, page, call_id)
+    context.close()
+
+
+def _dedicated_call(browser, settings, call_id, opens=None, closes=None):
+    """Generator backing the isolated-call fixtures: remove any stale copy, create
+    the call fresh, yield its identifier, then clean up on teardown. A fixture that
+    only needs the call delegates with `yield from _dedicated_call(...)`. The ones
+    that build extra state (proposals, reviews) call the two helpers above directly.
+    Defaults to an open call. Pass opens/closes for a closed one.
+    """
+    if opens is None or closes is None:
+        opens, closes = _open_call_dates()
+    _cleanup_call_fresh_context(browser, settings, call_id)
+    yield _create_call(browser, settings, call_id, opens, closes)
+    _cleanup_call_fresh_context(browser, settings, call_id)
+
+
 @pytest.fixture(scope="session", autouse=True)
 def pre_session_cleanup(settings, browser):
     "Remove stale test artifacts at session start. Handles cases where teardown did not run (CI kill, hard crash)."
@@ -122,19 +153,7 @@ def seeded_call(settings, browser, pre_session_cleanup):
     the reviewer user assigned, and dates set so it is currently open.
     Yields the call identifier string. Cleaned up after the session ends.
     """
-    call_id = SEEDED_CALL_ID
-    # Set dates so the call is open
-    now = datetime.now()
-    opens = (now - timedelta(hours=1)).strftime("%Y-%m-%d %H:%M")
-    closes = (now + timedelta(days=30)).strftime("%Y-%m-%d %H:%M")
-    yield _create_call(browser, settings, call_id, opens, closes)
-
-
-    # Teardown
-    td_context = browser.new_context()
-    td_page = td_context.new_page()
-    _cleanup_call(settings, td_page, call_id)
-    td_context.close()
+    yield from _dedicated_call(browser, settings, SEEDED_CALL_ID)
 
 
 def _create_call(browser, settings, call_id, opening_date, closing_date):
@@ -309,15 +328,8 @@ def populated_call(settings, browser, admin_page, user_page, pre_session_cleanup
     cid = EXPORT_CALL_ID
 
     # Remove any stale call left behind by a prior failed run, then build fresh.
-    context = browser.new_context()
-    page = context.new_page()
-    page.set_default_timeout(15_000)
-    _cleanup_call(settings, page, cid)
-    context.close()
-
-    now = datetime.now()
-    opens = (now - timedelta(hours=1)).strftime("%Y-%m-%d %H:%M")
-    closes = (now + timedelta(days=30)).strftime("%Y-%m-%d %H:%M")
+    _cleanup_call_fresh_context(browser, settings, cid)
+    opens, closes = _open_call_dates()
     _create_call(browser, settings, cid, opens, closes)
 
     # Add admin as a reviewer so a review can be created and finalized without
@@ -365,9 +377,5 @@ def populated_call(settings, browser, admin_page, user_page, pre_session_cleanup
 
     # Teardown: _cleanup_call removes grant -> proposals (cascading reviews and
     # decisions) -> call.
-    td_context = browser.new_context()
-    td_page = td_context.new_page()
-    td_page.set_default_timeout(15_000)
-    _cleanup_call(settings, td_page, cid)
-    td_context.close()
+    _cleanup_call_fresh_context(browser, settings, cid)
 
