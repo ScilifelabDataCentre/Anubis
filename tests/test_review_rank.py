@@ -93,3 +93,18 @@ def test_consecutive_ranks_accepted(settings, rank_call, three_proposals, admin_
 
     reviewer_page.goto(review_urls[0])
     expect(reviewer_page.get_by_text("non-consecutive values")).to_have_count(0)
+
+
+def test_non_consecutive_ranks_flagged(settings, rank_call, three_proposals, admin_page, reviewer_page):
+    "A reviewer whose finalized ranks skip a value (1 and 3) gets the rank-error warning."
+    base = settings["BASE_URL"]
+    reviewer_username = settings["REVIEWER_USERNAME"]
+
+    review_urls = _create_reviewer_reviews(admin_page, base, rank_call, reviewer_username)
+    # Finalize two reviews ranked 1 and 3, leaving the third unfinalized, so the
+    # finalized set is {1, 3} with a gap at 2.
+    _rank_and_finalize(reviewer_page, review_urls[0], 1)
+    _rank_and_finalize(reviewer_page, review_urls[1], 3)
+
+    reviewer_page.goto(review_urls[0])
+    expect(reviewer_page.get_by_text("non-consecutive values")).to_be_visible()
