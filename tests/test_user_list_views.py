@@ -29,3 +29,24 @@ def test_user_proposals_list_denied_for_other_user(settings, user2_page, populat
     target = f"{base}/proposals/user/{settings['USER_USERNAME']}"
     user2_page.goto(target)
     expect(user2_page).not_to_have_url(target)
+
+
+def test_user_grants_list_visible_to_owner_and_admin(settings, admin_page, user_page, populated_call):
+    "The owner and admin can load a user's grants list and see the grant."
+    base = settings["BASE_URL"]
+    owner = settings["USER_USERNAME"]
+    gid = populated_call["grant"]
+    target = f"{base}/grants/user/{owner}"
+
+    for page in (user_page, admin_page):
+        page.goto(target)
+        expect(page).to_have_url(target)
+        expect(page.locator(f'a[href$="/grant/{gid}"]')).to_be_visible()
+
+
+def test_user_grants_list_denied_for_other_user(settings, user2_page, populated_call):
+    "A different regular user may not view another user's grants list."
+    base = settings["BASE_URL"]
+    target = f"{base}/grants/user/{settings['USER_USERNAME']}"
+    user2_page.goto(target)
+    expect(user2_page).not_to_have_url(target)
