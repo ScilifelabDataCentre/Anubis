@@ -20,7 +20,7 @@ packaging==26.3
 pillow==12.3.0
 playwright==1.62.0
 pluggy==1.6.0
-pyee==13.0.1
+pyee==14.0.0
 Pygments==2.21.0
 pytest==9.1.1
 pytest-base-url==2.1.0
