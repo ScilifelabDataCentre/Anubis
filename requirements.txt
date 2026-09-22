@@ -24,6 +24,6 @@ six==1.17.0
 soupsieve==2.9.2
 tqdm==4.70.1
 typing_extensions==4.16.0
-urllib3==2.7.0
+urllib3==2.8.0
 Werkzeug==3.1.8
 xlsxwriter==3.2.9
