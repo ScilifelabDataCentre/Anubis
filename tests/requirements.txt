@@ -17,7 +17,7 @@ lxml==6.1.2
 marko==2.2.4
 MarkupSafe==3.0.3
 packaging==26.3
-pillow==12.3.0
+pillow==13.0.0
 playwright==1.63.0
 pluggy==1.6.0
 pyee==13.0.1
